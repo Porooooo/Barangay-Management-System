@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <title>Admin Appointments</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background-color: #5ECF89; }
+
+        /* Sidebar Logo */
+        .sidebar-logo {
+            width: 120px;  
+            height: auto;
+            margin: 10px auto; 
+            display: block;
+            border-radius: 50%; 
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px; /* Adjust for sidebar width */
+            padding: 20px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+       /* Table Styling */
+       table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        /* Button Styles */
+        .action-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .approve-btn {
+            background-color: #28a745; 
+            color: white;
+        }
+
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #ffc107;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Admin Panel</span>
+        </div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="admin-dashboard.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+                <li><a href="manage-residents.html">
+                    <i class="uil uil-users-alt"></i>
+                    <span class="link-name">Manage Residents</span>
+                </a></li>
+                <li><a href="adminRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Document Requests</span>
+                </a></li>
+                <li><a href="adminAppointments.html">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="link-name">Appointments</span>
+                </a></li>
+                <li><a href="blotter-records.html">
+                    <i class="uil uil-file-shield-alt"></i>
+                    <span class="link-name">Blotter Records</span>
+                </a></li>
+                <li><a href="bottle-exchanges.html">
+                    <i class="uil uil-exchange"></i>
+                    <span class="link-name">Bottle Exchanges</span>
+                </a></li>
+                <li><a href="emergency-alerts.html">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Emergency Alerts</span>
+                </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="#">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+
+        </div>
+
+        <div class="dash-content">
+            <div class="overview">
+                <div class="title">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="text">Appointment Requests</span>
+                </div>
+                <table id="appointmentsTable">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Contact Number</th>
+                            <th>Address</th>
+                            <th>Purpose</th>
+                            <th>Preferred Date</th>
+                            <th>Preferred Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+
+    <script>
+        // Fetch and display appointment requests
+        async function fetchAppointments() {
+            try {
+                const response = await fetch("/api/schedule");
+                const appointments = await response.json();
+                const tableBody = document.querySelector("#appointmentsTable tbody");
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                appointments.forEach(appointment => {
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${appointment.fullName}</td>
+                        <td>${appointment.contactNumber}</td>
+                        <td>${appointment.address}</td>
+                        <td>${appointment.purpose}</td>
+                        <td>${appointment.preferredDate}</td>
+                        <td>${appointment.preferredTime}</td>
+                        <td>${appointment.status || 'Pending'}</td>
+                        <td>
+                            <button class="action-button approve-btn" data-id="${appointment._id}">Approve</button>
+                            <button class="action-button reject-btn" data-id="${appointment._id}">Reject</button>
+                        </td>
+                    `;
+                });
+
+                // Add event listeners for approve/reject buttons
+                document.querySelectorAll(".approve-btn, .reject-btn").forEach(button => {
+                    button.addEventListener("click", handleAppointmentAction);
+                });
+            } catch (error) {
+                console.error("Error fetching appointments:", error);
+                alert("An error occurred while fetching appointments.");
+            }
+        }
+
+        // Handle approve/reject actions
+        async function handleAppointmentAction(event) {
+            const appointmentId = event.target.dataset.id;
+            const action = event.target.classList.contains("approve-btn") ? "approve" : "reject";
+
+            try {
+                const response = await fetch(`/api/schedule/${appointmentId}/${action}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.error}`);
+                } else {
+                    alert(`Appointment ${action}d successfully!`);
+                    fetchAppointments(); // Refresh table
+                }
+            } catch (error) {
+                console.error("Error handling action:", error);
+                alert("An error occurred.");
+            }
+        }
+
+        // Sidebar Toggle
+        function toggleMenu() {
+            const sidebar = document.querySelector(".sidebar");
+            const mainContent = document.querySelector(".main-content");
+            sidebar.classList.toggle("active");
+            mainContent.classList.toggle("active");
+        }
+
+        document.querySelector(".sidebar-toggle").addEventListener("click", toggleMenu);
+
+        // Load data when the page loads
+        fetchAppointments();
+    </script>
+</body>
+</html>

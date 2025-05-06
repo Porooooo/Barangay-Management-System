@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            display: flex;
+            background-color: #ffffff;
+            border-radius: 25px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 1100px;
+            width: 100%;
+            height: 600px; /* Set same height as the login page */
+            overflow: hidden;
+        }
+
+        .right-section {
+            flex: 1;
+            background-color: #f3e0b6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .right-section img {
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .left-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+            background-color: #ffffff;
+            border-radius: 20px;
+        }
+
+        .form-container {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 35px;
+            font-weight: 800;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .btn-signup {
+            width: 100%;
+            padding: 12px;
+            background-color: #f3e0b6;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .btn-signup:hover {
+            background-color: #e3d3a8;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .register-link {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 12px;
+            background-color: #f3e0b6;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .modal-content button:hover {
+            background-color: #e3d3a8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="left-section">
+            <div class="form-container">
+                <h1>Register</h1>
+                <p>Click the button below to create an account.</p>
+                <button class="btn-signup" onclick="openModal()">Sign Up</button>
+                <p class="register-link">Already have an account? <a href="login.html">Login Here</a></p>
+            </div>
+        </div>
+        <div class="right-section">
+            <img src="images/barangay-bg.png" alt="Logo">
+        </div>
+    </div>
+
+    <!-- Modal for Registration Form -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Sign Up</h2>
+            <form id="registerForm" enctype="multipart/form-data">
+                <input type="text" id="fullName" placeholder="Full Name" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="text" id="contactNumber" placeholder="Contact Number" required>
+                <input type="text" id="address" placeholder="Address" required>
+                <input type="date" id="birthdate" placeholder="Birthdate" required>
+                <select id="civilStatus" required>
+                    <option value="" disabled selected>Civil Status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Widowed">Widowed</option>
+                    <option value="Separated">Separated</option>
+                </select>
+                <input type="text" id="occupation" placeholder="Occupation" required>
+                <input type="text" id="educationalAttainment" placeholder="Educational Attainment" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <input type="file" id="profilePicture" accept="image/*" required>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Open Modal
+        function openModal() {
+            document.getElementById('registerModal').style.display = 'flex';
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('registerModal').style.display = 'none';
+        }
+
+        // Handle form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('fullName', document.getElementById('fullName').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('contactNumber', document.getElementById('contactNumber').value);
+            formData.append('address', document.getElementById('address').value);
+            formData.append('birthdate', document.getElementById('birthdate').value);
+            formData.append('civilStatus', document.getElementById('civilStatus').value);
+            formData.append('occupation', document.getElementById('occupation').value);
+            formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.href = 'login.html'; // Redirect to login page
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while registering.');
+            }
+        });
+    </script>
+</body>
+</html>

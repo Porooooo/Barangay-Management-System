@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <title>Resident Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background-color: #5ECF89; }
+
+        /* Sidebar Logo */
+        .sidebar-logo {
+            width: 120px;  
+            height: auto;
+            margin: 10px auto; 
+            display: block;
+            border-radius: 50%; 
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px; /* Adjust for sidebar width */
+            padding: 20px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 20px;
+            margin-top: 20px;
+        }
+
+        .profile-section img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-section span {
+            display: block;
+            text-align: center;
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Dashboard Content */
+        .dash-content {
+            margin-top: 20px;
+        }
+
+        .overview {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .boxes {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .box {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+        }
+
+        .activity {
+            margin-top: 20px;
+        }
+
+        .resident-requests {
+            margin-top: 20px;
+        }
+
+        /* Blotter Records Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .view-button {
+            background-color: #007bff; /* Blue */
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Resident Panel</span>
+        </div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="residentdashboard.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+
+                <li><a href="requests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Request Document</span>
+                </a></li>
+
+                <li><a href="createSchedule.html">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="link-name">Request Schedule</span>
+                </a></li>
+
+                <li><a href="blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Blotter</span>
+                </a></li>
+
+                <li><a href="residentRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Your Requests</span>
+                </a></li>
+
+                <li><a href="residentSchedule.html">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="link-name">Your Schedule</span>
+                </a></li>
+
+                <li><a href="notifications.html">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Notifications</span>
+                </a></li>
+
+                <li><a href="profile.html">
+                    <i class="uil uil-user"></i>
+                    <span class="link-name">Profile</span>
+                </a></li>
+            <ul class="logout-mode">
+                <li><a href="#">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <div class="profile-section">
+                <a href="profile.html">
+                    <img id="profilePicture" src="images/profile.jpg" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;">
+                </a>
+                <span id="userName" style="display: block; text-align: center; margin-top: 5px;"></span>
+            </div>
+        </div>
+
+        <div class="dash-content">
+            <div class="overview">
+                <div class="title">
+                    <i class="uil uil-dashboard"></i>
+                    <span class="text">Resident Dashboard</span>
+                </div>
+                <div class="boxes">
+                    <div class="box box1">
+                        <i class="uil uil-file-alt"></i>
+                        <span class="text">My Requests</span>
+                        <span class="number" id="pendingRequests">0 Pending</span>
+                    </div>
+                    <div class="box box2">
+                        <i class="uil uil-calendar-alt"></i>
+                        <span class="text">Upcoming Appointments</span>
+                        <span class="number" id="upcomingAppointments">0 Scheduled</span>
+                    </div>
+                    <div class="box box3">
+                        <i class="uil uil-bell"></i>
+                        <span class="text">New Notifications</span>
+                        <span class="number" id="newNotifications">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="activity">
+                <div class="title">
+                    <i class="uil uil-history"></i>
+                    <span class="text">Recent Activity</span>
+                </div>
+                <div class="resident-requests">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivity">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+    <script>
+        // Fetch the logged-in user's email from the server
+        async function getLoggedInUserEmail() {
+            try {
+                const response = await fetch('/api/auth/profile');
+                const result = await response.json();
+                if (response.ok) {
+                    return result.email; // Return the user's email from the session
+                } else {
+                    console.error("Failed to fetch profile:", result.error);
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+                return null;
+            }
+        }
+
+        async function fetchResidentData() {
+    const userEmail = await getLoggedInUserEmail(); // Fetch the user's email from the session
+    if (!userEmail) {
+        alert("Please log in to view your data.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const [requestsResponse, appointmentsResponse] = await Promise.all([
+            fetch(`/api/requests/resident?email=${userEmail}`),
+            fetch(`/api/schedule/user?email=${userEmail}`)
+        ]);
+
+        if (!requestsResponse.ok || !appointmentsResponse.ok) {
+            throw new Error("Failed to fetch data");
+        }
+
+        const requests = await requestsResponse.json();
+        const appointments = await appointmentsResponse.json();
+
+        console.log("Appointments:", appointments); // Log appointments to verify data
+
+        // Update pending requests count
+        const pendingRequests = requests.filter(request => request.status === "Pending").length;
+        document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
+
+        // Filter out rejected appointments and count only approved ones
+        const approvedAppointments = appointments.filter(appointment => 
+            appointment.status === "Approved" && 
+            new Date(appointment.preferredDate) >= new Date()
+        ).length;
+
+        // Update upcoming appointments count
+        document.getElementById('upcomingAppointments').textContent = `${approvedAppointments} Scheduled`;
+
+        // Update recent activity
+        const activityBody = document.getElementById('recentActivity');
+        activityBody.innerHTML = ''; // Clear existing rows
+
+        // Add appointments to recent activity
+        appointments.forEach(appointment => {
+            const row = activityBody.insertRow();
+            const dateCell = row.insertCell();
+            const activityCell = row.insertCell();
+            const statusCell = row.insertCell();
+            const actionCell = row.insertCell();
+
+            dateCell.textContent = new Date(appointment.preferredDate).toLocaleDateString();
+            activityCell.textContent = `Appointment - ${appointment.purpose}`;
+            statusCell.textContent = appointment.status;
+            actionCell.innerHTML = `<button class="view-button">View</button>`;
+        });
+
+        // Add requests to recent activity
+        requests.forEach(request => {
+            const row = activityBody.insertRow();
+            const dateCell = row.insertCell();
+            const activityCell = row.insertCell();
+            const statusCell = row.insertCell();
+            const actionCell = row.insertCell();
+
+            dateCell.textContent = new Date(request.createdAt).toLocaleDateString();
+            activityCell.textContent = `Document Request - ${request.documentType}`;
+            statusCell.textContent = request.status;
+            actionCell.innerHTML = `<button class="view-button">View</button>`;
+        });
+    } catch (error) {
+        console.error('Error fetching resident data:', error);
+        alert('An error occurred while fetching your data.');
+    }
+}
+
+        // Fetch user profile
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch('/api/auth/profile');
+                const result = await response.json();
+                if (response.ok) {
+                    // Update the profile picture and name
+                    document.getElementById('profilePicture').src = result.profilePicture || 'images/profile.jpg';
+                    document.getElementById('userName').textContent = result.fullName;
+                } else {
+                    console.error("Failed to fetch profile:", result.error);
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+            }
+        }
+
+        // Load data when the page loads
+        window.onload = function () {
+            fetchResidentData(); // Fetch resident data
+            fetchUserProfile(); // Fetch user profile
+        };
+
+        // Refresh dashboard data every 5 seconds
+        setInterval(fetchResidentData, 5000);
+    </script>
+</body>
+</html>
+

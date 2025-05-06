@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile-container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+        }
+
+        .profile-info p {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        .logout-button {
+            padding: 12px 25px;
+            background-color: #f3e0b6;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: #e3d3a8;
+        }
+
+        .upload-form {
+            margin-top: 20px;
+        }
+
+        .upload-form input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        .upload-form button {
+            padding: 10px 20px;
+            background-color: #f3e0b6;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .upload-form button:hover {
+            background-color: #e3d3a8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="profile-container">
+        <h1>User Profile</h1>
+        <img class="profile-picture" id="profilePicture" src="" alt="Profile Picture">
+        <div class="profile-info" id="profileInfo">
+            <p><strong>Full Name:</strong> <span id="fullName"></span></p>
+            <p><strong>Email:</strong> <span id="email"></span></p>
+            <p><strong>Contact Number:</strong> <span id="contactNumber"></span></p>
+            <p><strong>Address:</strong> <span id="address"></span></p>
+            <p><strong>Birthdate:</strong> <span id="birthdate"></span></p>
+            <p><strong>Civil Status:</strong> <span id="civilStatus"></span></p>
+            <p><strong>Occupation:</strong> <span id="occupation"></span></p>
+            <p><strong>Educational Attainment:</strong> <span id="educationalAttainment"></span></p>
+        </div>
+        <form class="upload-form" id="uploadForm">
+            <input type="file" id="newProfilePicture" accept="image/*" required>
+            <button type="submit">Update Profile Picture</button>
+        </form>
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include' // Ensure cookies are sent
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    document.getElementById('fullName').textContent = result.fullName;
+                    document.getElementById('email').textContent = result.email;
+                    document.getElementById('contactNumber').textContent = result.contactNumber;
+                    document.getElementById('address').textContent = result.address;
+                    document.getElementById('birthdate').textContent = new Date(result.birthdate).toLocaleDateString();
+                    document.getElementById('civilStatus').textContent = result.civilStatus;
+                    document.getElementById('occupation').textContent = result.occupation;
+                    document.getElementById('educationalAttainment').textContent = result.educationalAttainment;
+                    document.getElementById('profilePicture').src = result.profilePicture || 'default-profile.png'; // Fallback image
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while fetching user profile.');
+            }
+        }
+
+        async function updateProfilePicture(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('newProfilePicture');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('profilePicture', file);
+
+            console.log("Form Data:", formData); // Debugging
+
+            try {
+                const response = await fetch('/api/auth/update-profile-picture', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include' // Ensure cookies are sent
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    fetchUserProfile(); // Refresh profile data
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating the profile picture.');
+            }
+        }
+
+        function logout() {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', updateProfilePicture);
+        fetchUserProfile();
+    </script>
+</body>
+</html>

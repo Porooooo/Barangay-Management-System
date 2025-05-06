@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Register</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 50px;
+            height: 100vh;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            width: 50%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .modal-content button {
+            width: 100%;
+            padding: 10px;
+            background-color: #efcd84;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            color: white;
+        }
+        .modal-content button:hover {
+            background-color: #e3d3a8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="modal-content">
+            <h2>Admin Register</h2>
+            <form id="adminRegisterForm">
+                <input type="text" id="fullName" placeholder="Full Name" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <select id="status" required>
+                    <option value="" disabled selected>Select Status</option>
+                    <option value="Brgy. Captain">Brgy. Captain</option>
+                    <option value="Secretary">Secretary</option>
+                </select>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('adminRegisterForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const adminData = {
+        fullName: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        status: document.getElementById('status').value,
+        password: document.getElementById('password').value
+    };
+
+    try {
+        const response = await fetch('/api/admin/register', { // Updated endpoint
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(adminData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message);
+            window.location.href = 'admin-login.html';
+        } else {
+            alert(result.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while registering.');
+    }
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <title>BTMS Admin Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background-color: #5ECF89; }
+
+        /* Sidebar Logo */
+        .sidebar-logo {
+            width: 120px;  
+            height: auto;
+            margin: 10px auto; 
+            display: block;
+            border-radius: 50%; 
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px; /* Adjust for sidebar width */
+            padding: 20px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Dashboard Content */
+        .dash-content {
+            margin-top: 20px;
+        }
+
+        .overview {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .boxes {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .box {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+        }
+
+        .activity {
+            margin-top: 20px;
+        }
+
+        .resident-requests {
+            margin-top: 20px;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        /* Button Styles */
+        .action-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .approve-btn {
+            background-color: #28a745; 
+            color: white;
+        }
+
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #ffc107;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Admin Panel</span>
+        </div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="admin-dashboard.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+                <li><a href="manage-residents.html">
+                    <i class="uil uil-users-alt"></i>
+                    <span class="link-name">Manage Residents</span>
+                </a></li>
+                <li><a href="adminRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Document Requests</span>
+                </a></li>
+                <li><a href="adminAppointments.html">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="link-name">Appointments</span>
+                </a></li>
+                <li><a href="blotter-records.html">
+                    <i class="uil uil-file-shield-alt"></i>
+                    <span class="link-name">Blotter Records</span>
+                </a></li>
+                <li><a href="bottle-exchanges.html">
+                    <i class="uil uil-exchange"></i>
+                    <span class="link-name">Bottle Exchanges</span>
+                </a></li>
+                <li><a href="emergency-alerts.html">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Emergency Alerts</span>
+                </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="#">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+
+        </div>
+
+        <div class="dash-content">
+            <div class="overview resident-requests">
+                <div class="title">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="text">Document Requests</span>
+                </div>
+                <table id="requestsTable">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Address</th>
+                            <th>Document Type</th>
+                            <th>Purpose</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+
+    <script>
+        // Fetch and display document requests
+        async function fetchRequests() {
+            try {
+                const response = await fetch('/api/requests');
+                const requests = await response.json();
+                const tableBody = document.querySelector("#requestsTable tbody");
+                tableBody.innerHTML = ''; // Clear existing rows
+    
+                requests.forEach(request => {
+                    const row = tableBody.insertRow();
+                    const fullNameCell = row.insertCell();
+                    const addressCell = row.insertCell();
+                    const documentTypeCell = row.insertCell();
+                    const purposeCell = row.insertCell();
+                    const statusCell = row.insertCell();
+                    const actionsCell = row.insertCell();
+    
+                    fullNameCell.textContent = request.fullName;
+                    addressCell.textContent = request.address;
+                    documentTypeCell.textContent = request.documentType;
+                    purposeCell.textContent = request.purpose;
+                    statusCell.textContent = request.status || 'Pending';
+    
+                    // Create Approve Button
+                    const approveBtn = document.createElement('button');
+                    approveBtn.classList.add('action-button', 'approve-btn');
+                    approveBtn.textContent = 'Approve';
+                    approveBtn.dataset.id = request._id;
+                    actionsCell.appendChild(approveBtn);
+    
+                    // Create Reject Button
+                    const rejectBtn = document.createElement('button');
+                    rejectBtn.classList.add('action-button', 'reject-btn');
+                    rejectBtn.textContent = 'Reject';
+                    rejectBtn.dataset.id = request._id;
+                    actionsCell.appendChild(rejectBtn);
+    
+                    // Create Delete Button
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('action-button', 'delete-btn');
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.dataset.id = request._id;
+                    actionsCell.appendChild(deleteBtn);
+                });
+    
+                // Add event listeners for approve/reject/delete buttons
+                document.querySelectorAll(".approve-btn, .reject-btn").forEach(button => {
+                    button.addEventListener("click", handleApproveReject);
+                });
+    
+                document.querySelectorAll(".delete-btn").forEach(button => {
+                    button.addEventListener("click", handleDeleteRequest);
+                });
+            } catch (error) {
+                console.error("Error fetching requests:", error);
+                alert("An error occurred while fetching requests.");
+            }
+        }
+    
+        // Handle approve/reject actions
+        async function handleApproveReject(event) {
+            const requestId = event.target.dataset.id;
+            const action = event.target.classList.contains("approve-btn") ? "approve" : "reject";
+    
+            try {
+                const response = await fetch(`/api/requests/${requestId}/${action}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" }
+                });
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.error}`);
+                } else {
+                    alert(`Request ${action}d successfully!`);
+                    fetchRequests(); // Refresh table
+                }
+            } catch (error) {
+                console.error("Error handling action:", error);
+                alert("An error occurred.");
+            }
+        }
+    
+        // Handle delete request
+        async function handleDeleteRequest(event) {
+            const requestId = event.target.dataset.id;
+    
+            if (confirm("Are you sure you want to delete this request?")) {
+                try {
+                    const response = await fetch(`/api/requests/${requestId}`, {
+                        method: "DELETE"
+                    });
+    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        alert(`Error deleting request: ${errorData.error}`);
+                    } else {
+                        alert("Request deleted successfully!");
+                        fetchRequests(); // Refresh table
+                    }
+                } catch (error) {
+                    console.error("Error deleting request:", error);
+                    alert("An error occurred while deleting the request.");
+                }
+            }
+        }
+        // Sidebar Toggle
+        function toggleMenu() {
+            const sidebar = document.querySelector(".sidebar");
+            const mainContent = document.querySelector(".main-content");
+            sidebar.classList.toggle("active");
+            mainContent.classList.toggle("active");
+        }
+
+        document.querySelector(".sidebar-toggle").addEventListener("click", toggleMenu);
+
+        // Load data when the page loads
+        fetchRequests();
+    </script>
+</body>
+</html>
