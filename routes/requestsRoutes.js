@@ -1,54 +1,121 @@
 const express = require("express");
 const Request = require("../models/Request");
+const { format, parseISO } = require('date-fns');
 
 const router = express.Router();
 
 // Create a new document request
 router.post("/", async (req, res) => {
     try {
-        const newRequest = new Request(req.body);
-        await newRequest.save();
-        res.status(201).json({ message: "✅ Request submitted successfully!" });
-    } catch (error) {
-        res.status(400).json({ error: "❌ Error submitting request" });
-    }
-});
-
-// Get all document requests (for admin view)
-router.get("/", async (req, res) => {
-    try {
-        const requests = await Request.find();
-        res.status(200).json(requests);
-    } catch (error) {
-        res.status(500).json({ error: "❌ Server error" });
-    }
-});
-
-// Create a new document request
-router.post("/", async (req, res) => {
-    try {
         const { fullName, email, address, documentType, purpose } = req.body;
-        const newRequest = new Request({ fullName, email, address, documentType, purpose });
+        
+        if (!fullName || !email || !address || !documentType || !purpose) {
+            return res.status(400).json({ error: "❌ All fields are required" });
+        }
+
+        const newRequest = new Request({
+            fullName,
+            email,
+            address,
+            documentType,
+            purpose,
+            status: "Pending"
+        });
+
         await newRequest.save();
-        res.status(201).json({ message: "✅ Document request submitted successfully!" });
+        
+        // Notify all clients
+        req.app.get('io').emit('request-update', {
+            type: 'created',
+            request: newRequest
+        });
+
+        res.status(201).json({
+            message: "✅ Request submitted successfully!",
+            request: newRequest
+        });
     } catch (error) {
         console.error("Error submitting request:", error);
-        res.status(400).json({ error: error.message || "❌ Error submitting request" });
+        res.status(500).json({ 
+            error: "❌ Server error",
+            details: error.message 
+        });
     }
 });
 
-// Get document requests for a specific resident
-router.get("/resident", async (req, res) => {
+// Get all requests with filters
+router.get("/", async (req, res) => {
     try {
-        const { email } = req.query; // Get the resident's email from query params
-        const requests = await Request.find({ email }); // Fetch requests for the resident
+        const { status, documentType, startDate, endDate, search } = req.query;
+        let query = {};
+
+        // Status filter
+        if (status) {
+            query.status = status;
+        }
+
+        // Document type filter
+        if (documentType) {
+            query.documentType = documentType;
+        }
+
+        // Date range filter
+        if (startDate && endDate) {
+            query.createdAt = {
+                $gte: new Date(startDate),
+                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999))
+            };
+        }
+
+        // Search filter
+        if (search) {
+            query.$or = [
+                { fullName: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { address: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const requests = await Request.find(query)
+            .sort({ createdAt: -1 });
+
+        // Format dates
+        const formattedRequests = requests.map(request => ({
+            ...request._doc,
+            formattedDate: format(request.createdAt, 'MMM dd, yyyy'),
+            formattedTime: format(request.createdAt, 'hh:mm a')
+        }));
+
+        res.status(200).json(formattedRequests);
+    } catch (error) {
+        console.error("Error fetching requests:", error);
+        res.status(500).json({ 
+            error: "❌ Server error",
+            details: error.message 
+        });
+    }
+});
+
+// Get requests for a specific user
+router.get("/user", async (req, res) => {
+    try {
+        const { email } = req.query;
+        
+        if (!email) {
+            return res.status(400).json({ error: "❌ Email parameter is required" });
+        }
+
+        const requests = await Request.find({ email })
+            .sort({ createdAt: -1 });
+
         res.status(200).json(requests);
     } catch (error) {
+        console.error("Error fetching user requests:", error);
         res.status(500).json({ error: "❌ Server error" });
     }
 });
 
-// Approve a document request
+// Approve a request
 router.put("/:id/approve", async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
@@ -56,16 +123,28 @@ router.put("/:id/approve", async (req, res) => {
             { status: "Approved" },
             { new: true }
         );
+
         if (!request) {
             return res.status(404).json({ error: "❌ Request not found" });
         }
-        res.status(200).json({ message: "✅ Request approved successfully!" });
+
+        // Notify all clients
+        req.app.get('io').emit('request-update', {
+            type: 'updated',
+            request
+        });
+
+        res.status(200).json({
+            message: "✅ Request approved successfully!",
+            request
+        });
     } catch (error) {
+        console.error("Error approving request:", error);
         res.status(500).json({ error: "❌ Server error" });
     }
 });
 
-// Reject a document request
+// Reject a request
 router.put("/:id/reject", async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
@@ -73,24 +152,48 @@ router.put("/:id/reject", async (req, res) => {
             { status: "Rejected" },
             { new: true }
         );
+
         if (!request) {
             return res.status(404).json({ error: "❌ Request not found" });
         }
-        res.status(200).json({ message: "✅ Request rejected successfully!" });
+
+        // Notify all clients
+        req.app.get('io').emit('request-update', {
+            type: 'updated',
+            request
+        });
+
+        res.status(200).json({
+            message: "✅ Request rejected successfully!",
+            request
+        });
     } catch (error) {
+        console.error("Error rejecting request:", error);
         res.status(500).json({ error: "❌ Server error" });
     }
 });
 
-// Delete a request after approval/rejection
-router.delete("/:requestId", async (req, res) => {
+// Delete a request
+router.delete("/:id", async (req, res) => {
     try {
-        const request = await Request.findByIdAndDelete(req.params.requestId);
+        const request = await Request.findByIdAndDelete(req.params.id);
+
         if (!request) {
             return res.status(404).json({ error: "❌ Request not found" });
         }
-        res.status(200).json({ message: "✅ Request deleted successfully!" });
+
+        // Notify all clients
+        req.app.get('io').emit('request-update', {
+            type: 'deleted',
+            requestId: req.params.id
+        });
+
+        res.status(200).json({
+            message: "✅ Request deleted successfully!",
+            requestId: req.params.id
+        });
     } catch (error) {
+        console.error("Error deleting request:", error);
         res.status(500).json({ error: "❌ Server error" });
     }
 });

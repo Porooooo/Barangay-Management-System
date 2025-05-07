@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>BTMS Admin Dashboard</title>
+    <title>Document Requests</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -57,7 +57,7 @@
 
         /* Main Content */
         .main-content {
-            margin-left: 250px; /* Adjust for sidebar width */
+            margin-left: 250px;
             padding: 20px;
         }
 
@@ -68,58 +68,37 @@
             padding: 10px 0;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-            .main-content {
-                margin-left: 200px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-        }
-
-        /* Dashboard Content */
-        .dash-content {
-            margin-top: 20px;
-        }
-
-        .overview {
+        /* Filter Controls */
+        .filter-controls {
             display: flex;
-            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-
-        .boxes {
+        
+        .filter-group {
             display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
+            align-items: center;
+            gap: 8px;
         }
-
-        .box {
-            background-color: #f0f0f0;
-            padding: 20px;
-            border-radius: 5px;
-            flex: 1;
-            margin: 0 10px;
-            text-align: center;
+        
+        .filter-group label {
+            font-weight: 500;
         }
-
-        .activity {
-            margin-top: 20px;
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-
-        .resident-requests {
-            margin-top: 20px;
+        
+        .filter-group button {
+            padding: 8px 16px;
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
         /* Table Styling */
@@ -130,23 +109,35 @@
         }
 
         th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
+            padding: 12px;
+            border: 1px solid #ddd;
             text-align: left;
         }
 
         th {
             background-color: #f0f0f0;
             font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
         }
 
         /* Button Styles */
         .action-button {
-            padding: 5px 10px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             margin-right: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
         }
 
         .approve-btn {
@@ -154,14 +145,75 @@
             color: white;
         }
 
+        .approve-btn:hover {
+            background-color: #218838;
+        }
+
         .reject-btn {
             background-color: #dc3545;
             color: white;
         }
 
+        .reject-btn:hover {
+            background-color: #c82333;
+        }
+
         .delete-btn {
-            background-color: #ffc107;
+            background-color: #6c757d;
             color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .status-pending {
+            color: #ffc107;
+            font-weight: 500;
+        }
+        
+        .status-approved {
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .status-rejected {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        /* Real-time notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #5ECF89;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification.hide {
+            animation: slideOut 0.5s forwards;
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Date column styling */
+        .date-cell {
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -225,22 +277,67 @@
     <section class="dashboard">
         <div class="top">
             <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
-
         </div>
 
         <div class="dash-content">
-            <div class="overview resident-requests">
+            <div class="overview">
                 <div class="title">
                     <i class="uil uil-file-alt"></i>
                     <span class="text">Document Requests</span>
                 </div>
+                
+                <!-- Enhanced Filter Controls -->
+    <div class="filter-controls">
+        <div class="filter-group">
+            <label for="searchInput">Search:</label>
+            <input type="text" id="searchInput" placeholder="Search by name, email or address">
+        </div>
+        
+        <div class="filter-group">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="documentTypeFilter">Document Type:</label>
+            <select id="documentTypeFilter">
+                <option value="">All Types</option>
+                <option value="Barangay Clearance">Barangay Clearance</option>
+                <option value="Business Permit">Business Permit</option>
+                <option value="Certificate of Residency">Certificate of Residency</option>
+                <option value="Barangay ID">Barangay ID</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="startDate">From:</label>
+            <input type="date" id="startDate">
+        </div>
+        
+        <div class="filter-group">
+            <label for="endDate">To:</label>
+            <input type="date" id="endDate">
+        </div>
+        
+        <button id="applyFilters" class="filter-button">Apply Filters</button>
+        <button id="resetFilters" class="filter-button">Reset</button>
+    </div>
+                
                 <table id="requestsTable">
                     <thead>
                         <tr>
                             <th>Full Name</th>
+                            <th>Email</th>
                             <th>Address</th>
                             <th>Document Type</th>
                             <th>Purpose</th>
+                            <th>Date Requested</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -253,115 +350,262 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
+    <!-- Real-time Notification -->
+    <div id="notification" class="notification"></div>
 
+    <script src="script.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/index.min.js"></script>
+    
     <script>
-        // Fetch and display document requests
+        // Connect to WebSocket server
+        const socket = io();
+        
+        // DOM Elements
+        const requestsTable = document.getElementById('requestsTable');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const documentTypeFilter = document.getElementById('documentTypeFilter');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const applyFilters = document.getElementById('applyFilters');
+        const resetFilters = document.getElementById('resetFilters');
+        const notification = document.getElementById('notification');
+        
+        // Current filter state
+        let currentFilters = {
+            search: '',
+            status: '',
+            documentType: '',
+            startDate: '',
+            endDate: ''
+        };
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            setupWebSocketListeners();
+            setDefaultDates();
+            fetchRequests();
+        });
+        
+        function setDefaultDates() {
+            const today = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            
+            startDate.valueAsDate = oneMonthAgo;
+            endDate.valueAsDate = today;
+            
+            currentFilters.startDate = formatDate(oneMonthAgo);
+            currentFilters.endDate = formatDate(today);
+        }
+        
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+        
+        function setupEventListeners() {
+            applyFilters.addEventListener('click', applyFiltersHandler);
+            resetFilters.addEventListener('click', resetFiltersHandler);
+            searchInput.addEventListener('input', debounce(applyFiltersHandler, 300));
+        }
+        
+        function debounce(func, timeout = 300) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => { func.apply(this, args); }, timeout);
+            };
+        }
+        
+        function setupWebSocketListeners() {
+            socket.on('request-update', (data) => {
+                let message = '';
+                switch(data.type) {
+                    case 'created':
+                        message = `New request from ${data.request.fullName}`;
+                        break;
+                    case 'updated':
+                        message = `Request from ${data.request.fullName} was ${data.request.status}`;
+                        break;
+                    case 'deleted':
+                        message = `Request ID ${data.requestId} was deleted`;
+                        break;
+                }
+                showNotification(message);
+                fetchRequests();
+            });
+        }
+        
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    notification.classList.remove('hide');
+                }, 500);
+            }, 3000);
+        }
+        
+        function applyFiltersHandler() {
+            currentFilters = {
+                search: searchInput.value.trim(),
+                status: statusFilter.value,
+                documentType: documentTypeFilter.value,
+                startDate: startDate.value,
+                endDate: endDate.value
+            };
+            
+            fetchRequests();
+        }
+        
+        function resetFiltersHandler() {
+            searchInput.value = '';
+            statusFilter.value = '';
+            documentTypeFilter.value = '';
+            setDefaultDates();
+            fetchRequests();
+        }
+        
         async function fetchRequests() {
             try {
-                const response = await fetch('/api/requests');
-                const requests = await response.json();
-                const tableBody = document.querySelector("#requestsTable tbody");
-                tableBody.innerHTML = ''; // Clear existing rows
-    
-                requests.forEach(request => {
-                    const row = tableBody.insertRow();
-                    const fullNameCell = row.insertCell();
-                    const addressCell = row.insertCell();
-                    const documentTypeCell = row.insertCell();
-                    const purposeCell = row.insertCell();
-                    const statusCell = row.insertCell();
-                    const actionsCell = row.insertCell();
-    
-                    fullNameCell.textContent = request.fullName;
-                    addressCell.textContent = request.address;
-                    documentTypeCell.textContent = request.documentType;
-                    purposeCell.textContent = request.purpose;
-                    statusCell.textContent = request.status || 'Pending';
-    
-                    // Create Approve Button
-                    const approveBtn = document.createElement('button');
-                    approveBtn.classList.add('action-button', 'approve-btn');
-                    approveBtn.textContent = 'Approve';
-                    approveBtn.dataset.id = request._id;
-                    actionsCell.appendChild(approveBtn);
-    
-                    // Create Reject Button
-                    const rejectBtn = document.createElement('button');
-                    rejectBtn.classList.add('action-button', 'reject-btn');
-                    rejectBtn.textContent = 'Reject';
-                    rejectBtn.dataset.id = request._id;
-                    actionsCell.appendChild(rejectBtn);
-    
-                    // Create Delete Button
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.classList.add('action-button', 'delete-btn');
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.dataset.id = request._id;
-                    actionsCell.appendChild(deleteBtn);
-                });
-    
-                // Add event listeners for approve/reject/delete buttons
-                document.querySelectorAll(".approve-btn, .reject-btn").forEach(button => {
-                    button.addEventListener("click", handleApproveReject);
-                });
-    
-                document.querySelectorAll(".delete-btn").forEach(button => {
-                    button.addEventListener("click", handleDeleteRequest);
-                });
-            } catch (error) {
-                console.error("Error fetching requests:", error);
-                alert("An error occurred while fetching requests.");
-            }
-        }
-    
-        // Handle approve/reject actions
-        async function handleApproveReject(event) {
-            const requestId = event.target.dataset.id;
-            const action = event.target.classList.contains("approve-btn") ? "approve" : "reject";
-    
-            try {
-                const response = await fetch(`/api/requests/${requestId}/${action}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" }
-                });
-    
+                const queryParams = new URLSearchParams();
+                
+                if (currentFilters.search) queryParams.append('search', currentFilters.search);
+                if (currentFilters.status) queryParams.append('status', currentFilters.status);
+                if (currentFilters.documentType) queryParams.append('documentType', currentFilters.documentType);
+                if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
+                if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
+                
+                const response = await fetch(`/api/requests?${queryParams.toString()}`);
+                
                 if (!response.ok) {
                     const errorData = await response.json();
-                    alert(`Error: ${errorData.error}`);
-                } else {
-                    alert(`Request ${action}d successfully!`);
-                    fetchRequests(); // Refresh table
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                 }
+                
+                const requests = await response.json();
+                renderRequests(requests);
             } catch (error) {
-                console.error("Error handling action:", error);
-                alert("An error occurred.");
+                console.error('Error fetching requests:', error);
+                showErrorInTable(error.message);
             }
         }
-    
-        // Handle delete request
-        async function handleDeleteRequest(event) {
-            const requestId = event.target.dataset.id;
-    
-            if (confirm("Are you sure you want to delete this request?")) {
-                try {
-                    const response = await fetch(`/api/requests/${requestId}`, {
-                        method: "DELETE"
-                    });
-    
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        alert(`Error deleting request: ${errorData.error}`);
-                    } else {
-                        alert("Request deleted successfully!");
-                        fetchRequests(); // Refresh table
-                    }
-                } catch (error) {
-                    console.error("Error deleting request:", error);
-                    alert("An error occurred while deleting the request.");
+        
+        function renderRequests(requests) {
+            const tbody = requestsTable.querySelector('tbody');
+            tbody.innerHTML = '';
+            
+            if (requests.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center;">
+                            No requests found matching your criteria.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            requests.forEach(request => {
+                const row = document.createElement('tr');
+                row.dataset.id = request.id;
+                
+                const statusClass = `status-${request.status.toLowerCase()}`;
+                
+                row.innerHTML = `
+                    <td>${request.fullName || 'N/A'}</td>
+                    <td>${request.email || 'N/A'}</td>
+                    <td>${request.address || 'N/A'}</td>
+                    <td>${request.documentType}</td>
+                    <td>${request.purpose}</td>
+                    <td class="date-cell">
+                        <div>${request.formattedDate}</div>
+                        <div style="font-size: 0.8em; color: #666;">${request.formattedTime}</div>
+                    </td>
+                    <td class="${statusClass}">${request.status || 'Pending'}</td>
+                    <td>
+                        ${request.status !== 'Approved' ? 
+                            `<button class="action-button approve-btn" data-id="${request.id}">Approve</button>` : ''}
+                        ${request.status !== 'Rejected' ? 
+                            `<button class="action-button reject-btn" data-id="${request.id}">Reject</button>` : ''}
+                        <button class="action-button delete-btn" data-id="${request.id}">Delete</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Add event listeners to buttons
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleRequestAction(btn.dataset.id, 'approve'));
+            });
+            
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleRequestAction(btn.dataset.id, 'reject'));
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleDeleteRequest(btn.dataset.id));
+            });
+        }
+        
+        async function handleRequestAction(requestId, action) {
+            if (!confirm(`Are you sure you want to ${action} this request?`)) return;
+            
+            try {
+                const response = await fetch(`/api/requests/${requestId}/${action}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Failed to ${action} request`);
                 }
+                
+                showNotification(`Request ${action}d successfully!`);
+            } catch (error) {
+                console.error(`Error ${action}ing request:`, error);
+                showNotification(`Error: ${error.message}`);
             }
         }
+        
+        async function handleDeleteRequest(requestId) {
+            if (!confirm("Are you sure you want to delete this request?")) return;
+            
+            try {
+                const response = await fetch(`/api/requests/${requestId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to delete request');
+                }
+                
+                showNotification('Request deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting request:', error);
+                showNotification(`Error: ${error.message}`);
+            }
+        }
+        
+        function showErrorInTable(message) {
+            const tbody = requestsTable.querySelector('tbody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align: center; color: red;">
+                        ${message}
+                    </td>
+                </tr>
+            `;
+        }
+        
         // Sidebar Toggle
         function toggleMenu() {
             const sidebar = document.querySelector(".sidebar");
@@ -369,11 +613,6 @@
             sidebar.classList.toggle("active");
             mainContent.classList.toggle("active");
         }
-
-        document.querySelector(".sidebar-toggle").addEventListener("click", toggleMenu);
-
-        // Load data when the page loads
-        fetchRequests();
     </script>
 </body>
 </html>

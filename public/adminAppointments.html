@@ -57,7 +57,7 @@
 
         /* Main Content */
         .main-content {
-            margin-left: 250px; /* Adjust for sidebar width */
+            margin-left: 250px;
             padding: 20px;
         }
 
@@ -68,31 +68,76 @@
             padding: 10px 0;
         }
 
-       /* Table Styling */
-       table {
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .filter-group button {
+            padding: 8px 16px;
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Table Styling */
+        table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
 
         th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
+            padding: 12px;
+            border: 1px solid #ddd;
             text-align: left;
         }
 
         th {
             background-color: #f0f0f0;
             font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
         }
 
         /* Button Styles */
         .action-button {
-            padding: 5px 10px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             margin-right: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
         }
 
         .approve-btn {
@@ -100,14 +145,66 @@
             color: white;
         }
 
+        .approve-btn:hover {
+            background-color: #218838;
+        }
+
         .reject-btn {
             background-color: #dc3545;
             color: white;
         }
 
+        .reject-btn:hover {
+            background-color: #c82333;
+        }
+
         .delete-btn {
             background-color: #ffc107;
             color: white;
+        }
+
+        .status-pending {
+            color: #ffc107;
+            font-weight: 500;
+        }
+        
+        .status-approved {
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .status-rejected {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        /* Real-time notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #5ECF89;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification.hide {
+            animation: slideOut 0.5s forwards;
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
     </style>
 </head>
@@ -171,7 +268,6 @@
     <section class="dashboard">
         <div class="top">
             <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
-
         </div>
 
         <div class="dash-content">
@@ -180,6 +276,37 @@
                     <i class="uil uil-calendar-alt"></i>
                     <span class="text">Appointment Requests</span>
                 </div>
+                
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <select id="statusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="dateFilter">Date Range:</label>
+                        <input type="date" id="startDate">
+                        <span>to</span>
+                        <input type="date" id="endDate">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="upcomingFilter">
+                            <input type="checkbox" id="upcomingFilter">
+                            Upcoming Only
+                        </label>
+                    </div>
+                    
+                    <button id="applyFilters" class="filter-button">Apply Filters</button>
+                    <button id="resetFilters" class="filter-button">Reset</button>
+                </div>
+                
                 <table id="appointmentsTable">
                     <thead>
                         <tr>
@@ -187,8 +314,8 @@
                             <th>Contact Number</th>
                             <th>Address</th>
                             <th>Purpose</th>
-                            <th>Preferred Date</th>
-                            <th>Preferred Time</th>
+                            <th>Date</th>
+                            <th>Time</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -201,68 +328,227 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
+    <!-- Real-time Notification -->
+    <div id="notification" class="notification"></div>
 
+    <script src="script.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/index.min.js"></script>
+    
     <script>
-        // Fetch and display appointment requests
+        // Connect to WebSocket server
+        const socket = io();
+        
+        // DOM Elements
+        const appointmentsTable = document.getElementById('appointmentsTable');
+        const statusFilter = document.getElementById('statusFilter');
+        const upcomingFilter = document.getElementById('upcomingFilter');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        const applyFilters = document.getElementById('applyFilters');
+        const resetFilters = document.getElementById('resetFilters');
+        const notification = document.getElementById('notification');
+        
+        // Current filter state
+        let currentFilters = {
+            status: '',
+            upcoming: false,
+            startDate: '',
+            endDate: ''
+        };
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAppointments();
+            setupEventListeners();
+            setupWebSocketListeners();
+            
+            // Set default dates for filters
+            const today = new Date().toISOString().split('T')[0];
+            startDate.value = today;
+            endDate.value = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
+        });
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            applyFilters.addEventListener('click', applyFiltersHandler);
+            resetFilters.addEventListener('click', resetFiltersHandler);
+        }
+        
+        // Set up WebSocket listeners
+        function setupWebSocketListeners() {
+            // Listen for appointment updates
+            socket.on('appointment-update', (data) => {
+                showNotification(`${data.type === 'created' ? 'New' : 'Updated'} appointment for ${data.appointment.fullName}`);
+                fetchAppointments();
+            });
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    notification.classList.remove('hide');
+                }, 500);
+            }, 3000);
+        }
+        
+        // Apply filters handler
+        function applyFiltersHandler() {
+            currentFilters = {
+                status: statusFilter.value,
+                upcoming: upcomingFilter.checked,
+                startDate: startDate.value,
+                endDate: endDate.value
+            };
+            
+            fetchAppointments();
+        }
+        
+        // Reset filters handler
+        function resetFiltersHandler() {
+            statusFilter.value = '';
+            upcomingFilter.checked = false;
+            
+            const today = new Date().toISOString().split('T')[0];
+            startDate.value = today;
+            endDate.value = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
+            
+            currentFilters = {
+                status: '',
+                upcoming: false,
+                startDate: today,
+                endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]
+            };
+            
+            fetchAppointments();
+        }
+        
+        // Fetch appointments with current filters
         async function fetchAppointments() {
             try {
-                const response = await fetch("/api/schedule");
+                // Build query string from filters
+                const queryParams = new URLSearchParams();
+                
+                if (currentFilters.status) {
+                    queryParams.append('status', currentFilters.status);
+                }
+                
+                if (currentFilters.upcoming) {
+                    queryParams.append('upcoming', 'true');
+                }
+                
+                if (currentFilters.startDate) {
+                    queryParams.append('startDate', currentFilters.startDate);
+                }
+                
+                if (currentFilters.endDate) {
+                    queryParams.append('endDate', currentFilters.endDate);
+                }
+                
+                const response = await fetch(`/api/schedule?${queryParams.toString()}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const appointments = await response.json();
-                const tableBody = document.querySelector("#appointmentsTable tbody");
-                tableBody.innerHTML = ''; // Clear existing rows
-
-                appointments.forEach(appointment => {
-                    const row = tableBody.insertRow();
-                    row.innerHTML = `
-                        <td>${appointment.fullName}</td>
-                        <td>${appointment.contactNumber}</td>
-                        <td>${appointment.address}</td>
-                        <td>${appointment.purpose}</td>
-                        <td>${appointment.preferredDate}</td>
-                        <td>${appointment.preferredTime}</td>
-                        <td>${appointment.status || 'Pending'}</td>
-                        <td>
-                            <button class="action-button approve-btn" data-id="${appointment._id}">Approve</button>
-                            <button class="action-button reject-btn" data-id="${appointment._id}">Reject</button>
-                        </td>
-                    `;
-                });
-
-                // Add event listeners for approve/reject buttons
-                document.querySelectorAll(".approve-btn, .reject-btn").forEach(button => {
-                    button.addEventListener("click", handleAppointmentAction);
-                });
+                renderAppointments(appointments);
             } catch (error) {
-                console.error("Error fetching appointments:", error);
-                alert("An error occurred while fetching appointments.");
+                console.error('Error fetching appointments:', error);
+                appointmentsTable.querySelector('tbody').innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: red;">
+                            Error loading appointments. Please try again.
+                        </td>
+                    </tr>
+                `;
             }
         }
-
-        // Handle approve/reject actions
-        async function handleAppointmentAction(event) {
-            const appointmentId = event.target.dataset.id;
-            const action = event.target.classList.contains("approve-btn") ? "approve" : "reject";
-
+        
+        // Render appointments to the table
+        function renderAppointments(appointments) {
+            const tbody = appointmentsTable.querySelector('tbody');
+            
+            if (appointments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center;">
+                            No appointments found matching your criteria.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = '';
+            
+            appointments.forEach(appointment => {
+                const row = document.createElement('tr');
+                row.dataset.id = appointment._id;
+                
+                // Determine status class
+                const statusClass = `status-${appointment.status.toLowerCase()}`;
+                
+                row.innerHTML = `
+                    <td>${appointment.fullName || 'N/A'}</td>
+                    <td>${appointment.contactNumber || 'N/A'}</td>
+                    <td>${appointment.address || 'N/A'}</td>
+                    <td>${appointment.purpose}</td>
+                    <td>${appointment.formattedDate || format(new Date(appointment.preferredDate), 'MMM dd, yyyy')}</td>
+                    <td>${appointment.preferredTime}</td>
+                    <td class="${statusClass}">${appointment.status || 'Pending'}</td>
+                    <td>
+                        ${appointment.status !== 'Approved' ? 
+                            `<button class="action-button approve-btn" data-id="${appointment._id}">Approve</button>` : ''}
+                        ${appointment.status !== 'Rejected' ? 
+                            `<button class="action-button reject-btn" data-id="${appointment._id}">Reject</button>` : ''}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.approve-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleAppointmentAction(btn.dataset.id, 'approve'));
+            });
+            
+            document.querySelectorAll('.reject-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleAppointmentAction(btn.dataset.id, 'reject'));
+            });
+        }
+        
+        // Handle appointment actions (approve/reject)
+        async function handleAppointmentAction(appointmentId, action) {
+            if (!confirm(`Are you sure you want to ${action} this appointment?`)) {
+                return;
+            }
+            
             try {
                 const response = await fetch(`/api/schedule/${appointmentId}/${action}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
                 });
-
+                
                 if (!response.ok) {
                     const errorData = await response.json();
-                    alert(`Error: ${errorData.error}`);
-                } else {
-                    alert(`Appointment ${action}d successfully!`);
-                    fetchAppointments(); // Refresh table
+                    throw new Error(errorData.error || `Failed to ${action} appointment`);
                 }
+                
+                showNotification(`Appointment ${action}d successfully!`);
+                fetchAppointments();
             } catch (error) {
-                console.error("Error handling action:", error);
-                alert("An error occurred.");
+                console.error(`Error ${action}ing appointment:`, error);
+                alert(`Error: ${error.message}`);
             }
         }
-
+        
         // Sidebar Toggle
         function toggleMenu() {
             const sidebar = document.querySelector(".sidebar");
@@ -270,11 +556,6 @@
             sidebar.classList.toggle("active");
             mainContent.classList.toggle("active");
         }
-
-        document.querySelector(".sidebar-toggle").addEventListener("click", toggleMenu);
-
-        // Load data when the page loads
-        fetchAppointments();
     </script>
 </body>
 </html>

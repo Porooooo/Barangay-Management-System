@@ -183,9 +183,9 @@
             <img src="images/profile.jpg" alt="Admin Profile" style="width: 40px; height: 40px; border-radius: 50%;">
         </div>
 
-        <!-- Form Section -->
-        <div class="form-container">
-            <h2>Request Document</h2>
+        <div class="dash-content">
+            <div class="form-container">
+                <h2>Request Document</h2>
             <form id="documentRequestForm">
                 <!-- Full Name and Email fields are removed and auto-filled -->
                 <div class="form-group">
@@ -218,78 +218,79 @@
     <script src="script.js"></script>
     <script>
         // Fetch the logged-in user's profile data
-        async function fetchUserProfile() {
+       // Fetch user profile
+       async function fetchUserProfile() {
             try {
-                const response = await fetch('/api/auth/profile');
-                const result = await response.json();
-                if (response.ok) {
-                    return result; // Return the user's profile data
-                } else {
-                    console.error("Failed to fetch profile:", result.error);
-                    return null;
+                const response = await fetch('/api/auth/profile', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch profile');
                 }
+                
+                return await response.json();
             } catch (error) {
-                console.error("Error fetching profile:", error);
+                console.error('Error fetching profile:', error);
+                window.location.href = '/login.html';
                 return null;
             }
         }
 
-        // Auto-fill the form with the logged-in user's data
+        // Auto-fill form with user data
         async function autoFillForm() {
-            const userProfile = await fetchUserProfile();
-            if (userProfile) {
-                // Auto-fill the address field if available
-                document.getElementById('address').value = userProfile.address || '';
-            } else {
-                alert("Please log in to submit a request.");
-                window.location.href = "login.html";
+            const user = await fetchUserProfile();
+            if (user) {
+                document.getElementById('address').value = user.address || '';
             }
         }
 
         // Handle form submission
-        document.getElementById('documentRequestForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+        document.getElementById('documentRequestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const user = await fetchUserProfile();
+            if (!user) return;
+            
+            const formData = {
+                fullName: user.fullName,
+                email: user.email,
+                address: document.getElementById('address').value.trim(),
+                documentType: document.getElementById('documentType').value,
+                purpose: document.getElementById('purpose').value.trim()
+            };
 
-            // Fetch the logged-in user's profile data
-            const userProfile = await fetchUserProfile();
-            if (!userProfile) {
-                alert("Please log in to submit a request.");
-                window.location.href = "login.html";
+            // Validate form
+            if (!formData.address || !formData.purpose) {
+                alert('Please fill in all required fields');
                 return;
             }
-
-            const requestData = {
-                fullName: userProfile.fullName, // Auto-fill from profile
-                email: userProfile.email, // Auto-fill from profile
-                address: document.getElementById('address').value,
-                documentType: document.getElementById('documentType').value,
-                purpose: document.getElementById('purpose').value
-            };
 
             try {
                 const response = await fetch('/api/requests', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestData)
+                    body: JSON.stringify(formData),
+                    credentials: 'include'
                 });
+
                 const result = await response.json();
-                if (response.ok) {
-                    alert(result.message);
-                    window.location.href = 'residentdashboard.html';
-                } else {
-                    alert(result.error);
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to submit request');
                 }
+
+                alert('Request submitted successfully!');
+                window.location.href = 'residentdashboard.html';
             } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while submitting your request.');
+                console.error('Error submitting request:', error);
+                alert(error.message || 'An error occurred. Please try again.');
             }
         });
 
-        // Auto-fill the form when the page loads
-        window.onload = function () {
-            autoFillForm();
-        };
-
+        // Initialize
+        window.addEventListener('DOMContentLoaded', autoFillForm);
+        
         // Sidebar Toggle Script
         function toggleMenu() {
             const sidebar = document.querySelector(".sidebar");

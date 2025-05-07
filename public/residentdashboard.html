@@ -319,78 +319,72 @@
             }
         }
 
-        async function fetchResidentData() {
-    const userEmail = await getLoggedInUserEmail(); // Fetch the user's email from the session
-    if (!userEmail) {
-        alert("Please log in to view your data.");
-        window.location.href = "login.html";
-        return;
-    }
+         // Updated fetchResidentData function
+         async function fetchResidentData() {
+            const userEmail = await getLoggedInUserEmail();
+            if (!userEmail) {
+                alert("Please log in to view your data.");
+                window.location.href = "login.html";
+                return;
+            }
 
-    try {
-        const [requestsResponse, appointmentsResponse] = await Promise.all([
-            fetch(`/api/requests/resident?email=${userEmail}`),
-            fetch(`/api/schedule/user?email=${userEmail}`)
-        ]);
+            try {
+                const [requestsResponse, appointmentsResponse] = await Promise.all([
+                    fetch(`/api/requests/resident?email=${userEmail}`),
+                    fetch(`/api/schedule/user?email=${userEmail}`)
+                ]);
 
-        if (!requestsResponse.ok || !appointmentsResponse.ok) {
-            throw new Error("Failed to fetch data");
+                // Add error handling for failed fetches
+                if (!requestsResponse.ok) throw new Error('Failed to fetch requests');
+                if (!appointmentsResponse.ok) throw new Error('Failed to fetch appointments');
+
+                const requests = await requestsResponse.json();
+                const appointments = await appointmentsResponse.json();
+
+                console.log("Fetched appointments:", appointments);
+
+                // Update pending requests count
+                const pendingRequests = requests.filter(request => request.status === "Pending").length;
+                document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
+
+                // Updated appointment filtering logic
+                const validAppointments = appointments.filter(appointment => 
+                    appointment.status !== "Rejected" &&  // Include both Approved and Pending
+                    new Date(appointment.preferredDate) >= new Date()
+                );
+                console.log("Valid appointments:", validAppointments);
+                
+                document.getElementById('upcomingAppointments').textContent = 
+                    `${validAppointments.length} Scheduled`;
+
+                // Update recent activity with combined data
+                const activityBody = document.getElementById('recentActivity');
+                activityBody.innerHTML = '';
+
+                // Combine and sort activities
+                const allActivities = [
+                    ...appointments.map(a => ({ ...a, type: 'appointment', date: a.preferredDate })),
+                    ...requests.map(r => ({ ...r, type: 'request', date: r.createdAt }))
+                ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                allActivities.forEach(activity => {
+                    const row = activityBody.insertRow();
+                    row.insertCell().textContent = new Date(activity.date).toLocaleDateString();
+                    row.insertCell().textContent = activity.type === 'appointment' 
+                        ? `Appointment - ${activity.purpose}`
+                        : `Document Request - ${activity.documentType}`;
+                    row.insertCell().textContent = activity.status;
+                    row.insertCell().innerHTML = `<button class="view-button">View</button>`;
+                });
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert('Error loading data. Please try again.');
+            }
         }
 
-        const requests = await requestsResponse.json();
-        const appointments = await appointmentsResponse.json();
-
-        console.log("Appointments:", appointments); // Log appointments to verify data
-
-        // Update pending requests count
-        const pendingRequests = requests.filter(request => request.status === "Pending").length;
-        document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
-
-        // Filter out rejected appointments and count only approved ones
-        const approvedAppointments = appointments.filter(appointment => 
-            appointment.status === "Approved" && 
-            new Date(appointment.preferredDate) >= new Date()
-        ).length;
-
-        // Update upcoming appointments count
-        document.getElementById('upcomingAppointments').textContent = `${approvedAppointments} Scheduled`;
-
-        // Update recent activity
-        const activityBody = document.getElementById('recentActivity');
-        activityBody.innerHTML = ''; // Clear existing rows
-
-        // Add appointments to recent activity
-        appointments.forEach(appointment => {
-            const row = activityBody.insertRow();
-            const dateCell = row.insertCell();
-            const activityCell = row.insertCell();
-            const statusCell = row.insertCell();
-            const actionCell = row.insertCell();
-
-            dateCell.textContent = new Date(appointment.preferredDate).toLocaleDateString();
-            activityCell.textContent = `Appointment - ${appointment.purpose}`;
-            statusCell.textContent = appointment.status;
-            actionCell.innerHTML = `<button class="view-button">View</button>`;
-        });
-
-        // Add requests to recent activity
-        requests.forEach(request => {
-            const row = activityBody.insertRow();
-            const dateCell = row.insertCell();
-            const activityCell = row.insertCell();
-            const statusCell = row.insertCell();
-            const actionCell = row.insertCell();
-
-            dateCell.textContent = new Date(request.createdAt).toLocaleDateString();
-            activityCell.textContent = `Document Request - ${request.documentType}`;
-            statusCell.textContent = request.status;
-            actionCell.innerHTML = `<button class="view-button">View</button>`;
-        });
-    } catch (error) {
-        console.error('Error fetching resident data:', error);
-        alert('An error occurred while fetching your data.');
-    }
-}
+        // Keep other functions (getLoggedInUserEmail, fetchUserProfile) unchanged
+        // Keep window.onload and setInterval unchanged
 
         // Fetch user profile
         async function fetchUserProfile() {
