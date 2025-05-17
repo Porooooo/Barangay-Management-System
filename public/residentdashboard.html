@@ -330,7 +330,7 @@
 
             try {
                 const [requestsResponse, appointmentsResponse] = await Promise.all([
-                    fetch(`/api/requests/resident?email=${userEmail}`),
+                    fetch(`/api/requests/user?email=${userEmail}`),
                     fetch(`/api/schedule/user?email=${userEmail}`)
                 ]);
 

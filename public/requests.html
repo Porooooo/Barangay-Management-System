@@ -180,7 +180,6 @@
     <section class="dashboard">
         <div class="top">
             <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
-            <img src="images/profile.jpg" alt="Admin Profile" style="width: 40px; height: 40px; border-radius: 50%;">
         </div>
 
         <div class="dash-content">
@@ -282,7 +281,7 @@
 
                 alert('Request submitted successfully!');
                 window.location.href = 'residentdashboard.html';
-            } catch (error) {
+            } catch (error) {   
                 console.error('Error submitting request:', error);
                 alert(error.message || 'An error occurred. Please try again.');
             }

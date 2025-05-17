@@ -260,8 +260,8 @@
                 return;
             }
 
-            try {
-                const response = await fetch(`/api/requests/resident?email=${residentEmail}`);
+            try {   
+                const response = await fetch(`/api/requests/user?email=${residentEmail}`);
                 const requests = await response.json();
                 const tableBody = document.querySelector("#requestsTable tbody");
                 tableBody.innerHTML = ''; // Clear existing rows

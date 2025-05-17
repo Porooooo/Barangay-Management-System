@@ -21,7 +21,7 @@ const requestSchema = new mongoose.Schema({
         type: String, 
         required: [true, "Document type is required"],
         enum: {
-            values: ['Barangay Clearance', 'Business Permit', 'Certificate of Residency', 'Barangay ID', 'Other'],
+            values: ['Barangay Clearance', 'Business Permit', 'Certificate of Indigency', 'Recommendation Letter', 'Other'],
             message: 'Invalid document type'
         }
     },
