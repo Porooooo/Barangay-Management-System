@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blotter Report</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background-color: #5ECF89; }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .form-group input[type="submit"]:hover {
+            background-color: #455ec2;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Resident Panel</span>
+        </div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="residentdashboard.html"><i class="uil uil-estate"></i><span class="link-name">Dashboard</span></a></li>
+                <li><a href="requests.html"><i class="uil uil-file-alt"></i><span class="link-name">Request Document</span></a></li>
+                <li><a href="createSchedule.html"><i class="uil uil-calendar-alt"></i><span class="link-name">Request Schedule</span></a></li>
+                <li><a href="blotter.html"><i class="uil uil-shield-exclamation"></i><span class="link-name">Blotter</span></a></li>
+                <li><a href="residentRequests.html"><i class="uil uil-file-alt"></i><span class="link-name">Your Requests</span></a></li>
+                <li><a href="residentSchedule.html"><i class="uil uil-calendar-alt"></i><span class="link-name">Your Schedule</span></a></li>
+                <li><a href="notifications.html"><i class="uil uil-bell"></i><span class="link-name">Notifications</span></a></li>
+                <li><a href="profile.html"><i class="uil uil-user"></i><span class="link-name">Profile</span></a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="#"><i class="uil uil-signout"></i><span class="link-name">Logout</span></a></li>
+                <li class="mode">
+                    <a href="#"><i class="uil uil-moon"></i><span class="link-name">Dark Mode</span></a>
+                    <div class="mode-toggle"><span class="switch"></span></div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+        </div>
+
+        <div class="dash-content">
+            <div class="form-container">
+                <h2>Submit Blotter Report</h2>
+                <form id="blotterForm">
+                    <div class="form-group">
+                        <label for="incidentDate">Date of Incident:</label>
+                        <input type="date" id="incidentDate" name="incidentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location of Incident:</label>
+                        <input type="text" id="location" name="location" required placeholder="Enter location">
+                    </div>
+                    <div class="form-group">
+                        <label for="complaint">Complaint Details:</label>
+                        <textarea id="complaint" name="complaint" rows="5" required placeholder="Describe the incident or complaint"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Submit Report">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function toggleMenu() {
+        const sidebar = document.querySelector("nav");
+        const dashboard = document.querySelector(".dashboard");
+        sidebar.classList.toggle("close");
+        } 
+    </script>
+</body>
+</html>

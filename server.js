@@ -12,6 +12,8 @@ const blotterRoutes = require("./routes/blotterRoutes");
 const exchangeRoutes = require("./routes/exchangeRoutes");
 const requestsRoutes = require("./routes/requestsRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const announceRoutes = require("./routes/announceRoutes");
+const emergencyRoutes = require("./routes/emergencyRoutes"); // Add this line
 
 dotenv.config();
 const app = express();
@@ -66,6 +68,8 @@ app.use("/api/schedule", scheduleRoutes);
 app.use("/api/blotter", blotterRoutes);
 app.use("/api/requests", requestsRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/announcements", announceRoutes);
+app.use("/api/emergency", emergencyRoutes); // Add this line
 
 // Default Route    
 app.get("/", (req, res) => {

@@ -172,6 +172,91 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        /* Emergency Button */
+        .emergency-button-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .emergency-button {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(255, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .emergency-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(255, 68, 68, 0.4);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 150px;
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+        }
+
+        .modal-content button {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .modal-content button:hover {
+            background-color: #e53935;
+        }
     </style>
 </head>
 <body>
@@ -214,9 +299,9 @@
                     <span class="link-name">Your Schedule</span>
                 </a></li>
 
-                <li><a href="notifications.html">
+                <li><a href="announcement.html">
                     <i class="uil uil-bell"></i>
-                    <span class="link-name">Notifications</span>
+                    <span class="link-name">Announcement</span>
                 </a></li>
 
                 <li><a href="profile.html">
@@ -228,13 +313,7 @@
                     <i class="uil uil-signout"></i>
                     <span class="link-name">Logout</span>
                 </a></li>
-                <li class="mode">
-                    <a href="#">
-                        <i class="uil uil-moon"></i>
-                        <span class="link-name">Dark Mode</span>
-                    </a>
                     <div class="mode-toggle">
-                        <span class="switch"></span>
                     </div>
                 </li>
             </ul>
@@ -300,7 +379,25 @@
         </div>
     </section>
 
+    <!-- Emergency Button -->
+    <div class="emergency-button-container">
+        <button class="emergency-button" onclick="openEmergencyModal()">
+            <i class="uil uil-bell"></i> Emergency Alert
+        </button>
+    </div>
+
+    <!-- Emergency Modal -->
+    <div id="emergencyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEmergencyModal()">&times;</span>
+            <h2>Send Emergency Alert</h2>
+            <textarea id="emergencyMessage" placeholder="Describe your emergency..."></textarea>
+            <button onclick="sendEmergencyAlert()">Send Alert</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         // Fetch the logged-in user's email from the server
         async function getLoggedInUserEmail() {
@@ -383,9 +480,6 @@
             }
         }
 
-        // Keep other functions (getLoggedInUserEmail, fetchUserProfile) unchanged
-        // Keep window.onload and setInterval unchanged
-
         // Fetch user profile
         async function fetchUserProfile() {
             try {
@@ -403,6 +497,63 @@
             }
         }
 
+        // Emergency Alert Functions
+        function openEmergencyModal() {
+            document.getElementById('emergencyModal').style.display = 'block';
+        }
+
+        function closeEmergencyModal() {
+            document.getElementById('emergencyModal').style.display = 'none';
+        }
+
+        async function sendEmergencyAlert() {
+            const message = document.getElementById('emergencyMessage').value.trim();
+            if (!message) {
+                alert('Please enter your emergency message');
+                return;
+            }
+
+            // Get resident ID from session
+            const userEmail = await getLoggedInUserEmail();
+            if (!userEmail) {
+                alert('Please log in to send emergency alerts');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/emergency/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        message
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Emergency alert sent successfully!');
+                    closeEmergencyModal();
+                    document.getElementById('emergencyMessage').value = '';
+                } else {
+                    throw new Error(data.error || 'Failed to send emergency alert');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send emergency alert: ' + error.message);
+            }
+        }
+
+        // Initialize socket.io
+        const socket = io();
+
+        // Request notification permission
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
         // Load data when the page loads
         window.onload = function () {
             fetchResidentData(); // Fetch resident data
@@ -410,8 +561,6 @@
         };
 
         // Refresh dashboard data every 5 seconds
-        setInterval(fetchResidentData, 5000);
     </script>
 </body>
 </html>
-

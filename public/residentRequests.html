@@ -12,48 +12,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
 
-        /* Sidebar */
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #333;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .sidebar .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-        }
-        .sidebar a {
-            padding: 15px;
-            text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            text-align: center;
-            transition: 0.3s;
-        }
-        .sidebar a:hover { background-color: #5ECF89; }
-
-        /* Sidebar Logo */
-        .sidebar-logo {
-            width: 120px;  
-            height: auto;
-            margin: 10px auto; 
-            display: block;
-            border-radius: 50%; 
-        }
 
         /* Main Content */
         .main-content {
@@ -153,7 +111,7 @@
 <body>
     <nav>
         <div class="logo-name">
-            <div class="logo-image">    
+            <div class="logo-image">
                 <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
             <span class="logo_name">Resident Panel</span>
@@ -190,28 +148,21 @@
                     <span class="link-name">Your Schedule</span>
                 </a></li>
 
-                <li><a href="notifications.html">
+                <li><a href="announcement.html">
                     <i class="uil uil-bell"></i>
-                    <span class="link-name">Notifications</span>
+                    <span class="link-name">Announcement</span>
                 </a></li>
 
                 <li><a href="profile.html">
                     <i class="uil uil-user"></i>
                     <span class="link-name">Profile</span>
                 </a></li>
-            </ul>
             <ul class="logout-mode">
                 <li><a href="#">
                     <i class="uil uil-signout"></i>
                     <span class="link-name">Logout</span>
                 </a></li>
-                <li class="mode">
-                    <a href="#">
-                        <i class="uil uil-moon"></i>
-                        <span class="link-name">Dark Mode</span>
-                    </a>
                     <div class="mode-toggle">
-                        <span class="switch"></span>
                     </div>
                 </li>
             </ul>

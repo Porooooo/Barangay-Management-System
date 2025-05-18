@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <title>Announcements</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
+        
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+        /* Main Content */
+        .dashboard {
+            position: relative;
+            left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            transition: all 0.5s ease;
+        }
+
+        nav.close ~ .dashboard {
+            left: 78px;
+            width: calc(100% - 78px);
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #fff;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-toggle {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .dash-content {
+            padding: 20px;
+        }
+
+        /* Notification Container */
+        .notification-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+
+        .notification:last-child {
+            border-bottom: none;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .notification-time {
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .notification-message {
+            color: #34495e;
+            line-height: 1.6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: #5ECF89;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-top: 8px;
+        }
+
+        .no-announcements {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                width: 78px;
+            }
+            
+            nav.close {
+                width: 0;
+            }
+            
+            .dashboard {
+                left: 78px;
+                width: calc(100% - 78px);
+            }
+            
+            nav.close ~ .dashboard {
+                left: 0;
+                width: 100%;
+            }
+            
+            .logo_name, .link-name {
+                display: none;
+            }
+            
+            .nav-links li a {
+                justify-content: center;
+            }
+            
+            .nav-links li a i {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Resident Panel</span>
+        </div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="residentdashboard.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+                <li><a href="requests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Request Document</span>
+                </a></li>
+                <li><a href="createSchedule.html">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="link-name">Request Schedule</span>
+                </a></li>
+                <li><a href="blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Blotter</span>
+                </a></li>
+                <li><a href="residentRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Your Requests</span>
+                </a></li>
+                <li><a href="residentSchedule.html">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="link-name">Your Schedule</span>
+                </a></li>
+                <li><a href="announcement.html" class="active">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Announcements</span>
+                </a></li>
+                <li><a href="profile.html">
+                    <i class="uil uil-user"></i>
+                    <span class="link-name">Profile</span>
+                </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="#">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+        </div>
+
+        <div class="dash-content">
+            <div class="notification-container">
+                <h2>Announcements</h2>
+                <div id="announcementsContainer">
+                    <div class="no-announcements">
+                        <p>Loading announcements...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Toggle sidebar
+        function toggleMenu() {
+            const sidebar = document.querySelector("nav");
+            sidebar.classList.toggle("close");
+        }
+
+        // Load user-specific announcements
+        async function loadAnnouncements() {
+            try {
+                const response = await fetch('/api/announcements/user', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load announcements');
+                }
+                
+                const announcements = await response.json();
+                displayAnnouncements(announcements);
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                document.getElementById('announcementsContainer').innerHTML = `
+                    <div class="no-announcements">
+                        <p>Error loading announcements. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display announcements in notification style
+        function displayAnnouncements(announcements) {
+            const container = document.getElementById('announcementsContainer');
+            
+            if (!announcements || announcements.length === 0) {
+                container.innerHTML = `
+                    <div class="no-announcements">
+                        <p>No announcements available at this time.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = announcements.map(announcement => `
+                <div class="notification">
+                    <div class="notification-title">${announcement.title}</div>
+                    <div class="notification-time">${new Date(announcement.createdAt).toLocaleString()}</div>
+                    <div class="notification-message">${announcement.content}</div>
+                    <div>
+                        ${announcement.targetGroups?.map(group => `
+                            <span class="badge">${group}</span>
+                        `).join('')}
+                        ${announcement.occupation ? `<span class="badge">Occupation: ${announcement.occupation}</span>` : ''}
+                        ${announcement.education ? `<span class="badge">Education: ${announcement.education}</span>` : ''}
+                        ${announcement.civilStatus ? `<span class="badge">Civil Status: ${announcement.civilStatus}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadAnnouncements);
+    </script>
+</body>
+</html>

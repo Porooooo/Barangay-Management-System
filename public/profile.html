@@ -6,6 +6,7 @@
     <title>User Profile</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -30,11 +31,29 @@
             background-color: white;
             width: 100%;
             max-width: 800px;
+            position: relative;
+        }
+
+        .back-arrow {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            font-size: 20px;
+            color: #0779e4;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-arrow:hover {
+            color: #055cb3;
+            transform: translateX(-3px);
         }
 
         h4 {
             letter-spacing: -1px;
             font-weight: 400;
+            text-align: center;
+            padding-top: 5px;
         }
 
         .profile-picture {
@@ -146,15 +165,45 @@
             background-color: #f0f0f0;
         }
 
+        .additional-info-field {
+            margin-bottom: 15px;
+        }
+        
+        .additional-info-label {
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #777;
+            padding-left: 3px;
+        }
+        
+        .additional-info-value {
+            font-weight: normal;
+            color: #555;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            display: inline-block;
+            min-width: 200px;
+        }
+
         @media (max-width: 576px) {
             .wrapper {
                 padding: 25px 20px;
+            }
+            .back-arrow {
+                top: 15px;
+                left: 15px;
             }
         }
     </style>
 </head>
 <body>
     <div class="wrapper bg-white mt-sm-5">
+        <a href="residentdashboard.html" class="back-arrow">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        
         <h4 class="pb-4 border-bottom">User Profile</h4>
         <div class="d-flex align-items-start py-3 border-bottom">
             <img id="profilePicture" src="" alt="Profile Picture" class="profile-picture">
@@ -224,13 +273,17 @@
                     <div class="profile-value" id="educationalAttainmentDisplay" style="min-width: 100%;"></div>
                     <select class="form-control edit-field" id="educationalAttainment">
                         <option value="">Select educational attainment</option>
-                        <option value="Elementary">Elementary</option>
-                        <option value="High School">High School</option>
-                        <option value="Vocational">Vocational</option>
-                        <option value="College">College</option>
-                        <option value="Postgraduate">Postgraduate</option>
+                        <option value="Elementary Graduate">Elementary Graduate</option>
+                        <option value="High School Graduate">High School Graduate</option>
+                        <option value="Vocational Graduate">Vocational Graduate</option>
+                        <option value="College Graduate">College Graduate</option>
+                        <option value="Post Graduate">Post Graduate</option>
+                        <option value="None">None</option>
                     </select>
                 </div>
+            </div>
+            <div class="row py-2" id="additionalInfoContainer">
+                <!-- Additional info fields will be inserted here -->
             </div>
             <div class="py-3 pb-4 border-bottom d-flex justify-content-between">
                 <button class="btn btn-primary" id="editProfileBtn">Edit Profile</button>
@@ -276,7 +329,12 @@
                         birthdate: result.birthdate || '',
                         civilStatus: result.civilStatus || '',
                         occupation: result.occupation || '',
-                        educationalAttainment: result.educationalAttainment || ''
+                        educationalAttainment: result.educationalAttainment || '',
+                        registeredVoter: result.registeredVoter || false,
+                        fourPsMember: result.fourPsMember || false,
+                        pwdMember: result.pwdMember || false,
+                        seniorCitizen: result.seniorCitizen || false,
+                        pregnant: result.pregnant || false
                     };
 
                     // Display values
@@ -290,6 +348,9 @@
                     document.getElementById('occupationDisplay').textContent = originalData.occupation || 'Not provided';
                     document.getElementById('educationalAttainmentDisplay').textContent = 
                         originalData.educationalAttainment || 'Not provided';
+
+                    // Display additional information
+                    displayAdditionalInfo(originalData);
 
                     // Set form field values
                     document.getElementById('fullName').value = originalData.fullName;
@@ -311,6 +372,40 @@
                 console.error('Error:', error);
                 alert('An error occurred while fetching user profile.');
             }
+        }
+
+        function displayAdditionalInfo(data) {
+            const container = document.getElementById('additionalInfoContainer');
+            container.innerHTML = '';
+            
+            // Only show fields that are true/YES
+            if (data.registeredVoter) {
+                addInfoField(container, 'Registered Voter');
+            }
+            if (data.fourPsMember) {
+                addInfoField(container, '4Ps Member');
+            }
+            if (data.pwdMember) {
+                addInfoField(container, 'PWD Member');
+            }
+            if (data.seniorCitizen) {
+                addInfoField(container, 'Senior Citizen');
+            }
+            if (data.pregnant) {
+                addInfoField(container, 'Pregnant');
+            }
+        }
+        
+        function addInfoField(container, label) {
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'col-md-6 additional-info-field';
+            
+            const labelElement = document.createElement('label');
+            labelElement.className = 'additional-info-label';
+            labelElement.textContent = label;
+            
+            fieldDiv.appendChild(labelElement);
+            container.appendChild(fieldDiv);
         }
 
         function formatDate(dateString) {
@@ -365,8 +460,8 @@
 
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
-                window.location.href = 'login.html';
-            }
+                window.location.href = 'index.html';
+            }   
         }
 
         function confirmDeactivate() {

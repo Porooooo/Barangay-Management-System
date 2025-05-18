@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Alerts</title>
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f5f5f5; }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .alert-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .alert-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        
+        .alert-info {
+            flex: 1;
+        }
+        
+        .alert-actions button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .pending {
+            background-color: #ffebee;
+        }
+        
+        .acknowledged {
+            background-color: #fff8e1;
+        }
+        
+        .resolved {
+            background-color: #e8f5e9;
+        }
+        
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: white;
+            margin-left: 10px;
+        }
+        
+        .pending-badge {
+            background-color: #f44336;
+        }
+        
+        .acknowledged-badge {
+            background-color: #ff9800;
+        }
+        
+        .resolved-badge {
+            background-color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="uil uil-bell"></i> Emergency Alerts</h1>
+        
+        <div class="alert-container" id="alertsContainer">
+            <div class="alert-item">
+                <div>Loading alerts...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const alertsContainer = document.getElementById('alertsContainer');
+        
+        // Fetch all alerts on page load
+        fetch('/api/emergency')
+            .then(response => response.json())
+            .then(alerts => {
+                displayAlerts(alerts);
+            })
+            .catch(error => {
+                alertsContainer.innerHTML = `<div class="alert-item">Error loading alerts</div>`;
+                console.error('Error:', error);
+            });
+        
+        // Handle new alert from socket
+        socket.on('newEmergencyAlert', (alert) => {
+            const alertItem = createAlertElement(alert);
+            alertsContainer.insertBefore(alertItem, alertsContainer.firstChild);
+            
+            // Show notification
+            if (Notification.permission === "granted") {
+                new Notification(`New Emergency Alert from ${alert.residentName}`, {
+                    body: alert.message
+                });
+            }
+        });
+        
+        // Handle acknowledged alert
+        socket.on('alertAcknowledged', (alert) => {
+            const alertElement = document.getElementById(`alert-${alert._id}`);
+            if (alertElement) {
+                alertElement.className = 'alert-item acknowledged';
+                alertElement.querySelector('.status-badge').className = 'status-badge acknowledged-badge';
+                alertElement.querySelector('.status-badge').textContent = 'Acknowledged';
+            }
+        });
+        
+        // Handle resolved alert
+        socket.on('alertResolved', (alert) => {
+            const alertElement = document.getElementById(`alert-${alert._id}`);
+            if (alertElement) {
+                alertElement.className = 'alert-item resolved';
+                alertElement.querySelector('.status-badge').className = 'status-badge resolved-badge';
+                alertElement.querySelector('.status-badge').textContent = 'Resolved';
+            }
+        });
+        
+        function displayAlerts(alerts) {
+            if (alerts.length === 0) {
+                alertsContainer.innerHTML = '<div class="alert-item">No emergency alerts found</div>';
+                return;
+            }
+            
+            alertsContainer.innerHTML = '';
+            alerts.forEach(alert => {
+                alertsContainer.appendChild(createAlertElement(alert));
+            });
+        }
+        
+        function createAlertElement(alert) {
+            const alertItem = document.createElement('div');
+            alertItem.className = `alert-item ${alert.status}`;
+            alertItem.id = `alert-${alert._id}`;
+            
+            let statusClass, statusText;
+            switch(alert.status) {
+                case 'acknowledged':
+                    statusClass = 'acknowledged-badge';
+                    statusText = 'Acknowledged';
+                    break;
+                case 'resolved':
+                    statusClass = 'resolved-badge';
+                    statusText = 'Resolved';
+                    break;
+                default:
+                    statusClass = 'pending-badge';
+                    statusText = 'Pending';
+            }
+            
+            alertItem.innerHTML = `
+                <div class="alert-info">
+                    <strong>${alert.residentName}</strong>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    <div>${alert.message}</div>
+                    <small>${new Date(alert.createdAt).toLocaleString()}</small>
+                </div>
+                <div class="alert-actions">
+                    ${alert.status === 'pending' ? 
+                        `<button onclick="acknowledgeAlert('${alert._id}')">Acknowledge</button>` : ''}
+                    ${alert.status !== 'resolved' ? 
+                        `<button onclick="resolveAlert('${alert._id}')">Resolve</button>` : ''}
+                </div>
+            `;
+            
+            return alertItem;
+        }
+        
+        function acknowledgeAlert(alertId) {
+            fetch(`/api/emergency/${alertId}/acknowledge`, { method: 'PUT' })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        function resolveAlert(alertId) {
+            fetch(`/api/emergency/${alertId}/resolve`, { method: 'PUT' })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        // Request notification permission
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    </script>
+</body>
+</html>

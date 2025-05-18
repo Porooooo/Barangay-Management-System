@@ -146,54 +146,6 @@
             background-color: #ddd;
         }
 
-        /* Announcement List */
-        .announcement-list {
-            margin-top: 40px;
-        }
-
-        .announcement-card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-left: 4px solid #5ECF89;
-        }
-
-        .announcement-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .announcement-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .announcement-date {
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-
-        .announcement-target {
-            display: inline-block;
-            background-color: #e8f4fc;
-            color: #3498db;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-
-        .announcement-content {
-            margin-top: 15px;
-            color: #34495e;
-            line-height: 1.6;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
@@ -302,26 +254,72 @@
                                 <label for="allResidents">All Residents</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="pwd" name="targetGroups" value="PWD">
-                                <label for="pwd">PWD</label>
+                                <input type="checkbox" id="pwd" name="targetGroups" value="PWD Member">
+                                <label for="pwd">PWD Member</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="seniors" name="targetGroups" value="Senior Citizens">
-                                <label for="seniors">Senior Citizens</label>
+                                <input type="checkbox" id="seniors" name="targetGroups" value="Senior Citizen">
+                                <label for="seniors">Senior Citizen</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="pregnant" name="targetGroups" value="Pregnant Women">
-                                <label for="pregnant">Pregnant Women</label>
+                                <input type="checkbox" id="pregnant" name="targetGroups" value="Pregnant">
+                                <label for="pregnant">Pregnant</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="youth" name="targetGroups" value="Youth">
-                                <label for="youth">Youth</label>
+                                <input type="checkbox" id="voters" name="targetGroups" value="Registered Voter">
+                                <label for="voters">Registered Voter</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="voters" name="targetGroups" value="Registered Voters">
-                                <label for="voters">Registered Voters</label>
+                                <input type="checkbox" id="fourPs" name="targetGroups" value="4Ps Member">
+                                <label for="fourPs">4Ps Member</label>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target by Occupation</label>
+                        <select id="occupationFilter" name="occupation" class="form-control">
+                            <option value="">All Occupations</option>
+                            <option value="Student">Student</option>
+                            <option value="Employed">Employed</option>
+                            <option value="Unemployed">Unemployed</option>
+                            <option value="Self-employed">Self-employed</option>
+                            <option value="Retired">Retired</option>
+                            <option value="Government Employee">Government Employee</option>
+                            <option value="Private Employee">Private Employee</option>
+                            <option value="Business Owner">Business Owner</option>
+                            <option value="Farmer">Farmer</option>
+                            <option value="Fisherman">Fisherman</option>
+                            <option value="Housewife/Househusband">Housewife/Househusband</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target by Educational Attainment</label>
+                        <select id="educationFilter" name="education" class="form-control">
+                            <option value="">All Education Levels</option>
+                            <option value="No Formal Education">No Formal Education</option>
+                            <option value="Elementary Level">Elementary Level</option>
+                            <option value="Elementary Graduate">Elementary Graduate</option>
+                            <option value="High School Level">High School Level</option>
+                            <option value="High School Graduate">High School Graduate</option>
+                            <option value="College Level">College Level</option>
+                            <option value="College Graduate">College Graduate</option>
+                            <option value="Vocational">Vocational</option>
+                            <option value="Postgraduate">Postgraduate</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target by Civil Status</label>
+                        <select id="civilStatusFilter" name="civilStatus" class="form-control">
+                            <option value="">All Civil Status</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Widowed">Widowed</option>
+                            <option value="Separated">Separated</option>
+                            <option value="Divorced">Divorced</option>
+                        </select>
                     </div>
 
                     <div class="form-actions">
@@ -329,13 +327,6 @@
                         <button type="submit" class="btn btn-primary">Publish Announcement</button>
                     </div>
                 </form>
-            </div>
-
-            <div class="announcement-list">
-                <h2>Recent Announcements</h2>
-                <div id="announcementsContainer">
-                    <!-- Announcements will be loaded here -->
-                </div>
             </div>
         </div>
     </section>
@@ -358,8 +349,11 @@
             const content = document.getElementById('announcementContent').value.trim();
             const checkboxes = document.querySelectorAll('input[name="targetGroups"]:checked');
             const targetGroups = Array.from(checkboxes).map(cb => cb.value);
+            const occupation = document.getElementById('occupationFilter').value;
+            const education = document.getElementById('educationFilter').value;
+            const civilStatus = document.getElementById('civilStatusFilter').value;
             
-            if (!title || !content || targetGroups.length === 0) {
+            if (!title || !content) {
                 alert('Please fill in all required fields');
                 return;
             }
@@ -373,7 +367,10 @@
                     body: JSON.stringify({
                         title,
                         content,
-                        targetGroups
+                        targetGroups,
+                        occupation,
+                        education,
+                        civilStatus
                     }),
                     credentials: 'include'
                 });
@@ -386,7 +383,6 @@
 
                 alert('Announcement published successfully!');
                 resetForm();
-                loadAnnouncements();
             } catch (error) {
                 console.error('Error:', error);
                 alert(error.message || 'An error occurred. Please try again.');
@@ -397,64 +393,13 @@
         function resetForm() {
             document.getElementById('announcementForm').reset();
             document.getElementById('allResidents').checked = true;
-        }
-
-        // Load announcements
-        async function loadAnnouncements() {
-            try {
-                const response = await fetch('/api/announcements', {
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to load announcements');
-                }
-                
-                const announcements = await response.json();
-                displayAnnouncements(announcements);
-            } catch (error) {
-                console.error('Error loading announcements:', error);
-                document.getElementById('announcementsContainer').innerHTML = `
-                    <div class="announcement-card">
-                        <p>Error loading announcements. Please try again later.</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Display announcements
-        function displayAnnouncements(announcements) {
-            const container = document.getElementById('announcementsContainer');
-            
-            if (announcements.length === 0) {
-                container.innerHTML = `
-                    <div class="announcement-card">
-                        <p>No announcements found.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = announcements.map(announcement => `
-                <div class="announcement-card">
-                    <div class="announcement-header">
-                        <div class="announcement-title">${announcement.title}</div>
-                        <div class="announcement-date">${new Date(announcement.createdAt).toLocaleString()}</div>
-                    </div>
-                    <div>
-                        ${announcement.targetGroups.map(group => `
-                            <span class="announcement-target">${group}</span>
-                        `).join('')}
-                    </div>
-                    <div class="announcement-content">${announcement.content}</div>
-                </div>
-            `).join('');
+            document.getElementById('occupationFilter').value = '';
+            document.getElementById('educationFilter').value = '';
+            document.getElementById('civilStatusFilter').value = '';
         }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            loadAnnouncements();
-            
             // Handle "All Residents" checkbox
             document.getElementById('allResidents').addEventListener('change', function() {
                 const checkboxes = document.querySelectorAll('input[name="targetGroups"]');

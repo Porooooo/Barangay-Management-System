@@ -20,7 +20,23 @@ const upload = multer({ storage: storage });
 // User Registration
 router.post("/register", upload.single('profilePicture'), async (req, res) => {
     try {
-        const { fullName, email, contactNumber, address, birthdate, civilStatus, occupation, educationalAttainment, password } = req.body;
+        const { 
+            fullName, 
+            email, 
+            contactNumber, 
+            address, 
+            birthdate, 
+            civilStatus, 
+            occupation, 
+            educationalAttainment,
+            registeredVoter,
+            fourPsMember,
+            pwdMember,
+            seniorCitizen,
+            pregnant,
+            password 
+        } = req.body;
+        
         const profilePicture = req.file ? req.file.path : null;
 
         // Check if user already exists
@@ -42,6 +58,11 @@ router.post("/register", upload.single('profilePicture'), async (req, res) => {
             civilStatus,
             occupation,
             educationalAttainment,
+            registeredVoter: registeredVoter === 'true',
+            fourPsMember: fourPsMember === 'true',
+            pwdMember: pwdMember === 'true',
+            seniorCitizen: seniorCitizen === 'true',
+            pregnant: pregnant === 'true',
             password: hashedPassword,
             profilePicture
         });
