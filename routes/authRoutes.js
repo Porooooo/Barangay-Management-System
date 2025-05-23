@@ -1,156 +1,248 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const multer = require("multer");
+const path = require("path");
 const User = require("../models/User");
 
 const router = express.Router();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../uploads/'));
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 // User Registration
 router.post("/register", upload.single('profilePicture'), async (req, res) => {
-    try {
-        const { 
-            fullName, 
-            email, 
-            contactNumber, 
-            address, 
-            birthdate, 
-            civilStatus, 
-            occupation, 
-            educationalAttainment,
-            registeredVoter,
-            fourPsMember,
-            pwdMember,
-            seniorCitizen,
-            pregnant,
-            password 
-        } = req.body;
-        
-        const profilePicture = req.file ? req.file.path : null;
-
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ error: "❌ Email already registered" });
-        }
-
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create new user
-        const newUser = new User({
-            fullName,
-            email,
-            contactNumber,
-            address,
-            birthdate,
-            civilStatus,
-            occupation,
-            educationalAttainment,
-            registeredVoter: registeredVoter === 'true',
-            fourPsMember: fourPsMember === 'true',
-            pwdMember: pwdMember === 'true',
-            seniorCitizen: seniorCitizen === 'true',
-            pregnant: pregnant === 'true',
-            password: hashedPassword,
-            profilePicture
-        });
-
-        // Save user
-        await newUser.save();
-
-        res.status(201).json({ message: "✅ User registered successfully" });
-    } catch (error) {
-        console.error("Registration error:", error);
-        res.status(500).json({ error: "❌ Failed to register user" });
+  try {
+    const formData = req.body;
+    const file = req.file;
+    
+    // Validate required fields
+    if (!formData.fullName || !formData.email || !formData.contactNumber || 
+        !formData.address || !formData.birthdate || !formData.password || 
+        !formData.confirmPassword) {
+      return res.status(400).json({ 
+        error: "Validation error",
+        message: "All required fields must be provided" 
+      });
     }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      return res.status(400).json({ 
+        error: "Validation error",
+        message: "Invalid email format" 
+      });
+    }
+
+    // Check password match
+    if (formData.password !== formData.confirmPassword) {
+      return res.status(400).json({ 
+        error: "Validation error",
+        message: "Passwords do not match" 
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: formData.email });
+    if (existingUser) {
+      return res.status(400).json({ 
+        error: "Duplicate email",
+        message: "Email already registered" 
+      });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(formData.password, salt);
+
+    // Handle occupation
+    const occupation = formData.occupation === 'Others' 
+      ? formData.otherOccupation 
+      : formData.occupation;
+
+    // Create new user
+    const newUser = new User({
+      fullName: formData.fullName,
+      email: formData.email,
+      contactNumber: formData.contactNumber,
+      address: formData.address,
+      birthdate: new Date(formData.birthdate),
+      civilStatus: formData.civilStatus,
+      occupation: occupation,
+      educationalAttainment: formData.educationalAttainment,
+      registeredVoter: formData.registeredVoter === 'true',
+      fourPsMember: formData.fourPsMember === 'true',
+      pwdMember: formData.pwdMember === 'true',
+      seniorCitizen: formData.seniorCitizen === 'true',
+      pregnant: formData.pregnant === 'true',
+      password: hashedPassword,
+      profilePicture: file ? file.filename : 'default-profile.png'
+    });
+
+    // Save user
+    await newUser.save();
+
+    // Set session
+    req.session.userId = newUser._id;
+    req.session.userEmail = newUser.email;
+    req.session.isAdmin = false;
+
+    return res.status(201).json({ 
+      message: "User registered successfully",
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        fullName: newUser.fullName
+      }
+    });
+
+  } catch (error) {
+    console.error("Registration error:", error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        error: "Validation error",
+        message: error.message 
+      });
+    }
+    return res.status(500).json({ 
+      error: "Server error",
+      message: "Failed to register user" 
+    });
+  }
 });
 
 // User Login
 router.post("/login", async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
+    console.log('Login attempt for:', email);
 
-        // Find user
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ error: "❌ Invalid email or password" });
-        }
-
-        // Compare password
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(400).json({ error: "❌ Invalid email or password" });
-        }
-
-        // Set session
-        req.session.userId = user._id;
-        req.session.userEmail = user.email; // Store the user's email in the session
-
-        res.status(200).json({ message: "✅ Logged in successfully", userId: user._id, email: user.email });
-    } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ error: "❌ Failed to login" });
+    // Validate input
+    if (!email || !password) {
+      console.log('Missing credentials');
+      return res.status(400).json({ 
+        error: "Validation error",
+        message: "Email and password are required" 
+      });
     }
+
+    // Find user with password explicitly selected
+    const user = await User.findOne({ email }).select('+password');
+    
+    if (!user) {
+      console.log('User not found:', email);
+      return res.status(401).json({ 
+        error: "Authentication error",
+        message: "Invalid email or password" 
+      });
+    }
+
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match:', isMatch);
+
+    if (!isMatch) {
+      return res.status(401).json({  
+        error: "Authentication error",
+        message: "Invalid email or password" 
+      });
+    }
+
+    // Set session
+    req.session.userId = user._id;
+    req.session.userEmail = user.email;
+    req.session.isAdmin = user.email.endsWith('@admin.com');
+    
+    console.log('Session after login:', req.session);
+
+    return res.status(200).json({ 
+      message: "Logged in successfully", 
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        isAdmin: req.session.isAdmin
+      }
+    });
+
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ 
+      error: "Server error",
+      message: "Failed to login",
+      details: error.message
+    });
+  }
 });
 
-// User Profile Route
+// User Logout
+router.post("/logout", (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ 
+        error: "Server error",
+        message: "Failed to logout" 
+      });
+    }
+    res.clearCookie('connect.sid');
+    return res.status(200).json({ message: "Logged out successfully" });
+  });
+});
+
+// Check Authentication Status
+router.get("/check-auth", (req, res) => {
+  if (req.session.userId) {
+    return res.status(200).json({ 
+      isAuthenticated: true,
+      user: {
+        id: req.session.userId,
+        email: req.session.userEmail,
+        isAdmin: req.session.isAdmin
+      }
+    });
+  }
+  return res.status(200).json({ isAuthenticated: false });
+});
+
+// Get user profile
 router.get("/profile", async (req, res) => {
-    try {
-        // Check if user is logged in
-        if (!req.session.userId) {
-            return res.status(401).json({ error: "❌ Unauthorized" });
-        }
+  if (!req.session.userId) {
+    return res.status(401).json({ 
+      error: "Unauthorized",
+      message: "Please log in to access this resource"
+    });
+  }
 
-        // Find user by ID
-        const user = await User.findById(req.session.userId).select('-password'); // Exclude password
-        if (!user) {
-            return res.status(404).json({ error: "❌ User not found" });
-        }
-
-        res.status(200).json(user);
-    } catch (error) {
-        console.error("Profile error:", error);
-        res.status(500).json({ error: "❌ Failed to fetch profile" });
+  try {
+    const user = await User.findById(req.session.userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ 
+        error: "Not found",
+        message: "User not found"
+      });
     }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error("Profile error:", error);
+    return res.status(500).json({ 
+      error: "Server error",
+      message: "Failed to fetch profile"
+    });
+  }
 });
 
-// Update Profile Picture
-router.post("/update-profile-picture", upload.single('profilePicture'), async (req, res) => {
-    try {
-        if (!req.session.userId) {
-            return res.status(401).json({ error: "❌ Unauthorized" });
-        }
-
-        const user = await User.findById(req.session.userId);
-        if (!user) {
-            return res.status(404).json({ error: "❌ User not found" });
-        }
-
-        if (!req.file) {
-            return res.status(400).json({ error: "❌ No file uploaded" });
-        }
-
-        // Update profile picture
-        user.profilePicture = req.file.path;
-        await user.save();
-
-        res.status(200).json({ message: "✅ Profile picture updated successfully" });
-    } catch (error) {
-        console.error("Update profile picture error:", error);
-        res.status(500).json({ error: "❌ Failed to update profile picture" });
-    }
-});
-
-module.exports = router;        
+module.exports = router;

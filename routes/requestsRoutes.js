@@ -1,21 +1,29 @@
 const express = require("express");
 const Request = require("../models/Request");
-const { format, parseISO } = require('date-fns');
+const { format } = require('date-fns');
 
 const router = express.Router();
 
+// Middleware to verify session
+const verifySession = (req, res, next) => {
+    if (!req.session.userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+    next();
+};
+
 // Create a new document request
-router.post("/", async (req, res) => {
+router.post("/", verifySession, async (req, res) => {
     try {
-        const { fullName, email, address, documentType, purpose } = req.body;
+        const { fullName, address, documentType, purpose } = req.body;
         
-        if (!fullName || !email || !address || !documentType || !purpose) {
-            return res.status(400).json({ error: "❌ All fields are required" });
+        if (!fullName || !address || !documentType || !purpose) {
+            return res.status(400).json({ error: "All fields are required" });
         }
 
         const newRequest = new Request({
             fullName,
-            email,
+            email: req.session.userEmail,
             address,
             documentType,
             purpose,
@@ -24,42 +32,36 @@ router.post("/", async (req, res) => {
 
         await newRequest.save();
         
-        // Notify all clients
+        const formattedRequest = {
+            ...newRequest._doc,
+            formattedDate: format(newRequest.createdAt, 'MMM dd, yyyy'),
+            formattedTime: format(newRequest.createdAt, 'hh:mm a')
+        };
+
         req.app.get('io').emit('request-update', {
             type: 'created',
-            request: newRequest
+            request: formattedRequest
         });
 
         res.status(201).json({
-            message: "✅ Request submitted successfully!",
-            request: newRequest
+            message: "Request submitted successfully!",
+            request: formattedRequest
         });
     } catch (error) {
         console.error("Error submitting request:", error);
-        res.status(500).json({ 
-            error: "❌ Server error",
-            details: error.message 
-        });
+        res.status(500).json({ error: "Server error" });
     }
 });
 
-// Get all requests with filters
-router.get("/", async (req, res) => {
+// Get all requests (for admin)
+router.get("/", verifySession, async (req, res) => {
     try {
         const { status, documentType, startDate, endDate, search } = req.query;
         let query = {};
 
-        // Status filter
-        if (status) {
-            query.status = status;
-        }
-
-        // Document type filter
-        if (documentType) {
-            query.documentType = documentType;
-        }
-
-        // Date range filter
+        if (status) query.status = status;
+        if (documentType) query.documentType = documentType;
+        
         if (startDate && endDate) {
             query.createdAt = {
                 $gte: new Date(startDate),
@@ -67,7 +69,6 @@ router.get("/", async (req, res) => {
             };
         }
 
-        // Search filter
         if (search) {
             query.$or = [
                 { fullName: { $regex: search, $options: 'i' } },
@@ -77,11 +78,12 @@ router.get("/", async (req, res) => {
         }
 
         const requests = await Request.find(query)
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
-        // Format dates
         const formattedRequests = requests.map(request => ({
-            ...request._doc,
+            ...request,
+            id: request._id,
             formattedDate: format(request.createdAt, 'MMM dd, yyyy'),
             formattedTime: format(request.createdAt, 'hh:mm a')
         }));
@@ -89,34 +91,33 @@ router.get("/", async (req, res) => {
         res.status(200).json(formattedRequests);
     } catch (error) {
         console.error("Error fetching requests:", error);
-        res.status(500).json({ 
-            error: "❌ Server error",
-            details: error.message 
-        });
+        res.status(500).json({ error: "Server error" });
     }
 });
 
-// Get requests for a specific user
-router.get("/user", async (req, res) => {
+// Get requests for the logged-in user
+router.get("/user", verifySession, async (req, res) => {
     try {
-        const { email } = req.query;
-        
-        if (!email) {
-            return res.status(400).json({ error: "❌ Email parameter is required" });
-        }
+        const requests = await Request.find({ email: req.session.userEmail })
+            .sort({ createdAt: -1 })
+            .lean();
 
-        const requests = await Request.find({ email })
-            .sort({ createdAt: -1 });
+        const formattedRequests = requests.map(request => ({
+            ...request,
+            id: request._id,
+            formattedDate: format(request.createdAt, 'MMM dd, yyyy'),
+            formattedTime: format(request.createdAt, 'hh:mm a')
+        }));
 
-        res.status(200).json(requests);
+        res.status(200).json(formattedRequests);
     } catch (error) {
         console.error("Error fetching user requests:", error);
-        res.status(500).json({ error: "❌ Server error" });
+        res.status(500).json({ error: "Server error" });
     }
 });
 
 // Approve a request
-router.put("/:id/approve", async (req, res) => {
+router.put("/:id/approve", verifySession, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
             req.params.id,
@@ -125,27 +126,26 @@ router.put("/:id/approve", async (req, res) => {
         );
 
         if (!request) {
-            return res.status(404).json({ error: "❌ Request not found" });
+            return res.status(404).json({ error: "Request not found" });
         }
 
-        // Notify all clients
         req.app.get('io').emit('request-update', {
             type: 'updated',
             request
         });
 
         res.status(200).json({
-            message: "✅ Request approved successfully!",
+            message: "Request approved successfully!",
             request
         });
     } catch (error) {
         console.error("Error approving request:", error);
-        res.status(500).json({ error: "❌ Server error" });
+        res.status(500).json({ error: "Server error" });
     }
 });
 
 // Reject a request
-router.put("/:id/reject", async (req, res) => {
+router.put("/:id/reject", verifySession, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
             req.params.id,
@@ -154,47 +154,45 @@ router.put("/:id/reject", async (req, res) => {
         );
 
         if (!request) {
-            return res.status(404).json({ error: "❌ Request not found" });
+            return res.status(404).json({ error: "Request not found" });
         }
 
-        // Notify all clients
         req.app.get('io').emit('request-update', {
             type: 'updated',
             request
         });
 
         res.status(200).json({
-            message: "✅ Request rejected successfully!",
+            message: "Request rejected successfully!",
             request
         });
     } catch (error) {
         console.error("Error rejecting request:", error);
-        res.status(500).json({ error: "❌ Server error" });
+        res.status(500).json({ error: "Server error" });
     }
 });
 
 // Delete a request
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifySession, async (req, res) => {
     try {
         const request = await Request.findByIdAndDelete(req.params.id);
 
         if (!request) {
-            return res.status(404).json({ error: "❌ Request not found" });
+            return res.status(404).json({ error: "Request not found" });
         }
 
-        // Notify all clients
         req.app.get('io').emit('request-update', {
             type: 'deleted',
             requestId: req.params.id
         });
 
         res.status(200).json({
-            message: "✅ Request deleted successfully!",
+            message: "Request deleted successfully!",
             requestId: req.params.id
         });
-    } catch (error) {
+    } catch (error) {   
         console.error("Error deleting request:", error);
-        res.status(500).json({ error: "❌ Server error" });
+        res.status(500).json({ error: "Server error" });
     }
 });
 

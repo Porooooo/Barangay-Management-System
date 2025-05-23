@@ -1,12 +1,50 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const blotterSchema = new mongoose.Schema({
-    incident: { type: String, required: true },
-    date: { type: String, required: true },
-    reporter: { type: String, required: true },
-    description: { type: String },
-}, { collection: "blotter" });
+    residentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Resident',
+        required: true
+    },
+    incidentDate: {
+        type: Date,
+        required: true
+    },
+    location: {
+        type: String,
+        required: true
+    },
+    complaint: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['Pending', 'Under Investigation', 'Resolved', 'Dismissed'],
+        default: 'Pending'
+    },
+    resolution: {
+        type: String,
+        default: ''
+    },
+    resolvedDate: {
+        type: Date
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
 
-const Blotter = mongoose.model("Blotter", blotterSchema, "blotter");
+blotterSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
+const Blotter = mongoose.model('Blotter', blotterSchema);
 
 module.exports = Blotter;

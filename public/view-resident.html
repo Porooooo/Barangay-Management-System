@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Resident Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f5f5f5; }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .main-content.active {
+            margin-left: 73px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-toggle {
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .profile-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .back-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .profile-content {
+            display: flex;
+            gap: 30px;
+        }
+
+        .profile-picture-section {
+            flex: 0 0 250px;
+            text-align: center;
+        }
+
+        .profile-picture {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #f0f0f0;
+            margin-bottom: 20px;
+        }
+
+        .profile-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #28a745;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+
+        .profile-details {
+            flex: 1;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .detail-label {
+            flex: 0 0 200px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: #333;
+        }
+
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .profile-content {
+                flex-direction: column;
+            }
+            
+            .profile-picture-section {
+                flex: 1;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Admin Panel</span>
+        </div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="admin-dashboard.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+                <li><a href="manage-residents.html" class="active">
+                    <i class="uil uil-users-alt"></i>
+                    <span class="link-name">Manage Residents</span>
+                </a></li>
+                <li><a href="adminRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Document Requests</span>
+                </a></li>
+                <li><a href="adminAppointments.html">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="link-name">Appointments</span>
+                </a></li>
+                <li><a href="blotter-records.html">
+                    <i class="uil uil-file-shield-alt"></i>
+                    <span class="link-name">Blotter Records</span>
+                </a></li>
+                <li><a href="adminAnnounce.html">
+                    <i class="uil uil-file-shield-alt"></i>
+                    <span class="link-name">Make Announcement</span>
+                </a></li>
+                <li><a href="emergency.html">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Emergency Alerts</span>
+                </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="#">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="main-content">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-header">
+                <h1 class="profile-title">Resident Profile</h1>
+                <button class="back-btn" onclick="window.location.href='manage-residents.html'">
+                    <i class="uil uil-arrow-left"></i> Back to List
+                </button>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-picture-section">
+                    <img id="profilePicture" src="https://via.placeholder.com/200" alt="Profile Picture" class="profile-picture">
+                    <div id="profileStatus" class="profile-status status-active">Active</div>
+                </div>
+
+                <div class="profile-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Full Name:</div>
+                        <div class="detail-value" id="fullName">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Email:</div>
+                        <div class="detail-value" id="email">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Contact Number:</div>
+                        <div class="detail-value" id="contactNumber">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Address:</div>
+                        <div class="detail-value" id="address">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Birthdate:</div>
+                        <div class="detail-value" id="birthdate">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Civil Status:</div>
+                        <div class="detail-value" id="civilStatus">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Occupation:</div>
+                        <div class="detail-value" id="occupation">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Educational Attainment:</div>
+                        <div class="detail-value" id="educationalAttainment">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Account Created:</div>
+                        <div class="detail-value" id="createdAt">Loading...</div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="action-btn remove-btn" id="removeBtn">Remove Resident</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Sidebar Toggle Function
+        function toggleMenu() {
+            const nav = document.querySelector("nav");
+            const mainContent = document.querySelector(".main-content");
+            nav.classList.toggle("active");
+            mainContent.classList.toggle("active");
+        }
+    
+        // Get resident ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const residentId = urlParams.get('id');
+    
+        if (!residentId) {
+            window.location.href = 'manage-residents.html';
+        }
+    
+        // DOM elements
+        const profilePicture = document.getElementById('profilePicture');
+        const profileStatus = document.getElementById('profileStatus');
+        const fullName = document.getElementById('fullName');
+        const email = document.getElementById('email');
+        const contactNumber = document.getElementById('contactNumber');
+        const address = document.getElementById('address');
+        const birthdate = document.getElementById('birthdate');
+        const civilStatus = document.getElementById('civilStatus');
+        const occupation = document.getElementById('occupation');
+        const educationalAttainment = document.getElementById('educationalAttainment');
+        const createdAt = document.getElementById('createdAt');
+        const removeBtn = document.getElementById('removeBtn');
+    
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'Not available';
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+    
+        // Fetch resident data with proper error handling
+        async function fetchResidentData() {
+            try {
+                // First check admin authentication
+                const authCheck = await fetch('/api/auth/check-auth', {
+                    credentials: 'include'
+                });
+                
+                if (!authCheck.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                
+                const authData = await authCheck.json();
+                if (!authData.isAuthenticated || !authData.user.isAdmin) {
+                    window.location.href = '/';
+                    return;
+                }
+    
+                // Then fetch resident data
+                const response = await fetch(`/api/admin/user/${residentId}`, {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Unexpected response: ${text}`);
+                }
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch resident data');
+                }
+    
+                const resident = await response.json();
+    
+                // Update DOM with resident data
+                const profilePicUrl = resident.profilePicture 
+                    ? `/uploads/${resident.profilePicture}`
+                    : 'https://via.placeholder.com/200';
+                
+                profilePicture.src = profilePicUrl;
+                profileStatus.textContent = resident.status || 'Active';
+                profileStatus.className = `profile-status status-${(resident.status || 'Active').toLowerCase()}`;
+                fullName.textContent = resident.fullName || 'Not provided';
+                email.textContent = resident.email || 'Not provided';
+                contactNumber.textContent = resident.contactNumber || 'Not provided';
+                address.textContent = resident.address || 'Not provided';
+                birthdate.textContent = formatDate(resident.birthdate);
+                civilStatus.textContent = resident.civilStatus || 'Not provided';
+                occupation.textContent = resident.occupation || 'Not provided';
+                educationalAttainment.textContent = resident.educationalAttainment || 'Not provided';
+                createdAt.textContent = formatDate(resident.createdAt);
+    
+            } catch (error) {
+                console.error('Error:', error);
+                fullName.textContent = 'Error loading resident data';
+                profileStatus.textContent = 'Error';
+                profileStatus.className = 'profile-status status-inactive';
+                alert('Error: ' + error.message);
+            }
+        }
+    
+        // Remove resident function with better error handling
+        async function removeResident(id) {
+            if (!confirm('Are you sure you want to permanently remove this resident?')) {
+                return;
+            }
+    
+            try {
+                const response = await fetch(`/api/admin/users/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+    
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Unexpected response: ${text}`);
+                }
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to remove resident');
+                }
+    
+                const result = await response.json();
+                alert(result.message || 'Resident removed successfully');
+                window.location.href = 'manage-residents.html';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+    
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up remove button
+            removeBtn.addEventListener('click', () => removeResident(residentId));
+            
+            // Load resident data
+            fetchResidentData();
+        });
+    </script>
+</body>
+</html>

@@ -28,7 +28,7 @@
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             max-width: 1100px;
             width: 100%;
-            height: 600px; /* Set same height as the register page */
+            height: 600px;
             overflow: hidden;
         }
 
@@ -115,15 +115,14 @@
     </style>
 </head>
 <body>
-
     <!-- Main Content -->
     <div class="container">
         <div class="left-section">
             <div class="form-container">
                 <h1>Login</h1>
                 <form id="loginForm">
-                    <input type="email" id="email" placeholder="Email" required>
-                    <input type="password" id="password" placeholder="Password" required>
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                    <input type="password" id="password" name="password" placeholder="Password" required>
                     <button type="submit">Log In</button>
                 </form>
                 <p class="login-link">Don't have an Account? <a href="register.html">Sign Up Here</a></p>
@@ -136,36 +135,46 @@
 
     <script>
         // Handle form submission
-        document.getElementById('loginForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-    const loginData = {
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value
-    };
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-    try {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(loginData)
-        });
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include' // Important for sessions
+            });
 
-        const result = await response.json();
-        if (response.ok) {
-            alert(result.message);
-            localStorage.setItem("residentEmail", result.email); // Store the user's email
-            window.location.href = 'residentdashboard.html'; // Redirect to dashboard
-        } else {
-            alert(result.error);
+            const result = await response.json();
+            
+            if (response.ok) {
+                alert(result.message);
+                // Store user data in localStorage
+                localStorage.setItem('userId', result.user.id);
+                localStorage.setItem('userEmail', result.user.email);
+                localStorage.setItem('userFullName', result.user.fullName);
+                localStorage.setItem('isAdmin', result.user.isAdmin);
+                
+                // Redirect based on user type
+                if (result.user.isAdmin) {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'residentdashboard.html';
+                }
+            } else {
+                alert(result.message || result.error || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while logging in.');
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while logging in.');
-    }
-});
+    });
     </script>
 </body>
 </html>

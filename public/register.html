@@ -26,9 +26,9 @@
             background-color: #ffffff;
             border-radius: 25px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
-            width: 100%;
-            height: 700px;
+            max-width: 900px;
+            width: 90%;
+            height: 550px;
             overflow: hidden;
         }
 
@@ -42,8 +42,8 @@
         }
 
         .right-section img {
-            width: 400px;
-            height: 400px;
+            width: 300px;
+            height: 300px;
             border-radius: 50%;
             object-fit: cover;
         }
@@ -53,37 +53,38 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 50px;
+            padding: 30px;
             background-color: #ffffff;
             border-radius: 20px;
         }
 
         .form-container {
-            max-width: 500px;
+            max-width: 400px;
             width: 100%;
             text-align: center;
         }
 
         h1 {
-            font-size: 35px;
+            font-size: 28px;
             font-weight: 800;
             color: #000000;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         p {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             color: #666;
+            font-size: 14px;
         }
 
         .btn-signup {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background-color: #f3e0b6;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.9em;
         }
 
         .btn-signup:hover {
@@ -100,9 +101,10 @@
         }
 
         .register-link {
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
             color: #666;
+            font-size: 14px;
         }
 
         /* Modal Styles */
@@ -122,9 +124,9 @@
 
         .modal-content {
             background: white;
-            padding: 30px;
+            padding: 20px;
             width: 90%;
-            max-width: 800px;
+            max-width: 700px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
@@ -134,9 +136,9 @@
 
         .close {
             position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 24px;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
             cursor: pointer;
             color: #666;
         }
@@ -154,22 +156,22 @@
         .modal-content input,
         .modal-content select {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
+            padding: 10px;
+            margin: 8px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .modal-content button {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background-color: #f3e0b6;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1em;
-            margin-top: 10px;
+            font-size: 0.9em;
+            margin-top: 8px;
         }
 
         .modal-content button:hover {
@@ -180,24 +182,24 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            margin: 15px 0;
+            margin: 12px 0;
         }
 
         .checkbox-item {
             width: 48%;
             display: flex;
             align-items: center;
-            margin: 8px 0;
+            margin: 6px 0;
         }
 
         .checkbox-item input {
             width: auto;
-            margin-right: 10px;
+            margin-right: 8px;
         }
 
         .checkbox-item label {
             margin: 0;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         /* Full width elements */
@@ -208,26 +210,26 @@
         .file-upload-label {
             display: block;
             text-align: left;
-            margin-bottom: 5px;
-            font-size: 14px;
+            margin-bottom: 4px;
+            font-size: 13px;
             color: #666;
         }
 
         .other-occupation {
             display: none;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .password-section {
-            margin-top: 20px;
+            margin-top: 15px;
             border-top: 1px solid #eee;
-            padding-top: 20px;
+            padding-top: 15px;
         }
 
         .password-strength {
-            height: 5px;
+            height: 4px;
             background: #eee;
-            margin: 5px 0 15px;
+            margin: 4px 0 12px;
             border-radius: 5px;
             overflow: hidden;
         }
@@ -241,10 +243,10 @@
 
         .error-message {
             color: #ff0000;
-            font-size: 12px;
+            font-size: 11px;
             text-align: left;
-            margin-top: -10px;
-            margin-bottom: 10px;
+            margin-top: -8px;
+            margin-bottom: 8px;
             display: none;
         }
 
@@ -254,16 +256,42 @@
 
         .password-requirements {
             text-align: left;
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .password-requirements ul {
-            margin: 5px 0 0 15px;
+            margin: 4px 0 0 12px;
             padding: 0;
+            font-size: 11px;
+        }
+
+        /* Password input with toggle */
+        .password-input-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+        }
+
+        .password-toggle i {
+            font-size: 16px;
+        }
+        
+        /* Modal heading adjustment */
+        .modal-content h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <!-- Main Content -->
@@ -289,14 +317,14 @@
             <form id="registerForm" enctype="multipart/form-data">
                 <div class="form-columns">
                     <div class="form-column">
-                        <input type="text" id="fullName" placeholder="Full Name" required>
-                        <input type="email" id="email" placeholder="Email Address" required>
-                        <input type="text" id="contactNumber" placeholder="Contact Number" required>
-                        <input type="text" id="address" placeholder="Complete Address" required>
-                        <input type="date" id="birthdate" placeholder="Birthdate" required>
+                        <input type="text" id="fullName" name="fullName" placeholder="Full Name" required>
+                        <input type="email" id="email" name="email" placeholder="Email Address" required>
+                        <input type="text" id="contactNumber" name="contactNumber" placeholder="Contact Number" required>
+                        <input type="text" id="address" name="address" placeholder="Complete Address" required>
+                        <input type="date" id="birthdate" name="birthdate" placeholder="Birthdate" required>
                     </div>
                     <div class="form-column">
-                        <select id="civilStatus" required>
+                        <select id="civilStatus" name="civilStatus" required>
                             <option value="" disabled selected>Civil Status</option>
                             <option value="Single">Single</option>
                             <option value="Married">Married</option>
@@ -304,7 +332,7 @@
                             <option value="Separated">Separated</option>
                         </select>
                         
-                        <select id="occupation" onchange="toggleOtherOccupation(this)" required>
+                        <select id="occupation" name="occupation" onchange="toggleOtherOccupation(this)" required>
                             <option value="" disabled selected>Select Occupation</option>
                             <option value="Government Employee">Government Employee</option>
                             <option value="Private Employee">Private Employee</option>
@@ -326,9 +354,9 @@
                             <option value="Freelancer">Freelancer</option>
                             <option value="Others">Others (Please specify)</option>
                         </select>
-                        <input type="text" id="otherOccupation" class="other-occupation" placeholder="Please specify your occupation">
+                        <input type="text" id="otherOccupation" name="otherOccupation" class="other-occupation" placeholder="Please specify your occupation">
                         
-                        <select id="educationalAttainment" required>
+                        <select id="educationalAttainment" name="educationalAttainment" required>
                             <option value="" disabled selected>Educational Attainment</option>
                             <option value="Elementary Graduate">Elementary Graduate</option>
                             <option value="High School Graduate">High School Graduate</option>
@@ -339,7 +367,7 @@
                         </select>
                         
                         <label for="profilePicture" class="file-upload-label">Profile Picture (Required):</label>
-                        <input type="file" id="profilePicture" accept="image/*" required>
+                        <input type="file" id="profilePicture" name="profilePicture" accept="image/*" required>
                     </div>
                 </div>
                 
@@ -369,13 +397,32 @@
                 <!-- Password Section -->
                 <div class="password-section full-width">
                     <div class="password-requirements">
-  
+                        <p>Password must contain:</p>
+                        <ul>
+                            <li id="req-length">At least 8 characters</li>
+                            <li id="req-uppercase">At least one uppercase letter</li>
+                            <li id="req-special">At least one special character</li>
+                        </ul>
                     </div>
-                    <input type="password" id="password" placeholder="Create Password" required oninput="checkPasswordStrength()">
+                    
+                    <div class="password-input-container">
+                        <input type="password" id="password" name="password" placeholder="Create Password" required oninput="checkPasswordStrength()">
+                        <span class="password-toggle" onclick="togglePasswordVisibility('password')">
+                            <i class="far fa-eye"></i>
+                        </span>
+                    </div>
+                    
                     <div class="password-strength">
                         <div class="password-strength-bar" id="password-strength-bar"></div>
                     </div>
-                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                    
+                    <div class="password-input-container">
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+                        <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">
+                            <i class="far fa-eye"></i>
+                        </span>
+                    </div>
+                    
                     <div class="error-message" id="password-error">Passwords do not match</div>
                 </div>
                 
@@ -405,6 +452,22 @@
                 otherOccupationField.style.display = 'none';
                 otherOccupationField.required = false;
                 otherOccupationField.value = '';
+            }
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggleIcon = passwordField.nextElementSibling.querySelector('i');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
             }
         }
 
@@ -502,65 +565,67 @@
             return true;
         }
 
-        // Handle form submission
-        document.getElementById('registerForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+         // Handle form submission
+    document.getElementById('registerForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-            // Validate passwords match
-            if (!validatePassword()) {
-                return;
+        // Validate passwords match
+        if (!validatePassword()) {
+            return;
+        }
+        
+        // Validate password requirements
+        if (!validatePasswordRequirements()) {
+            return;
+        }
+
+        // Get occupation value
+        let occupationValue = document.getElementById('occupation').value;
+        if (occupationValue === 'Others') {
+            occupationValue = document.getElementById('otherOccupation').value;
+        }
+
+        const formData = new FormData();
+        formData.append('fullName', document.getElementById('fullName').value);
+        formData.append('email', document.getElementById('email').value);
+        formData.append('contactNumber', document.getElementById('contactNumber').value);
+        formData.append('address', document.getElementById('address').value);
+        formData.append('birthdate', document.getElementById('birthdate').value);
+        formData.append('civilStatus', document.getElementById('civilStatus').value);
+        formData.append('occupation', occupationValue);
+        formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
+        formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
+        formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
+        formData.append('pwdMember', document.getElementById('pwdMember').checked);
+        formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
+        formData.append('pregnant', document.getElementById('pregnant').checked);
+        formData.append('password', document.getElementById('password').value);
+        formData.append('confirmPassword', document.getElementById('confirmPassword').value);
+        formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
+
+        try {       
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include' // Important for sessions
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.message);
+                window.location.href = 'login.html';
+            } else {
+                alert(result.message || result.error || 'Registration failed');
             }
-            
-            // Validate password requirements
-            if (!validatePasswordRequirements()) {
-                return;
-            }
-
-            // Get occupation value
-            let occupationValue = document.getElementById('occupation').value;
-            if (occupationValue === 'Others') {
-                occupationValue = document.getElementById('otherOccupation').value;
-            }
-
-            const formData = new FormData();
-            formData.append('fullName', document.getElementById('fullName').value);
-            formData.append('email', document.getElementById('email').value);
-            formData.append('contactNumber', document.getElementById('contactNumber').value);
-            formData.append('address', document.getElementById('address').value);
-            formData.append('birthdate', document.getElementById('birthdate').value);
-            formData.append('civilStatus', document.getElementById('civilStatus').value);
-            formData.append('occupation', occupationValue);
-            formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
-            formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
-            formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
-            formData.append('pwdMember', document.getElementById('pwdMember').checked);
-            formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
-            formData.append('pregnant', document.getElementById('pregnant').checked);
-            formData.append('password', document.getElementById('password').value);
-            formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
-
-            try {       
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message);
-                    window.location.href = 'login.html';
-                } else {
-                    alert(result.error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while registering.');
-            }
-        });
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while registering.');
+        }
+    });
 
         // Add event listeners for password validation
         document.getElementById('password').addEventListener('input', checkPasswordStrength);
         document.getElementById('confirmPassword').addEventListener('input', validatePassword);
     </script>
 </body>
-</html>
+</html> 

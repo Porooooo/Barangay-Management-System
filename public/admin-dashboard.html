@@ -13,6 +13,40 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
 
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background-color: #5ECF89; }
+
         /* Main Content */
         .dashboard {
             position: relative;
@@ -39,8 +73,6 @@
         }
 
         .sidebar-toggle {
-            position: absolute;
-            left: 30px;
             font-size: 24px;
             color: #333;
             cursor: pointer;
@@ -450,7 +482,7 @@
                     <span class="link-name">Blotter Records</span>
                 </a></li>
                 <li><a href="adminAnnounce.html">
-                    <i class="uil uil-file-shield-alt"></i>
+                    <i class="uil uil-megaphone"></i>
                     <span class="link-name">Make Announcement</span>
                 </a></li>
                 <li><a href="emergency.html">
@@ -480,7 +512,7 @@
         <div class="top">
             <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i> 
             <h1><i class="uil uil-chart-bar"></i> Resident Statistics</h1>
-        </div>
+        </div><br><br>
 
         <div class="dash-content">
             <!-- Summary Cards -->
@@ -568,10 +600,21 @@
         </div>
     </section>
 
+    <script src="script.js"></script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         // Initialize socket connection
         const socket = io();
+
+        // Toggle sidebar
+        function toggleMenu() {
+            const sidebar = document.querySelector(".sidebar");
+            const mainContent = document.querySelector(".main-content");
+            sidebar.classList.toggle("active");
+            mainContent.classList.toggle("active");
+
+        }  
         
         // Function to update emergency alert count
         function updateEmergencyAlertCount() {
@@ -622,12 +665,7 @@
 
         // Initial count update
         updateEmergencyAlertCount();
-
-        // Toggle sidebar
-        function toggleMenu() {
-            const sidebar = document.querySelector("nav");
-            sidebar.classList.toggle("close");
-        }
+ 
 
         // Function to calculate age from birthdate
         function calculateAge(birthdate) {

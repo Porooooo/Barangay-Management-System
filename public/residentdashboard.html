@@ -301,19 +301,26 @@
 
                 <li><a href="announcement.html">
                     <i class="uil uil-bell"></i>
-                    <span class="link-name">Announcement</span>
+                    <span class="link-name">Announcements</span>
                 </a></li>
 
                 <li><a href="profile.html">
                     <i class="uil uil-user"></i>
                     <span class="link-name">Profile</span>
                 </a></li>
+            </ul>
             <ul class="logout-mode">
-                <li><a href="#">
+                <li><a href="#" id="logoutBtn">
                     <i class="uil uil-signout"></i>
                     <span class="link-name">Logout</span>
                 </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
                     <div class="mode-toggle">
+                        <span class="switch"></span>
                     </div>
                 </li>
             </ul>
@@ -382,7 +389,7 @@
     <!-- Emergency Button -->
     <div class="emergency-button-container">
         <button class="emergency-button" onclick="openEmergencyModal()">
-            <i class="uil uil-bell"></i> Emergency Alert
+            <i class="uil uil-bell"></i> Emergency
         </button>
     </div>
 
@@ -399,70 +406,77 @@
     <script src="script.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Fetch the logged-in user's email from the server
-        async function getLoggedInUserEmail() {
-            try {
-                const response = await fetch('/api/auth/profile');
-                const result = await response.json();
-                if (response.ok) {
-                    return result.email; // Return the user's email from the session
-                } else {
-                    console.error("Failed to fetch profile:", result.error);
-                    return null;
+        // Utility function for authenticated fetch
+        async function authFetch(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
                 }
-            } catch (error) {
-                console.error("Error fetching profile:", error);
+            });
+            
+            if (response.status === 401) {
+                window.location.href = "login.html";
                 return null;
             }
+            
+            return response;
         }
-
-         // Updated fetchResidentData function
-         async function fetchResidentData() {
-            const userEmail = await getLoggedInUserEmail();
-            if (!userEmail) {
-                alert("Please log in to view your data.");
-                window.location.href = "login.html";
-                return;
-            }
-
+    
+        // Fetch resident data
+        async function fetchResidentData() {
             try {
-                const [requestsResponse, appointmentsResponse] = await Promise.all([
-                    fetch(`/api/requests/user?email=${userEmail}`),
-                    fetch(`/api/schedule/user?email=${userEmail}`)
+                const [profileResponse, requestsResponse, appointmentsResponse, announcementsResponse] = await Promise.all([
+                    authFetch('/api/auth/profile'),
+                    authFetch('/api/requests/user'),
+                    authFetch('/api/schedule/user'),
+                    authFetch('/api/announcements')
                 ]);
 
-                // Add error handling for failed fetches
-                if (!requestsResponse.ok) throw new Error('Failed to fetch requests');
-                if (!appointmentsResponse.ok) throw new Error('Failed to fetch appointments');
+                if (!profileResponse || !requestsResponse || !appointmentsResponse || !announcementsResponse) return;
 
+                const profileData = await profileResponse.json();
                 const requests = await requestsResponse.json();
                 const appointments = await appointmentsResponse.json();
+                const announcements = await announcementsResponse.json();
 
-                console.log("Fetched appointments:", appointments);
+                // Update profile information
+                if (profileData) {
+                    document.getElementById('profilePicture').src = 
+                        profileData.profilePicture || 'images/profile.jpg';
+                    document.getElementById('userName').textContent = profileData.fullName || 'User';
+                }
 
                 // Update pending requests count
-                const pendingRequests = requests.filter(request => request.status === "Pending").length;
+                const pendingRequests = requests.filter(r => r.status === "Pending").length;
                 document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
 
-                // Updated appointment filtering logic
-                const validAppointments = appointments.filter(appointment => 
-                    appointment.status !== "Rejected" &&  // Include both Approved and Pending
-                    new Date(appointment.preferredDate) >= new Date()
+                // Update upcoming appointments
+                const validAppointments = appointments.filter(a => 
+                    a.status !== "Rejected" && 
+                    new Date(a.preferredDate) >= new Date()
                 );
-                console.log("Valid appointments:", validAppointments);
                 
                 document.getElementById('upcomingAppointments').textContent = 
                     `${validAppointments.length} Scheduled`;
 
-                // Update recent activity with combined data
+                // Update notifications count
+                const newAnnouncements = announcements.filter(a => 
+                    new Date(a.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                ).length;
+                document.getElementById('newNotifications').textContent = newAnnouncements;
+
+                // Update recent activity
                 const activityBody = document.getElementById('recentActivity');
                 activityBody.innerHTML = '';
 
-                // Combine and sort activities
                 const allActivities = [
                     ...appointments.map(a => ({ ...a, type: 'appointment', date: a.preferredDate })),
                     ...requests.map(r => ({ ...r, type: 'request', date: r.createdAt }))
-                ].sort((a, b) => new Date(b.date) - new Date(a.date));
+                ].sort((a, b) => new Date(b.date) - new Date(a.date))
+                 .slice(0, 5); // Show only 5 most recent
 
                 allActivities.forEach(activity => {
                     const row = activityBody.insertRow();
@@ -471,7 +485,19 @@
                         ? `Appointment - ${activity.purpose}`
                         : `Document Request - ${activity.documentType}`;
                     row.insertCell().textContent = activity.status;
-                    row.insertCell().innerHTML = `<button class="view-button">View</button>`;
+                    
+                    const actionCell = row.insertCell();
+                    const viewButton = document.createElement('button');
+                    viewButton.className = 'view-button';
+                    viewButton.textContent = 'View';
+                    viewButton.onclick = () => {
+                        if (activity.type === 'appointment') {
+                            window.location.href = `residentSchedule.html?id=${activity._id}`;
+                        } else {
+                            window.location.href = `residentRequests.html?id=${activity._id}`;
+                        }
+                    };
+                    actionCell.appendChild(viewButton);
                 });
 
             } catch (error) {
@@ -479,59 +505,31 @@
                 alert('Error loading data. Please try again.');
             }
         }
-
-        // Fetch user profile
-        async function fetchUserProfile() {
-            try {
-                const response = await fetch('/api/auth/profile');
-                const result = await response.json();
-                if (response.ok) {
-                    // Update the profile picture and name
-                    document.getElementById('profilePicture').src = result.profilePicture || 'images/profile.jpg';
-                    document.getElementById('userName').textContent = result.fullName;
-                } else {
-                    console.error("Failed to fetch profile:", result.error);
-                }
-            } catch (error) {
-                console.error("Error fetching profile:", error);
-            }
-        }
-
+    
         // Emergency Alert Functions
         function openEmergencyModal() {
             document.getElementById('emergencyModal').style.display = 'block';
         }
-
+    
         function closeEmergencyModal() {
             document.getElementById('emergencyModal').style.display = 'none';
         }
-
+    
         async function sendEmergencyAlert() {
             const message = document.getElementById('emergencyMessage').value.trim();
             if (!message) {
                 alert('Please enter your emergency message');
                 return;
             }
-
-            // Get resident ID from session
-            const userEmail = await getLoggedInUserEmail();
-            if (!userEmail) {
-                alert('Please log in to send emergency alerts');
-                return;
-            }
-
+    
             try {
-                const response = await fetch('/api/emergency/send', {
+                const response = await authFetch('/api/emergency/send', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: userEmail,
-                        message
-                    })
+                    body: JSON.stringify({ message })
                 });
-
+    
+                if (!response) return;
+    
                 const data = await response.json();
                 if (response.ok) {
                     alert('Emergency alert sent successfully!');
@@ -545,22 +543,90 @@
                 alert('Failed to send emergency alert: ' + error.message);
             }
         }
-
+    
+        // Logout function
+        async function logout() {
+            try {
+                const response = await authFetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+                
+                if (response && response.ok) {
+                    localStorage.removeItem('userEmail');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+    
         // Initialize socket.io
-        const socket = io();
-
+        const socket = io({
+            withCredentials: true
+        });
+    
         // Request notification permission
         if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
+    
+        // Socket.IO notifications
+        socket.on('request-updated', (request) => {
+            if (request.userId === localStorage.getItem('userId')) {
+                showNotification(`Your request status updated to ${request.status}`);
+                fetchResidentData(); // Refresh data
+            }
+        });
 
-        // Load data when the page loads
-        window.onload = function () {
-            fetchResidentData(); // Fetch resident data
-            fetchUserProfile(); // Fetch user profile
-        };
+        socket.on('announcement', (announcement) => {
+            showNotification(`New announcement: ${announcement.title}`);
+            fetchResidentData(); // Refresh data to update notification count
+        });
 
-        // Refresh dashboard data every 5 seconds
+        socket.on('emergency-response', (response) => {
+            if (response.userId === localStorage.getItem('userId')) {
+                showNotification(`Emergency response: ${response.message}`);
+            }
+        });
+    
+        function showNotification(message) {
+            if (Notification.permission === "granted") {
+                new Notification("BTMS Notification", { body: message });
+            } else {
+                alert(message);
+            }
+        }
+    
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication status
+            authFetch('/api/auth/check-auth')
+                .then(response => {
+                    if (!response) return;
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data || !data.isAuthenticated) {
+                        window.location.href = 'login.html';
+                    } else {
+                        localStorage.setItem('userId', data.user.id);
+                        fetchResidentData();
+                    }
+                })
+                .catch(error => {
+                    console.error('Auth check error:', error);
+                    window.location.href = 'login.html';
+                });
+
+            // Add logout event listener
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+        });
+    
+        // Refresh data every 30 seconds
+        setInterval(fetchResidentData, 30000);
     </script>
 </body>
 </html>
