@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
+const fs = require('fs');
 const User = require("../models/User");
 
 const router = express.Router();
@@ -9,28 +10,90 @@ const router = express.Router();
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../uploads/'));
+    const uploadDir = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, 'profile-' + uniqueSuffix + ext);
   }
 });
 
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed!'), false);
+  }
+};
+
 const upload = multer({ 
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+  fileFilter: fileFilter,
+  limits: { 
+    fileSize: 5 * 1024 * 1024, // 5MB
+    files: 1
+  }
 });
 
-// User Registration
+// Enhanced profile endpoint
+router.get("/profile", async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ 
+      error: "Unauthorized",
+      message: "Please log in to access this resource"
+    });
+  }
+
+  try {
+    const user = await User.findById(req.session.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ 
+        error: "Not found",
+        message: "User not found"
+      });
+    }
+
+    // Helper function to verify file exists
+    const verifyProfilePicture = (filename) => {
+      if (!filename) return false;
+      const filePath = path.join(__dirname, '../uploads', filename);
+      return fs.existsSync(filePath);
+    };
+
+    // Construct response data
+    const responseData = {
+      ...user.toObject(),
+      profilePictureUrl: verifyProfilePicture(user.profilePicture)
+        ? `${req.protocol}://${req.get('host')}/uploads/${user.profilePicture}?${Date.now()}`
+        : `${req.protocol}://${req.get('host')}/images/profile.jpg`
+    };
+
+    return res.status(200).json(responseData);
+  } catch (error) {
+    console.error("Profile error:", error);
+    return res.status(500).json({ 
+      error: "Server error",
+      message: "Failed to fetch profile"
+    });
+  }
+});
+
+// User Registration with enhanced file handling
 router.post("/register", upload.single('profilePicture'), async (req, res) => {
   try {
     const formData = req.body;
     const file = req.file;
-    
+
     // Validate required fields
     if (!formData.fullName || !formData.email || !formData.contactNumber || 
         !formData.address || !formData.birthdate || !formData.password || 
         !formData.confirmPassword) {
+      if (file) fs.unlinkSync(file.path); // Clean up uploaded file
       return res.status(400).json({ 
         error: "Validation error",
         message: "All required fields must be provided" 
@@ -40,6 +103,7 @@ router.post("/register", upload.single('profilePicture'), async (req, res) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
+      if (file) fs.unlinkSync(file.path); // Clean up uploaded file
       return res.status(400).json({ 
         error: "Validation error",
         message: "Invalid email format" 
@@ -48,22 +112,24 @@ router.post("/register", upload.single('profilePicture'), async (req, res) => {
 
     // Check password match
     if (formData.password !== formData.confirmPassword) {
+      if (file) fs.unlinkSync(file.path); // Clean up uploaded file
       return res.status(400).json({ 
         error: "Validation error",
         message: "Passwords do not match" 
       });
     }
 
-    // Check if user already exists
+    // Check existing user
     const existingUser = await User.findOne({ email: formData.email });
     if (existingUser) {
+      if (file) fs.unlinkSync(file.path); // Clean up uploaded file
       return res.status(400).json({ 
         error: "Duplicate email",
         message: "Email already registered" 
       });
     }
 
-    // Hash the password
+    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(formData.password, salt);
 
@@ -88,7 +154,8 @@ router.post("/register", upload.single('profilePicture'), async (req, res) => {
       seniorCitizen: formData.seniorCitizen === 'true',
       pregnant: formData.pregnant === 'true',
       password: hashedPassword,
-      profilePicture: file ? file.filename : 'default-profile.png'
+      profilePicture: file ? file.filename : 'default-profile.png',
+      role: 'resident'
     });
 
     // Save user
@@ -97,25 +164,44 @@ router.post("/register", upload.single('profilePicture'), async (req, res) => {
     // Set session
     req.session.userId = newUser._id;
     req.session.userEmail = newUser.email;
-    req.session.isAdmin = false;
-
+    req.session.role = newUser.role;
+    
     return res.status(201).json({ 
       message: "User registered successfully",
       user: {
         id: newUser._id,
         email: newUser.email,
-        fullName: newUser.fullName
+        fullName: newUser.fullName,
+        profilePictureUrl: file 
+          ? `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
+          : `${req.protocol}://${req.get('host')}/images/profile.jpg`,
+        role: newUser.role
       }
     });
 
   } catch (error) {
+    if (req.file) fs.unlinkSync(req.file.path); // Clean up on error
     console.error("Registration error:", error);
+    
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         error: "Validation error",
         message: error.message 
       });
     }
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        error: "File too large",
+        message: "Profile picture must be less than 5MB"
+      });
+    }
+    if (error.message === 'Only image files are allowed!') {
+      return res.status(400).json({
+        error: "Invalid file type",
+        message: "Only JPG, JPEG, PNG, and GIF files are allowed"
+      });
+    }
+    
     return res.status(500).json({ 
       error: "Server error",
       message: "Failed to register user" 
@@ -163,7 +249,7 @@ router.post("/login", async (req, res) => {
     // Set session
     req.session.userId = user._id;
     req.session.userEmail = user.email;
-    req.session.isAdmin = user.email.endsWith('@admin.com');
+    req.session.role = user.role;
     
     console.log('Session after login:', req.session);
 
@@ -173,7 +259,9 @@ router.post("/login", async (req, res) => {
         id: user._id,
         email: user.email,
         fullName: user.fullName,
-        isAdmin: req.session.isAdmin
+        profilePictureUrl: user.profilePicture.startsWith('http') ? 
+          user.profilePicture : `/uploads/${user.profilePicture}`,
+        role: user.role
       }
     });
 
@@ -186,6 +274,55 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+// Update Profile Picture
+router.post("/update-profile-picture", upload.single('profilePicture'), async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.status(401).json({ 
+        error: "Unauthorized",
+        message: "Please log in to update profile picture" 
+      });
+    }
+
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ 
+        error: "Validation error",
+        message: "No file uploaded" 
+      });
+    }
+
+    // Update user's profile picture in database
+    const user = await User.findById(req.session.userId);
+    
+    // Delete old profile picture if it's not the default
+    if (user.profilePicture && user.profilePicture !== 'default-profile.png') {
+      const oldFilePath = path.join(__dirname, '../uploads', user.profilePicture);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+    }
+
+    user.profilePicture = file.filename;
+    await user.save();
+
+    res.status(200).json({ 
+      message: "Profile picture updated successfully",
+      profilePictureUrl: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
+    });
+
+  } catch (error) {
+    if (req.file) fs.unlinkSync(req.file.path);
+    console.error("Error updating profile picture:", error);
+    res.status(500).json({ 
+      error: "Server error",
+      message: "Failed to update profile picture" 
+    });
+  }
+});
+
 
 // User Logout
 router.post("/logout", (req, res) => {
@@ -209,40 +346,11 @@ router.get("/check-auth", (req, res) => {
       user: {
         id: req.session.userId,
         email: req.session.userEmail,
-        isAdmin: req.session.isAdmin
+        role: req.session.role
       }
     });
   }
   return res.status(200).json({ isAuthenticated: false });
-});
-
-// Get user profile
-router.get("/profile", async (req, res) => {
-  if (!req.session.userId) {
-    return res.status(401).json({ 
-      error: "Unauthorized",
-      message: "Please log in to access this resource"
-    });
-  }
-
-  try {
-    const user = await User.findById(req.session.userId).select('-password');
-    
-    if (!user) {
-      return res.status(404).json({ 
-        error: "Not found",
-        message: "User not found"
-      });
-    }
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error("Profile error:", error);
-    return res.status(500).json({ 
-      error: "Server error",
-      message: "Failed to fetch profile"
-    });
-  }
 });
 
 module.exports = router;

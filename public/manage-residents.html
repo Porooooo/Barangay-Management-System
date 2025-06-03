@@ -168,7 +168,7 @@
             font-weight: 500;
         }
 
-        .status-deactive {
+        .status-inactive {
             color: #dc3545;
             font-weight: 500;
         }
@@ -188,8 +188,13 @@
             color: white;
         }
 
-        .remove-btn {
+        .disable-btn {
             background-color: #dc3545;
+            color: white;
+        }
+
+        .enable-btn {
+            background-color: #28a745;
             color: white;
         }
 
@@ -550,69 +555,37 @@
         const cancelAddUser = document.getElementById('cancelAddUser');
         const addUserForm = document.getElementById('addUserForm');
 
-       // Fetch Residents Data
-async function fetchResidents() {
-    try {
-        const response = await fetch('/api/admin/users', {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
+        // Fetch Residents Data
+        async function fetchResidents() {
+            try {
+                const response = await fetch('/api/admin/users', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Unexpected response: ${text}`);
+                }
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch residents');
+                }
+
+                const data = await response.json();
+                allResidents = data.residents || data; // Handle both formats
+                updateTable();
+            } catch (error) {
+                console.error('Error fetching residents:', error);
+                residentsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Error loading data. Please try again.</td></tr>';
             }
-        });
-
-        // Check if response is JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            const text = await response.text();
-            throw new Error(`Unexpected response: ${text}`);
         }
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to fetch residents');
-        }
-
-        const data = await response.json();
-        allResidents = data.residents || data; // Handle both formats
-        updateTable();
-    } catch (error) {
-        console.error('Error fetching residents:', error);
-        residentsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Error loading data. Please try again.</td></tr>';
-    }
-}
-
-// Remove resident function
-async function removeResident(id) {
-    if (!confirm('Are you sure you want to remove this resident?')) return;
-    
-    try {
-        const response = await fetch(`/api/admin/users/${id}`, {
-            method: 'DELETE',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // Check if response is JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            const text = await response.text();
-            throw new Error(`Unexpected response: ${text}`);
-        }
-
-        if (response.ok) {
-            fetchResidents(); // Refresh the list
-        } else {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to remove resident');
-        }
-    } catch (error) {
-        console.error('Error removing resident:', error);
-        alert('Error: ' + error.message);
-    }
-}
 
         // Filter residents based on search input
         function filterResidents() {
@@ -644,7 +617,10 @@ async function removeResident(id) {
                         <td>${new Date(resident.createdAt).toLocaleString()}</td>
                         <td>
                             <button class="action-btn view-btn" data-id="${resident._id || resident.id}">View</button>
-                            <button class="action-btn remove-btn" data-id="${resident._id || resident.id}">Remove</button>
+                            <button class="action-btn ${resident.status === 'Active' ? 'disable-btn' : 'enable-btn'}" 
+                                    data-id="${resident._id || resident.id}">
+                                ${resident.status === 'Active' ? 'Disable' : 'Enable'}
+                            </button>
                         </td>
                     </tr>
                 `).join('') : 
@@ -663,8 +639,8 @@ async function removeResident(id) {
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', () => viewResident(btn.dataset.id));
             });
-            document.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', () => removeResident(btn.dataset.id));
+            document.querySelectorAll('.disable-btn, .enable-btn').forEach(btn => {
+                btn.addEventListener('click', () => toggleResidentStatus(btn.dataset.id, btn));
             });
         }
 
@@ -696,24 +672,43 @@ async function removeResident(id) {
             window.location.href = `view-resident.html?id=${id}`;
         }
 
-        // Remove resident function
-        async function removeResident(id) {
-            if (!confirm('Are you sure you want to remove this resident?')) return;
+        // Toggle resident status (disable/enable)
+        async function toggleResidentStatus(id, button) {
+            const currentStatus = button.textContent.trim();
+            const newStatus = currentStatus === 'Disable' ? 'Inactive' : 'Active';
+            
+            if (!confirm(`Are you sure you want to ${currentStatus.toLowerCase()} this resident?`)) {
+                return;
+            }
             
             try {
-                const response = await fetch(`/api/admin/users/${id}`, {
-                    method: 'DELETE'
+                const response = await fetch(`/api/residents/${id}/status`, {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
                 });
-                
+
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Unexpected response: ${text}`);
+                }
+
                 if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message || 'Resident status updated successfully');
                     fetchResidents(); // Refresh the list
                 } else {
-                    console.error('Failed to remove resident');
-                    alert('Failed to remove resident. Please try again.');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to update resident status');
                 }
             } catch (error) {
-                console.error('Error removing resident:', error);
-                alert('An error occurred while removing the resident.');
+                console.error('Error toggling resident status:', error);
+                alert('Error: ' + error.message);
             }
         }
 

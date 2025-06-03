@@ -127,6 +127,7 @@
             display: flex;
             justify-content: space-between;
             margin-top: 20px;
+            gap: 20px;
         }
 
         .box {
@@ -134,8 +135,43 @@
             padding: 20px;
             border-radius: 5px;
             flex: 1;
-            margin: 0 10px;
+            min-width: 0;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .box i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .box .text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .box .number {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .box1 {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .box2 {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .box3 {
+            background-color: #fff3e0;
+            color: #ffa000;
         }
 
         .activity {
@@ -144,6 +180,52 @@
 
         .resident-requests {
             margin-top: 20px;
+        }
+
+        /* Announcements Section */
+        .announcements-container {
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .announcement-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .announcement-item:last-child {
+            border-bottom: none;
+        }
+
+        .announcement-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .announcement-date {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .announcement-content {
+            color: #34495e;
+            line-height: 1.5;
+        }
+
+        .announcement-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: #5ECF89;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-top: 8px;
         }
 
         /* Blotter Records Table */
@@ -165,7 +247,7 @@
         }
 
         .view-button {
-            background-color: #007bff; /* Blue */
+            background-color: #007bff;
             color: white;
             padding: 5px 10px;
             border: none;
@@ -294,11 +376,6 @@
                     <span class="link-name">Your Requests</span>
                 </a></li>
 
-                <li><a href="residentSchedule.html">
-                    <i class="uil uil-calendar-alt"></i>
-                    <span class="link-name">Your Schedule</span>
-                </a></li>
-
                 <li><a href="announcement.html">
                     <i class="uil uil-bell"></i>
                     <span class="link-name">Announcements</span>
@@ -351,17 +428,28 @@
                         <span class="number" id="pendingRequests">0 Pending</span>
                     </div>
                     <div class="box box2">
-                        <i class="uil uil-calendar-alt"></i>
-                        <span class="text">Upcoming Appointments</span>
-                        <span class="number" id="upcomingAppointments">0 Scheduled</span>
+                        <i class="uil uil-bell"></i>
+                        <span class="text">New Announcements</span>
+                        <span class="number" id="newAnnouncements">0</span>
                     </div>
                     <div class="box box3">
-                        <i class="uil uil-bell"></i>
-                        <span class="text">New Notifications</span>
-                        <span class="number" id="newNotifications">0</span>
+                        <i class="uil uil-shield-exclamation"></i>
+                        <span class="text">Blotter Cases</span>
+                        <span class="number" id="blotterCases">0</span>
                     </div>
                 </div>
             </div>
+            
+            <div class="activity">
+                <div class="title">
+                    <i class="uil uil-bell"></i>
+                    <span class="text">Latest Announcements</span>
+                </div>
+                <div class="announcements-container" id="announcementsContainer">
+                    <p>Loading announcements...</p>
+                </div>
+            </div>
+            
             <div class="activity">
                 <div class="title">
                     <i class="uil uil-history"></i>
@@ -428,24 +516,33 @@
         // Fetch resident data
         async function fetchResidentData() {
             try {
-                const [profileResponse, requestsResponse, appointmentsResponse, announcementsResponse] = await Promise.all([
+                const [profileResponse, requestsResponse, announcementsResponse, blotterResponse] = await Promise.all([
                     authFetch('/api/auth/profile'),
                     authFetch('/api/requests/user'),
-                    authFetch('/api/schedule/user'),
-                    authFetch('/api/announcements')
+                    authFetch('/api/announcements/user'),
+                    authFetch('/api/blotter/user')
                 ]);
 
-                if (!profileResponse || !requestsResponse || !appointmentsResponse || !announcementsResponse) return;
+                if (!profileResponse || !requestsResponse || !announcementsResponse || !blotterResponse) return;
 
                 const profileData = await profileResponse.json();
                 const requests = await requestsResponse.json();
-                const appointments = await appointmentsResponse.json();
                 const announcements = await announcementsResponse.json();
+                const blotterCases = await blotterResponse.json();
 
                 // Update profile information
                 if (profileData) {
-                    document.getElementById('profilePicture').src = 
-                        profileData.profilePicture || 'images/profile.jpg';
+                    const profilePic = document.getElementById('profilePicture');
+                    if (profileData.profilePicture) {
+                        // Check if the profile picture is a URL or a filename
+                        if (profileData.profilePicture.startsWith('http') || profileData.profilePicture.startsWith('/')) {
+                            profilePic.src = profileData.profilePicture;
+                        } else {
+                            profilePic.src = '/uploads/' + profileData.profilePicture;
+                        }
+                    } else {
+                        profilePic.src = 'images/profile.jpg';
+                    }
                     document.getElementById('userName').textContent = profileData.fullName || 'User';
                 }
 
@@ -453,27 +550,40 @@
                 const pendingRequests = requests.filter(r => r.status === "Pending").length;
                 document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
 
-                // Update upcoming appointments
-                const validAppointments = appointments.filter(a => 
-                    a.status !== "Rejected" && 
-                    new Date(a.preferredDate) >= new Date()
-                );
-                
-                document.getElementById('upcomingAppointments').textContent = 
-                    `${validAppointments.length} Scheduled`;
-
-                // Update notifications count
+                // Update announcements count
                 const newAnnouncements = announcements.filter(a => 
                     new Date(a.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
                 ).length;
-                document.getElementById('newNotifications').textContent = newAnnouncements;
+                document.getElementById('newAnnouncements').textContent = newAnnouncements;
+
+                // Update blotter cases count
+                document.getElementById('blotterCases').textContent = blotterCases.length;
+
+                // Display latest announcements (3 most recent)
+                const announcementsContainer = document.getElementById('announcementsContainer');
+                if (announcements.length > 0) {
+                    const latestAnnouncements = announcements.slice(0, 3);
+                    announcementsContainer.innerHTML = latestAnnouncements.map(announcement => `
+                        <div class="announcement-item">
+                            <div class="announcement-title">${announcement.title}</div>
+                            <div class="announcement-date">${new Date(announcement.createdAt).toLocaleString()}</div>
+                            <div class="announcement-content">${announcement.content}</div>
+                            <div>
+                                ${announcement.targetGroups?.map(group => `
+                                    <span class="announcement-badge">${group}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    announcementsContainer.innerHTML = '<p>No announcements available at this time.</p>';
+                }
 
                 // Update recent activity
                 const activityBody = document.getElementById('recentActivity');
                 activityBody.innerHTML = '';
 
                 const allActivities = [
-                    ...appointments.map(a => ({ ...a, type: 'appointment', date: a.preferredDate })),
                     ...requests.map(r => ({ ...r, type: 'request', date: r.createdAt }))
                 ].sort((a, b) => new Date(b.date) - new Date(a.date))
                  .slice(0, 5); // Show only 5 most recent
@@ -481,9 +591,7 @@
                 allActivities.forEach(activity => {
                     const row = activityBody.insertRow();
                     row.insertCell().textContent = new Date(activity.date).toLocaleDateString();
-                    row.insertCell().textContent = activity.type === 'appointment' 
-                        ? `Appointment - ${activity.purpose}`
-                        : `Document Request - ${activity.documentType}`;
+                    row.insertCell().textContent = `Document Request - ${activity.documentType}`;
                     row.insertCell().textContent = activity.status;
                     
                     const actionCell = row.insertCell();
@@ -491,11 +599,7 @@
                     viewButton.className = 'view-button';
                     viewButton.textContent = 'View';
                     viewButton.onclick = () => {
-                        if (activity.type === 'appointment') {
-                            window.location.href = `residentSchedule.html?id=${activity._id}`;
-                        } else {
-                            window.location.href = `residentRequests.html?id=${activity._id}`;
-                        }
+                        window.location.href = `residentRequests.html?id=${activity._id}`;
                     };
                     actionCell.appendChild(viewButton);
                 });
@@ -523,10 +627,13 @@
             }
     
             try {
-                const response = await authFetch('/api/emergency/send', {
-                    method: 'POST',
-                    body: JSON.stringify({ message })
-                });
+                const userEmail = localStorage.getItem('userEmail'); // or however you stored it
+
+const response = await authFetch('/api/emergency/send', {
+    method: 'POST',
+    body: JSON.stringify({ email: userEmail, message })
+});
+
     
                 if (!response) return;
     
@@ -578,7 +685,7 @@
             }
         });
 
-        socket.on('announcement', (announcement) => {
+        socket.on('new_announcement', (announcement) => {
             showNotification(`New announcement: ${announcement.title}`);
             fetchResidentData(); // Refresh data to update notification count
         });

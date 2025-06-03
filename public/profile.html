@@ -211,7 +211,7 @@
                 <b>Profile Photo</b>
                 <p>Accepted file types: .png, .jpg, .jpeg. Less than 2MB</p>
                 <form id="uploadForm" class="d-flex align-items-center">
-                    <input type="file" id="newProfilePicture" accept="image/*" required class="d-none">
+                    <input type="file" id="newProfilePicture" accept="image/*" class="d-none">
                     <label for="newProfilePicture" class="btn button border mr-2"><b>Choose File</b></label>
                     <button type="submit" class="btn btn-primary">Upload</button>
                 </form>
@@ -308,6 +308,54 @@
     <script>
         let originalData = {}; // To store original values when editing
 
+        // Check authentication status when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('/api/auth/check-auth', {
+                    credentials: 'include'
+                });
+                
+                const authData = await response.json();
+                
+                if (!authData.isAuthenticated) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Fetch user profile if authenticated
+                await fetchUserProfile();
+                
+                // Set up event listeners
+                setupEventListeners();
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+                window.location.href = 'login.html';
+            }
+        });
+
+        function setupEventListeners() {
+            document.getElementById('newProfilePicture').addEventListener('change', function() {
+                const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
+                document.querySelector('label[for="newProfilePicture"]').textContent = fileName;
+            });
+
+            document.getElementById('uploadForm').addEventListener('submit', updateProfilePicture);
+            
+            document.getElementById('editProfileBtn').addEventListener('click', function() {
+                toggleEditMode(true);
+            });
+
+            document.getElementById('saveProfileBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                saveProfile();
+            });
+
+            document.getElementById('cancelEditBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                cancelEdit();
+            });
+        }
+
         async function fetchUserProfile() {
             try {
                 const response = await fetch('/api/auth/profile', {
@@ -319,6 +367,7 @@
                 });
 
                 const result = await response.json();
+                
                 if (response.ok) {
                     // Store the original data
                     originalData = {
@@ -363,14 +412,19 @@
                     document.getElementById('occupation').value = originalData.occupation;
                     document.getElementById('educationalAttainment').value = originalData.educationalAttainment;
 
-                    document.getElementById('profilePicture').src = 
-                        result.profilePicture || 'https://via.placeholder.com/150';
+                    // Set profile picture
+                    const profilePicUrl = result.profilePictureUrl || 'images/default-profile.png';
+                    document.getElementById('profilePicture').src = profilePicUrl;
                 } else {
                     alert(result.error || 'Failed to fetch profile data');
+                    if (response.status === 401) {
+                        window.location.href = 'login.html';
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred while fetching user profile.');
+                window.location.href = 'login.html';
             }
         }
 
@@ -379,38 +433,36 @@
             container.innerHTML = '';
             
             // Only show fields that are true/YES
-            if (data.registeredVoter) {
-                addInfoField(container, 'Registered Voter');
-            }
-            if (data.fourPsMember) {
-                addInfoField(container, '4Ps Member');
-            }
-            if (data.pwdMember) {
-                addInfoField(container, 'PWD Member');
-            }
-            if (data.seniorCitizen) {
-                addInfoField(container, 'Senior Citizen');
-            }
-            if (data.pregnant) {
-                addInfoField(container, 'Pregnant');
-            }
-        }
-        
-        function addInfoField(container, label) {
-            const fieldDiv = document.createElement('div');
-            fieldDiv.className = 'col-md-6 additional-info-field';
-            
-            const labelElement = document.createElement('label');
-            labelElement.className = 'additional-info-label';
-            labelElement.textContent = label;
-            
-            fieldDiv.appendChild(labelElement);
-            container.appendChild(fieldDiv);
+            const additionalInfo = [
+                { key: 'registeredVoter', label: 'Registered Voter' },
+                { key: 'fourPsMember', label: '4Ps Member' },
+                { key: 'pwdMember', label: 'PWD Member' },
+                { key: 'seniorCitizen', label: 'Senior Citizen' },
+                { key: 'pregnant', label: 'Pregnant' }
+            ];
+
+            additionalInfo.forEach(info => {
+                if (data[info.key]) {
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'col-md-6 additional-info-field';
+                    
+                    const labelElement = document.createElement('label');
+                    labelElement.className = 'additional-info-label';
+                    labelElement.textContent = info.label;
+                    
+                    fieldDiv.appendChild(labelElement);
+                    container.appendChild(fieldDiv);
+                }
+            });
         }
 
         function formatDate(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString();
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
         }
 
         function formatDateForInput(dateString) {
@@ -425,6 +477,7 @@
             event.preventDefault();
             const fileInput = document.getElementById('newProfilePicture');
             const file = fileInput.files[0];
+            
             if (!file) {
                 alert('Please select a file.');
                 return;
@@ -447,8 +500,17 @@
 
                 const result = await response.json();
                 if (response.ok) {
-                    alert(result.message);
-                    fetchUserProfile();
+                    alert('Profile picture updated successfully!');
+                    // Update the displayed image immediately
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('profilePicture').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    // Clear the file input
+                    fileInput.value = '';
+                    document.querySelector('label[for="newProfilePicture"]').textContent = 'Choose File';
                 } else {
                     alert(result.error || 'Failed to update profile picture');
                 }
@@ -460,7 +522,21 @@
 
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
-                window.location.href = 'index.html';
+                fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = 'login.html';
+                    } else {
+                        alert('Failed to logout. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    alert('An error occurred during logout.');
+                });
             }   
         }
 
@@ -507,8 +583,8 @@
             };
 
             try {
-                const response = await fetch('/api/auth/update-profile', {
-                    method: 'POST',
+                const response = await fetch('/api/residents/profile', {
+                    method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -523,6 +599,9 @@
                     toggleEditMode(false);
                 } else {
                     alert(result.error || 'Failed to update profile');
+                    if (response.status === 401) {
+                        window.location.href = 'login.html';
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -543,31 +622,6 @@
 
             toggleEditMode(false);
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchUserProfile();
-            
-            document.getElementById('newProfilePicture').addEventListener('change', function() {
-                const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
-                document.querySelector('label[for="newProfilePicture"]').textContent = fileName;
-            });
-
-            document.getElementById('uploadForm').addEventListener('submit', updateProfilePicture);
-            
-            document.getElementById('editProfileBtn').addEventListener('click', function() {
-                toggleEditMode(true);
-            });
-
-            document.getElementById('saveProfileBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                saveProfile();
-            });
-
-            document.getElementById('cancelEditBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                cancelEdit();
-            });
-        });
     </script>
 </body>
 </html>

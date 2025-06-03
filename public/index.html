@@ -244,11 +244,14 @@
 
         const data = await response.json();
         
-        // Store user email in localStorage for later use
-        localStorage.setItem('userEmail', email);
+        // Store user data in localStorage
+        localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('userEmail', data.user.email);
+        localStorage.setItem('userFullName', data.user.fullName);
+        localStorage.setItem('userRole', data.user.role);
         
-        // Check if user is admin (email ends with @admin.com)
-        if (email.endsWith('@admin.com')) {
+        // Redirect based on user role from backend
+        if (data.user.role === 'admin') {
           window.location.href = 'admin-dashboard.html';
         } else {
           window.location.href = 'residentdashboard.html';

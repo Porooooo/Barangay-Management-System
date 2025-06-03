@@ -1,6 +1,6 @@
 const express = require("express");
 const Request = require("../models/Request");
-const { format } = require('date-fns');
+const { format, isValid } = require('date-fns');
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ const verifySession = (req, res, next) => {
 router.post("/", verifySession, async (req, res) => {
     try {
         const { fullName, address, documentType, purpose } = req.body;
-        
+
         if (!fullName || !address || !documentType || !purpose) {
             return res.status(400).json({ error: "All fields are required" });
         }
@@ -31,11 +31,12 @@ router.post("/", verifySession, async (req, res) => {
         });
 
         await newRequest.save();
-        
+
+        const createdAt = new Date(newRequest.createdAt);
         const formattedRequest = {
             ...newRequest._doc,
-            formattedDate: format(newRequest.createdAt, 'MMM dd, yyyy'),
-            formattedTime: format(newRequest.createdAt, 'hh:mm a')
+            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
         };
 
         req.app.get('io').emit('request-update', {
@@ -61,7 +62,7 @@ router.get("/", verifySession, async (req, res) => {
 
         if (status) query.status = status;
         if (documentType) query.documentType = documentType;
-        
+
         if (startDate && endDate) {
             query.createdAt = {
                 $gte: new Date(startDate),
@@ -77,16 +78,17 @@ router.get("/", verifySession, async (req, res) => {
             ];
         }
 
-        const requests = await Request.find(query)
-            .sort({ createdAt: -1 })
-            .lean();
+        const requests = await Request.find(query).sort({ createdAt: -1 }).lean();
 
-        const formattedRequests = requests.map(request => ({
-            ...request,
-            id: request._id,
-            formattedDate: format(request.createdAt, 'MMM dd, yyyy'),
-            formattedTime: format(request.createdAt, 'hh:mm a')
-        }));
+        const formattedRequests = requests.map(request => {
+            const createdAt = new Date(request.createdAt);
+            return {
+                ...request,
+                id: request._id,
+                formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
+                formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
+            };
+        });
 
         res.status(200).json(formattedRequests);
     } catch (error) {
@@ -98,16 +100,17 @@ router.get("/", verifySession, async (req, res) => {
 // Get requests for the logged-in user
 router.get("/user", verifySession, async (req, res) => {
     try {
-        const requests = await Request.find({ email: req.session.userEmail })
-            .sort({ createdAt: -1 })
-            .lean();
+        const requests = await Request.find({ email: req.session.userEmail }).sort({ createdAt: -1 }).lean();
 
-        const formattedRequests = requests.map(request => ({
-            ...request,
-            id: request._id,
-            formattedDate: format(request.createdAt, 'MMM dd, yyyy'),
-            formattedTime: format(request.createdAt, 'hh:mm a')
-        }));
+        const formattedRequests = requests.map(request => {
+            const createdAt = new Date(request.createdAt);
+            return {
+                ...request,
+                id: request._id,
+                formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
+                formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
+            };
+        });
 
         res.status(200).json(formattedRequests);
     } catch (error) {
@@ -119,11 +122,7 @@ router.get("/user", verifySession, async (req, res) => {
 // Approve a request
 router.put("/:id/approve", verifySession, async (req, res) => {
     try {
-        const request = await Request.findByIdAndUpdate(
-            req.params.id,
-            { status: "Approved" },
-            { new: true }
-        );
+        const request = await Request.findByIdAndUpdate(req.params.id, { status: "Approved" }, { new: true });
 
         if (!request) {
             return res.status(404).json({ error: "Request not found" });
@@ -147,11 +146,7 @@ router.put("/:id/approve", verifySession, async (req, res) => {
 // Reject a request
 router.put("/:id/reject", verifySession, async (req, res) => {
     try {
-        const request = await Request.findByIdAndUpdate(
-            req.params.id,
-            { status: "Rejected" },
-            { new: true }
-        );
+        const request = await Request.findByIdAndUpdate(req.params.id, { status: "Rejected" }, { new: true });
 
         if (!request) {
             return res.status(404).json({ error: "Request not found" });
@@ -190,7 +185,7 @@ router.delete("/:id", verifySession, async (req, res) => {
             message: "Request deleted successfully!",
             requestId: req.params.id
         });
-    } catch (error) {   
+    } catch (error) {
         console.error("Error deleting request:", error);
         res.status(500).json({ error: "Server error" });
     }

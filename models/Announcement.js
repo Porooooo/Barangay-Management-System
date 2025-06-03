@@ -13,7 +13,7 @@ const announcementSchema = new mongoose.Schema({
     },
     targetGroups: [{
         type: String,
-        enum: ['All Residents', 'Registered Voters', '4Ps Member', 'PWD Member', 'Senior Citizen', 'Pregnant']
+        enum: ['All Residents', 'Registered Voter', '4Ps Member', 'PWD Member', 'Senior Citizen', 'Pregnant']
     }],
     targetCivilStatus: [{
         type: String,
@@ -46,6 +46,11 @@ const announcementSchema = new mongoose.Schema({
         type: String,
         enum: ['Elementary Graduate', 'High School Graduate', 'Vocational Graduate', 'College Graduate', 'Post Graduate', 'None']
     }],
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -60,6 +65,12 @@ const announcementSchema = new mongoose.Schema({
 announcementSchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     next();
+});
+
+// Add text index for search functionality
+announcementSchema.index({
+    title: 'text',
+    content: 'text'
 });
 
 const Announcement = mongoose.model('Announcement', announcementSchema);

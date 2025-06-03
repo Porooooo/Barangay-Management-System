@@ -1,15 +1,13 @@
+require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
 const session = require("express-session");
 const MongoStore = require('connect-mongo');
-const dotenv = require("dotenv");
 const http = require('http');
 const { Server } = require('socket.io');
-
-// Load environment variables
-dotenv.config();
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -26,16 +24,23 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 3000;
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/test', {
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/btms', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
 .then(() => console.log("✅ Connected to MongoDB"))
 .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('📁 Created uploads directory');
+}
+
 // Session store using MongoDB
 const sessionStore = MongoStore.create({
-  mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/test',
+  mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/btms',
   collectionName: 'sessions'
 });
 
@@ -68,8 +73,14 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploaded files with proper caching
+app.use('/uploads', express.static(uploadsDir, {
+  setHeaders: (res, filePath) => {
+    if (filePath.match(/\.(jpg|jpeg|png|gif)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
+  }
+}));
 
 // Make io accessible in routes
 app.set('io', io);
@@ -77,7 +88,6 @@ app.set('io', io);
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const residentRoutes = require("./routes/residentRoutes");
-const scheduleRoutes = require("./routes/scheduleRoutes");
 const blotterRoutes = require("./routes/blotterRoutes");
 const requestsRoutes = require("./routes/requestsRoutes");
 const adminRoutes = require("./routes/adminRoutes");
@@ -87,7 +97,6 @@ const emergencyRoutes = require("./routes/emergencyRoutes");
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/residents", residentRoutes);
-app.use("/api/schedule", scheduleRoutes);
 app.use("/api/blotter", blotterRoutes);
 app.use("/api/requests", requestsRoutes);
 app.use("/api/admin", adminRoutes);
@@ -96,7 +105,14 @@ app.use("/api/emergency", emergencyRoutes);
 
 // Protected routes
 app.get("/admin-dashboard.html", (req, res, next) => {
-  if (!req.session.userId || !req.session.isAdmin) {
+  if (!req.session.userId || req.session.role !== 'admin') {
+    return res.redirect('/');
+  }
+  next();
+}, express.static(path.join(__dirname, "public")));
+
+app.get("/staff-dashboard.html", (req, res, next) => {
+  if (!req.session.userId || !['admin', 'staff'].includes(req.session.role)) {
     return res.redirect('/');
   }
   next();
@@ -132,4 +148,4 @@ app.use((err, req, res, next) => {
 // Start Server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+}); 

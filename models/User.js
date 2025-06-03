@@ -1,56 +1,54 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
-  fullName: { 
-    type: String, 
-    required: [true, "Full name is required"],
-    trim: true,
-    maxlength: [100, "Full name cannot exceed 100 characters"]
+const UserSchema = new mongoose.Schema({
+  fullName: {
+    type: String,
+    required: [true, 'Full name is required'],
+    trim: true
   },
-  email: { 
-    type: String, 
-    required: [true, "Email is required"],
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
     unique: true,
-    trim: true,
     lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please fill a valid email address"]
+    trim: true,
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
   },
-  contactNumber: { 
-    type: String, 
-    required: [true, "Contact number is required"],
-    match: [/^[0-9]{10,15}$/, "Please fill a valid contact number"]
+  contactNumber: {
+    type: String,
+    required: [true, 'Contact number is required'],
+    trim: true
   },
-  address: { 
-    type: String, 
-    required: [true, "Address is required"],
-    maxlength: [200, "Address cannot exceed 200 characters"]
+  address: {
+    type: String,
+    required: [true, 'Address is required'],
+    trim: true
   },
-  birthdate: { 
-    type: Date, 
-    required: [true, "Birthdate is required"],
-    validate: {
-      validator: function(value) {
-        return value < new Date();
-      },
-      message: "Birthdate must be in the past"
-    }
+  birthdate: {
+    type: Date,
+    required: [true, 'Birthdate is required']
   },
-  civilStatus: { 
-    type: String, 
-    required: true,
+  civilStatus: {
+    type: String,
     enum: ['Single', 'Married', 'Widowed', 'Separated'],
-    default: 'Single'
+    required: [true, 'Civil status is required']
   },
-  occupation: { 
-    type: String, 
-    required: true
+  occupation: {
+    type: String,
+    required: [true, 'Occupation is required']
   },
-  educationalAttainment: { 
-    type: String, 
-    required: true,
-    enum: ['Elementary Graduate', 'High School Graduate', 'Vocational Graduate', 'College Graduate', 'Post Graduate', 'None'],
-    default: 'High School Graduate'
+  educationalAttainment: {
+    type: String,
+    enum: [
+      'Elementary Graduate',
+      'High School Graduate',
+      'Vocational Graduate',
+      'College Graduate',
+      'Post Graduate',
+      'None'
+    ],
+    required: [true, 'Educational attainment is required']
   },
   registeredVoter: {
     type: Boolean,
@@ -72,10 +70,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  password: { 
-    type: String, 
-    required: [true, "Password is required"],
-    minlength: [8, "Password must be at least 8 characters long"],
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    minlength: [8, 'Password must be at least 8 characters long'],
     select: false
   },
   profilePicture: { 
@@ -86,39 +84,21 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['Active', 'Inactive'],
     default: 'Active'
-  }
-}, {
-  timestamps: true,
-  toJSON: {
-    virtuals: true,
-    transform: function(doc, ret) {
-      ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
-      delete ret.password;
-      return ret;
-    }
-  }
-});
-
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
+  },
+  role: {
+    type: String,
+    enum: ['resident', 'staff', 'admin'],
+    default: 'resident'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
 // Method to compare passwords
-userSchema.methods.comparePassword = async function(candidatePassword) {
+UserSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model("User", userSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);

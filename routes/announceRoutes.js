@@ -6,7 +6,7 @@ const router = express.Router();
 // Create a new announcement (Admin only)
 router.post('/', async (req, res) => {
     try {
-        const { title, content, targetGroups, occupation, education, civilStatus } = req.body;
+        const { title, content, targetGroups, targetOccupation, targetEducation, targetCivilStatus } = req.body;
         
         // Validate input
         if (!title || !content) {
@@ -18,9 +18,9 @@ router.post('/', async (req, res) => {
             title,
             content,
             targetGroups: targetGroups || [],
-            occupation: occupation || '',
-            education: education || '',
-            civilStatus: civilStatus || '',
+            targetOccupation: targetOccupation || [],
+            targetEducation: targetEducation || [],
+            targetCivilStatus: targetCivilStatus || [],
             createdBy: req.session.userId
         });
 
@@ -81,9 +81,9 @@ router.get('/user', async (req, res) => {
         if (user.fourPsMember) userConditions.push({ targetGroups: '4Ps Member' });
         
         // Check occupation, education, civil status
-        if (user.occupation) userConditions.push({ occupation: user.occupation });
-        if (user.educationalAttainment) userConditions.push({ education: user.educationalAttainment });
-        if (user.civilStatus) userConditions.push({ civilStatus: user.civilStatus });
+        if (user.occupation) userConditions.push({ targetOccupation: user.occupation });
+        if (user.educationalAttainment) userConditions.push({ targetEducation: user.educationalAttainment });
+        if (user.civilStatus) userConditions.push({ targetCivilStatus: user.civilStatus });
 
         if (userConditions.length > 0) {
             query.$or = query.$or.concat(userConditions);
@@ -96,6 +96,20 @@ router.get('/user', async (req, res) => {
     } catch (error) {
         console.error('Error fetching user announcements:', error);
         res.status(500).json({ error: 'Failed to fetch announcements' });
+    }
+});
+
+// Get announcement by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ error: 'Announcement not found' });
+        }
+        res.json(announcement);
+    } catch (error) {
+        console.error('Error fetching announcement:', error);
+        res.status(500).json({ error: 'Failed to fetch announcement' });
     }
 });
 

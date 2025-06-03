@@ -145,8 +145,18 @@
             transition: all 0.3s;
         }
 
-        .remove-btn {
+        .disable-btn {
             background: #dc3545;
+            color: white;
+        }
+
+        .enable-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #17a2b8;
             color: white;
         }
 
@@ -200,7 +210,7 @@
                     <span class="link-name">Blotter Records</span>
                 </a></li>
                 <li><a href="adminAnnounce.html">
-                    <i class="uil uil-file-shield-alt"></i>
+                    <i class="uil uil-megaphone"></i>
                     <span class="link-name">Make Announcement</span>
                 </a></li>
                 <li><a href="emergency.html">
@@ -279,12 +289,29 @@
                         <div class="detail-value" id="educationalAttainment">Loading...</div>
                     </div>
                     <div class="detail-row">
+                        <div class="detail-label">Registered Voter:</div>
+                        <div class="detail-value" id="registeredVoter">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">4Ps Member:</div>
+                        <div class="detail-value" id="fourPsMember">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">PWD Member:</div>
+                        <div class="detail-value" id="pwdMember">Loading...</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Senior Citizen:</div>
+                        <div class="detail-value" id="seniorCitizen">Loading...</div>
+                    </div>
+                    <div class="detail-row">
                         <div class="detail-label">Account Created:</div>
                         <div class="detail-value" id="createdAt">Loading...</div>
                     </div>
 
                     <div class="action-buttons">
-                        <button class="action-btn remove-btn" id="removeBtn">Remove Resident</button>
+                        <button class="action-btn edit-btn" id="editBtn">Edit Profile</button>
+                        <button class="action-btn disable-btn" id="disableBtn">Disable Account</button>
                     </div>
                 </div>
             </div>
@@ -319,14 +346,24 @@
         const civilStatus = document.getElementById('civilStatus');
         const occupation = document.getElementById('occupation');
         const educationalAttainment = document.getElementById('educationalAttainment');
+        const registeredVoter = document.getElementById('registeredVoter');
+        const fourPsMember = document.getElementById('fourPsMember');
+        const pwdMember = document.getElementById('pwdMember');
+        const seniorCitizen = document.getElementById('seniorCitizen');
         const createdAt = document.getElementById('createdAt');
-        const removeBtn = document.getElementById('removeBtn');
+        const disableBtn = document.getElementById('disableBtn');
+        const editBtn = document.getElementById('editBtn');
     
         // Format date
         function formatDate(dateString) {
             if (!dateString) return 'Not available';
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        // Format boolean values
+        function formatBoolean(value) {
+            return value ? 'Yes' : 'No';
         }
     
         // Fetch resident data with proper error handling
@@ -343,13 +380,13 @@
                 }
                 
                 const authData = await authCheck.json();
-                if (!authData.isAuthenticated || !authData.user.isAdmin) {
+                if (!authData.isAuthenticated || !['admin', 'staff'].includes(authData.user.role)) {
                     window.location.href = '/';
                     return;
                 }
     
                 // Then fetch resident data
-                const response = await fetch(`/api/admin/user/${residentId}`, {
+                const response = await fetch(`/api/residents/${residentId}`, {
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
@@ -373,7 +410,7 @@
                 // Update DOM with resident data
                 const profilePicUrl = resident.profilePicture 
                     ? `/uploads/${resident.profilePicture}`
-                    : 'https://via.placeholder.com/200';
+                    : 'images/default-profile.png';
                 
                 profilePicture.src = profilePicUrl;
                 profileStatus.textContent = resident.status || 'Active';
@@ -386,7 +423,20 @@
                 civilStatus.textContent = resident.civilStatus || 'Not provided';
                 occupation.textContent = resident.occupation || 'Not provided';
                 educationalAttainment.textContent = resident.educationalAttainment || 'Not provided';
+                registeredVoter.textContent = formatBoolean(resident.registeredVoter);
+                fourPsMember.textContent = formatBoolean(resident.fourPsMember);
+                pwdMember.textContent = formatBoolean(resident.pwdMember);
+                seniorCitizen.textContent = formatBoolean(resident.seniorCitizen);
                 createdAt.textContent = formatDate(resident.createdAt);
+
+                // Update disable button based on status
+                if (resident.status === 'Inactive') {
+                    disableBtn.textContent = 'Enable Account';
+                    disableBtn.className = 'action-btn enable-btn';
+                } else {
+                    disableBtn.textContent = 'Disable Account';
+                    disableBtn.className = 'action-btn disable-btn';
+                }
     
             } catch (error) {
                 console.error('Error:', error);
@@ -397,19 +447,22 @@
             }
         }
     
-        // Remove resident function with better error handling
-        async function removeResident(id) {
-            if (!confirm('Are you sure you want to permanently remove this resident?')) {
+        // Toggle resident status (disable/enable)
+        async function toggleResidentStatus() {
+            const newStatus = disableBtn.textContent.includes('Disable') ? 'Inactive' : 'Active';
+            
+            if (!confirm(`Are you sure you want to ${newStatus === 'Inactive' ? 'disable' : 'enable'} this account?`)) {
                 return;
             }
     
             try {
-                const response = await fetch(`/api/admin/users/${id}`, {
-                    method: 'DELETE',
+                const response = await fetch(`/api/residents/${residentId}/status`, {
+                    method: 'PATCH',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({ status: newStatus })
                 });
     
                 // Check if response is JSON
@@ -421,22 +474,28 @@
     
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to remove resident');
+                    throw new Error(errorData.error || 'Failed to update resident status');
                 }
     
                 const result = await response.json();
-                alert(result.message || 'Resident removed successfully');
-                window.location.href = 'manage-residents.html';
+                alert(result.message || 'Resident status updated successfully');
+                fetchResidentData(); // Refresh the data
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error: ' + error.message);
             }
         }
+
+        // Edit resident profile
+        function editResident() {
+            window.location.href = `edit-resident.html?id=${residentId}`;
+        }
     
         // Initialize page
         document.addEventListener('DOMContentLoaded', () => {
-            // Set up remove button
-            removeBtn.addEventListener('click', () => removeResident(residentId));
+            // Set up buttons
+            disableBtn.addEventListener('click', toggleResidentStatus);
+            editBtn.addEventListener('click', editResident);
             
             // Load resident data
             fetchResidentData();

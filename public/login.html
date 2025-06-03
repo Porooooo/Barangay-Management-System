@@ -134,47 +134,51 @@
     </div>
 
     <script>
-        // Handle form submission
-    document.getElementById('loginForm').addEventListener('submit', async function(event) {
-        event.preventDefault();
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
 
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include' // Important for sessions
-            });
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
 
-            const result = await response.json();
-            
-            if (response.ok) {
-                alert(result.message);
-                // Store user data in localStorage
-                localStorage.setItem('userId', result.user.id);
-                localStorage.setItem('userEmail', result.user.email);
-                localStorage.setItem('userFullName', result.user.fullName);
-                localStorage.setItem('isAdmin', result.user.isAdmin);
+                const result = await response.json();
                 
-                // Redirect based on user type
-                if (result.user.isAdmin) {
-                    window.location.href = 'admin-dashboard.html';
+                if (response.ok) {
+                    alert(result.message);
+                    // Store user data in localStorage
+                    localStorage.setItem('userId', result.user.id);
+                    localStorage.setItem('userEmail', result.user.email);
+                    localStorage.setItem('userFullName', result.user.fullName);
+                    localStorage.setItem('userRole', result.user.role);
+                    
+                    // Redirect based on user role
+                    switch(result.user.role) {
+                        case 'admin':
+                            window.location.href = 'admin-dashboard.html';
+                            break;
+                        case 'staff':
+                            window.location.href = 'staff-dashboard.html';
+                            break;
+                        default:
+                            window.location.href = 'residentdashboard.html';
+                    }
                 } else {
-                    window.location.href = 'residentdashboard.html';
+                    alert(result.message || result.error || 'Login failed');
                 }
-            } else {
-                alert(result.message || result.error || 'Login failed');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while logging in.');
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while logging in.');
-        }
-    });
+        });
     </script>
 </body>
 </html>
