@@ -6,7 +6,7 @@ const User = require('./models/User');
 
 async function migrateProfilePictures() {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/btms', {
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/test', {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });

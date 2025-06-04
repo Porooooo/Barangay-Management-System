@@ -1,49 +1,92 @@
 const mongoose = require('mongoose');
 
 const blotterSchema = new mongoose.Schema({
-    residentId: {
+    complainant: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Resident',
+        ref: 'User',
         required: true
     },
     incidentDate: {
         type: Date,
         required: true
     },
+    dateReported: {
+        type: Date,
+        default: Date.now
+    },
     location: {
         type: String,
         required: true
     },
-    complaint: {
+    complaintType: {
+        type: String,
+        required: true,
+        enum: [
+            'Noise Complaint', 
+            'Property Damage', 
+            'Physical Altercation',
+            'Theft',
+            'Public Disturbance',
+            'Domestic Dispute',
+            'Illegal Parking',
+            'Other'
+        ]
+    },
+    complaintDetails: {
         type: String,
         required: true
     },
+    accused: {
+        name: {
+            type: String,
+            required: true
+        },
+        address: {
+            type: String,
+            required: true
+        },
+        contact: {
+            type: String
+        }
+    },
     status: {
         type: String,
-        enum: ['Pending', 'Under Investigation', 'Resolved', 'Dismissed'],
+        enum: ['Pending', 'Under Investigation', 'Resolved', 'Dismissed', 'Escalated to PNP'],
         default: 'Pending'
     },
-    resolution: {
+    resolutionDetails: {
         type: String,
         default: ''
     },
+    callAttempts: {
+        type: Number,
+        default: 0
+    },
+    callHistory: [{
+        date: {
+            type: Date,
+            default: Date.now
+        },
+        successful: Boolean,
+        notes: String
+    }],
     resolvedDate: {
         type: Date
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    isBanned: {
+        type: Boolean,
+        default: false
     }
+}, {
+    timestamps: true
 });
 
-blotterSchema.pre('save', function(next) {
-    this.updatedAt = Date.now();
-    next();
+blotterSchema.virtual('complainantName').get(function() {
+    return this.complainant ? this.complainant.fullName : 'Anonymous';
 });
+
+blotterSchema.set('toJSON', { virtuals: true });
+blotterSchema.set('toObject', { virtuals: true });
 
 const Blotter = mongoose.model('Blotter', blotterSchema);
 

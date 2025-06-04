@@ -24,7 +24,7 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 3000;
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/btms', {
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/test', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -40,7 +40,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Session store using MongoDB
 const sessionStore = MongoStore.create({
-  mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/btms',
+  mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/test',
   collectionName: 'sessions'
 });
 

@@ -7,6 +7,18 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Full name is required'],
     trim: true
   },
+  soloParent: {
+    type: Boolean,
+    default: false
+},
+  middleName: {
+    type: String,
+    trim: true
+  },
+  suffix: {
+    type: String,
+    trim: true
+  },
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -20,6 +32,10 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Contact number is required'],
     trim: true
   },
+  alternateContact: {
+    type: String,
+    trim: true
+  },
   address: {
     type: String,
     required: [true, 'Address is required'],
@@ -31,12 +47,12 @@ const UserSchema = new mongoose.Schema({
   },
   civilStatus: {
     type: String,
-    enum: ['Single', 'Married', 'Widowed', 'Separated'],
-    required: [true, 'Civil status is required']
+    enum: ['Single', 'Married', 'Widowed', 'Separated']
+    // optional by default
   },
   occupation: {
-    type: String,
-    required: [true, 'Occupation is required']
+    type: String
+    // optional by default
   },
   educationalAttainment: {
     type: String,
@@ -47,8 +63,36 @@ const UserSchema = new mongoose.Schema({
       'College Graduate',
       'Post Graduate',
       'None'
-    ],
-    required: [true, 'Educational attainment is required']
+    ]
+    // optional by default
+  },
+  monthlyIncome: {
+    type: String,
+    enum: [
+      'Below 5,000',
+      '5,000-10,000',
+      '10,001-20,000',
+      '20,001-30,000',
+      '30,001-50,000',
+      'Above 50,000'
+    ]
+    // optional by default
+  },
+  homeowner: {
+    type: String,
+    enum: ['Yes', 'No']
+    // optional by default
+  },
+  yearsResiding: {
+    type: String,
+    enum: [
+      'Since birth',
+      '1-5 years',
+      '6-10 years',
+      '11-20 years',
+      '20+ years'
+    ]
+    // optional by default
   },
   registeredVoter: {
     type: Boolean,
@@ -96,7 +140,7 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-// Method to compare passwords
+// Password comparison method
 UserSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };

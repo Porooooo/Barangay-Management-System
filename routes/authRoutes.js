@@ -1,3 +1,4 @@
+//AUTHROUTE.JS
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
@@ -83,17 +84,17 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-// User Registration with enhanced file handling
 router.post("/register", upload.single('profilePicture'), async (req, res) => {
   try {
     const formData = req.body;
     const file = req.file;
 
-    // Validate required fields
-    if (!formData.fullName || !formData.email || !formData.contactNumber || 
-        !formData.address || !formData.birthdate || !formData.password || 
-        !formData.confirmPassword) {
-      if (file) fs.unlinkSync(file.path); // Clean up uploaded file
+    // Validate essential fields
+    if (!formData.lastName || !formData.firstName || !formData.birthdate || 
+        !formData.gender || !formData.email || !formData.contactNumber || 
+        !formData.houseNumber || !formData.street || !formData.barangay || 
+        !formData.password || !formData.confirmPassword) {
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({ 
         error: "Validation error",
         message: "All required fields must be provided" 
@@ -103,69 +104,62 @@ router.post("/register", upload.single('profilePicture'), async (req, res) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      if (file) fs.unlinkSync(file.path); // Clean up uploaded file
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({ 
         error: "Validation error",
         message: "Invalid email format" 
       });
     }
 
-    // Check password match
+    // Password match check
     if (formData.password !== formData.confirmPassword) {
-      if (file) fs.unlinkSync(file.path); // Clean up uploaded file
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({ 
         error: "Validation error",
         message: "Passwords do not match" 
       });
     }
 
-    // Check existing user
+    // Check for existing user
     const existingUser = await User.findOne({ email: formData.email });
     if (existingUser) {
-      if (file) fs.unlinkSync(file.path); // Clean up uploaded file
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({ 
         error: "Duplicate email",
         message: "Email already registered" 
       });
     }
 
-    // Hash password
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(formData.password, salt);
 
-    // Handle occupation
-    const occupation = formData.occupation === 'Others' 
-      ? formData.otherOccupation 
-      : formData.occupation;
+    // Construct the address string
+    const address = `${formData.houseNumber} ${formData.street}, ${formData.barangay}`;
 
-    // Create new user
+    // Create new user object
     const newUser = new User({
-      fullName: formData.fullName,
+      fullName: `${formData.firstName} ${formData.lastName}`,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
       email: formData.email,
       contactNumber: formData.contactNumber,
-      address: formData.address,
+      address: address,
       birthdate: new Date(formData.birthdate),
-      civilStatus: formData.civilStatus,
-      occupation: occupation,
-      educationalAttainment: formData.educationalAttainment,
-      registeredVoter: formData.registeredVoter === 'true',
-      fourPsMember: formData.fourPsMember === 'true',
-      pwdMember: formData.pwdMember === 'true',
-      seniorCitizen: formData.seniorCitizen === 'true',
-      pregnant: formData.pregnant === 'true',
+      gender: formData.gender,
       password: hashedPassword,
       profilePicture: file ? file.filename : 'default-profile.png',
       role: 'resident'
     });
 
-    // Save user
+    // Save to DB
     await newUser.save();
 
-    // Set session
+    // Start session
     req.session.userId = newUser._id;
     req.session.userEmail = newUser.email;
     req.session.role = newUser.role;
-    
+
     return res.status(201).json({ 
       message: "User registered successfully",
       user: {
@@ -180,34 +174,23 @@ router.post("/register", upload.single('profilePicture'), async (req, res) => {
     });
 
   } catch (error) {
-    if (req.file) fs.unlinkSync(req.file.path); // Clean up on error
+    if (req.file) fs.unlinkSync(req.file.path);
     console.error("Registration error:", error);
-    
+
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-        error: "Validation error",
-        message: error.message 
-      });
+      return res.status(400).json({ error: "Validation error", message: error.message });
     }
     if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({
-        error: "File too large",
-        message: "Profile picture must be less than 5MB"
-      });
+      return res.status(400).json({ error: "File too large", message: "Profile picture must be less than 5MB" });
     }
     if (error.message === 'Only image files are allowed!') {
-      return res.status(400).json({
-        error: "Invalid file type",
-        message: "Only JPG, JPEG, PNG, and GIF files are allowed"
-      });
+      return res.status(400).json({ error: "Invalid file type", message: "Only JPG, JPEG, PNG, and GIF files are allowed" });
     }
-    
-    return res.status(500).json({ 
-      error: "Server error",
-      message: "Failed to register user" 
-    });
+
+    return res.status(500).json({ error: "Server error", message: "Failed to register user" });
   }
 });
+
 
 // User Login
 router.post("/login", async (req, res) => {

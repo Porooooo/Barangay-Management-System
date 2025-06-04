@@ -221,6 +221,29 @@
   </div>
 
   <script>
+    // Check for active session on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/auth/check-session', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) {
+            // Redirect based on role
+            if (data.user.role === 'admin') {
+              window.location.href = 'admin-dashboard.html';
+            } else {
+              window.location.href = 'residentdashboard.html';
+            }
+          }
+        }
+      } catch (error) {
+        console.log('No active session');
+      }
+    });
+
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
       event.preventDefault();
 
@@ -245,9 +268,9 @@
         const data = await response.json();
         
         // Store user data in localStorage
-        localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('userId', data.user._id);
         localStorage.setItem('userEmail', data.user.email);
-        localStorage.setItem('userFullName', data.user.fullName);
+        localStorage.setItem('userFullName', `${data.user.firstName} ${data.user.lastName}`);
         localStorage.setItem('userRole', data.user.role);
         
         // Redirect based on user role from backend

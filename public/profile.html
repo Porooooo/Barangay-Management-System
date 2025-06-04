@@ -187,6 +187,43 @@
             min-width: 200px;
         }
 
+        .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-item input {
+            margin-right: 5px;
+        }
+
+        .form-section-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input {
+            margin-right: 5px;
+        }
+
         @media (max-width: 576px) {
             .wrapper {
                 padding: 25px 20px;
@@ -194,6 +231,14 @@
             .back-arrow {
                 top: 15px;
                 left: 15px;
+            }
+            .radio-group {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .checkbox-group {
+                flex-direction: column;
+                gap: 5px;
             }
         }
     </style>
@@ -232,6 +277,18 @@
             </div>
             <div class="row py-2">
                 <div class="col-md-6 profile-field">
+                    <label for="middleName">Middle Name</label>
+                    <div class="profile-value" id="middleNameDisplay"></div>
+                    <input type="text" class="form-control edit-field" id="middleName" placeholder="Enter middle name">
+                </div>
+                <div class="col-md-6 pt-md-0 pt-3 profile-field">
+                    <label for="suffix">Suffix</label>
+                    <div class="profile-value" id="suffixDisplay"></div>
+                    <input type="text" class="form-control edit-field" id="suffix" placeholder="Enter suffix (Jr, Sr, III)">
+                </div>
+            </div>
+            <div class="row py-2">
+                <div class="col-md-6 profile-field">
                     <label for="contactNumber">Contact Number</label>
                     <div class="profile-value" id="contactNumberDisplay"></div>
                     <input type="tel" class="form-control edit-field" id="contactNumber" placeholder="Enter contact number">
@@ -257,7 +314,68 @@
                 <div class="col-md-6 pt-md-0 pt-3 profile-field">
                     <label for="occupation">Occupation</label>
                     <div class="profile-value" id="occupationDisplay"></div>
-                    <input type="text" class="form-control edit-field" id="occupation" placeholder="Enter occupation">
+                    <select class="form-control edit-field" id="occupation">
+                        <option value="">Select occupation</option>
+                        <option value="Student">Student</option>
+                        <option value="Employed">Employed</option>
+                        <option value="Unemployed">Unemployed</option>
+                        <option value="Self-employed">Self-employed</option>
+                        <option value="Retired">Retired</option>
+                        <option value="Government Employee">Government Employee</option>
+                        <option value="Private Employee">Private Employee</option>
+                        <option value="Business Owner">Business Owner</option>
+                        <option value="Farmer">Farmer</option>
+                        <option value="Fisherman">Fisherman</option>
+                        <option value="Housewife/Househusband">Housewife/Househusband</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row py-2">
+                <div class="col-md-6 profile-field">
+                    <label for="monthlyIncome">Monthly Income</label>
+                    <div class="profile-value" id="monthlyIncomeDisplay"></div>
+                    <select class="form-control edit-field" id="monthlyIncome">
+                        <option value="">Select monthly income</option>
+                        <option value="Below 5,000">Below ₱5,000</option>
+                        <option value="5,000-10,000">₱5,000 - ₱10,000</option>
+                        <option value="10,001-20,000">₱10,001 - ₱20,000</option>
+                        <option value="20,001-30,000">₱20,001 - ₱30,000</option>
+                        <option value="30,001-50,000">₱30,001 - ₱50,000</option>
+                        <option value="Above 50,000">Above ₱50,000</option>
+                    </select>
+                </div>
+                <div class="col-md-6 pt-md-0 pt-3 profile-field">
+                    <label for="yearsResiding">Years Residing in Barangay</label>
+                    <div class="profile-value" id="yearsResidingDisplay"></div>
+                    <select class="form-control edit-field" id="yearsResiding">
+                        <option value="">Select years residing</option>
+                        <option value="Since birth">Since birth</option>
+                        <option value="1-5 years">1-5 years</option>
+                        <option value="6-10 years">6-10 years</option>
+                        <option value="11-20 years">11-20 years</option>
+                        <option value="20+ years">20+ years</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row py-2">
+                <div class="col-md-6 profile-field">
+                    <label>Homeowner Status</label>
+                    <div class="profile-value" id="homeownerDisplay"></div>
+                    <div class="radio-group edit-field">
+                        <div class="radio-item">
+                            <input type="radio" id="homeownerYes" name="homeowner" value="Yes">
+                            <label for="homeownerYes">Homeowner</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="homeownerNo" name="homeowner" value="No">
+                            <label for="homeownerNo">Renting</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 pt-md-0 pt-3 profile-field">
+                    <label for="alternateContact">Alternate Contact Number</label>
+                    <div class="profile-value" id="alternateContactDisplay"></div>
+                    <input type="tel" class="form-control edit-field" id="alternateContact" placeholder="Enter alternate contact number">
                 </div>
             </div>
             <div class="row py-2">
@@ -280,6 +398,33 @@
                         <option value="Post Graduate">Post Graduate</option>
                         <option value="None">None</option>
                     </select>
+                </div>
+            </div>
+            <div class="row py-2">
+                <div class="col-md-12 profile-field">
+                    <div class="form-section-title">Government Program Participation</div>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="registeredVoter" name="registeredVoter">
+                            <label for="registeredVoter">Registered Voter</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="fourPsMember" name="fourPsMember">
+                            <label for="fourPsMember">4Ps Member</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pwdMember" name="pwdMember">
+                            <label for="pwdMember">PWD Member</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="seniorCitizen" name="seniorCitizen">
+                            <label for="seniorCitizen">Senior Citizen</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="soloParent" name="soloParent">
+                            <label for="soloParent">Solo Parent</label>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row py-2" id="additionalInfoContainer">
@@ -379,11 +524,17 @@
                         civilStatus: result.civilStatus || '',
                         occupation: result.occupation || '',
                         educationalAttainment: result.educationalAttainment || '',
+                        middleName: result.middleName || '',
+                        suffix: result.suffix || '',
+                        alternateContact: result.alternateContact || '',
+                        monthlyIncome: result.monthlyIncome || '',
+                        homeowner: result.homeowner || 'No',
+                        yearsResiding: result.yearsResiding || '',
                         registeredVoter: result.registeredVoter || false,
                         fourPsMember: result.fourPsMember || false,
                         pwdMember: result.pwdMember || false,
                         seniorCitizen: result.seniorCitizen || false,
-                        pregnant: result.pregnant || false
+                        soloParent: result.soloParent || false
                     };
 
                     // Display values
@@ -397,9 +548,14 @@
                     document.getElementById('occupationDisplay').textContent = originalData.occupation || 'Not provided';
                     document.getElementById('educationalAttainmentDisplay').textContent = 
                         originalData.educationalAttainment || 'Not provided';
-
-                    // Display additional information
-                    displayAdditionalInfo(originalData);
+                    
+                    // Display values for new fields
+                    document.getElementById('middleNameDisplay').textContent = originalData.middleName || 'Not provided';
+                    document.getElementById('suffixDisplay').textContent = originalData.suffix || 'Not provided';
+                    document.getElementById('alternateContactDisplay').textContent = originalData.alternateContact || 'Not provided';
+                    document.getElementById('monthlyIncomeDisplay').textContent = originalData.monthlyIncome || 'Not provided';
+                    document.getElementById('homeownerDisplay').textContent = originalData.homeowner || 'Not provided';
+                    document.getElementById('yearsResidingDisplay').textContent = originalData.yearsResiding || 'Not provided';
 
                     // Set form field values
                     document.getElementById('fullName').value = originalData.fullName;
@@ -411,10 +567,34 @@
                     document.getElementById('civilStatus').value = originalData.civilStatus;
                     document.getElementById('occupation').value = originalData.occupation;
                     document.getElementById('educationalAttainment').value = originalData.educationalAttainment;
+                    
+                    // Set values for new fields
+                    document.getElementById('middleName').value = originalData.middleName;
+                    document.getElementById('suffix').value = originalData.suffix;
+                    document.getElementById('alternateContact').value = originalData.alternateContact;
+                    document.getElementById('monthlyIncome').value = originalData.monthlyIncome;
+                    document.getElementById('yearsResiding').value = originalData.yearsResiding;
+                    
+                    // Set homeowner radio buttons
+                    if (originalData.homeowner === 'Yes') {
+                        document.getElementById('homeownerYes').checked = true;
+                    } else {
+                        document.getElementById('homeownerNo').checked = true;
+                    }
+
+                    // Set checkbox values
+                    document.getElementById('registeredVoter').checked = originalData.registeredVoter;
+                    document.getElementById('fourPsMember').checked = originalData.fourPsMember;
+                    document.getElementById('pwdMember').checked = originalData.pwdMember;
+                    document.getElementById('seniorCitizen').checked = originalData.seniorCitizen;
+                    document.getElementById('soloParent').checked = originalData.soloParent;
 
                     // Set profile picture
                     const profilePicUrl = result.profilePictureUrl || 'images/default-profile.png';
                     document.getElementById('profilePicture').src = profilePicUrl;
+
+                    // Display additional information
+                    displayAdditionalInfo(originalData);
                 } else {
                     alert(result.error || 'Failed to fetch profile data');
                     if (response.status === 401) {
@@ -438,7 +618,7 @@
                 { key: 'fourPsMember', label: '4Ps Member' },
                 { key: 'pwdMember', label: 'PWD Member' },
                 { key: 'seniorCitizen', label: 'Senior Citizen' },
-                { key: 'pregnant', label: 'Pregnant' }
+                { key: 'soloParent', label: 'Solo Parent' }
             ];
 
             additionalInfo.forEach(info => {
@@ -572,15 +752,49 @@
         }
 
         async function saveProfile() {
+            // Get homeowner status
+            const homeowner = document.querySelector('input[name="homeowner"]:checked')?.value || 'No';
+            
+            // Prepare the update data with proper formatting
             const updatedData = {
-                fullName: document.getElementById('fullName').value,
-                contactNumber: document.getElementById('contactNumber').value,
-                address: document.getElementById('address').value,
-                birthdate: document.getElementById('birthdate').value,
-                civilStatus: document.getElementById('civilStatus').value,
-                occupation: document.getElementById('occupation').value,
-                educationalAttainment: document.getElementById('educationalAttainment').value
+                fullName: document.getElementById('fullName').value.trim(),
+                contactNumber: document.getElementById('contactNumber').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                birthdate: document.getElementById('birthdate').value || null,
+                civilStatus: document.getElementById('civilStatus').value || null,
+                occupation: document.getElementById('occupation').value.trim() || null,
+                educationalAttainment: document.getElementById('educationalAttainment').value || null,
+                middleName: document.getElementById('middleName').value.trim() || null,
+                suffix: document.getElementById('suffix').value.trim() || null,
+                alternateContact: document.getElementById('alternateContact').value.trim() || null,
+                monthlyIncome: document.getElementById('monthlyIncome').value || null,
+                yearsResiding: document.getElementById('yearsResiding').value || null,
+                homeowner: homeowner,
+                registeredVoter: document.getElementById('registeredVoter').checked,
+                fourPsMember: document.getElementById('fourPsMember').checked,
+                pwdMember: document.getElementById('pwdMember').checked,
+                seniorCitizen: document.getElementById('seniorCitizen').checked,
+                soloParent: document.getElementById('soloParent').checked
             };
+
+            // Validate required fields
+            if (!updatedData.fullName) {
+                alert('Full name is required');
+                return;
+            }
+
+            if (!updatedData.contactNumber) {
+                alert('Contact number is required');
+                return;
+            }
+
+            if (!updatedData.address) {
+                alert('Address is required');
+                return;
+            }
+
+            // Log the data being sent for debugging
+            console.log('Sending update data:', updatedData);
 
             try {
                 const response = await fetch('/api/residents/profile', {
@@ -592,20 +806,19 @@
                     credentials: 'include'
                 });
 
-                const result = await response.json();
-                if (response.ok) {
-                    alert('Profile updated successfully!');
-                    fetchUserProfile();
-                    toggleEditMode(false);
-                } else {
-                    alert(result.error || 'Failed to update profile');
-                    if (response.status === 401) {
-                        window.location.href = 'login.html';
-                    }
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Error response:', errorData);
+                    throw new Error(errorData.message || 'Failed to update profile');
                 }
+
+                const result = await response.json();
+                alert('Profile updated successfully!');
+                fetchUserProfile();
+                toggleEditMode(false);
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred while updating the profile.');
+                alert(error.message || 'An error occurred while updating the profile.');
             }
         }
 
@@ -619,6 +832,27 @@
             document.getElementById('civilStatus').value = originalData.civilStatus;
             document.getElementById('occupation').value = originalData.occupation;
             document.getElementById('educationalAttainment').value = originalData.educationalAttainment;
+            
+            // Restore new fields
+            document.getElementById('middleName').value = originalData.middleName;
+            document.getElementById('suffix').value = originalData.suffix;
+            document.getElementById('alternateContact').value = originalData.alternateContact;
+            document.getElementById('monthlyIncome').value = originalData.monthlyIncome;
+            document.getElementById('yearsResiding').value = originalData.yearsResiding;
+            
+            // Restore homeowner radio buttons
+            if (originalData.homeowner === 'Yes') {
+                document.getElementById('homeownerYes').checked = true;
+            } else {
+                document.getElementById('homeownerNo').checked = true;
+            }
+
+            // Restore checkbox values
+            document.getElementById('registeredVoter').checked = originalData.registeredVoter;
+            document.getElementById('fourPsMember').checked = originalData.fourPsMember;
+            document.getElementById('pwdMember').checked = originalData.pwdMember;
+            document.getElementById('seniorCitizen').checked = originalData.seniorCitizen;
+            document.getElementById('soloParent').checked = originalData.soloParent;
 
             toggleEditMode(false);
         }

@@ -3,431 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blotter Report</title>
+    <title>Submit Blotter Report</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
-
-        /* Sidebar */
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #ffffff;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .sidebar .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
         }
-        .sidebar a {
-            padding: 15px;
-            text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            text-align: center;
-            transition: 0.3s;
-        }
-        .sidebar a:hover { background-color: #5ECF89; }
-
-        /* Sidebar Logo */
-        .sidebar-logo {
-            width: 120px;  
-            height: auto;
-            margin: 10px auto; 
-            display: block;
-            border-radius: 50%; 
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 250px; /* Adjust for sidebar width */
-            padding: 20px;
-            transition: margin-left 0.3s;
-        }
-
-        /* Top Section */
-        .top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-        }
-
-        /* Form Styling */
-        .form-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
-
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2c5282;
+        }
+        
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
         }
-
-        .form-group label {
+        
+        label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
             font-weight: 500;
         }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        
+        input, select, textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
         }
-
-        .form-group input[type="submit"] {
-            background-color: #007bff;
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        button {
+            background-color: #2c5282;
             color: white;
             border: none;
+            padding: 1rem 2rem;
+            border-radius: 5px;
             cursor: pointer;
-        }
-
-        .form-group input[type="submit"]:hover {
-            background-color: #455ec2;
-        }
-
-        .status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
+            font-size: 1rem;
             font-weight: 500;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-top: 5px;
+            transition: background-color 0.3s;
+            width: 100%;
         }
-
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
+        
+        button:hover {
+            background-color: #1a365d;
         }
-
-        .status-under-investigation {
-            background-color: #cce5ff;
-            color: #004085;
-        }
-
-        .status-resolved {
+        
+        .success-message {
             background-color: #d4edda;
             color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+            display: none;
         }
-
-        .status-dismissed {
+        
+        .error-message {
             background-color: #f8d7da;
             color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+            display: none;
         }
-
+        
         @media (max-width: 768px) {
-            .sidebar {
-                width: 0;
+            .container {
+                padding: 1rem;
+                margin: 1rem;
             }
-            .sidebar.open {
-                width: 250px;
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
             }
-            .main-content {
-                margin-left: 0;
-            }
-            .main-content.shifted {
-                margin-left: 250px;
-            }
-        }
-
-        nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 250px;
-    padding: 10px 14px;
-    background-color: #ffffff; /* Changed from #333 to white */
-    transition: all 0.3s ease;
-    z-index: 100;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Added subtle shadow for depth */
-}
-
-/* Update text colors for white background */
-nav .logo_name {
-    color: #333; /* Changed from white to dark */
-}
-
-.menu-items li a .link-name {
-    color: #333; /* Changed from white to dark */
-}
-
-.menu-items li a i {
-    color: #333; /* Changed from white to dark */
-}
-
-/* Update hover effects */
-.nav-links li a:hover i,
-.nav-links li a:hover .link-name {
-    color: #455ec2; /* Keep the green hover effect */
-}
-
-/* Update logout mode border */
-.menu-items .logout-mode {
-    border-top: 1px solid #e0e0e0; /* Lighter border for white background */
-}
-
-/* Update mode toggle styling */
-.mode-toggle .switch {
-    background-color: #e0e0e0; /* Lighter toggle background */
-}
-
-        .switch:before {
-            content: "";
-            position: absolute;
-            left: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            height: 15px;
-            width: 15px;
-            background-color: #fff;
-            border-radius: 50%;
-            transition: all 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="logo-name">
-            <div class="logo-image">
-                <img src="images/barangay-bg.png" alt="BTMS Logo">
+    <div class="container">
+        <h1>Submit Blotter Report</h1>
+        
+        <div id="successMessage" class="success-message">
+            Your blotter report has been submitted successfully. You will receive updates on the status of your report.
+        </div>
+        
+        <div id="errorMessage" class="error-message">
+            There was an error submitting your blotter report. Please try again.
+        </div>
+        
+        <form id="blotterForm">
+            <div class="form-group">
+                <label for="incidentDate">Date of Incident</label>
+                <input type="datetime-local" id="incidentDate" required>
             </div>
-            <span class="logo_name">Resident Panel</span>
-        </div>
-        <div class="menu-items">
-            <ul class="nav-links">
-                <li><a href="residentdashboard.html">
-                    <i class="uil uil-estate"></i>
-                    <span class="link-name">Dashboard</span>
-                </a></li>
-
-                <li><a href="requests.html">
-                    <i class="uil uil-file-alt"></i>
-                    <span class="link-name">Request Document</span>
-                </a></li>
-
-                <li><a href="createSchedule.html">
-                    <i class="uil uil-calendar-alt"></i>
-                    <span class="link-name">Request Schedule</span>
-                </a></li>
-
-                <li><a href="blotter.html">
-                    <i class="uil uil-shield-exclamation"></i>
-                    <span class="link-name">Blotter</span>
-                </a></li>
-
-                <li><a href="residentRequests.html">
-                    <i class="uil uil-file-alt"></i>
-                    <span class="link-name">Your Requests</span>
-                </a></li>
-
-                <li><a href="residentSchedule.html">
-                    <i class="uil uil-calendar-alt"></i>
-                    <span class="link-name">Your Schedule</span>
-                </a></li>
-
-                <li><a href="announcement.html">
-                    <i class="uil uil-bell"></i>
-                    <span class="link-name">Announcements</span>
-                </a></li>
-
-                <li><a href="profile.html">
-                    <i class="uil uil-user"></i>
-                    <span class="link-name">Profile</span>
-                </a></li>
-            </ul>
-            <ul class="logout-mode">
-                <li><a href="#">
-                    <i class="uil uil-signout"></i>
-                    <span class="link-name">Logout</span>
-                </a></li>
-                <li class="mode">
-                    <a href="#">
-                        <i class="uil uil-moon"></i>
-                        <span class="link-name">Dark Mode</span>
-                    </a>
-                    <div class="mode-toggle">
-                        <span class="switch"></span>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <section class="dashboard">
-        <div class="top">
-            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
-        </div>
-
-        <div class="dash-content">
-            <div class="form-container">
-                <h2>Submit Blotter Report</h2>
-                <form id="blotterForm" action="/resident/blotter" method="POST">
-                    <div class="form-group">
-                        <label for="incidentDate">Date of Incident:</label>
-                        <input type="date" id="incidentDate" name="incidentDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="location">Location of Incident:</label>
-                        <input type="text" id="location" name="location" required placeholder="Enter location">
-                    </div>
-                    <div class="form-group">
-                        <label for="complaint">Complaint Details:</label>
-                        <textarea id="complaint" name="complaint" rows="5" required placeholder="Describe the incident or complaint"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Submit Report">
-                    </div>
-                </form>
+            
+            <div class="form-group">
+                <label for="location">Location of Incident</label>
+                <input type="text" id="location" placeholder="e.g. Block 5, Lot 10" required>
             </div>
-
-            <div class="form-container" style="margin-top: 30px;">
-                <h2>Your Blotter Reports</h2>
-                <div id="blotterReports">
-                    <!-- Reports will be loaded here via JavaScript -->
-                    <p>Loading your blotter reports...</p>
+            
+            <div class="form-group">
+                <label for="complaintType">Type of Complaint</label>
+                <select id="complaintType" required>
+                    <option value="">Select a complaint type</option>
+                    <option value="Noise Complaint">Noise Complaint</option>
+                    <option value="Property Damage">Property Damage</option>
+                    <option value="Physical Altercation">Physical Altercation</option>
+                    <option value="Theft">Theft</option>
+                    <option value="Public Disturbance">Public Disturbance</option>
+                    <option value="Domestic Dispute">Domestic Dispute</option>
+                    <option value="Illegal Parking">Illegal Parking</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="complaintDetails">Complaint Details</label>
+                <textarea id="complaintDetails" placeholder="Please provide detailed information about the incident..." required></textarea>
+            </div>
+            
+            <h3 style="margin: 1.5rem 0 1rem;">Accused Information</h3>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="accusedName">Full Name</label>
+                    <input type="text" id="accusedName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="accusedContact">Contact Number (if known)</label>
+                    <input type="tel" id="accusedContact" placeholder="09123456789">
                 </div>
             </div>
-        </div>
-    </section>
+            
+            <div class="form-group">
+                <label for="accusedAddress">Address</label>
+                <input type="text" id="accusedAddress" required>
+            </div>
+            
+            <button type="submit">Submit Report</button>
+        </form>
+    </div>
 
-    <script src="script.js"></script>
     <script>
-        // Toggle sidebar on mobile
-        function toggleMenu() {
-            const nav = document.querySelector('nav');
-            nav.classList.toggle('close');
-        }
-
-        // Load resident's blotter reports
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('/resident/blotter-reports')
-                .then(response => response.json())
-                .then(data => {
-                    const reportsContainer = document.getElementById('blotterReports');
-                    
-                    if (data.length === 0) {
-                        reportsContainer.innerHTML = '<p>You have no blotter reports submitted.</p>';
-                        return;
-                    }
-                    
-                    let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse;">';
-                    html += '<thead><tr><th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Date</th>';
-                    html += '<th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Location</th>';
-                    html += '<th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Status</th>';
-                    html += '<th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Details</th></tr></thead><tbody>';
-                    
-                    data.forEach(report => {
-                        const statusClass = report.status.toLowerCase().replace(' ', '-');
-                        html += `<tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">${new Date(report.incidentDate).toLocaleDateString()}</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">${report.location}</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                <span class="status status-${statusClass}">${report.status}</span>
-                            </td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                <button onclick="viewReportDetails('${report._id}')" style="background: none; border: none; color: #007bff; cursor: pointer;">
-                                    View Details
-                                </button>
-                            </td>
-                        </tr>`;
-                    });
-                    
-                    html += '</tbody></table></div>';
-                    reportsContainer.innerHTML = html;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('blotterReports').innerHTML = 
-                        '<p>Error loading your blotter reports. Please try again later.</p>';
-                });
+            // Check if user is logged in
+            checkAuthStatus();
+            
+            // Form submission
+            document.getElementById('blotterForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitBlotterReport();
+            });
         });
-
-        // View report details
-        function viewReportDetails(id) {
-            fetch(`/resident/blotter-reports/${id}`)
+        
+        function checkAuthStatus() {
+            fetch('/api/auth/check-auth')
                 .then(response => response.json())
                 .then(data => {
-                    const statusClass = data.status.toLowerCase().replace(' ', '-');
-                    let html = `
-                        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <h3 style="margin-bottom: 15px;">Blotter Report Details</h3>
-                            <div style="margin-bottom: 10px;">
-                                <strong>Date of Incident:</strong> ${new Date(data.incidentDate).toLocaleDateString()}
-                            </div>
-                            <div style="margin-bottom: 10px;">
-                                <strong>Location:</strong> ${data.location}
-                            </div>
-                            <div style="margin-bottom: 10px;">
-                                <strong>Status:</strong> <span class="status status-${statusClass}">${data.status}</span>
-                            </div>
-                            <div style="margin-bottom: 10px;">
-                                <strong>Date Reported:</strong> ${new Date(data.createdAt).toLocaleDateString()}
-                            </div>
-                            <div style="margin-bottom: 15px;">
-                                <strong>Complaint Details:</strong>
-                                <div style="margin-top: 5px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
-                                    ${data.complaint.replace(/\n/g, '<br>')}
-                                </div>
-                            </div>
-                    `;
-                    
-                    if (data.resolution) {
-                        html += `
-                            <div style="margin-bottom: 15px;">
-                                <strong>Resolution:</strong>
-                                <div style="margin-top: 5px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
-                                    ${data.resolution.replace(/\n/g, '<br>')}
-                                </div>
-                            </div>
-                        `;
+                    if (!data.isAuthenticated) {
+                        window.location.href = '/login.html';
                     }
-                    
-                    if (data.resolvedDate) {
-                        html += `
-                            <div style="margin-bottom: 10px;">
-                                <strong>Resolved Date:</strong> ${new Date(data.resolvedDate).toLocaleDateString()}
-                            </div>
-                        `;
-                    }
-                    
-                    html += '</div>';
-                    
-                    // Show in a modal or replace the content
-                    document.getElementById('blotterReports').innerHTML = html + 
-                        `<button onclick="window.location.reload()" style="margin-top: 15px; padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            Back to List
-                        </button>`;
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error loading report details');
+                    console.error('Error checking auth status:', error);
+                    window.location.href = '/login.html';
                 });
+        }
+        
+        function submitBlotterReport() {
+            const incidentDate = document.getElementById('incidentDate').value;
+            const location = document.getElementById('location').value;
+            const complaintType = document.getElementById('complaintType').value;
+            const complaintDetails = document.getElementById('complaintDetails').value;
+            const accusedName = document.getElementById('accusedName').value;
+            const accusedContact = document.getElementById('accusedContact').value;
+            const accusedAddress = document.getElementById('accusedAddress').value;
+            
+            const blotterData = {
+                incidentDate: new Date(incidentDate).toISOString(),
+                location,
+                complaintType,
+                complaintDetails,
+                accusedName,
+                accusedAddress,
+                accusedContact
+            };
+            
+            fetch('/api/blotter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(blotterData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    
+                    // Reset form
+                    document.getElementById('blotterForm').reset();
+                    
+                    // Redirect to my reports after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'resident-dashboard.html#blotter';
+                    }, 3000);
+                } else {
+                    // Show error message
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('successMessage').style.display = 'none';
+                    document.getElementById('errorMessage').textContent = data.message || 'There was an error submitting your blotter report. Please try again.';
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting blotter:', error);
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                document.getElementById('errorMessage').textContent = 'There was an error submitting your blotter report. Please try again.';
+            });
         }
     </script>
 </body>

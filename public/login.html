@@ -134,6 +134,34 @@
     </div>
 
     <script>
+        // Check for active session on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/check-session', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.user) {
+                        // Redirect based on role
+                        switch(data.user.role) {
+                            case 'admin':
+                                window.location.href = 'admin-dashboard.html';
+                                break;
+                            case 'staff':
+                                window.location.href = 'staff-dashboard.html';
+                                break;
+                            default:
+                                window.location.href = 'residentdashboard.html';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('No active session');
+            }
+        });
+
         document.getElementById('loginForm').addEventListener('submit', async function(event) {
             event.preventDefault();
 
@@ -141,42 +169,43 @@
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch('/api/auth/login', {
+                const response = await fetch('http://localhost:3000/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ email, password }),
-                    credentials: 'include'
+                    credentials: 'include' // Important for sessions/cookies to work
                 });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Login failed');
+                }
 
                 const result = await response.json();
                 
-                if (response.ok) {
-                    alert(result.message);
-                    // Store user data in localStorage
-                    localStorage.setItem('userId', result.user.id);
-                    localStorage.setItem('userEmail', result.user.email);
-                    localStorage.setItem('userFullName', result.user.fullName);
-                    localStorage.setItem('userRole', result.user.role);
-                    
-                    // Redirect based on user role
-                    switch(result.user.role) {
-                        case 'admin':
-                            window.location.href = 'admin-dashboard.html';
-                            break;
-                        case 'staff':
-                            window.location.href = 'staff-dashboard.html';
-                            break;
-                        default:
-                            window.location.href = 'residentdashboard.html';
-                    }
-                } else {
-                    alert(result.message || result.error || 'Login failed');
+                alert(result.message);
+                // Store user data in localStorage
+                localStorage.setItem('userId', result.user._id);
+                localStorage.setItem('userEmail', result.user.email);
+                localStorage.setItem('userFullName', `${result.user.firstName} ${result.user.lastName}`);
+                localStorage.setItem('userRole', result.user.role);
+                
+                // Redirect based on user role
+                switch(result.user.role) {
+                    case 'admin':
+                        window.location.href = 'admin-dashboard.html';
+                        break;
+                    case 'staff':
+                        window.location.href = 'staff-dashboard.html';
+                        break;
+                    default:
+                        window.location.href = 'residentdashboard.html';
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while logging in.');
+                console.error('Login error:', error);
+                alert(error.message || 'An error occurred while logging in.');
             }
         });
     </script>
