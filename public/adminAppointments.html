@@ -451,7 +451,6 @@
                     queryParams.append('endDate', currentFilters.endDate);
                 }
                 
-                const response = await fetch(`/api/schedule?${queryParams.toString()}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -524,30 +523,6 @@
             });
         }
         
-        // Handle appointment actions (approve/reject)
-        async function handleAppointmentAction(appointmentId, action) {
-            if (!confirm(`Are you sure you want to ${action} this appointment?`)) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/api/schedule/${appointmentId}/${action}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Failed to ${action} appointment`);
-                }
-                
-                showNotification(`Appointment ${action}d successfully!`);
-                fetchAppointments();
-            } catch (error) {
-                console.error(`Error ${action}ing appointment:`, error);
-                alert(`Error: ${error.message}`);
-            }
-        }
         
         // Sidebar Toggle
         function toggleMenu() {

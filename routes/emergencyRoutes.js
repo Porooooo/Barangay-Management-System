@@ -3,7 +3,6 @@ const EmergencyAlert = require("../models/EmergencyAlert");
 const User = require("../models/User");
 const router = express.Router();
 
-// Resident sends emergency alert
 router.post("/send", async (req, res) => {
     try {
         const { email, message } = req.body;
@@ -21,7 +20,6 @@ router.post("/send", async (req, res) => {
 
         await alert.save();
         
-        // Emit socket event
         req.app.get('io').emit('newEmergencyAlert', alert);
         
         res.status(201).json(alert);
@@ -31,7 +29,6 @@ router.post("/send", async (req, res) => {
     }
 });
 
-// Admin acknowledges alert
 router.put("/:id/acknowledge", async (req, res) => {
     try {
         const alert = await EmergencyAlert.findByIdAndUpdate(
@@ -54,7 +51,6 @@ router.put("/:id/acknowledge", async (req, res) => {
     }
 });
 
-// Admin resolves alert
 router.put("/:id/resolve", async (req, res) => {
     try {
         const alert = await EmergencyAlert.findByIdAndUpdate(
@@ -70,18 +66,32 @@ router.put("/:id/resolve", async (req, res) => {
             return res.status(404).json({ error: "Alert not found" });
         }
         
-        req.app.get('io').emit('alertResolved', alert);
+        req.app.get('io').emit('alertResolved', alert._id);
         res.json(alert);
     } catch (error) {
         res.status(500).json({ error: "Failed to resolve alert" });
     }
 });
 
-// Get all alerts (for admin)
+router.delete("/:id", async (req, res) => {
+    try {
+        const alert = await EmergencyAlert.findByIdAndDelete(req.params.id);
+        
+        if (!alert) {
+            return res.status(404).json({ error: "Alert not found" });
+        }
+        
+        req.app.get('io').emit('alertRemoved', alert._id);
+        res.json({ message: "Alert deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete alert" });
+    }
+});
+
 router.get("/", async (req, res) => {
     try {
         const { status } = req.query;
-        const query = status ? { status } : {};
+        const query = status ? { status } : { status: { $ne: 'resolved' } };
         const alerts = await EmergencyAlert.find(query).sort({ createdAt: -1 });
         res.json(alerts);
     } catch (error) {
@@ -89,11 +99,11 @@ router.get("/", async (req, res) => {
     }
 });
 
-// Get alerts for specific resident
 router.get("/resident/:residentId", async (req, res) => {
     try {
         const alerts = await EmergencyAlert.find({ 
-            residentId: req.params.residentId 
+            residentId: req.params.residentId,
+            status: { $ne: 'resolved' }
         }).sort({ createdAt: -1 });
         
         res.json(alerts);

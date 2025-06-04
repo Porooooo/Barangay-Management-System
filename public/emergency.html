@@ -16,6 +16,29 @@
             padding: 20px;
         }
         
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn {
+            padding: 8px 16px;
+            background-color: #4a6bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .back-btn:hover {
+            background-color: #3a5bef;
+        }
+        
         .alert-container {
             background: white;
             border-radius: 10px;
@@ -30,6 +53,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: all 0.3s ease;
         }
         
         .alert-item:last-child {
@@ -79,11 +103,34 @@
         .resolved-badge {
             background-color: #4caf50;
         }
+        
+        .resolve-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .resolve-btn:hover {
+            background-color: #3e8e41;
+        }
+        
+        .acknowledge-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .acknowledge-btn:hover {
+            background-color: #e68a00;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="uil uil-bell"></i> Emergency Alerts</h1>
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="uil uil-arrow-left"></i> Back to Dashboard
+            </button>
+            <h1><i class="uil uil-bell"></i> Emergency Alerts</h1>
+        </div>
         
         <div class="alert-container" id="alertsContainer">
             <div class="alert-item">
@@ -97,7 +144,10 @@
         const socket = io();
         const alertsContainer = document.getElementById('alertsContainer');
         
-        // Fetch all alerts on page load
+        function goBack() {
+            window.location.href = 'admin-dashboard.html';
+        }
+        
         fetch('/api/emergency')
             .then(response => response.json())
             .then(alerts => {
@@ -108,12 +158,10 @@
                 console.error('Error:', error);
             });
         
-        // Handle new alert from socket
         socket.on('newEmergencyAlert', (alert) => {
             const alertItem = createAlertElement(alert);
             alertsContainer.insertBefore(alertItem, alertsContainer.firstChild);
             
-            // Show notification
             if (Notification.permission === "granted") {
                 new Notification(`New Emergency Alert from ${alert.residentName}`, {
                     body: alert.message
@@ -121,23 +169,31 @@
             }
         });
         
-        // Handle acknowledged alert
         socket.on('alertAcknowledged', (alert) => {
             const alertElement = document.getElementById(`alert-${alert._id}`);
             if (alertElement) {
                 alertElement.className = 'alert-item acknowledged';
                 alertElement.querySelector('.status-badge').className = 'status-badge acknowledged-badge';
                 alertElement.querySelector('.status-badge').textContent = 'Acknowledged';
+                
+                const actionsDiv = alertElement.querySelector('.alert-actions');
+                actionsDiv.innerHTML = `
+                    <button class="resolve-btn" onclick="resolveAlert('${alert._id}')">Resolve</button>
+                `;
             }
         });
         
-        // Handle resolved alert
-        socket.on('alertResolved', (alert) => {
-            const alertElement = document.getElementById(`alert-${alert._id}`);
+        socket.on('alertResolved', (alertId) => {
+            const alertElement = document.getElementById(`alert-${alertId}`);
             if (alertElement) {
-                alertElement.className = 'alert-item resolved';
-                alertElement.querySelector('.status-badge').className = 'status-badge resolved-badge';
-                alertElement.querySelector('.status-badge').textContent = 'Resolved';
+                alertElement.style.opacity = '0';
+                setTimeout(() => {
+                    alertElement.remove();
+                    
+                    if (alertsContainer.children.length === 0) {
+                        alertsContainer.innerHTML = '<div class="alert-item">No active emergency alerts</div>';
+                    }
+                }, 300);
             }
         });
         
@@ -182,9 +238,9 @@
                 </div>
                 <div class="alert-actions">
                     ${alert.status === 'pending' ? 
-                        `<button onclick="acknowledgeAlert('${alert._id}')">Acknowledge</button>` : ''}
+                        `<button class="acknowledge-btn" onclick="acknowledgeAlert('${alert._id}')">Acknowledge</button>` : ''}
                     ${alert.status !== 'resolved' ? 
-                        `<button onclick="resolveAlert('${alert._id}')">Resolve</button>` : ''}
+                        `<button class="resolve-btn" onclick="resolveAlert('${alert._id}')">Resolve</button>` : ''}
                 </div>
             `;
             
@@ -198,10 +254,25 @@
         
         function resolveAlert(alertId) {
             fetch(`/api/emergency/${alertId}/resolve`, { method: 'PUT' })
+                .then(() => {
+                    return fetch(`/api/emergency/${alertId}`, { method: 'DELETE' });
+                })
+                .then(() => {
+                    const alertElement = document.getElementById(`alert-${alertId}`);
+                    if (alertElement) {
+                        alertElement.style.opacity = '0';
+                        setTimeout(() => {
+                            alertElement.remove();
+                            
+                            if (alertsContainer.children.length === 0) {
+                                alertsContainer.innerHTML = '<div class="alert-item">No active emergency alerts</div>';
+                            }
+                        }, 300);
+                    }
+                })
                 .catch(error => console.error('Error:', error));
         }
         
-        // Request notification permission
         if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
