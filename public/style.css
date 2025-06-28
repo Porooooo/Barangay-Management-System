@@ -42,8 +42,10 @@ body.dark{
     --box3-color: #3A3B3C;
     --title-icon-color: #CCC;
 }
-/* === Resident Requests Table === */
-.resident-requests {
+
+/* === Tables === */
+.resident-requests,
+.resident-blotter {
     width: 100%;
     margin-top: 20px;
     background-color: var(--panel-color);
@@ -52,70 +54,140 @@ body.dark{
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.resident-requests table {
+.resident-requests table,
+.resident-blotter table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.resident-requests th, .resident-requests td {
+.resident-requests th, 
+.resident-requests td,
+.resident-blotter th,
+.resident-blotter td {
     padding: 12px;
     border: 1px solid var(--border-color);
     text-align: left;
 }
 
-.resident-requests th {
+.resident-requests th,
+.resident-blotter th {
     background-color: var(--primary-color);
     color: var(--title-icon-color);
 }
 
-.resident-requests tr:nth-child(even) {
+.resident-requests tr:nth-child(even),
+.resident-blotter tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-.resident-requests tr:hover {
+.resident-requests tr:hover,
+.resident-blotter tr:hover {
     background-color: #e3e3e3;
 }
 
-.resident-requests .approve {
+/* Status Badges */
+.status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-under-investigation {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status-resolved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-dismissed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-escalated-to-pnp {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+/* Action Buttons */
+.approve,
+.reject,
+.view-button,
+.action-btn {
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.approve {
     background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 4px;
 }
 
-.resident-requests .reject {
+.reject {
     background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 4px;
 }
 
-.resident-requests .view-button {
-    background-color: #0E4BF1; 
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 4px;
+.view-button,
+.action-btn {
+    background-color: var(--primary-color);
 }
 
-.resident-requests .approve:hover {
+.approve:hover {
     background-color: #218838;
 }
 
-.resident-requests .reject:hover {
+.reject:hover {
     background-color: #c82333;
 }
 
-.resident-requests .view-button:hover {
-    background-color: #0b3cc1; 
+.view-button:hover,
+.action-btn:hover {
+    background-color: #0b3cc1;
 }
+
+/* Empty State */
+.no-records {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-color);
+}
+
+.no-records i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #ccc;
+}
+
+.no-records a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.no-records a:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
-    .resident-requests table {
+    .resident-requests table,
+    .resident-blotter table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
@@ -538,7 +610,6 @@ nav.close ~ .dashboard .top{
 }
 
 /* ===== Form Styling ===== */
-/* ===== Form Styling ===== */
 .form-container {
     background-color: var(--panel-color);
     padding: 20px;
@@ -607,4 +678,100 @@ nav.close ~ .dashboard .top{
 .form-group textarea {
     height: 100px;
     resize: vertical;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 80%;
+    max-width: 800px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0;
+}
+
+.close-btn {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    flex: 1;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-value {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    min-height: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+/* Loading and Error Messages */
+.loading-message,
+.error-message {
+    text-align: center;
+    padding: 20px;
+}
+
+.error-message {
+    color: red;
 }

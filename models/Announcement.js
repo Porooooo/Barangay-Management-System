@@ -13,13 +13,14 @@ const announcementSchema = new mongoose.Schema({
     },
     targetGroups: [{
         type: String,
-        enum: ['All Residents', 'Registered Voter', '4Ps Member', 'PWD Member', 'Senior Citizen', 'Pregnant']
+        enum: ['All Residents', 'Registered Voter', '4Ps Member', 'PWD Member', 'Senior Citizen', 'Solo Parent']
     }],
-    targetCivilStatus: [{
+    targetCivilStatus: {
         type: String,
-        enum: ['Single', 'Married', 'Widowed', 'Separated']
-    }],
-    targetOccupation: [{
+        enum: ['Single', 'Married', 'Widowed', 'Separated'],
+        default: null
+    },
+    targetOccupation: {
         type: String,
         enum: [
             'Government Employee', 
@@ -40,12 +41,27 @@ const announcementSchema = new mongoose.Schema({
             'Retired', 
             'Self-employed', 
             'Freelancer'
-        ]
-    }],
-    targetEducation: [{
+        ],
+        default: null
+    },
+    targetEducation: {
         type: String,
-        enum: ['Elementary Graduate', 'High School Graduate', 'Vocational Graduate', 'College Graduate', 'Post Graduate', 'None']
-    }],
+        enum: ['Elementary Graduate', 'High School Graduate', 'Vocational Graduate', 'College Graduate', 'Post Graduate', 'None'],
+        default: null
+    },
+    targetIncome: {
+        type: String,
+        enum: ['Below 5,000', '5,000-10,000', '10,001-20,000', '20,001-30,000', '30,001-50,000', 'Above 50,000'],
+        default: null
+    },
+    imageUrl: {
+        type: String,
+        default: null
+    },
+    eventDateTime: {
+        type: Date,
+        required: true
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -72,6 +88,9 @@ announcementSchema.index({
     title: 'text',
     content: 'text'
 });
+
+// Add a TTL index for automatic expiration after 24 hours
+announcementSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 }); // 24 hours in seconds
 
 const Announcement = mongoose.model('Announcement', announcementSchema);
 

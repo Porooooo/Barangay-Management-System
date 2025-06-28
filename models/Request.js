@@ -17,12 +17,14 @@ const requestSchema = new mongoose.Schema({
         required: [true, "Address is required"],
         trim: true
     },
-    documentType: { 
-        type: String, 
-        required: [true, "Document type is required"],
-        enum: {
-            values: ['Barangay Clearance', 'Business Permit', 'Certificate of Indigency', 'Recommendation Letter', 'Other'],
-            message: 'Invalid document type'
+    documentTypes: { 
+        type: [String], 
+        required: [true, "At least one document type is required"],
+        validate: {
+            validator: function(arr) {
+                return arr.length > 0;
+            },
+            message: "At least one document type must be selected"
         }
     },
     purpose: { 
@@ -34,12 +36,22 @@ const requestSchema = new mongoose.Schema({
         type: String, 
         default: "Pending",
         enum: {
-            values: ['Pending', 'Approved', 'Rejected'],
+            values: ['Pending', 'Approved', 'Rejected', 'Ready to Claim', 'Claimed'],
             message: 'Invalid status'
         }
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     createdAt: { 
         type: Date, 
+        default: Date.now,
+        index: true
+    },
+    updatedAt: {
+        type: Date,
         default: Date.now,
         index: true
     }
@@ -49,7 +61,6 @@ const requestSchema = new mongoose.Schema({
     toJSON: {
         virtuals: true,
         transform: function(doc, ret) {
-            // Remove the _id field and use id instead for consistency
             ret.id = ret._id.toString();
             delete ret._id;
             delete ret.__v;
@@ -78,6 +89,14 @@ requestSchema.virtual('formattedTime').get(function() {
     });
 });
 
-const Request = mongoose.model("Request", requestSchema);
+// Add pre-save hook to update updatedAt when status changes
+requestSchema.pre('save', function(next) {
+    if (this.isModified('status')) {
+        this.updatedAt = new Date();
+    }
+    next();
+});
 
+const Request = mongoose.model("Request", requestSchema);
+    
 module.exports = Request;

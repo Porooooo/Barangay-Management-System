@@ -452,7 +452,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>
     <script>
         let originalData = {}; // To store original values when editing
-
+    
         // Check authentication status when page loads
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -477,30 +477,30 @@
                 window.location.href = 'login.html';
             }
         });
-
+    
         function setupEventListeners() {
             document.getElementById('newProfilePicture').addEventListener('change', function() {
                 const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
                 document.querySelector('label[for="newProfilePicture"]').textContent = fileName;
             });
-
+    
             document.getElementById('uploadForm').addEventListener('submit', updateProfilePicture);
             
             document.getElementById('editProfileBtn').addEventListener('click', function() {
                 toggleEditMode(true);
             });
-
+    
             document.getElementById('saveProfileBtn').addEventListener('click', function(e) {
                 e.preventDefault();
                 saveProfile();
             });
-
+    
             document.getElementById('cancelEditBtn').addEventListener('click', function(e) {
                 e.preventDefault();
                 cancelEdit();
             });
         }
-
+    
         async function fetchUserProfile() {
             try {
                 const response = await fetch('/api/auth/profile', {
@@ -510,7 +510,7 @@
                     },
                     credentials: 'include'
                 });
-
+    
                 const result = await response.json();
                 
                 if (response.ok) {
@@ -536,7 +536,7 @@
                         seniorCitizen: result.seniorCitizen || false,
                         soloParent: result.soloParent || false
                     };
-
+    
                     // Display values
                     document.getElementById('fullNameDisplay').textContent = originalData.fullName || 'Not provided';
                     document.getElementById('emailDisplay').textContent = originalData.email || 'Not provided';
@@ -556,7 +556,7 @@
                     document.getElementById('monthlyIncomeDisplay').textContent = originalData.monthlyIncome || 'Not provided';
                     document.getElementById('homeownerDisplay').textContent = originalData.homeowner || 'Not provided';
                     document.getElementById('yearsResidingDisplay').textContent = originalData.yearsResiding || 'Not provided';
-
+    
                     // Set form field values
                     document.getElementById('fullName').value = originalData.fullName;
                     document.getElementById('email').value = originalData.email;
@@ -581,18 +581,20 @@
                     } else {
                         document.getElementById('homeownerNo').checked = true;
                     }
-
+    
                     // Set checkbox values
                     document.getElementById('registeredVoter').checked = originalData.registeredVoter;
                     document.getElementById('fourPsMember').checked = originalData.fourPsMember;
                     document.getElementById('pwdMember').checked = originalData.pwdMember;
                     document.getElementById('seniorCitizen').checked = originalData.seniorCitizen;
                     document.getElementById('soloParent').checked = originalData.soloParent;
-
-                    // Set profile picture
-                    const profilePicUrl = result.profilePictureUrl || 'images/default-profile.png';
+    
+                    // Set profile picture - add timestamp to prevent caching
+                    const timestamp = new Date().getTime();
+                    const profilePicUrl = result.profilePictureUrl || 
+                                        `images/default-profile.png?${timestamp}`;
                     document.getElementById('profilePicture').src = profilePicUrl;
-
+    
                     // Display additional information
                     displayAdditionalInfo(originalData);
                 } else {
@@ -607,7 +609,7 @@
                 window.location.href = 'login.html';
             }
         }
-
+    
         function displayAdditionalInfo(data) {
             const container = document.getElementById('additionalInfoContainer');
             container.innerHTML = '';
@@ -620,7 +622,7 @@
                 { key: 'seniorCitizen', label: 'Senior Citizen' },
                 { key: 'soloParent', label: 'Solo Parent' }
             ];
-
+    
             additionalInfo.forEach(info => {
                 if (data[info.key]) {
                     const fieldDiv = document.createElement('div');
@@ -635,7 +637,7 @@
                 }
             });
         }
-
+    
         function formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('en-US', {
@@ -644,7 +646,7 @@
                 day: 'numeric'
             });
         }
-
+    
         function formatDateForInput(dateString) {
             const date = new Date(dateString);
             const year = date.getFullYear();
@@ -652,7 +654,7 @@
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
-
+    
         async function updateProfilePicture(event) {
             event.preventDefault();
             const fileInput = document.getElementById('newProfilePicture');
@@ -662,22 +664,22 @@
                 alert('Please select a file.');
                 return;
             }
-
+    
             if (file.size > 2 * 1024 * 1024) {
                 alert('File size must be less than 2MB.');
                 return;
             }
-
+    
             const formData = new FormData();
             formData.append('profilePicture', file);
-
+    
             try {
                 const response = await fetch('/api/auth/update-profile-picture', {
                     method: 'POST',
                     body: formData,
                     credentials: 'include'
                 });
-
+    
                 const result = await response.json();
                 if (response.ok) {
                     alert('Profile picture updated successfully!');
@@ -699,7 +701,7 @@
                 alert('An error occurred while updating the profile picture.');
             }
         }
-
+    
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 fetch('/api/auth/logout', {
@@ -719,21 +721,21 @@
                 });
             }   
         }
-
+    
         function confirmDeactivate() {
             if (confirm('Are you sure you want to deactivate your account? This action cannot be undone.')) {
                 // Add deactivation logic here
                 alert('Account deactivation request sent.');
             }
         }
-
+    
         function toggleEditMode(edit) {
             const displayFields = document.querySelectorAll('.profile-value');
             const editFields = document.querySelectorAll('.edit-field');
             const editBtn = document.getElementById('editProfileBtn');
             const saveBtn = document.getElementById('saveProfileBtn');
             const cancelBtn = document.getElementById('cancelEditBtn');
-
+    
             if (edit) {
                 // Enter edit mode
                 displayFields.forEach(field => field.style.display = 'none');
@@ -750,7 +752,7 @@
                 cancelBtn.style.display = 'none';
             }
         }
-
+    
         async function saveProfile() {
             // Get homeowner status
             const homeowner = document.querySelector('input[name="homeowner"]:checked')?.value || 'No';
@@ -776,26 +778,26 @@
                 seniorCitizen: document.getElementById('seniorCitizen').checked,
                 soloParent: document.getElementById('soloParent').checked
             };
-
+    
             // Validate required fields
             if (!updatedData.fullName) {
                 alert('Full name is required');
                 return;
             }
-
+    
             if (!updatedData.contactNumber) {
                 alert('Contact number is required');
                 return;
             }
-
+    
             if (!updatedData.address) {
                 alert('Address is required');
                 return;
             }
-
+    
             // Log the data being sent for debugging
             console.log('Sending update data:', updatedData);
-
+    
             try {
                 const response = await fetch('/api/residents/profile', {
                     method: 'PUT',
@@ -805,13 +807,13 @@
                     body: JSON.stringify(updatedData),
                     credentials: 'include'
                 });
-
+    
                 if (!response.ok) {
                     const errorData = await response.json();
                     console.error('Error response:', errorData);
                     throw new Error(errorData.message || 'Failed to update profile');
                 }
-
+    
                 const result = await response.json();
                 alert('Profile updated successfully!');
                 fetchUserProfile();
@@ -821,7 +823,7 @@
                 alert(error.message || 'An error occurred while updating the profile.');
             }
         }
-
+    
         function cancelEdit() {
             // Restore original values
             document.getElementById('fullName').value = originalData.fullName;
@@ -846,14 +848,14 @@
             } else {
                 document.getElementById('homeownerNo').checked = true;
             }
-
+    
             // Restore checkbox values
             document.getElementById('registeredVoter').checked = originalData.registeredVoter;
             document.getElementById('fourPsMember').checked = originalData.fourPsMember;
             document.getElementById('pwdMember').checked = originalData.pwdMember;
             document.getElementById('seniorCitizen').checked = originalData.seniorCitizen;
             document.getElementById('soloParent').checked = originalData.soloParent;
-
+    
             toggleEditMode(false);
         }
     </script>

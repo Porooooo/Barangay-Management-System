@@ -60,10 +60,18 @@
             <form id="adminRegisterForm">
                 <input type="text" id="fullName" placeholder="Full Name" required>
                 <input type="email" id="email" placeholder="Email" required>
-                <select id="status" required>
-                    <option value="" disabled selected>Select Status</option>
+                <select id="position" required>
+                    <option value="" disabled selected>Select Position</option>
                     <option value="Brgy. Captain">Brgy. Captain</option>
                     <option value="Secretary">Secretary</option>
+                    <option value="Treasurer">Treasurer</option>
+                    <option value="Councilor">Councilor</option>
+                </select>
+                <select id="department" required>
+                    <option value="" disabled selected>Select Department</option>
+                    <option value="Office of the Barangay Captain">Office of the Barangay Captain</option>
+                    <option value="Barangay Secretary Office">Barangay Secretary Office</option>
+                    <option value="Barangay Treasurer Office">Barangay Treasurer Office</option>
                 </select>
                 <input type="password" id="password" placeholder="Password" required>
                 <button type="submit">Register</button>
@@ -74,36 +82,37 @@
     <script>
         // Handle form submission
         document.getElementById('adminRegisterForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
+            event.preventDefault();
 
-    const adminData = {
-        fullName: document.getElementById('fullName').value,
-        email: document.getElementById('email').value,
-        status: document.getElementById('status').value,
-        password: document.getElementById('password').value
-    };
+            const adminData = {
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                position: document.getElementById('position').value,
+                department: document.getElementById('department').value,
+                password: document.getElementById('password').value
+            };
 
-    try {
-        const response = await fetch('/api/admin/register', { // Updated endpoint
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(adminData)
+            try {
+                const response = await fetch('/api/admin/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(adminData)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.href = 'admin-login.html';
+                } else {
+                    alert(result.error || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while registering.');
+            }
         });
-
-        const result = await response.json();
-        if (response.ok) {
-            alert(result.message);
-            window.location.href = 'admin-login.html';
-        } else {
-            alert(result.error);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while registering.');
-    }
-});
     </script>
 </body>
 </html>

@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Residents</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <title>Manage Residents</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
         * { 
             margin: 0; 
             padding: 0; 
@@ -198,16 +201,6 @@
             color: white;
         }
 
-        .add-btn {
-            background-color: #28a745;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
         .table-footer {
             display: flex;
             justify-content: space-between;
@@ -233,93 +226,6 @@
             background: #007bff;
             color: white;
             border-color: #007bff;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto; 
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 8px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: black;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .form-actions button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
         }
 
         /* Responsive Design */
@@ -358,10 +264,6 @@
             .dashboard {
                 left: 0;
                 width: 100%;
-            }
-            
-            .modal-content {
-                width: 95%;
             }
             
             .table-footer {
@@ -437,7 +339,6 @@
                 <div>
                     <h2 class="page-title">Resident List</h2>
                 </div>
-                <button class="add-btn" id="addUserBtn">Add Resident</button>
             </div>
 
             <div class="table-controls">
@@ -486,58 +387,19 @@
         </div>
     </section>
 
-    <!-- Add User Modal -->
-    <div id="addUserModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Add New Resident</h2>
-                <span class="close">&times;</span>
-            </div>
-            <form id="addUserForm">
-                <div class="form-group">
-                    <label for="newFullName">Full Name *</label>
-                    <input type="text" id="newFullName" required>
-                </div>
-                <div class="form-group">
-                    <label for="newEmail">Email *</label>
-                    <input type="email" id="newEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="newContact">Contact Number *</label>
-                    <input type="tel" id="newContact" required>
-                </div>
-                <div class="form-group">
-                    <label for="newPassword">Password *</label>
-                    <input type="password" id="newPassword" required minlength="6">
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm Password *</label>
-                    <input type="password" id="confirmPassword" required minlength="6">
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" id="cancelAddUser">Cancel</button>
-                    <button type="submit" class="btn-primary">Add Resident</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script src="script.js"></script>
 
     <script>
-        // Sidebar Toggle Function
         function toggleMenu() {
             const nav = document.querySelector("nav");
             nav.classList.toggle("close");
         }
-
-        // Global variables for pagination
+    
         let currentPage = 1;
         let entriesPerPage = 10;
         let totalPages = 1;
         let allResidents = [];
-
-        // DOM elements
+    
         const residentsTableBody = document.getElementById('residentsTableBody');
         const entriesPerPageSelect = document.getElementById('entriesPerPage');
         const searchInput = document.getElementById('searchInput');
@@ -545,93 +407,75 @@
         const nextBtn = document.getElementById('nextBtn');
         const pageNumbersDiv = document.getElementById('pageNumbers');
         const entriesInfoDiv = document.getElementById('entriesInfo');
-        const addUserBtn = document.getElementById('addUserBtn');
-        const addUserModal = document.getElementById('addUserModal');
-        const closeModal = document.querySelector('.close');
-        const cancelAddUser = document.getElementById('cancelAddUser');
-        const addUserForm = document.getElementById('addUserForm');
-
-        // Fetch Residents Data
+    
         async function fetchResidents() {
             try {
-                const response = await fetch('/api/admin/users', {
+                const response = await fetch('/api/residents', {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
-
-                // Check if response is JSON
+    
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
                     throw new Error(`Unexpected response: ${text}`);
                 }
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to fetch residents');
-                }
-
+    
                 const data = await response.json();
-                allResidents = data.residents || data; // Handle both formats
+                allResidents = (data.residents || data).filter(user => user.role === 'resident');
                 updateTable();
             } catch (error) {
                 console.error('Error fetching residents:', error);
                 residentsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Error loading data. Please try again.</td></tr>';
             }
         }
-
-        // Filter residents based on search input
+    
         function filterResidents() {
             const searchTerm = searchInput.value.toLowerCase();
-            return allResidents.filter(resident => 
-                resident.fullName.toLowerCase().includes(searchTerm) ||
-                resident.email.toLowerCase().includes(searchTerm) ||
+            return allResidents.filter(resident =>
+                resident.fullName?.toLowerCase().includes(searchTerm) ||
+                resident.email?.toLowerCase().includes(searchTerm) ||
                 (resident.contactNumber && resident.contactNumber.toLowerCase().includes(searchTerm)) ||
-                resident.status.toLowerCase().includes(searchTerm)
+                (resident.isBanned ? 'banned' : 'active').includes(searchTerm)
             );
         }
-
-        // Update table with paginated data
+    
         function updateTable() {
             const filteredResidents = filterResidents();
             const startIndex = (currentPage - 1) * entriesPerPage;
             const endIndex = startIndex + entriesPerPage;
             const paginatedResidents = filteredResidents.slice(startIndex, endIndex);
-            
-            // Update table body
-            residentsTableBody.innerHTML = paginatedResidents.length > 0 ? 
+    
+            residentsTableBody.innerHTML = paginatedResidents.length > 0 ?
                 paginatedResidents.map((resident, index) => `
                     <tr>
                         <td>${startIndex + index + 1}</td>
                         <td>${resident.fullName}</td>
                         <td>${resident.email}</td>
                         <td>${resident.contactNumber || 'N/A'}</td>
-                        <td class="status-${resident.status.toLowerCase()}">${resident.status}</td>
+                        <td class="status-${resident.isBanned ? 'banned' : 'active'}">${resident.isBanned ? 'Banned' : 'Active'}</td>
                         <td>${new Date(resident.createdAt).toLocaleString()}</td>
                         <td>
                             <button class="action-btn view-btn" data-id="${resident._id || resident.id}">View</button>
-                            <button class="action-btn ${resident.status === 'Active' ? 'disable-btn' : 'enable-btn'}" 
+                            <button class="action-btn ${resident.isBanned ? 'enable-btn' : 'disable-btn'}" 
                                     data-id="${resident._id || resident.id}">
-                                ${resident.status === 'Active' ? 'Disable' : 'Enable'}
+                                ${resident.isBanned ? 'Enable' : 'Disable'}
                             </button>
                         </td>
                     </tr>
-                `).join('') : 
+                `).join('') :
                 '<tr><td colspan="7" style="text-align: center;">No residents found</td></tr>';
-
-            // Update pagination
+    
             totalPages = Math.ceil(filteredResidents.length / entriesPerPage);
             updatePagination();
-            
-            // Update entries info
+    
             const startEntry = filteredResidents.length > 0 ? startIndex + 1 : 0;
             const endEntry = Math.min(startIndex + entriesPerPage, filteredResidents.length);
             entriesInfoDiv.textContent = `Showing ${startEntry} to ${endEntry} of ${filteredResidents.length} entries`;
-
-            // Add event listeners to action buttons
+    
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', () => viewResident(btn.dataset.id));
             });
@@ -639,22 +483,16 @@
                 btn.addEventListener('click', () => toggleResidentStatus(btn.dataset.id, btn));
             });
         }
-
-        // Update pagination controls
+    
         function updatePagination() {
             prevBtn.disabled = currentPage === 1;
             nextBtn.disabled = currentPage === totalPages || totalPages === 0;
-            
-            // Clear existing page numbers
+    
             pageNumbersDiv.innerHTML = '';
-            
-            // Add page numbers
             for (let i = 1; i <= totalPages; i++) {
                 const pageBtn = document.createElement('button');
                 pageBtn.textContent = i;
-                if (i === currentPage) {
-                    pageBtn.classList.add('active');
-                }
+                if (i === currentPage) pageBtn.classList.add('active');
                 pageBtn.addEventListener('click', () => {
                     currentPage = i;
                     updateTable();
@@ -662,154 +500,70 @@
                 pageNumbersDiv.appendChild(pageBtn);
             }
         }
-
-        // View resident function
+    
         function viewResident(id) {
             window.location.href = `view-resident.html?id=${id}`;
         }
-
-        // Toggle resident status (disable/enable)
+    
         async function toggleResidentStatus(id, button) {
             const currentStatus = button.textContent.trim();
-            const newStatus = currentStatus === 'Disable' ? 'Inactive' : 'Active';
-            
-            if (!confirm(`Are you sure you want to ${currentStatus.toLowerCase()} this resident?`)) {
-                return;
-            }
-            
+            const banAction = currentStatus === 'Disable';
+    
+            if (!confirm(`Are you sure you want to ${currentStatus.toLowerCase()} this resident?`)) return;
+    
             try {
-                const response = await fetch(`/api/residents/${id}/status`, {
-                    method: 'PATCH',
+                const response = await fetch(`/api/auth/${id}/${banAction ? 'ban' : 'unban'}`, {
+                    method: 'POST',
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ status: newStatus })
+                    }
                 });
-
-                // Check if response is JSON
+    
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
                     throw new Error(`Unexpected response: ${text}`);
                 }
-
+    
+                const result = await response.json();
                 if (response.ok) {
-                    const result = await response.json();
                     alert(result.message || 'Resident status updated successfully');
-                    fetchResidents(); // Refresh the list
+                    fetchResidents();
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to update resident status');
+                    throw new Error(result.error || 'Failed to update resident status');
                 }
             } catch (error) {
                 console.error('Error toggling resident status:', error);
                 alert('Error: ' + error.message);
             }
         }
-
-        // Add new user function
-        async function addUser(userData) {
-            try {
-                const response = await fetch('/api/admin/users', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to add user');
-                }
-
-                const result = await response.json();
-                alert('Resident added successfully!');
-                closeAddUserModal();
-                fetchResidents(); // Refresh the list
-            } catch (error) {
-                console.error('Error adding resident:', error);
-                alert(error.message || 'Failed to add resident. Please try again.');
-            }
-        }
-
-        // Modal functions
-        function openAddUserModal() {
-            addUserModal.style.display = 'block';
-        }
-
-        function closeAddUserModal() {
-            addUserModal.style.display = 'none';
-            addUserForm.reset();
-        }
-
-        // Event listeners
+    
         entriesPerPageSelect.addEventListener('change', () => {
             entriesPerPage = parseInt(entriesPerPageSelect.value);
             currentPage = 1;
             updateTable();
         });
-
+    
         searchInput.addEventListener('input', () => {
             currentPage = 1;
             updateTable();
         });
-
+    
         prevBtn.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
                 updateTable();
             }
         });
-
+    
         nextBtn.addEventListener('click', () => {
             if (currentPage < totalPages) {
                 currentPage++;
                 updateTable();
             }
         });
-
-        addUserBtn.addEventListener('click', openAddUserModal);
-        closeModal.addEventListener('click', closeAddUserModal);
-        cancelAddUser.addEventListener('click', closeAddUserModal);
-
-        // Close modal when clicking outside
-        window.addEventListener('click', (event) => {
-            if (event.target === addUserModal) {
-                closeAddUserModal();
-            }
-        });
-
-        // Form submission
-        addUserForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const fullName = document.getElementById('newFullName').value;
-            const email = document.getElementById('newEmail').value;
-            const contactNumber = document.getElementById('newContact').value;
-            const password = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            // Validate password match
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
-
-            // Create user data object
-            const userData = {
-                fullName,
-                email,
-                contactNumber,
-                password,
-                status: 'Active'
-            };
-
-            // Add the user
-            await addUser(userData);
-        });
-
-        // Load data when the page loads
+    
         document.addEventListener('DOMContentLoaded', fetchResidents);
     </script>
 </body>

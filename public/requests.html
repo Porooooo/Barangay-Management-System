@@ -105,6 +105,33 @@
         .form-group input[type="submit"]:hover {
             background-color: #455ec2;
         }
+
+        /* Checkbox styling */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: auto;
+        }
+
+        .other-document-input {
+            margin-top: 5px;
+            display: none;
+        }
+
+        .other-document-input.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -135,6 +162,11 @@
                 <li><a href="residentRequests.html">
                     <i class="uil uil-file-alt"></i>
                     <span class="link-name">Your Requests</span>
+                </a></li>
+
+                <li><a href="resident-blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Your Blotter</span>
                 </a></li>
 
                 <li><a href="announcement.html">
@@ -181,13 +213,30 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="documentType">Document Type:</label>
-                    <select id="documentType" name="documentType" required>
-                        <option value="Certificate of Indigency">Certificate of Indigency</option>
-                        <option value="Barangay Clearance">Barangay Clearance</option>
-                        <option value="Recommendation Letter">Recommendation Letter</option>
-                        <option value="Other">Other</option>
-                    </select>
+                    <label>Document Type (Select one or more):</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="barangayClearance" name="documentTypes" value="Barangay Clearance">
+                            <label for="barangayClearance">Barangay Clearance</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="businessPermit" name="documentTypes" value="Business Permit">
+                            <label for="businessPermit">Business Permit</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="certificateResidency" name="documentTypes" value="Certificate of Residency">
+                            <label for="certificateResidency">Certificate of Residency</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="certificateIndigency" name="documentTypes" value="Certificate of Indigency">
+                            <label for="certificateIndigency">Certificate of Indigency</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="otherDocument" name="documentTypes" value="Other">
+                            <label for="otherDocument">Other</label>
+                        </div>
+                    </div>
+                    <input type="text" id="otherDocumentInput" name="otherDocumentInput" class="other-document-input" placeholder="Please specify other document">
                 </div>
 
                 <div class="form-group">
@@ -204,9 +253,47 @@
 
     <script src="script.js"></script>
     <script>
+        // Toggle other document input field
+        document.getElementById('otherDocument').addEventListener('change', function() {
+            const otherInput = document.getElementById('otherDocumentInput');
+            if (this.checked) {
+                otherInput.classList.add('show');
+                otherInput.required = true;
+            } else {
+                otherInput.classList.remove('show');
+                otherInput.required = false;
+                otherInput.value = '';
+            }
+        });
+    
+        // Check if user is banned
+        async function checkUserStatus() {
+            try {
+                const response = await fetch('/api/auth/check-auth', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to check user status');
+                }
+                
+                const data = await response.json();
+                
+                if (data.user?.isBanned) {
+                    alert('Your account has been disabled. You cannot submit document requests.');
+                    window.location.href = '/residentdashboard.html';
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error checking user status:', error);
+                return false;
+            }
+        }
+    
         // Fetch the logged-in user's profile data
-       // Fetch user profile
-       async function fetchUserProfile() {
+        async function fetchUserProfile() {
             try {
                 const response = await fetch('/api/auth/profile', {
                     credentials: 'include'
@@ -223,36 +310,61 @@
                 return null;
             }
         }
-
+    
         // Auto-fill form with user data
         async function autoFillForm() {
             const user = await fetchUserProfile();
             if (user) {
                 document.getElementById('address').value = user.address || '';
+                
+                // Check if user is banned during page load
+                if (user.isBanned) {
+                    alert('Your account has been disabled. You cannot submit document requests.');
+                    window.location.href = '/residentdashboard.html';
+                }
             }
         }
-
+    
         // Handle form submission
         document.getElementById('documentRequestForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // First check if user is banned
+            const isAllowed = await checkUserStatus();
+            if (!isAllowed) return;
+            
             const user = await fetchUserProfile();
             if (!user) return;
             
+            // Get selected document types
+            const checkboxes = document.querySelectorAll('input[name="documentTypes"]:checked');
+            const documentTypes = Array.from(checkboxes).map(cb => cb.value);
+            
+            // Handle "Other" document type
+            const otherInput = document.getElementById('otherDocumentInput');
+            if (documentTypes.includes('Other') && otherInput.value.trim()) {
+                documentTypes[documentTypes.indexOf('Other')] = `Other: ${otherInput.value.trim()}`;
+            }
+    
+            if (documentTypes.length === 0) {
+                alert('Please select at least one document type');
+                return;
+            }
+    
             const formData = {
                 fullName: user.fullName,
                 email: user.email,
                 address: document.getElementById('address').value.trim(),
-                documentType: document.getElementById('documentType').value,
+                documentTypes: documentTypes,
                 purpose: document.getElementById('purpose').value.trim()
             };
-
+    
             // Validate form
             if (!formData.address || !formData.purpose) {
                 alert('Please fill in all required fields');
                 return;
             }
-
+    
             try {
                 const response = await fetch('/api/requests', {
                     method: 'POST',
@@ -260,13 +372,13 @@
                     body: JSON.stringify(formData),
                     credentials: 'include'
                 });
-
+    
                 const result = await response.json();
                 
                 if (!response.ok) {
                     throw new Error(result.error || 'Failed to submit request');
                 }
-
+    
                 alert('Request submitted successfully!');
                 window.location.href = 'residentdashboard.html';
             } catch (error) {   
@@ -274,9 +386,19 @@
                 alert(error.message || 'An error occurred. Please try again.');
             }
         });
-
+    
         // Initialize
-        window.addEventListener('DOMContentLoaded', autoFillForm);
+        window.addEventListener('DOMContentLoaded', async () => {
+            await autoFillForm();
+            
+            // Disable form if user is banned
+            const isAllowed = await checkUserStatus();
+            if (!isAllowed) {
+                document.getElementById('documentRequestForm').querySelectorAll('input, select, textarea, button').forEach(element => {
+                    element.disabled = true;
+                });
+            }
+        });
         
         // Sidebar Toggle Script
         function toggleMenu() {
@@ -284,7 +406,7 @@
             const mainContent = document.querySelector(".main-content");
             sidebar.classList.toggle("active");
             mainContent.classList.toggle("active");
-        }
+        }   
     </script>
 </body>
 </html>

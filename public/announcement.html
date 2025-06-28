@@ -64,6 +64,7 @@
         .notification {
             border-bottom: 1px solid #ddd;
             padding: 15px 0;
+            position: relative;
         }
 
         .notification:last-child {
@@ -74,6 +75,9 @@
             font-weight: 600;
             margin-bottom: 5px;
             color: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .notification-time {
@@ -82,9 +86,17 @@
             margin-bottom: 8px;
         }
 
+        .notification-event-time {
+            font-size: 0.9em;
+            color: #5ECF89;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
         .notification-message {
             color: #34495e;
             line-height: 1.6;
+            margin-bottom: 10px;
         }
 
         .badge {
@@ -98,10 +110,45 @@
             margin-top: 8px;
         }
 
+        .expired-badge {
+            background-color: #ff6b6b;
+        }
+
         .no-announcements {
             text-align: center;
             padding: 40px;
             color: #7f8c8d;
+        }
+
+        /* Announcement Details */
+        .announcement-details {
+            display: none;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .announcement-image {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 15px 0;
+            border-radius: 5px;
+            display: block;
+        }
+
+        .view-btn {
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .view-btn:hover {
+            background-color: #4db777;
         }
 
         /* Responsive Design */
@@ -168,6 +215,11 @@
                     <span class="link-name">Your Requests</span>
                 </a></li>
 
+                <li><a href="resident-blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Your Blotter</span>
+                </a></li>
+
                 <li><a href="announcement.html">
                     <i class="uil uil-bell"></i>
                     <span class="link-name">Announcements</span>
@@ -215,12 +267,25 @@
 
     <script src="script.js"></script>
 
-
     <script>
         // Toggle sidebar
         function toggleMenu() {
             const sidebar = document.querySelector("nav");
             sidebar.classList.toggle("close");
+        }
+
+        // Toggle announcement details
+        function toggleDetails(button) {
+            const announcementId = button.getAttribute('data-id');
+            const detailsDiv = document.getElementById(`details-${announcementId}`);
+            
+            if (detailsDiv.style.display === 'block') {
+                detailsDiv.style.display = 'none';
+                button.textContent = 'View';
+            } else {
+                detailsDiv.style.display = 'block';
+                button.textContent = 'Hide';
+            }
         }
 
         // Load user-specific announcements
@@ -259,21 +324,42 @@
                 return;
             }
 
-            container.innerHTML = announcements.map(announcement => `
+            const now = new Date();
+            
+            container.innerHTML = announcements.map(announcement => {
+                const createdAt = new Date(announcement.createdAt);
+                const eventTime = announcement.eventDateTime ? new Date(announcement.eventDateTime) : null;
+                
+                // Check if announcement is expired (more than 24 hours old)
+                const isExpired = (now - createdAt) > (24 * 60 * 60 * 1000);
+                
+                return `
                 <div class="notification">
-                    <div class="notification-title">${announcement.title}</div>
-                    <div class="notification-time">${new Date(announcement.createdAt).toLocaleString()}</div>
-                    <div class="notification-message">${announcement.content}</div>
+                    ${isExpired ? '<span class="badge expired-badge">Expired</span>' : ''}
+                    <div class="notification-title">
+                        ${announcement.title}
+                        <button class="view-btn" data-id="${announcement._id}" onclick="toggleDetails(this)">View</button>
+                    </div>
+                    <div class="notification-time">Posted: ${createdAt.toLocaleString()}</div>
+                    ${eventTime ? `<div class="notification-event-time">Event Time: ${eventTime.toLocaleString()}</div>` : ''}
+                    <div class="notification-message">${announcement.content.substring(0, 100)}${announcement.content.length > 100 ? '...' : ''}</div>
                     <div>
                         ${announcement.targetGroups?.map(group => `
                             <span class="badge">${group}</span>
                         `).join('')}
-                        ${announcement.occupation ? `<span class="badge">Occupation: ${announcement.occupation}</span>` : ''}
-                        ${announcement.education ? `<span class="badge">Education: ${announcement.education}</span>` : ''}
-                        ${announcement.civilStatus ? `<span class="badge">Civil Status: ${announcement.civilStatus}</span>` : ''}
+                        ${announcement.targetOccupation ? `<span class="badge">Occupation: ${announcement.targetOccupation}</span>` : ''}
+                        ${announcement.targetEducation ? `<span class="badge">Education: ${announcement.targetEducation}</span>` : ''}
+                        ${announcement.targetCivilStatus ? `<span class="badge">Civil Status: ${announcement.targetCivilStatus}</span>` : ''}
+                        ${announcement.targetIncome ? `<span class="badge">Income: ${announcement.targetIncome}</span>` : ''}
+                    </div>
+                    
+                    <div id="details-${announcement._id}" class="announcement-details">
+                        <p>${announcement.content}</p>
+                        ${announcement.imageUrl ? `<img src="${announcement.imageUrl}" class="announcement-image" alt="Announcement Image">` : ''}
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Initialize

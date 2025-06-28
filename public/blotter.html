@@ -8,108 +8,141 @@
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #2c5282;
         }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
         }
-        
-        .container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #2c5282;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        label {
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
             display: block;
-            margin-bottom: 0.5rem;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background-color: #5ECF89; }
+
+        .sidebar-logo {
+            width: 120px;  
+            height: auto;
+            margin: 10px auto; 
+            display: block;
+            border-radius: 50%; 
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .form-container {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
             font-weight: 500;
         }
-        
-        input, select, textarea {
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
+            padding: 10px;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
         }
-        
-        textarea {
-            min-height: 150px;
-            resize: vertical;
+
+        .form-group input[type="submit"],
+        .form-group button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
         }
-        
+
+        .form-group input[type="submit"]:hover,
+        .form-group button:hover {
+            background-color: #455ec2;
+        }
+
         .form-row {
             display: flex;
             gap: 1rem;
         }
-        
         .form-row .form-group {
             flex: 1;
         }
-        
-        button {
-            background-color: #2c5282;
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: background-color 0.3s;
-            width: 100%;
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
         }
-        
-        button:hover {
-            background-color: #1a365d;
-        }
-        
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
+
+        .success-message,
+        .error-message,
+        .banned-message {
             padding: 1rem;
             border-radius: 5px;
             margin-bottom: 1.5rem;
-            display: none;
         }
-        
-        .error-message {
+        .success-message { background-color: #d4edda; color: #155724; display: none; }
+        .error-message { background-color: #f8d7da; color: #721c24; display: none; }
+        .banned-message {
             background-color: #f8d7da;
             color: #721c24;
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1.5rem;
             display: none;
+            text-align: center;
         }
-        
+
         @media (max-width: 768px) {
-            .container {
+            .form-container {
                 padding: 1rem;
                 margin: 1rem;
             }
-            
             .form-row {
                 flex-direction: column;
                 gap: 0;
@@ -118,89 +151,188 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Submit Blotter Report</h1>
-        
-        <div id="successMessage" class="success-message">
-            Your blotter report has been submitted successfully. You will receive updates on the status of your report.
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Resident Panel</span>
         </div>
-        
-        <div id="errorMessage" class="error-message">
-            There was an error submitting your blotter report. Please try again.
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="residentdashboard.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+
+                <li><a href="requests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Request Document</span>
+                </a></li>
+
+                <li><a href="blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Blotter</span>
+                </a></li>
+
+                <li><a href="residentRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Your Requests</span>
+                </a></li>
+
+                <li><a href="resident-blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Your Blotter</span>
+                </a></li>
+
+                <li><a href="announcement.html">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Announcements</span>
+                </a></li>
+
+                <li><a href="profile.html">
+                    <i class="uil uil-user"></i>
+                    <span class="link-name">Profile</span>
+                </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="#" id="logoutBtn">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
         </div>
-        
-        <form id="blotterForm">
-            <div class="form-group">
-                <label for="incidentDate">Date of Incident</label>
-                <input type="datetime-local" id="incidentDate" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="location">Location of Incident</label>
-                <input type="text" id="location" placeholder="e.g. Block 5, Lot 10" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="complaintType">Type of Complaint</label>
-                <select id="complaintType" required>
-                    <option value="">Select a complaint type</option>
-                    <option value="Noise Complaint">Noise Complaint</option>
-                    <option value="Property Damage">Property Damage</option>
-                    <option value="Physical Altercation">Physical Altercation</option>
-                    <option value="Theft">Theft</option>
-                    <option value="Public Disturbance">Public Disturbance</option>
-                    <option value="Domestic Dispute">Domestic Dispute</option>
-                    <option value="Illegal Parking">Illegal Parking</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="complaintDetails">Complaint Details</label>
-                <textarea id="complaintDetails" placeholder="Please provide detailed information about the incident..." required></textarea>
-            </div>
-            
-            <h3 style="margin: 1.5rem 0 1rem;">Accused Information</h3>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="accusedName">Full Name</label>
-                    <input type="text" id="accusedName" required>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+        </div>
+
+        <div class="dash-content">
+            <div class="form-container">
+                <h2>Submit Blotter Report</h2>
+                
+                <div id="bannedMessage" class="banned-message" style="display: none;">
+                    <h3>Account Restricted</h3>
+                    <p>Your account has been restricted from submitting blotter reports due to unresolved cases.</p>
+                    <p>Please contact the barangay office for assistance.</p>
                 </div>
                 
-                <div class="form-group">
-                    <label for="accusedContact">Contact Number (if known)</label>
-                    <input type="tel" id="accusedContact" placeholder="09123456789">
+                <div id="successMessage" class="success-message">
+                    Your blotter report has been submitted successfully. You will receive updates on the status of your report.
                 </div>
+                
+                <div id="errorMessage" class="error-message">
+                    There was an error submitting your blotter report. Please try again.
+                </div>
+                
+                <form id="blotterForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="incidentDate">Date of Incident</label>
+                        <input type="datetime-local" id="incidentDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location">Location of Incident</label>
+                        <input type="text" id="location" placeholder="e.g. Block 5, Lot 10" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="complaintType">Type of Complaint</label>
+                        <select id="complaintType" required>
+                            <option value="">Select a complaint type</option>
+                            <option value="Noise Complaint">Noise Complaint</option>
+                            <option value="Property Damage">Property Damage</option>
+                            <option value="Physical Altercation">Physical Altercation</option>
+                            <option value="Theft">Theft</option>
+                            <option value="Public Disturbance">Public Disturbance</option>
+                            <option value="Domestic Dispute">Domestic Dispute</option>
+                            <option value="Illegal Parking">Illegal Parking</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="complaintDetails">Complaint Details</label>
+                        <textarea id="complaintDetails" placeholder="Please provide detailed information about the incident..." required></textarea>
+                    </div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">Accused Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="accusedName">Full Name</label>
+                            <input type="text" id="accusedName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="accusedContact">Contact Number (if known)</label>
+                            <input type="tel" id="accusedContact" placeholder="09123456789">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accusedAddress">Address</label>
+                        <input type="text" id="accusedAddress" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit">Submit Report</button>
+                    </div>
+                </form>
             </div>
-            
-            <div class="form-group">
-                <label for="accusedAddress">Address</label>
-                <input type="text" id="accusedAddress" required>
-            </div>
-            
-            <button type="submit">Submit Report</button>
-        </form>
-    </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
             checkAuthStatus();
-            
-            // Form submission
-            document.getElementById('blotterForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitBlotterReport();
-            });
+    
+            const form = document.getElementById('blotterForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitBlotterReport();
+                });
+            }
+    
+            const toggleBtn = document.querySelector(".sidebar-toggle");
+            if (toggleBtn) {
+                toggleBtn.addEventListener("click", toggleMenu);
+            }
+
+            // Logout functionality
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logoutUser();
+                });
+            }
         });
-        
+    
         function checkAuthStatus() {
             fetch('/api/auth/check-auth')
                 .then(response => response.json())
                 .then(data => {
                     if (!data.isAuthenticated) {
                         window.location.href = '/login.html';
+                    } else if (data.user.isBanned) {
+                        document.getElementById('bannedMessage').style.display = 'block';
+                    } else {
+                        document.getElementById('blotterForm').style.display = 'block';
                     }
                 })
                 .catch(error => {
@@ -208,7 +340,7 @@
                     window.location.href = '/login.html';
                 });
         }
-        
+    
         function submitBlotterReport() {
             const incidentDate = document.getElementById('incidentDate').value;
             const location = document.getElementById('location').value;
@@ -217,17 +349,19 @@
             const accusedName = document.getElementById('accusedName').value;
             const accusedContact = document.getElementById('accusedContact').value;
             const accusedAddress = document.getElementById('accusedAddress').value;
-            
+    
             const blotterData = {
                 incidentDate: new Date(incidentDate).toISOString(),
                 location,
                 complaintType,
                 complaintDetails,
-                accusedName,
-                accusedAddress,
-                accusedContact
+                accused: {
+                    name: accusedName,
+                    address: accusedAddress,
+                    contact: accusedContact
+                }
             };
-            
+    
             fetch('/api/blotter', {
                 method: 'POST',
                 headers: {
@@ -235,33 +369,56 @@
                 },
                 body: JSON.stringify(blotterData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
             .then(data => {
-                if (data.success) {
-                    // Show success message
+                if (data._id) {
                     document.getElementById('successMessage').style.display = 'block';
                     document.getElementById('errorMessage').style.display = 'none';
-                    
-                    // Reset form
                     document.getElementById('blotterForm').reset();
-                    
-                    // Redirect to my reports after 3 seconds
+    
                     setTimeout(() => {
-                        window.location.href = 'resident-dashboard.html#blotter';
+                        window.location.href = 'residentdashboard.html#blotter';
                     }, 3000);
                 } else {
-                    // Show error message
-                    document.getElementById('errorMessage').style.display = 'block';
-                    document.getElementById('successMessage').style.display = 'none';
-                    document.getElementById('errorMessage').textContent = data.message || 'There was an error submitting your blotter report. Please try again.';
+                    throw new Error(data.message || 'There was an error submitting your blotter report. Please try again.');
                 }
             })
             .catch(error => {
                 console.error('Error submitting blotter:', error);
                 document.getElementById('errorMessage').style.display = 'block';
                 document.getElementById('successMessage').style.display = 'none';
-                document.getElementById('errorMessage').textContent = 'There was an error submitting your blotter report. Please try again.';
+                document.getElementById('errorMessage').textContent = error.message || 'There was an error submitting your blotter report. Please try again.';
             });
+        }
+
+        function logoutUser() {
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/login.html';
+                } else {
+                    console.error('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error during logout:', error);
+            });
+        }
+    
+        // Sidebar Toggle
+        function toggleMenu() {
+            const sidebar = document.querySelector(".sidebar");
+            const mainContent = document.querySelector(".main-content");
+            sidebar.classList.toggle("active");
+            mainContent.classList.toggle("active");
         }
     </script>
 </body>

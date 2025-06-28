@@ -2,15 +2,20 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
+  // Basic Information
   fullName: {
     type: String,
     required: [true, 'Full name is required'],
     trim: true
   },
-  soloParent: {
-    type: Boolean,
-    default: false
-},
+  firstName: {
+    type: String,
+    trim: true
+  },
+  lastName: {
+    type: String,
+    trim: true
+  },
   middleName: {
     type: String,
     trim: true
@@ -19,17 +24,18 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+
+  // Contact Information
   email: {
     type: String,
     required: [true, 'Email is required'],
     unique: true,
     lowercase: true,
     trim: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email address']
   },
   contactNumber: {
     type: String,
-    required: [true, 'Contact number is required'],
     trim: true
   },
   alternateContact: {
@@ -38,21 +44,31 @@ const UserSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    required: [true, 'Address is required'],
-    trim: true
+    trim: true,
+    default: 'Barangay Hall'
   },
+
+  // Personal Information
   birthdate: {
     type: Date,
-    required: [true, 'Birthdate is required']
+    default: new Date(2000, 0, 1),
+    set: function (val) {
+      if (!val) return null;
+      return val instanceof Date ? val : new Date(val);
+    }
+  },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other']
   },
   civilStatus: {
     type: String,
     enum: ['Single', 'Married', 'Widowed', 'Separated']
-    // optional by default
   },
+
+  // Socio-Economic Information
   occupation: {
     type: String
-    // optional by default
   },
   educationalAttainment: {
     type: String,
@@ -64,7 +80,6 @@ const UserSchema = new mongoose.Schema({
       'Post Graduate',
       'None'
     ]
-    // optional by default
   },
   monthlyIncome: {
     type: String,
@@ -76,12 +91,10 @@ const UserSchema = new mongoose.Schema({
       '30,001-50,000',
       'Above 50,000'
     ]
-    // optional by default
   },
   homeowner: {
     type: String,
     enum: ['Yes', 'No']
-    // optional by default
   },
   yearsResiding: {
     type: String,
@@ -92,8 +105,9 @@ const UserSchema = new mongoose.Schema({
       '11-20 years',
       '20+ years'
     ]
-    // optional by default
   },
+
+  // Special Categories
   registeredVoter: {
     type: Boolean,
     default: false
@@ -110,39 +124,88 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  pregnant: {
+
+  soloParent: {
     type: Boolean,
     default: false
   },
+
+  // Account Information
   password: {
     type: String,
     required: [true, 'Password is required'],
     minlength: [8, 'Password must be at least 8 characters long'],
     select: false
   },
-  profilePicture: { 
+  profilePicture: {
     type: String,
     default: 'default-profile.png'
+  },
+  role: {
+    type: String,
+    enum: ['resident', 'admin'],
+    default: 'resident'
   },
   status: {
     type: String,
     enum: ['Active', 'Inactive'],
     default: 'Active'
   },
-  role: {
-    type: String,
-    enum: ['resident', 'staff', 'admin'],
-    default: 'resident'
+  isBanned: {
+    type: Boolean,
+    default: false
   },
+
+  // Admin Specific Fields
+  adminSpecificFields: {
+    position: {
+      type: String,
+      enum: ['Brgy. Captain', 'Secretary', 'Treasurer', 'Councilor', 'Other']
+    },
+    department: {
+      type: String
+    },
+    isSuperAdmin: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  // Timestamps
   createdAt: {
+    type: Date,
+    default: Date.now,
+    immutable: true
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Password comparison method
-UserSchema.methods.comparePassword = async function(candidatePassword) {
+// 🔒 Pre-save hook to hash password (CRITICAL FIX)
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 📅 Pre-save hook to update 'updatedAt'
+UserSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  next();
+});
+
+// 🔍 Password comparison method
+UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 module.exports = mongoose.model('User', UserSchema);
+  

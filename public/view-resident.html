@@ -350,46 +350,88 @@
         const disableBtn = document.getElementById('disableBtn');
         const editBtn = document.getElementById('editBtn');
     
-        // Format date
+        // Format date safely
         function formatDate(dateString) {
             if (!dateString) return 'Not available';
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateString).toLocaleDateString(undefined, options);
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'Invalid date';
+    
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'UTC'
+                };
+                return date.toLocaleDateString(undefined, options);
+            } catch (e) {
+                console.error('Date formatting error:', e);
+                return 'Not available';
+            }
         }
-
+    
         // Format boolean values
         function formatBoolean(value) {
             return value ? 'Yes' : 'No';
         }
     
-        // Fetch resident data with proper error handling
+        // Safely get property or return default
+        function safeGet(obj, prop, def = 'Not provided') {
+            return obj && obj[prop] !== undefined && obj[prop] !== null ? obj[prop] : def;
+        }
+    
+        // Show sanitized error message
+        function showErrorState(error) {
+            fullName.textContent = 'Error loading data';
+            profileStatus.textContent = 'Error';
+            profileStatus.className = 'profile-status status-inactive';
+    
+            const errorMessage = typeof error.message === 'string'
+                ? error.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                : 'Unknown error occurred';
+    
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            errorElement.textContent = `Error: ${errorMessage}`;
+            document.querySelector('.profile-container').prepend(errorElement);
+        }
+    
+        // Fetch resident data
         async function fetchResidentData() {
             try {
-                // First check admin authentication
-                const authCheck = await fetch('/api/auth/check-auth', {
+                // Check admin authentication
+                const authCheck = await fetch('/api/admin/check-auth', {
                     credentials: 'include'
                 });
-                
-                if (!authCheck.ok) {
-                    window.location.href = '/';
-                    return;
+    
+                const authContentType = authCheck.headers.get('content-type');
+                if (!authContentType || !authContentType.includes('application/json')) {
+                    const text = await authCheck.text();
+                    throw new Error(`Unexpected auth response: ${text}`);
                 }
-                
-                const authData = await authCheck.json();
-                if (!authData.isAuthenticated || !['admin', 'staff'].includes(authData.user.role)) {
-                    window.location.href = '/';
+    
+                if (!authCheck.ok) {
+                    window.location.href = '/admin-login.html';
                     return;
                 }
     
-                // Then fetch resident data
+                const authData = await authCheck.json();
+                if (!authData.isAuthenticated || authData.user.role !== 'admin') {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+    
+                // Fetch resident data with timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
                 const response = await fetch(`/api/residents/${residentId}`, {
                     credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal
                 });
-                
-                // Check if response is JSON
+                clearTimeout(timeoutId);
+    
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
@@ -397,56 +439,61 @@
                 }
     
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to fetch resident data');
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || `HTTP error! status: ${response.status}`);
                 }
     
-                const resident = await response.json();
+                const { data: resident } = await response.json();
     
-                // Update DOM with resident data
-                const profilePicUrl = resident.profilePicture 
-                    ? `/uploads/${resident.profilePicture}`
-                    : 'images/default-profile.png';
-                
-                profilePicture.src = profilePicUrl;
-                profileStatus.textContent = resident.status || 'Active';
+                if (!resident) throw new Error('No resident data received');
+    
+                // Update DOM
+                profilePicture.src = resident.profilePicture
+  ? resident.profilePicture.startsWith('http') 
+    ? resident.profilePicture 
+    : resident.profilePicture.startsWith('/uploads/')
+      ? resident.profilePicture
+      : `/uploads/${resident.profilePicture}`
+  : 'images/default-profile.png';
+    
+                profileStatus.textContent = safeGet(resident, 'status', 'Active');
                 profileStatus.className = `profile-status status-${(resident.status || 'Active').toLowerCase()}`;
-                fullName.textContent = resident.fullName || 'Not provided';
-                email.textContent = resident.email || 'Not provided';
-                contactNumber.textContent = resident.contactNumber || 'Not provided';
-                address.textContent = resident.address || 'Not provided';
-                birthdate.textContent = formatDate(resident.birthdate);
-                civilStatus.textContent = resident.civilStatus || 'Not provided';
-                occupation.textContent = resident.occupation || 'Not provided';
-                educationalAttainment.textContent = resident.educationalAttainment || 'Not provided';
-                registeredVoter.textContent = formatBoolean(resident.registeredVoter);
-                fourPsMember.textContent = formatBoolean(resident.fourPsMember);
-                pwdMember.textContent = formatBoolean(resident.pwdMember);
-                seniorCitizen.textContent = formatBoolean(resident.seniorCitizen);
-                createdAt.textContent = formatDate(resident.createdAt);
-
-                // Update disable button based on status
-                if (resident.status === 'Inactive') {
-                    disableBtn.textContent = 'Enable Account';
-                    disableBtn.className = 'action-btn enable-btn';
-                } else {
-                    disableBtn.textContent = 'Disable Account';
-                    disableBtn.className = 'action-btn disable-btn';
-                }
+                fullName.textContent = safeGet(resident, 'fullName');
+                email.textContent = safeGet(resident, 'email');
+                contactNumber.textContent = safeGet(resident, 'contactNumber');
+                address.textContent = safeGet(resident, 'address');
+                birthdate.textContent = formatDate(safeGet(resident, 'birthdate'));
+                civilStatus.textContent = safeGet(resident, 'civilStatus');
+                occupation.textContent = safeGet(resident, 'occupation');
+                educationalAttainment.textContent = safeGet(resident, 'educationalAttainment');
+                registeredVoter.textContent = formatBoolean(safeGet(resident, 'registeredVoter', false));
+                fourPsMember.textContent = formatBoolean(safeGet(resident, 'fourPsMember', false));
+                pwdMember.textContent = formatBoolean(safeGet(resident, 'pwdMember', false));
+                seniorCitizen.textContent = formatBoolean(safeGet(resident, 'seniorCitizen', false));
+                createdAt.textContent = formatDate(safeGet(resident, 'createdAt'));
+    
+                // Update disable button
+                const isInactive = safeGet(resident, 'status') === 'Inactive';
+                disableBtn.textContent = isInactive ? 'Enable Account' : 'Disable Account';
+                disableBtn.className = `action-btn ${isInactive ? 'enable-btn' : 'disable-btn'}`;
     
             } catch (error) {
-                console.error('Error:', error);
-                fullName.textContent = 'Error loading resident data';
-                profileStatus.textContent = 'Error';
-                profileStatus.className = 'profile-status status-inactive';
-                alert('Error: ' + error.message);
+                console.error('Fetch error:', error);
+                showErrorState(error);
+    
+                if (error.message.includes('Unauthorized') ||
+                    error.message.includes('Forbidden') ||
+                    error.message.includes('401') ||
+                    error.message.includes('403')) {
+                    window.location.href = '/admin-login.html';
+                }
             }
         }
     
-        // Toggle resident status (disable/enable)
+        // Toggle resident status (enable/disable)
         async function toggleResidentStatus() {
             const newStatus = disableBtn.textContent.includes('Disable') ? 'Inactive' : 'Active';
-            
+    
             if (!confirm(`Are you sure you want to ${newStatus === 'Inactive' ? 'disable' : 'enable'} this account?`)) {
                 return;
             }
@@ -461,7 +508,6 @@
                     body: JSON.stringify({ status: newStatus })
                 });
     
-                // Check if response is JSON
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
@@ -470,32 +516,35 @@
     
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to update resident status');
+                    throw new Error(errorData.message || errorData.error || 'Failed to update resident status');
                 }
     
                 const result = await response.json();
                 alert(result.message || 'Resident status updated successfully');
-                fetchResidentData(); // Refresh the data
+                fetchResidentData(); // Refresh view
+    
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error: ' + error.message);
+    
+                if (error.message.includes('Unauthorized') || error.message.includes('Forbidden')) {
+                    window.location.href = '/admin-login.html';
+                }
             }
         }
-
-        // Edit resident profile
+    
+        // Redirect to edit page
         function editResident() {
             window.location.href = `edit-resident.html?id=${residentId}`;
         }
     
         // Initialize page
         document.addEventListener('DOMContentLoaded', () => {
-            // Set up buttons
             disableBtn.addEventListener('click', toggleResidentStatus);
             editBtn.addEventListener('click', editResident);
-            
-            // Load resident data
             fetchResidentData();
         });
     </script>
+    
 </body>
 </html>

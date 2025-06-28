@@ -6,331 +6,366 @@ const { authMiddleware, adminMiddleware } = require("../middleware/authMiddlewar
 
 const router = express.Router();
 
-// Get all residents (Admin only)
-router.get("/", adminMiddleware, async (req, res) => {
+// Helper function for safe ISO date formatting
+const formatDateSafe = (date) => {
+  if (!date) return null;
   try {
-    const { search, status } = req.query;
-    let query = {};
+    return new Date(date).toISOString();
+  } catch (e) {
+    return null;
+  }
+};
+
+// Format resident object consistently
+const formatResidentData = (resident) => {
+  return {
+    ...resident,
+    profilePicture: resident.profilePicture
+      ? resident.profilePicture.startsWith('http')
+        ? resident.profilePicture
+        : `/uploads/${resident.profilePicture}`
+      : '/images/default-profile.png',
+    createdAt: formatDateSafe(resident.createdAt),
+    updatedAt: formatDateSafe(resident.updatedAt),
+    birthdate: formatDateSafe(resident.birthdate)
+  };
+};
+
+// GET all residents (Admin only) with search, filter
+router.get("/", authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { search, status, role } = req.query;
+    let query = { role: "resident" };
 
     if (search) {
-      const searchRegex = new RegExp(search, 'i');
+      const searchRegex = new RegExp(search, "i");
       query.$or = [
         { fullName: searchRegex },
         { email: searchRegex },
-        { contactNumber: searchRegex }
+        { contactNumber: searchRegex },
+        { address: searchRegex }
       ];
     }
 
-    if (status && ['Active', 'Inactive'].includes(status)) {
+    if (status && ["Active", "Inactive"].includes(status)) {
       query.status = status;
     }
 
+    if (role && ["resident", "admin"].includes(role)) {
+      query.role = role;
+    }
+
     const residents = await User.find(query)
-      .select('-password')
-      .sort({ createdAt: -1 });
+      .select("-password -__v")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const formattedResidents = residents.map(formatResidentData);
 
     res.status(200).json({
-      count: residents.length,
-      residents
+      success: true,
+      count: formattedResidents.length,
+      residents: formattedResidents
     });
   } catch (error) {
     console.error("Error fetching residents:", error);
     res.status(500).json({
-      error: "Server error",
-      message: "Failed to fetch residents"
+      success: false,
+      error: "Server Error",
+      message: error.message || "Failed to fetch residents"
     });
   }
 });
 
-// Get current resident profile
+// GET current authenticated resident's profile
 router.get("/profile", authMiddleware, async (req, res) => {
   try {
-    const resident = await User.findById(req.session.userId).select('-password');
-    
+    const resident = await User.findById(req.session.userId)
+      .select("-password -__v -adminSpecificFields")
+      .lean();
+
     if (!resident) {
       return res.status(404).json({
-        error: "Not found",
-        message: "Resident not found"
-      });
-    }
-
-    res.status(200).json(resident);
-  } catch (error) {
-    console.error("Error fetching resident profile:", error);
-    res.status(500).json({
-      error: "Server error",
-      message: "Failed to fetch resident profile"
-    });
-  }
-});
-
-// ✅ Update current resident profile (optional fields allowed)
-router.put("/profile", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    const updates = req.body;
-
-    // Validate only required fields if present
-    const requiredFields = ["fullName", "contactNumber", "address", "birthdate"];
-    for (const field of requiredFields) {
-      if (updates.hasOwnProperty(field) && !updates[field]) {
-        return res.status(400).json({
-          error: "Validation error",
-          message: `Field "${field}" cannot be empty if provided`
-        });
-      }
-    }
-
-    // Parse birthdate string to Date object if needed
-    if (updates.birthdate && typeof updates.birthdate === 'string') {
-      updates.birthdate = new Date(updates.birthdate);
-    }
-
-    const updatedResident = await User.findByIdAndUpdate(
-      userId,
-      updates,
-      {
-        new: true,
-        runValidators: true
-      }
-    ).select('-password');
-
-    if (!updatedResident) {
-      return res.status(404).json({
-        error: "Not found",
-        message: "Resident not found"
+        success: false,
+        error: "Not Found",
+        message: "User profile not found"
       });
     }
 
     res.status(200).json({
+      success: true,
+      data: formatResidentData(resident)
+    });
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({
+      success: false,
+      error: "Server Error",
+      message: error.message || "Failed to fetch profile"
+    });
+  }
+});
+
+// PUT update current authenticated resident's profile
+router.put("/profile", authMiddleware, async (req, res) => {
+  try {
+    const allowedUpdates = [
+      'fullName', 'firstName', 'lastName', 'middleName', 'suffix',
+      'contactNumber', 'alternateContact', 'address', 'birthdate',
+      'gender', 'civilStatus', 'occupation', 'educationalAttainment',
+      'monthlyIncome', 'homeowner', 'yearsResiding', 'registeredVoter',
+      'fourPsMember', 'pwdMember', 'seniorCitizen', 'soloParent'
+    ];
+
+    const updates = Object.keys(req.body)
+      .filter(key => allowedUpdates.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = req.body[key];
+        return obj;
+      }, {});
+
+    const requiredFields = ['fullName', 'contactNumber', 'address', 'birthdate'];
+    for (const field of requiredFields) {
+      if (updates[field] === '') {
+        return res.status(400).json({
+          success: false,
+          error: "Validation Error",
+          message: `${field} cannot be empty`
+        });
+      }
+    }
+
+    const updatedResident = await User.findByIdAndUpdate(
+      req.session.userId,
+      updates,
+      { new: true, runValidators: true }
+    ).select("-password -__v -adminSpecificFields").lean();
+
+    if (!updatedResident) {
+      return res.status(404).json({
+        success: false,
+        error: "Not Found",
+        message: "User not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
       message: "Profile updated successfully",
-      resident: updatedResident
+      data: formatResidentData(updatedResident)
     });
   } catch (error) {
     console.error("Error updating profile:", error);
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        error: "Validation error",
-        message: error.message
-      });
-    }
     res.status(500).json({
-      error: "Server error",
-      message: "Failed to update profile"
+      success: false,
+      error: "Server Error",
+      message: error.message
     });
   }
 });
 
-// Get single resident by ID (Admin only)
-router.get("/:id", adminMiddleware, async (req, res) => {
+// GET resident by ID (Admin only)
+router.get("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({
+        success: false,
         error: "Invalid ID",
-        message: "Invalid resident ID format"
+        message: "Invalid user ID format"
       });
     }
 
-    const resident = await User.findById(req.params.id).select('-password');
+    const resident = await User.findById(req.params.id)
+      .select("-password -__v")
+      .lean();
 
     if (!resident) {
       return res.status(404).json({
-        error: "Not found",
-        message: "Resident not found"
+        success: false,
+        error: "Not Found",
+        message: "User not found"
       });
     }
 
-    res.status(200).json(resident);
+    res.status(200).json({
+      success: true,
+      data: formatResidentData(resident)
+    });
   } catch (error) {
     console.error("Error fetching resident:", error);
     res.status(500).json({
-      error: "Server error",
-      message: "Failed to fetch resident"
+      success: false,
+      error: "Server Error",
+      message: error.message
     });
   }
 });
 
-// Create new resident (Admin only)
-router.post("/", adminMiddleware, async (req, res) => {
+// POST create new resident (Admin only)
+router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const {
-      fullName,
-      email,
-      contactNumber,
-      address,
-      birthdate,
-      password
-    } = req.body;
+    const requiredFields = ['fullName', 'email', 'contactNumber', 'address', 'birthdate', 'password'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
 
-    if (!fullName || !email || !contactNumber || !address || !birthdate || !password) {
+    if (missingFields.length > 0) {
       return res.status(400).json({
-        error: "Validation error",
-        message: "All required fields must be provided"
+        success: false,
+        error: "Validation Error",
+        message: `Missing required fields: ${missingFields.join(', ')}`
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: req.body.email });
     if (existingUser) {
-      return res.status(400).json({
-        error: "Duplicate email",
+      return res.status(409).json({
+        success: false,
+        error: "Duplicate Email",
         message: "Email already exists"
       });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newResident = new User({
-      fullName,
-      email,
-      contactNumber,
-      address,
-      birthdate,
+      ...req.body,
       password: hashedPassword,
-      ...req.body
+      role: 'resident'
     });
 
     await newResident.save();
 
     res.status(201).json({
+      success: true,
       message: "Resident created successfully",
-      resident: newResident
+      data: formatResidentData(newResident.toObject())
     });
   } catch (error) {
     console.error("Error creating resident:", error);
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        error: "Validation error",
-        message: error.message
-      });
-    }
     res.status(500).json({
-      error: "Server error",
-      message: "Failed to create resident"
+      success: false,
+      error: "Server Error",
+      message: error.message
     });
   }
 });
 
-// Update resident profile by ID
-router.put("/:id", authMiddleware, async (req, res) => {
+// PUT update resident by ID (Admin only)
+router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({
+        success: false,
         error: "Invalid ID",
-        message: "Invalid resident ID format"
+        message: "Invalid user ID format"
       });
     }
 
-    const resident = await User.findById(req.params.id);
-    if (!resident) {
-      return res.status(404).json({
-        error: "Not found",
-        message: "Resident not found"
-      });
-    }
-
-    if (!req.session.isAdmin && req.session.userId !== req.params.id) {
-      return res.status(403).json({
-        error: "Forbidden",
-        message: "You can only update your own profile"
-      });
-    }
-
-    const updates = req.body;
+    const updates = { ...req.body };
+    if (updates.role) delete updates.role;
 
     if (updates.password) {
-      const salt = await bcrypt.genSalt(10);
-      updates.password = await bcrypt.hash(updates.password, salt);
+      updates.password = await bcrypt.hash(updates.password, 10);
     }
 
     const updatedResident = await User.findByIdAndUpdate(
       req.params.id,
       updates,
-      {
-        new: true,
-        runValidators: true
-      }
-    ).select('-password');
+      { new: true, runValidators: true }
+    ).select("-password -__v").lean();
+
+    if (!updatedResident) {
+      return res.status(404).json({
+        success: false,
+        error: "Not Found",
+        message: "User not found"
+      });
+    }
 
     res.status(200).json({
+      success: true,
       message: "Resident updated successfully",
-      resident: updatedResident
+      data: formatResidentData(updatedResident)
     });
   } catch (error) {
     console.error("Error updating resident:", error);
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        error: "Validation error",
-        message: error.message
-      });
-    }
     res.status(500).json({
-      error: "Server error",
-      message: "Failed to update resident"
+      success: false,
+      error: "Server Error",
+      message: error.message
     });
   }
 });
 
-// Delete resident (Admin only)
-router.delete("/:id", adminMiddleware, async (req, res) => {
+// DELETE resident (Admin only)
+router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({
+        success: false,
         error: "Invalid ID",
-        message: "Invalid resident ID format"
+        message: "Invalid user ID format"
       });
     }
 
-    const resident = await User.findByIdAndDelete(req.params.id);
-    if (!resident) {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted) {
       return res.status(404).json({
-        error: "Not found",
-        message: "Resident not found"
+        success: false,
+        error: "Not Found",
+        message: "User not found"
       });
     }
 
     res.status(200).json({
+      success: true,
       message: "Resident deleted successfully"
     });
   } catch (error) {
     console.error("Error deleting resident:", error);
     res.status(500).json({
-      error: "Server error",
-      message: "Failed to delete resident"
+      success: false,
+      error: "Server Error",
+      message: error.message
     });
   }
 });
 
-// Toggle resident status (Admin only)
-router.patch("/:id/status", adminMiddleware, async (req, res) => {
+// PATCH toggle resident status (Admin only)
+router.patch("/:id/status", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({
+        success: false,
         error: "Invalid ID",
-        message: "Invalid resident ID format"
+        message: "Invalid user ID format"
       });
     }
 
     const resident = await User.findById(req.params.id);
     if (!resident) {
       return res.status(404).json({
-        error: "Not found",
-        message: "Resident not found"
+        success: false,
+        error: "Not Found",
+        message: "User not found"
       });
     }
 
-    resident.status = resident.status === 'Active' ? 'Inactive' : 'Active';
+    resident.status = resident.status === "Active" ? "Inactive" : "Active";
     await resident.save();
 
     res.status(200).json({
-      message: `Resident status updated to ${resident.status}`,
-      status: resident.status
+      success: true,
+      message: `Status updated to ${resident.status}`,
+      data: {
+        id: resident._id,
+        status: resident.status
+      }
     });
   } catch (error) {
-    console.error("Error toggling resident status:", error);
+    console.error("Error toggling status:", error);
     res.status(500).json({
-      error: "Server error",
-      message: "Failed to toggle resident status"
+      success: false,
+      error: "Server Error",
+      message: error.message
     });
   }
 });

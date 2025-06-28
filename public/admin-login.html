@@ -82,6 +82,7 @@
       margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 5px;
+      font-size: 16px;
     }
 
     button {
@@ -92,6 +93,7 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 1em;
+      transition: background-color 0.3s ease;
     }
 
     button:hover {
@@ -147,11 +149,16 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(loginData)
+          body: JSON.stringify(loginData),
+          credentials: 'include' // Required for session cookie to be sent
         });
 
         const result = await response.json();
+
         if (response.ok) {
+          localStorage.setItem('token', result.token || 'session-based'); // Optional: only needed if using JWT
+          localStorage.setItem('user', JSON.stringify(result.user)); // Optional: store user info
+
           alert(result.message);
           window.location.href = result.redirect;
         } else {

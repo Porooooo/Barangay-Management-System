@@ -7,107 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <title>Resident Dashboard</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
-
-        
-
-        /* Main Content */
-        .main-content {
-            margin-left: 250px; /* Adjust for sidebar width */
-            padding: 20px;
-        }
-
-        .top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-            .main-content {
-                margin-left: 200px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-        }
-
-        /* Dashboard Content */
-        .dash-content {
-            margin-top: 20px;
-        }
-
-        .overview {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .boxes {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .box {
-            background-color: #f0f0f0;
-            padding: 20px;
-            border-radius: 5px;
-            flex: 1;
-            margin: 0 10px;
-            text-align: center;
-        }
-
-        .activity {
-            margin-top: 20px;
-        }
-
-        .resident-requests {
-            margin-top: 20px;
-        }
-
-        /* Table Styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-        }
-
-        .view-button {
-            background-color: #007bff; /* Blue */
-            color: white;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    
 </head>
 <body>
     <nav>
@@ -129,7 +29,7 @@
                     <span class="link-name">Request Document</span>
                 </a></li>
 
-                <li><a href="blotter.html">z
+                <li><a href="blotter.html">
                     <i class="uil uil-shield-exclamation"></i>
                     <span class="link-name">Blotter</span>
                 </a></li>
@@ -137,6 +37,11 @@
                 <li><a href="residentRequests.html">
                     <i class="uil uil-file-alt"></i>
                     <span class="link-name">Your Requests</span>
+                </a></li>
+
+                <li><a href="resident-blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Your Blotter</span>
                 </a></li>
 
                 <li><a href="announcement.html">
@@ -178,14 +83,27 @@
                     <i class="uil uil-file-alt"></i>
                     <span class="text">Document Requests</span>
                 </div>
-                <table id="requestsTable">
+                
+                <div id="loadingMessage" style="text-align: center; padding: 20px;">
+                    <p>Loading your requests...</p>
+                </div>
+                
+                <div id="errorMessage" style="text-align: center; color: red; padding: 20px; display: none;">
+                    <p>Failed to load requests. Please try again later.</p>
+                </div>
+                
+                <div id="successMessage" style="text-align: center; color: green; padding: 20px; display: none;">
+                    <p>Document claimed successfully!</p>
+                </div>
+                
+                <table id="requestsTable" style="display: none;">
                     <thead>
                         <tr>
-                            <th>Full Name</th>
-                            <th>Address</th>
                             <th>Document Type</th>
                             <th>Purpose</th>
+                            <th>Date Requested</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -196,19 +114,45 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
-
     <script>
-        // Fetch and display document requests for the logged-in user
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                // First check if user is logged in
+                const userResponse = await fetch('/api/auth/check-auth', {
+                    credentials: 'include'
+                });
+                
+                if (!userResponse.ok) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const userData = await userResponse.json();
+                
+                // Check if user is banned
+                if (userData.user?.isBanned) {
+                    alert('Your account has been disabled. You cannot view requests.');
+                    window.location.href = '/residentdashboard.html';
+                    return;
+                }
+                
+                // If checks pass, fetch requests
+                await fetchRequests();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+    
         async function fetchRequests() {
             try {
                 const response = await fetch('/api/requests/user', {
-                    credentials: 'include' // Include session cookie
+                    credentials: 'include'
                 });
                 
                 if (!response.ok) {
                     if (response.status === 401) {
-                        // Unauthorized - redirect to login
                         window.location.href = 'login.html';
                         return;
                     }
@@ -216,70 +160,135 @@
                 }
                 
                 const requests = await response.json();
-                const tableBody = document.querySelector("#requestsTable tbody");
-                tableBody.innerHTML = ''; // Clear existing rows
+                renderRequests(requests);
+            } catch (error) {
+                console.error("Error fetching requests:", error);
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
     
-                if (requests.length === 0) {
+        function renderRequests(requests) {
+            const tableBody = document.querySelector("#requestsTable tbody");
+            const loadingMessage = document.getElementById('loadingMessage');
+            const tableElement = document.getElementById('requestsTable');
+            
+            tableBody.innerHTML = '';
+            loadingMessage.style.display = 'none';
+            tableElement.style.display = 'table';
+            
+            if (requests.length === 0) {
+                const row = tableBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 5;
+                cell.textContent = "You haven't made any requests yet";
+                cell.style.textAlign = "center";
+                return;
+            }
+            
+            requests.forEach(request => {
+                const row = tableBody.insertRow();
+                row.setAttribute('data-id', request.id);
+                
+                // Document Type
+                const docTypeCell = row.insertCell();
+                docTypeCell.textContent = request.documentType || 'N/A';
+                
+                // Purpose
+                const purposeCell = row.insertCell();
+                purposeCell.textContent = request.purpose || 'N/A';
+                
+                // Date Requested
+                const dateCell = row.insertCell();
+                dateCell.innerHTML = `
+                    <div>${request.formattedDate || 'N/A'}</div>
+                    <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
+                `;
+                
+                // Status
+                const statusCell = row.insertCell();
+                statusCell.textContent = request.status || 'Pending';
+                
+                // Apply status-specific styling
+                switch(request.status) {
+                    case 'Approved':
+                        statusCell.style.color = 'green';
+                        break;
+                    case 'Rejected':
+                        statusCell.style.color = 'red';
+                        break;
+                    case 'Ready to Claim':
+                        statusCell.style.color = '#17a2b8';
+                        break;
+                    case 'Claimed':
+                        statusCell.style.color = '#6c757d';
+                        break;
+                    default:
+                        statusCell.style.color = 'orange';
+                }
+                
+                // Actions
+                const actionsCell = row.insertCell();
+                
+                if (request.status === 'Ready to Claim') {
+                    const claimBtn = document.createElement('button');
+                    claimBtn.textContent = 'Claim';
+                    claimBtn.className = 'claim-button';
+                    claimBtn.onclick = () => claimRequest(request.id, row);
+                    actionsCell.appendChild(claimBtn);
+                } else if (request.status === 'Approved') {
+                    actionsCell.textContent = 'Waiting for processing';
+                } else {
+                    actionsCell.textContent = '';
+                }
+            });
+        }
+    
+        async function claimRequest(requestId, rowElement) {
+            if (!confirm('Are you sure you want to mark this document as claimed?')) return;
+            
+            try {
+                const response = await fetch(`/api/requests/${requestId}/claim`, {
+                    method: 'PUT',
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to claim request');
+                }
+                
+                // Show success message
+                const successMessage = document.getElementById('successMessage');
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+                
+                // Remove the row from the table
+                rowElement.remove();
+                
+                // Check if table is now empty
+                const tableBody = document.querySelector("#requestsTable tbody");
+                if (tableBody.rows.length === 0) {
                     const row = tableBody.insertRow();
                     const cell = row.insertCell();
                     cell.colSpan = 5;
                     cell.textContent = "You haven't made any requests yet";
                     cell.style.textAlign = "center";
-                    return;
                 }
-    
-                requests.forEach(request => {
-                    const row = tableBody.insertRow();
-                    const fullNameCell = row.insertCell();
-                    const addressCell = row.insertCell();
-                    const documentTypeCell = row.insertCell();
-                    const purposeCell = row.insertCell();
-                    const statusCell = row.insertCell();
-    
-                    fullNameCell.textContent = request.fullName;
-                    addressCell.textContent = request.address;
-                    documentTypeCell.textContent = request.documentType;
-                    purposeCell.textContent = request.purpose;
-                    statusCell.textContent = request.status || 'Pending';
-                    
-                    // Add status-specific styling
-                    if (request.status === 'Approved') {
-                        statusCell.style.color = 'green';
-                        statusCell.style.fontWeight = 'bold';
-                    } else if (request.status === 'Rejected') {
-                        statusCell.style.color = 'red';
-                        statusCell.style.fontWeight = 'bold';
-                    } else {
-                        statusCell.style.color = 'orange';
-                        statusCell.style.fontWeight = 'bold';
-                    }
-                });
             } catch (error) {
-                console.error("Error fetching requests:", error);
-                
-                const tableBody = document.querySelector("#requestsTable tbody");
-                tableBody.innerHTML = '';
-                const row = tableBody.insertRow();
-                const cell = row.insertCell();
-                cell.colSpan = 5;
-                cell.textContent = "An error occurred while fetching requests. Please try again.";
-                cell.style.textAlign = "center";
-                cell.style.color = "red";
+                console.error('Claim error:', error);
+                alert(`Error: ${error.message}`);
             }
         }
     
-        // Sidebar Toggle
         function toggleMenu() {
             const sidebar = document.querySelector(".sidebar");
             const mainContent = document.querySelector(".main-content");
             sidebar.classList.toggle("active");
             mainContent.classList.toggle("active");
         }
-    
-        document.querySelector(".sidebar-toggle").addEventListener("click", toggleMenu);
-    
-        // Load data when the page loads
-        document.addEventListener('DOMContentLoaded', fetchRequests);
     </script>
 </body>
 </html>

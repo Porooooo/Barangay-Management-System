@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <title>Archived Requests</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background-color: #5ECF89; }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #fff;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-toggle {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .dash-content {
+            padding: 20px;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .filter-group button {
+            padding: 8px 16px;
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .filter-button {
+            padding: 8px 16px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Button Styles */
+        .action-button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .restore-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .restore-btn:hover {
+            background-color: #138496;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .status-pending {
+            color: #ffc107;
+            font-weight: 500;
+        }
+        
+        .status-approved {
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .status-rejected {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        /* Archive header */
+        .archive-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        /* Real-time notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #5ECF89;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.5s forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification.hide {
+            animation: slideOut 0.5s forwards;
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Date column styling */
+        .date-cell {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Admin Panel</span>
+        </div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="admin-dashboard.html">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+                <li><a href="manage-residents.html">
+                    <i class="uil uil-users-alt"></i>
+                    <span class="link-name">Manage Residents</span>
+                </a></li>
+                <li><a href="adminRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Document Requests</span>
+                </a></li>
+                <li><a href="admin-blotter.html">
+                    <i class="uil uil-file-shield-alt"></i>
+                    <span class="link-name">Blotter Reports</span>
+                </a></li>
+                <li><a href="adminAnnounce.html">
+                    <i class="uil uil-megaphone"></i>
+                    <span class="link-name">Make Announcement</span>
+                </a></li>
+                <li><a href="emergency.html">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Emergency Alerts</span>
+                </a></li>
+                <li><a href="archivedRequests.html" class="active">
+                    <i class="uil uil-archive"></i>
+                    <span class="link-name">Archived Requests</span>
+                </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="#">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+        <section class="dashboard">
+            <div class="top">
+                <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+                <div class="header">
+                    <h1><i class="uil uil-archive"></i> Archived Requests</h1>
+                </div>
+            </div>
+
+            <div class="dash-content">
+                <div class="overview">
+                    <div class="archive-header">
+                        <div class="title">
+                            <i class="uil uil-file-alt"></i>
+                            <span class="text">Archived Document Requests</span>
+                        </div>
+                        <div class="actions">
+                            <button id="clearArchiveBtn" class="filter-button delete-btn">
+                                <i class="uil uil-trash-alt"></i> Clear Archive
+                            </button>
+                            <a href="adminRequests.html" class="filter-button" style="background-color: #5ECF89;">
+                                <i class="uil uil-file-alt"></i> Back to Requests
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Controls -->
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="searchInput">Search:</label>
+                            <input type="text" id="searchInput" placeholder="Search by name or purpose">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="statusFilter">Original Status:</label>
+                            <select id="statusFilter">
+                                <option value="">All Statuses</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="documentTypeFilter">Document Type:</label>
+                            <select id="documentTypeFilter">
+                                <option value="">All Types</option>
+                                <option value="Barangay Clearance">Barangay Clearance</option>
+                                <option value="Business Permit">Business Permit</option>
+                                <option value="Certificate of Residency">Certificate of Residency</option>
+                                <option value="Certificate of Indigency">Certificate of Indigency</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="startDate">From:</label>
+                            <input type="date" id="startDate">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="endDate">To:</label>
+                            <input type="date" id="endDate">
+                        </div>
+                        
+                        <button id="applyFilters" class="filter-button">Apply Filters</button>
+                        <button id="resetFilters" class="filter-button">Reset</button>
+                    </div>
+                    
+                    <table id="archivedRequestsTable">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Document Type</th>
+                                <th>Purpose</th>
+                                <th>Original Status</th>
+                                <th>Date Archived</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real-time Notification -->
+        <div id="notification" class="notification"></div>
+
+        <script src="script.js"></script>
+        <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/index.min.js"></script>
+        
+        <script>
+            // Connect to WebSocket server
+            const socket = io();
+            
+            // DOM Elements
+            const archivedRequestsTable = document.getElementById('archivedRequestsTable');
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const documentTypeFilter = document.getElementById('documentTypeFilter');
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const applyFilters = document.getElementById('applyFilters');
+            const resetFilters = document.getElementById('resetFilters');
+            const clearArchiveBtn = document.getElementById('clearArchiveBtn');
+            const notification = document.getElementById('notification');
+            
+            // Current filter state
+            let currentFilters = {
+                search: '',
+                status: '',
+                documentType: '',
+                startDate: '',
+                endDate: ''
+            };
+            
+            // Initialize the page
+            document.addEventListener('DOMContentLoaded', () => {
+                setupEventListeners();
+                setupWebSocketListeners();
+                setDefaultDates();
+                fetchArchivedRequests();
+            });
+            
+            function setDefaultDates() {
+                const today = new Date();
+                const oneMonthAgo = new Date();
+                oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+                
+                startDate.valueAsDate = oneMonthAgo;
+                endDate.valueAsDate = today;
+                
+                currentFilters.startDate = formatDate(oneMonthAgo);
+                currentFilters.endDate = formatDate(today);
+            }
+            
+            function formatDate(date) {
+                return date.toISOString().split('T')[0];
+            }
+            
+            function setupEventListeners() {
+                applyFilters.addEventListener('click', applyFiltersHandler);
+                resetFilters.addEventListener('click', resetFiltersHandler);
+                searchInput.addEventListener('input', debounce(applyFiltersHandler, 300));
+                clearArchiveBtn.addEventListener('click', clearArchive);
+            }
+            
+            function debounce(func, timeout = 300) {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                };
+            }
+            
+            function setupWebSocketListeners() {
+                socket.on('archive-update', (data) => {
+                    let message = '';
+                    switch(data.type) {
+                        case 'restored':
+                            message = `Request from ${data.request.fullName} restored`;
+                            break;
+                        case 'deleted':
+                            message = `Archived request deleted`;
+                            break;
+                        case 'cleared':
+                            message = `Archive cleared (${data.count} requests deleted)`;
+                            break;
+                    }
+                    showNotification(message);
+                    fetchArchivedRequests();
+                });
+            }
+            
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.classList.add('hide');
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                        notification.classList.remove('hide');
+                    }, 500);
+                }, 3000);
+            }
+            
+            function applyFiltersHandler() {
+                currentFilters = {
+                    search: searchInput.value.trim(),
+                    status: statusFilter.value,
+                    documentType: documentTypeFilter.value,
+                    startDate: startDate.value,
+                    endDate: endDate.value
+                };
+                
+                fetchArchivedRequests();
+            }
+            
+            function resetFiltersHandler() {
+                searchInput.value = '';
+                statusFilter.value = '';
+                documentTypeFilter.value = '';
+                setDefaultDates();
+                fetchArchivedRequests();
+            }
+            
+            async function fetchArchivedRequests() {
+                try {
+                    const queryParams = new URLSearchParams();
+                    
+                    if (currentFilters.search) queryParams.append('search', currentFilters.search);
+                    if (currentFilters.status) queryParams.append('status', currentFilters.status);
+                    if (currentFilters.documentType) queryParams.append('documentType', currentFilters.documentType);
+                    if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
+                    if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
+                    
+                    const response = await fetch(`/api/requests/archived?${queryParams.toString()}`);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const requests = await response.json();
+                    renderArchivedRequests(requests);
+                } catch (error) {
+                    console.error('Error fetching archived requests:', error);
+                    showErrorInTable(error.message);
+                }
+            }
+            
+            function renderArchivedRequests(requests) {
+                const tbody = archivedRequestsTable.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                if (requests.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center;">
+                                No archived requests found matching your criteria.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                requests.forEach(request => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-id', request.id);
+                    
+                    const statusClass = `status-${request.originalStatus?.toLowerCase() || 'pending'}`;
+                    
+                    row.innerHTML = `
+                        <td>${request.fullName || 'N/A'}</td>
+                        <td>${request.documentTypes || request.documentType || 'N/A'}</td>
+                        <td>${request.purpose || 'N/A'}</td>
+                        <td class="${statusClass}">${request.originalStatus || 'N/A'}</td>
+                        <td class="date-cell">
+                            <div>${request.formattedArchivedDate || 'N/A'}</div>
+                            <div style="font-size: 0.8em; color: #666;">${request.formattedArchivedTime || ''}</div>
+                        </td>
+                        <td>
+                            <button class="action-button restore-btn" data-id="${request.id}">
+                                <i class="uil uil-redo"></i> Restore
+                            </button>
+                            <button class="action-button delete-btn" data-id="${request.id}">
+                                <i class="uil uil-trash-alt"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+                
+                // Add event listeners to buttons
+                document.querySelectorAll('.restore-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const requestId = btn.getAttribute('data-id');
+                        if (!requestId || requestId === 'undefined') {
+                            console.error('Invalid request ID:', requestId);
+                            showNotification('Error: Invalid request ID');
+                            return;
+                        }
+                        restoreRequest(requestId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const requestId = btn.getAttribute('data-id');
+                        if (!requestId || requestId === 'undefined') {
+                            console.error('Invalid request ID:', requestId);
+                            showNotification('Error: Invalid request ID');
+                            return;
+                        }
+                        deleteArchivedRequest(requestId);
+                    });
+                });
+            }
+            
+            async function restoreRequest(requestId) {
+                if (!requestId || requestId === 'undefined') {
+                    console.error('Invalid request ID:', requestId);
+                    showNotification('Error: Invalid request ID');
+                    return;
+                }
+                
+                if (!confirm('Are you sure you want to restore this request to its original status?')) return;
+                
+                try {
+                    const response = await fetch(`/api/requests/${requestId}/restore`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to restore request');
+                    }
+                    
+                    showNotification('Request restored successfully!');
+                    fetchArchivedRequests(); // Refresh the list
+                } catch (error) {
+                    console.error('Error restoring request:', error);
+                    showNotification(`Error: ${error.message}`);
+                }
+            }
+            
+            async function deleteArchivedRequest(requestId) {
+                if (!requestId || requestId === 'undefined') {
+                    console.error('Invalid request ID:', requestId);
+                    showNotification('Error: Invalid request ID');
+                    return;
+                }
+                
+                if (!confirm("Are you sure you want to permanently delete this archived request?")) return;
+                
+                try {
+                    const response = await fetch(`/api/requests/${requestId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to delete archived request');
+                    }
+                    
+                    showNotification('Archived request deleted permanently!');
+                    fetchArchivedRequests(); // Refresh the list
+                } catch (error) {
+                    console.error('Error deleting archived request:', error);
+                    showNotification(`Error: ${error.message}`);
+                }
+            }
+            
+            async function clearArchive() {
+                if (!confirm('Are you sure you want to permanently delete ALL archived requests? This action cannot be undone!')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/requests/archive/clear', {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to clear archive');
+                    }
+
+                    showNotification(result.message || 'Archive cleared successfully');
+                    fetchArchivedRequests(); // Refresh the list
+                } catch (error) {
+                    console.error('Error clearing archive:', error);
+                    showNotification(`Error: ${error.message}`);
+                }
+            }
+            
+            function showErrorInTable(message) {
+                const tbody = archivedRequestsTable.querySelector('tbody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: red;">
+                            ${message}
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            // Sidebar Toggle
+            function toggleMenu() {
+                const sidebar = document.querySelector("nav");
+                const mainContent = document.querySelector(".dashboard");
+                sidebar.classList.toggle("active");
+                mainContent.classList.toggle("active");
+            }
+        </script>
+    </body>
+    </html>

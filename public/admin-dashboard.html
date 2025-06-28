@@ -530,10 +530,9 @@
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-file-shield-alt"></i>
-                    <h3>Blotter Cases</h3>
+                    <h3>Active Blotter Cases</h3>
                     <div class="value" id="blotterCases">0</div>
                 </div>
-             
                 <div class="summary-card">
                     <i class="uil uil-file-alt"></i>
                     <h3>Document Requests</h3>
@@ -548,6 +547,16 @@
                     <i class="uil uil-user-arrows"></i>
                     <h3>Senior Citizens</h3>
                     <div class="value" id="seniorCitizens">0</div>
+                </div>
+                <div class="summary-card">
+                    <i class="uil uil-user-md"></i>
+                    <h3>Solo Parent</h3>
+                    <div class="value" id="soloParentCount">0</div>
+                </div>
+                <div class="summary-card">
+                    <i class="uil uil-users-alt"></i>
+                    <h3>4Ps Member</h3>
+                    <div class="value" id="fourPsCount">0</div>
                 </div>
             </div>
 
@@ -605,7 +614,6 @@
             const mainContent = document.querySelector(".main-content");
             sidebar.classList.toggle("active");
             mainContent.classList.toggle("active");
-
         }  
         
         // Function to update emergency alert count
@@ -657,7 +665,6 @@
 
         // Initial count update
         updateEmergencyAlertCount();
- 
 
         // Function to calculate age from birthdate
         function calculateAge(birthdate) {
@@ -687,15 +694,49 @@
         // Fetch resident data and update dashboard
         async function fetchResidentData() {
             try {
-                // Fetch residents data
-                const response = await fetch('/api/admin/users');
-                if (!response.ok) {
+                // Fetch residents data (excluding admin users)
+                const residentsResponse = await fetch('/api/admin/users?role=resident');
+                if (!residentsResponse.ok) {
                     throw new Error('Failed to fetch resident data');
                 }
-                const residents = await response.json();
+                const residentsData = await residentsResponse.json();
+                const residents = residentsData.residents || residentsData; // Handle both formats
 
-                // Update summary cards
-                updateSummaryCards(residents);
+                // Fetch document requests
+                const requestsResponse = await fetch('/api/requests');
+                if (!requestsResponse.ok) {
+                    throw new Error('Failed to fetch document requests');
+                }
+                const documentRequests = await requestsResponse.json();
+
+                let activeBlotterCases = [];
+
+try {
+    const blotterResponse = await fetch('/api/blotter');
+    if (!blotterResponse.ok) {
+        throw new Error('Failed to fetch blotter cases');
+    }
+
+    const blotterCases = await blotterResponse.json();
+    activeBlotterCases = blotterCases.filter(caseItem =>
+        caseItem.status !== "Resolved" &&
+        caseItem.status !== "Dismissed" &&
+        caseItem.status !== "Escalated to PNP"
+    );
+
+    console.log("✅ Active blotter cases:", activeBlotterCases);
+
+    // ⬇️ Place any DOM manipulation using activeBlotterCases here
+    // For example:
+    document.getElementById('blotterCases').textContent = activeBlotterCases.length;
+
+} catch (error) {
+    console.error("Error fetching dashboard data:", error);
+}
+
+
+                // Update summary cards with all data
+                updateSummaryCards(residents, documentRequests, activeBlotterCases);
 
                 // Create charts
                 createCharts(residents);
@@ -704,7 +745,7 @@
                 updateRecentActivity(residents);
 
             } catch (error) {
-                console.error('Error fetching resident data:', error);
+                console.error('Error fetching dashboard data:', error);
                 
                 // Show error message in recent activity
                 document.getElementById('recentActivity').innerHTML = `
@@ -714,6 +755,7 @@
                         </div>
                         <div class="activity-details">
                             Error loading data. Please try again later.
+                            <div class="activity-time">${new Date().toLocaleString()}</div>
                         </div>
                     </div>
                 `;
@@ -721,13 +763,15 @@
         }
 
         // Update summary cards with resident data
-        function updateSummaryCards(residents) {
-            // Calculate statistics
+        function updateSummaryCards(residents, documentRequests, blotterCases) {
+            // Calculate statistics (excluding admin users)
             const totalPopulation = residents.length;
             const registeredVoters = residents.filter(r => r.registeredVoter).length;
             const pregnant = residents.filter(r => r.pregnant).length;
             const pwd = residents.filter(r => r.pwdMember).length;
             const seniorCitizens = residents.filter(r => r.seniorCitizen).length;
+            const soloParent = residents.filter(r => r.soloParent).length;
+            const fourPsMember = residents.filter(r => r.fourPsMember).length;
 
             // Update card values
             document.getElementById('totalPopulation').textContent = totalPopulation;
@@ -735,10 +779,12 @@
             document.getElementById('pregnantCount').textContent = pregnant;
             document.getElementById('pwdCount').textContent = pwd;
             document.getElementById('seniorCitizens').textContent = seniorCitizens;
-
-            // TODO: Update these with actual data from other endpoints
-            document.getElementById('blotterCases').textContent = '1';
-            document.getElementById('documentRequests').textContent = '5';
+            document.getElementById('soloParentCount').textContent = soloParent;
+            document.getElementById('fourPsCount').textContent = fourPsMember;
+            
+            // Update from API data
+            document.getElementById('blotterCases').textContent = blotterCases.length;
+            document.getElementById('documentRequests').textContent = documentRequests.length;
         }
 
         // Create charts based on resident data
@@ -783,31 +829,26 @@
                 }
             });
 
-            // Gender Distribution Chart - Fixed to use actual data
-            // First count males and females from your data
-            let maleCount = 0;
-            let femaleCount = 0;
-            
-            // This is a placeholder - you'll need to add gender to your User model
-            // or determine gender based on some other field
+            // Gender Distribution Chart
+            const genderCounts = {
+                'Male': 0,
+                'Female': 0,
+                'Other': 0
+            };
+
             residents.forEach(resident => {
-                // This is a temporary solution - you should add gender to your User model
-                // For now, we'll alternate between male and female for demo purposes
-                if (Math.random() > 0.5) {
-                    maleCount++;
-                } else {
-                    femaleCount++;
-                }
+                const gender = resident.gender || 'Other';
+                genderCounts[gender]++;
             });
 
             const genderCtx = document.getElementById('genderChart').getContext('2d');
             new Chart(genderCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Male', 'Female'],
+                    labels: Object.keys(genderCounts),
                     datasets: [{
-                        data: [maleCount, femaleCount],
-                        backgroundColor: ['#2c3e50', '#5ECF89'],
+                        data: Object.values(genderCounts),
+                        backgroundColor: ['#2c3e50', '#5ECF89', '#3498db'],
                         borderWidth: 0
                     }]
                 },
@@ -825,7 +866,7 @@
             // Civil Status Chart
             const civilStatusCounts = {};
             residents.forEach(resident => {
-                const status = resident.civilStatus;
+                const status = resident.civilStatus || 'Unknown';
                 civilStatusCounts[status] = (civilStatusCounts[status] || 0) + 1;
             });
 
@@ -854,7 +895,7 @@
             // Educational Attainment Chart
             const educationCounts = {};
             residents.forEach(resident => {
-                const education = resident.educationalAttainment;
+                const education = resident.educationalAttainment || 'Not Specified';
                 educationCounts[education] = (educationCounts[education] || 0) + 1;
             });
 
@@ -900,6 +941,7 @@
                         </div>
                         <div class="activity-details">
                             No recent activity found
+                            <div class="activity-time">${new Date().toLocaleString()}</div>
                         </div>
                     </div>
                 `;
@@ -907,7 +949,7 @@
             }
 
             sortedResidents.forEach(resident => {
-                const activityDate = new Date(resident.createdAt).toLocaleString();
+                const activityDate = new Date(resident.createdAt);
                 const activityItem = document.createElement('div');
                 activityItem.className = 'activity-item';
                 activityItem.innerHTML = `
@@ -916,7 +958,7 @@
                     </div>
                     <div class="activity-details">
                         <strong>${resident.fullName}</strong> registered as resident
-                        <div class="activity-time">${activityDate}</div>
+                        <div class="activity-time">${activityDate.toLocaleString()}</div>
                     </div>
                 `;
                 activityContainer.appendChild(activityItem);
@@ -925,6 +967,9 @@
 
         // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', fetchResidentData);
+
+        // Refresh data every 5 minutes
+        setInterval(fetchResidentData, 300000);
     </script>
 </body>
 </html>

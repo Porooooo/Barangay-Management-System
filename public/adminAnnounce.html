@@ -180,6 +180,43 @@
             background-color: #ddd;
         }
 
+        /* Image Upload */
+        .image-upload {
+            margin-top: 15px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 10px;
+            display: none;
+            border-radius: 5px;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #f0f0f0;
+            color: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            background-color: #ddd;
+        }
+
+        /* Date and Time Picker */
+        .datetime-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .datetime-group .form-group {
+            flex: 1;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
@@ -193,6 +230,10 @@
             .checkbox-group {
                 flex-direction: column;
                 gap: 10px;
+            }
+            .datetime-group {
+                flex-direction: column;
+                gap: 0;
             }
         }
     </style>
@@ -272,6 +313,26 @@
                         <textarea id="announcementContent" name="content" required placeholder="Enter announcement details"></textarea>
                     </div>
 
+                    <div class="datetime-group">
+                        <div class="form-group">
+                            <label for="announcementDate">Date</label>
+                            <input type="date" id="announcementDate" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="announcementTime">Time</label>
+                            <input type="time" id="announcementTime" name="time" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="announcementImage">Image (Optional)</label>
+                        <div class="image-upload">
+                            <input type="file" id="announcementImage" name="image" accept="image/*" style="display: none;">
+                            <label for="announcementImage" class="upload-btn">Choose Image</label>
+                            <img id="imagePreview" class="image-preview" src="#" alt="Preview">
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label>Target Groups</label>
                         <div class="checkbox-group">
@@ -287,10 +348,7 @@
                                 <input type="checkbox" id="seniors" name="targetGroups" value="Senior Citizen">
                                 <label for="seniors">Senior Citizen</label>
                             </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="pregnant" name="targetGroups" value="Pregnant">
-                                <label for="pregnant">Pregnant</label>
-                            </div>
+                            
                             <div class="checkbox-item">
                                 <input type="checkbox" id="voters" name="targetGroups" value="Registered Voter">
                                 <label for="voters">Registered Voter</label>
@@ -299,6 +357,10 @@
                                 <input type="checkbox" id="fourPs" name="targetGroups" value="4Ps Member">
                                 <label for="fourPs">4Ps Member</label>
                             </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="soloParent" name="targetGroups" value="Solo Parent">
+                                <label for="soloParent">Solo Parent</label>
+                            </div>
                         </div>
                     </div>
 
@@ -306,17 +368,24 @@
                         <label>Target by Occupation</label>
                         <select id="occupationFilter" name="occupation" class="form-control">
                             <option value="">All Occupations</option>
-                            <option value="Student">Student</option>
-                            <option value="Employed">Employed</option>
-                            <option value="Unemployed">Unemployed</option>
-                            <option value="Self-employed">Self-employed</option>
-                            <option value="Retired">Retired</option>
                             <option value="Government Employee">Government Employee</option>
                             <option value="Private Employee">Private Employee</option>
+                            <option value="OFW">OFW</option>
                             <option value="Business Owner">Business Owner</option>
                             <option value="Farmer">Farmer</option>
                             <option value="Fisherman">Fisherman</option>
-                            <option value="Housewife/Househusband">Housewife/Househusband</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Nurse">Nurse</option>
+                            <option value="Healthcare Worker">Healthcare Worker</option>
+                            <option value="Driver">Driver</option>
+                            <option value="Construction Worker">Construction Worker</option>
+                            <option value="Factory Worker">Factory Worker</option>
+                            <option value="Household Helper">Household Helper</option>
+                            <option value="Student">Student</option>
+                            <option value="Unemployed">Unemployed</option>
+                            <option value="Retired">Retired</option>
+                            <option value="Self-employed">Self-employed</option>
+                            <option value="Freelancer">Freelancer</option>
                         </select>
                     </div>
 
@@ -324,15 +393,12 @@
                         <label>Target by Educational Attainment</label>
                         <select id="educationFilter" name="education" class="form-control">
                             <option value="">All Education Levels</option>
-                            <option value="No Formal Education">No Formal Education</option>
-                            <option value="Elementary Level">Elementary Level</option>
                             <option value="Elementary Graduate">Elementary Graduate</option>
-                            <option value="High School Level">High School Level</option>
                             <option value="High School Graduate">High School Graduate</option>
-                            <option value="College Level">College Level</option>
+                            <option value="Vocational Graduate">Vocational Graduate</option>
                             <option value="College Graduate">College Graduate</option>
-                            <option value="Vocational">Vocational</option>
-                            <option value="Postgraduate">Postgraduate</option>
+                            <option value="Post Graduate">Post Graduate</option>
+                            <option value="None">None</option>
                         </select>
                     </div>
 
@@ -344,7 +410,19 @@
                             <option value="Married">Married</option>
                             <option value="Widowed">Widowed</option>
                             <option value="Separated">Separated</option>
-                            <option value="Divorced">Divorced</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Target by Monthly Income</label>
+                        <select id="incomeFilter" name="income" class="form-control">
+                            <option value="">All Income Levels</option>
+                            <option value="Below 5,000">Below 5,000</option>
+                            <option value="5,000-10,000">5,000-10,000</option>
+                            <option value="10,001-20,000">10,001-20,000</option>
+                            <option value="20,001-30,000">20,001-30,000</option>
+                            <option value="30,001-50,000">30,001-50,000</option>
+                            <option value="Above 50,000">Above 50,000</option>
                         </select>
                     </div>
 
@@ -367,37 +445,69 @@
             mainContent.classList.toggle("active");
         }
 
-        // Handle form submission
+        // Set default date and time to current
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const dateStr = now.toISOString().substr(0, 10);
+            const timeStr = now.toTimeString().substr(0, 5);
+            
+            document.getElementById('announcementDate').value = dateStr;
+            document.getElementById('announcementTime').value = timeStr;
+        });
+
+        // Image preview functionality
+        document.getElementById('announcementImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle form submission with image
         document.getElementById('announcementForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const title = document.getElementById('announcementTitle').value.trim();
             const content = document.getElementById('announcementContent').value.trim();
+            const date = document.getElementById('announcementDate').value;
+            const time = document.getElementById('announcementTime').value;
             const checkboxes = document.querySelectorAll('input[name="targetGroups"]:checked');
             const targetGroups = Array.from(checkboxes).map(cb => cb.value);
             const occupation = document.getElementById('occupationFilter').value;
             const education = document.getElementById('educationFilter').value;
             const civilStatus = document.getElementById('civilStatusFilter').value;
+            const income = document.getElementById('incomeFilter').value;
+            const imageFile = document.getElementById('announcementImage').files[0];
             
-            if (!title || !content) {
+            if (!title || !content || !date || !time) {
                 alert('Please fill in all required fields');
                 return;
             }
 
+            // Combine date and time into a single datetime string
+            const eventDateTime = new Date(`${date}T${time}`).toISOString();
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('content', content);
+            formData.append('eventDateTime', eventDateTime);
+            formData.append('targetGroups', JSON.stringify(targetGroups));
+            if (occupation) formData.append('targetOccupation', occupation);
+            if (education) formData.append('targetEducation', education);
+            if (civilStatus) formData.append('targetCivilStatus', civilStatus);
+            if (income) formData.append('targetIncome', income);
+            if (imageFile) formData.append('image', imageFile);
+
             try {
                 const response = await fetch('/api/announcements', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        title,
-                        content,
-                        targetGroups,
-                        occupation,
-                        education,
-                        civilStatus
-                    }),
+                    body: formData,
                     credentials: 'include'
                 });
 
@@ -419,9 +529,20 @@
         function resetForm() {
             document.getElementById('announcementForm').reset();
             document.getElementById('allResidents').checked = true;
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').src = '#';
             document.getElementById('occupationFilter').value = '';
             document.getElementById('educationFilter').value = '';
             document.getElementById('civilStatusFilter').value = '';
+            document.getElementById('incomeFilter').value = '';
+            
+            // Reset date and time to current
+            const now = new Date();
+            const dateStr = now.toISOString().substr(0, 10);
+            const timeStr = now.toTimeString().substr(0, 5);
+            
+            document.getElementById('announcementDate').value = dateStr;
+            document.getElementById('announcementTime').value = timeStr;
         }
 
         // Initialize

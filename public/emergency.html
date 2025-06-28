@@ -2,14 +2,251 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emergency Alerts</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <title>Document Requests</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #f5f5f5; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+    
+        /* Sidebar */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: 0.3s;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .sidebar a:hover { background-color: #5ECF89; }
+    
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+    
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #fff;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+    
+        .sidebar-toggle {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+    
+        .dash-content {
+            padding: 20px;
+        }
+    
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+    
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    
+        .filter-group label {
+            font-weight: 500;
+        }
+    
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    
+        .filter-group button {
+            padding: 8px 16px;
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    
+        /* Table Styling */
+        table {
+            width: 100%;
+            font-size: 14px;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed;
+        }
+    
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+            word-break: break-word;
+        }
+    
+        th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+    
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    
+        /* Adjusted column widths */
+        #requestsTable th:nth-child(1), /* Full Name */
+        #requestsTable td:nth-child(1) {
+            width: 15%;
+        }
         
+        #requestsTable th:nth-child(2), /* Address */
+        #requestsTable td:nth-child(2) {
+            width: 20%;
+        }
+        
+        #requestsTable th:nth-child(3), /* Document Type - Reduced width */
+        #requestsTable td:nth-child(3) {
+            width: 16%;
+        }
+        
+        #requestsTable th:nth-child(4), /* Purpose - Increased width */
+        #requestsTable td:nth-child(4) {
+            width: 20%;
+        }
+        
+        #requestsTable th:nth-child(5), /* Date Requested */
+        #requestsTable td:nth-child(5) {
+            width: 13%;
+        }
+        
+        #requestsTable th:nth-child(6), /* Status - Increased width */
+        #requestsTable td:nth-child(6) {
+            width: 11%;
+        }
+        
+        #requestsTable th:nth-child(7), /* Actions - Reduced width */
+        #requestsTable td:nth-child(7) {
+            width: 13%;
+        }
+    
+        /* Status column styling */
+        .status-pending {
+            color: #ffc107;
+            font-weight: 500;
+        }
+    
+        .status-approved {
+            color: #28a745;
+            font-weight: 500;
+        }
+    
+        .status-rejected {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        
+        .status-ready-to-claim {
+            color: #17a2b8;
+            font-weight: 500;
+        }
+    
+        .status-claimed {
+            color: #6c757d;
+            font-weight: 500;
+        }
+    
+        /* Button Styles */
+        .action-button {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+    
+        .approve-btn {
+            background-color: #28a745;
+            color: white;
+        }
+    
+        .approve-btn:hover {
+            background-color: #218838;
+        }
+    
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+    
+        .reject-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .ready-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+    
+        .ready-btn:hover {
+            background-color: #138496;
+        }
+    
+        .archive-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+    
+        .archive-btn:hover {
+            background-color: #5a6268;
+        }
+    
+        /* Emergency Alerts Specific Styles */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -121,28 +358,125 @@
         .acknowledge-btn:hover {
             background-color: #e68a00;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .dashboard {
+                left: 200px;
+                width: calc(100% - 200px);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .dashboard {
+                left: 0;
+                width: 100%;
+            }
+            
+            .alert-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .alert-actions {
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+        }
     </style>
+    
+    <!-- Load socket.io client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <button class="back-btn" onclick="goBack()">
-                <i class="uil uil-arrow-left"></i> Back to Dashboard
-            </button>
-            <h1><i class="uil uil-bell"></i> Emergency Alerts</h1>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Admin Panel</span>
         </div>
-        
-        <div class="alert-container" id="alertsContainer">
-            <div class="alert-item">
-                <div>Loading alerts...</div>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="admin-dashboard.html" class="active">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+                <li><a href="manage-residents.html">
+                    <i class="uil uil-users-alt"></i>
+                    <span class="link-name">Manage Residents</span>
+                </a></li>
+                <li><a href="adminRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Document Requests</span>
+                </a></li>
+                <li><a href="admin-blotter.html">
+                    <i class="uil uil-file-shield-alt"></i>
+                    <span class="link-name">Blotter Reports</span>
+                </a></li>
+                <li><a href="adminAnnounce.html">
+                    <i class="uil uil-megaphone"></i>
+                    <span class="link-name">Make Announcement</span>
+                </a></li>
+                <li><a href="emergency.html">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Emergency Alerts</span>
+                </a></li>
+            </ul>
+            <ul class="logout-mode">
+                <li><a href="#">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                        <span class="link-name">Dark Mode</span>
+                    </a>
+                    <div class="mode-toggle">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <div class="header">
+                <h1><i class="uil uil-bell"></i> Emergency Alerts</h1>
             </div>
         </div>
-    </div>
+
+        <div class="dash-content">
+            <div class="alert-container" id="alertsContainer">
+                <div class="alert-item">
+                    <div>Loading alerts...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         const alertsContainer = document.getElementById('alertsContainer');
+        
+        function toggleMenu() {
+            const nav = document.querySelector('nav');
+            nav.classList.toggle('close');
+        }
         
         function goBack() {
             window.location.href = 'admin-dashboard.html';
@@ -276,6 +610,54 @@
         if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (confirm('Are you sure you want to logout?')) {
+                fetch('/api/auth/logout', {
+                    method: 'POST'
+                })
+                .then(() => {
+                    window.location.href = '/login.html';
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    window.location.href = '/login.html';
+                });
+            }
+        });
+
+        // Dark mode toggle
+        function setupDarkModeToggle() {
+            const modeToggle = document.querySelector('.mode-toggle');
+            const body = document.body;
+            const darkMode = localStorage.getItem('darkMode');
+
+            if (darkMode === 'enabled') {
+                body.classList.add('dark-mode');
+                modeToggle.querySelector('.switch').classList.add('active');
+            }
+
+            modeToggle.addEventListener('click', function() {
+                body.classList.toggle('dark-mode');
+                const isDarkMode = body.classList.contains('dark-mode');
+                
+                if (isDarkMode) {
+                    localStorage.setItem('darkMode', 'enabled');
+                    modeToggle.querySelector('.switch').classList.add('active');
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                    modeToggle.querySelector('.switch').classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize dark mode toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDarkModeToggle();
+        });
     </script>
 </body>
 </html>

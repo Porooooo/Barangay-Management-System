@@ -1,81 +1,188 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Blotter = require("../models/Blotter");
+const User = require("../models/User");
 
 const router = express.Router();
 
-// Create a new blotter entry
+// ✅ Create a new blotter report
 router.post("/", async (req, res) => {
     try {
-        const { incident, date, reporter, description } = req.body;
+        const {
+            incidentDate,
+            location,
+            complaintType,
+            complaintDetails,
+            accused
+        } = req.body;
+
+        if (!req.session.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
 
         const newBlotter = new Blotter({
-            incident,
-            date,
-            reporter,
-            description,
+            complainant: req.session.userId,
+            incidentDate,
+            location,
+            complaintType,
+            complaintDetails,
+            accused,
+            status: "Pending"
         });
 
         await newBlotter.save();
-        res.status(201).json({ message: "✅ Blotter entry created successfully" });
+        res.status(201).json(newBlotter);
     } catch (error) {
+        console.error("❌ Error creating blotter:", error);
         res.status(500).json({ error: "❌ Server error" });
     }
 });
 
-// Get all blotter entries
+// ✅ Get blotter entries for the current user
+router.get("/user", async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        const blotterEntries = await Blotter.find({ complainant: req.session.userId })
+            .sort({ dateReported: -1 });
+
+        res.status(200).json(blotterEntries);
+    } catch (error) {
+        console.error("Error fetching user blotter entries:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// ✅ Get all blotter entries
 router.get("/", async (req, res) => {
     try {
-        const blotterEntries = await Blotter.find();
+        const blotterEntries = await Blotter.find()
+            .populate('complainant', 'fullName')
+            .sort({ dateReported: -1 });
+
         res.status(200).json(blotterEntries);
     } catch (error) {
         res.status(500).json({ error: "❌ Server error" });
     }
 });
 
-// Get a specific blotter entry
+// ✅ Get a specific blotter entry
 router.get("/:id", async (req, res) => {
     try {
         const id = req.params.id;
-        const blotterEntry = await Blotter.findById(id);
+        const blotterEntry = await Blotter.findById(id)
+            .populate('complainant', 'fullName');
+
         if (!blotterEntry) {
             return res.status(404).json({ error: "❌ Blotter entry not found" });
         }
+
         res.status(200).json(blotterEntry);
     } catch (error) {
         res.status(500).json({ error: "❌ Server error" });
     }
 });
 
-// Update a blotter entry
-router.put("/:id", async (req, res) => {
+// ✅ Record a call attempt
+router.post("/:id/call", async (req, res) => {
     try {
         const id = req.params.id;
-        const blotterEntry = await Blotter.findById(id);
-        if (!blotterEntry) {
-            return res.status(404).json({ error: "❌ Blotter entry not found" });
+        const { successful, notes } = req.body;
+
+        const blotter = await Blotter.findById(id);
+        if (!blotter) {
+            return res.status(404).json({ error: "Blotter not found" });
         }
 
-        const { incident, date, reporter, description } = req.body;
-        blotterEntry.incident = incident;
-        blotterEntry.date = date;
-        blotterEntry.reporter = reporter;
-        blotterEntry.description = description;
+        // Add to call history
+        blotter.callHistory.push({
+            date: new Date(),
+            successful,
+            notes
+        });
 
-        await blotterEntry.save();
-        res.status(200).json({ message: "✅ Blotter entry updated successfully" });
+        // Update call attempts if failed
+        if (!successful) {
+            blotter.callAttempts = (blotter.callAttempts || 0) + 1;
+        } else {
+            blotter.callAttempts = 0;
+        }
+
+        await blotter.save();
+        res.status(200).json(blotter);
     } catch (error) {
-        res.status(500).json({ error: "❌ Server error" });
+        res.status(500).json({ error: "Server error" });
     }
 });
 
-// Delete a blotter entry
-router.delete("/:id", async (req, res) => {
+// ✅ Escalate case to PNP
+router.post("/:id/escalate", async (req, res) => {
     try {
         const id = req.params.id;
-        await Blotter.findByIdAndDelete(id);
-        res.status(200).json({ message: "✅ Blotter entry deleted successfully" });
+        const { resolutionDetails } = req.body;
+
+        const blotter = await Blotter.findById(id);
+        if (!blotter) {
+            return res.status(404).json({ error: "Blotter not found" });
+        }
+
+        blotter.status = "Escalated to PNP";
+        blotter.resolutionDetails = resolutionDetails;
+        blotter.resolvedDate = new Date();
+
+        await blotter.save();
+        res.status(200).json(blotter);
     } catch (error) {
-        res.status(500).json({ error: "❌ Server error" });
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// ✅ Update blotter status
+router.put("/:id/status", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { status, resolutionDetails } = req.body;
+
+        const blotter = await Blotter.findById(id);
+        if (!blotter) {
+            return res.status(404).json({ error: "Blotter not found" });
+        }
+
+        blotter.status = status;
+        blotter.resolutionDetails = resolutionDetails;
+
+        if (status === "Resolved" || status === "Dismissed") {
+            blotter.resolvedDate = new Date();
+        }
+
+        await blotter.save();
+        res.status(200).json(blotter);
+    } catch (error) {
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// ✅ Update blotter details
+router.put("/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { status, accusedContact, resolutionDetails } = req.body;
+
+        const blotter = await Blotter.findById(id);
+        if (!blotter) {
+            return res.status(404).json({ error: "Blotter not found" });
+        }
+
+        if (status) blotter.status = status;
+        if (accusedContact) blotter.accused.contact = accusedContact;
+        if (resolutionDetails) blotter.resolutionDetails = resolutionDetails;
+
+        await blotter.save();
+        res.status(200).json(blotter);
+    } catch (error) {
+        res.status(500).json({ error: "Server error" });
     }
 });
 
