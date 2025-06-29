@@ -7,7 +7,60 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <title>Resident Dashboard</title>
-    
+    <style>
+        /* Status styles to match resident-blotter.html */
+        .status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-ready-to-claim {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status-claimed {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        /* Table styling to match blotter reports */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -147,6 +200,10 @@
     
         async function fetchRequests() {
             try {
+                document.getElementById('loadingMessage').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('requestsTable').style.display = 'none';
+                
                 const response = await fetch('/api/requests/user', {
                     credentials: 'include'
                 });
@@ -177,16 +234,20 @@
             loadingMessage.style.display = 'none';
             tableElement.style.display = 'table';
             
-            if (requests.length === 0) {
+            // Filter out claimed requests on client side as extra precaution
+            const filteredRequests = requests.filter(request => request.status !== "Claimed");
+            
+            if (filteredRequests.length === 0) {
                 const row = tableBody.insertRow();
                 const cell = row.insertCell();
                 cell.colSpan = 5;
                 cell.textContent = "You haven't made any requests yet";
                 cell.style.textAlign = "center";
+                cell.style.padding = "20px";
                 return;
             }
             
-            requests.forEach(request => {
+            filteredRequests.forEach(request => {
                 const row = tableBody.insertRow();
                 row.setAttribute('data-id', request.id);
                 
@@ -205,27 +266,17 @@
                     <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
                 `;
                 
-                // Status
+                // Status - Updated to use the same styling as resident-blotter.html
                 const statusCell = row.insertCell();
-                statusCell.textContent = request.status || 'Pending';
-                
-                // Apply status-specific styling
+                let statusClass = '';
                 switch(request.status) {
-                    case 'Approved':
-                        statusCell.style.color = 'green';
-                        break;
-                    case 'Rejected':
-                        statusCell.style.color = 'red';
-                        break;
-                    case 'Ready to Claim':
-                        statusCell.style.color = '#17a2b8';
-                        break;
-                    case 'Claimed':
-                        statusCell.style.color = '#6c757d';
-                        break;
-                    default:
-                        statusCell.style.color = 'orange';
+                    case 'Pending': statusClass = 'status-pending'; break;
+                    case 'Approved': statusClass = 'status-approved'; break;
+                    case 'Rejected': statusClass = 'status-rejected'; break;
+                    case 'Ready to Claim': statusClass = 'status-ready-to-claim'; break;
+                    case 'Claimed': statusClass = 'status-claimed'; break;
                 }
+                statusCell.innerHTML = `<span class="status ${statusClass}">${request.status}</span>`;
                 
                 // Actions
                 const actionsCell = row.insertCell();
@@ -233,7 +284,7 @@
                 if (request.status === 'Ready to Claim') {
                     const claimBtn = document.createElement('button');
                     claimBtn.textContent = 'Claim';
-                    claimBtn.className = 'claim-button';
+                    claimBtn.className = 'action-btn';
                     claimBtn.onclick = () => claimRequest(request.id, row);
                     actionsCell.appendChild(claimBtn);
                 } else if (request.status === 'Approved') {
@@ -250,7 +301,10 @@
             try {
                 const response = await fetch(`/api/requests/${requestId}/claim`, {
                     method: 'PUT',
-                    credentials: 'include'
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
                 
                 if (!response.ok) {
@@ -261,11 +315,8 @@
                 // Show success message
                 const successMessage = document.getElementById('successMessage');
                 successMessage.style.display = 'block';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 3000);
                 
-                // Remove the row from the table
+                // Remove the row immediately for better UX
                 rowElement.remove();
                 
                 // Check if table is now empty
@@ -276,13 +327,21 @@
                     cell.colSpan = 5;
                     cell.textContent = "You haven't made any requests yet";
                     cell.style.textAlign = "center";
+                    cell.style.padding = "20px";
                 }
+                
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                    // Refresh the data from server to ensure consistency
+                    fetchRequests();
+                }, 3000);
+                
             } catch (error) {
                 console.error('Claim error:', error);
                 alert(`Error: ${error.message}`);
             }
         }
-    
+        
         function toggleMenu() {
             const sidebar = document.querySelector(".sidebar");
             const mainContent = document.querySelector(".main-content");

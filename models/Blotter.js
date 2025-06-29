@@ -47,6 +47,10 @@ const blotterSchema = new mongoose.Schema({
         },
         contact: {
             type: String
+        },
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
         }
     },
     status: {

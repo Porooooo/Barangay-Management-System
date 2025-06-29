@@ -11,7 +11,6 @@ const fs = require('fs');
 
 // Import the cleanup scheduler
 const { startCleanupSchedule } = require('./middleware/announcementCleanup');
-
 const { authMiddleware, adminMiddleware } = require('./middleware/authMiddleware');
 
 const app = express();
@@ -20,30 +19,27 @@ const server = http.createServer(app);
 // Socket.IO with CORS Support
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
-// Port Configuration
-const PORT = process.env.PORT || 3000;
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/test', {
+// MongoDB Atlas Connection
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  retryWrites: true,
+  w: 'majority'
 })
 .then(() => {
-  console.log("✅ Connected to MongoDB");
-  
-  // Start the announcement cleanup scheduler after DB connection is established
-  startCleanupSchedule();
+  console.log("✅ Connected to MongoDB Atlas");
+  startCleanupSchedule(); // Start cleanup scheduler after DB connection
 })
-.catch(err => console.error("❌ MongoDB Connection Error:", err));
+.catch(err => console.error("❌ MongoDB Atlas Connection Error:", err));
 
 // Ensure Uploads Folder Exists
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = path.join(__dirname, process.env.UPLOADS_DIR || 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('📁 Created uploads directory');
@@ -82,28 +78,28 @@ app.get('/images/default-profile.png', (req, res) => {
 
 // Session Store Configuration
 const sessionStore = MongoStore.create({
-  mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/test',
-  collectionName: 'sessions'
+  mongoUrl: process.env.MONGODB_URI,
+  collectionName: process.env.SESSION_COLLECTION || 'sessions'
 });
 
-// Session Configuration - Secure Settings
+// Session Configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.SECURE_COOKIE === 'true',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
+    domain: process.env.COOKIE_DOMAIN
   }
 }));
 
 // CORS Configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: process.env.CORS_ORIGIN,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -111,7 +107,7 @@ app.use(cors({
 }));
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: `${process.env.MAX_FILE_SIZE || 5}mb` }));
 app.use(express.urlencoded({ extended: true }));
 
 // Make Socket Available
@@ -156,6 +152,7 @@ app.get("/", (req, res) => {
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'healthy',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     session: req.sessionID ? 'active' : 'inactive'
   });
 });
@@ -164,7 +161,6 @@ app.get('/health', (req, res) => {
 io.on('connection', (socket) => {
   console.log('📡 A user connected');
   
-  // Listen for new announcements
   socket.on('new_announcement', (announcement) => {
     io.emit('new_announcement', announcement);
   });
@@ -177,10 +173,15 @@ io.on('connection', (socket) => {
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  res.status(500).json({ 
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong!'
+  });
 });
 
 // Start Server
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+server.listen(process.env.PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${process.env.PORT}`);
+  console.log(`📡 Socket.IO ready`);
+  console.log(`🗄️  MongoDB connected: ${mongoose.connection.readyState === 1 ? 'Yes' : 'No'}`);
 });

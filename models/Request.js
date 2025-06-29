@@ -10,7 +10,8 @@ const requestSchema = new mongoose.Schema({
         type: String, 
         required: [true, "Email is required"],
         trim: true,
-        lowercase: true
+        lowercase: true,
+        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
     },
     address: { 
         type: String, 
@@ -25,12 +26,17 @@ const requestSchema = new mongoose.Schema({
                 return arr.length > 0;
             },
             message: "At least one document type must be selected"
+        },
+        enum: {
+            values: ['Barangay Clearance', 'Business Permit', 'Certificate of Residency', 'Certificate of Indigency', 'Other'],
+            message: 'Invalid document type'
         }
     },
     purpose: { 
         type: String, 
         required: [true, "Purpose is required"],
-        trim: true
+        trim: true,
+        minlength: [10, "Purpose must be at least 10 characters long"]
     },
     status: { 
         type: String, 
@@ -38,12 +44,14 @@ const requestSchema = new mongoose.Schema({
         enum: {
             values: ['Pending', 'Approved', 'Rejected', 'Ready to Claim', 'Claimed'],
             message: 'Invalid status'
-        }
+        },
+        index: true
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        index: true
     },
     createdAt: { 
         type: Date, 
@@ -96,6 +104,11 @@ requestSchema.pre('save', function(next) {
     }
     next();
 });
+
+// Add index for frequently queried fields
+requestSchema.index({ status: 1, userId: 1 });
+requestSchema.index({ createdAt: -1 });
+requestSchema.index({ updatedAt: -1 });
 
 const Request = mongoose.model("Request", requestSchema);
     

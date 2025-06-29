@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <title>Admin Blotter Reports</title>
     <style>
@@ -196,9 +195,15 @@
             background-color: #17a2b8;
             color: white;
         }
+        .view-btn:hover {
+            background-color: #115a65;
+        }
         .call-btn {
             background-color: #28a745;
             color: white;
+        }
+        .call-btn:hover {
+            background-color: #175625;
         }
         .status {
             padding: 0.4rem 0.8rem;
@@ -374,6 +379,36 @@
             background: #f8d7da;
             color: #721c24;
         }
+        .closed-cases-control {
+    text-align: left; /* Align button to left */
+    margin-bottom: 20px;
+}
+
+.show-closed-cases-btn {
+    background-color: #981219;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    width: 120px; /* Fixed width to make it shorter */
+    height: 50px;
+    margin-left: 10px;
+    transition: all 0.3s;
+    text-align: center; /* Center text within button */
+}
+
+.show-closed-cases-btn:hover {
+    background-color: #a75d64;
+}
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #6a1c23;
+        }
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -540,26 +575,32 @@
                     </table>
                 </div>
 
-                <div class="blotter-table">
-                    <h2>Closed Cases</h2>
-                    <table id="closedBlotters">
-                        <thead>
-                            <tr>
-                                <th>Date Reported</th>
-                                <th>Complainant</th>
-                                <th>Accused</th>
-                                <th>Complaint Type</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="7">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="closed-cases-control">
+                    <button id="showClosedCasesBtn" class="show-closed-cases-btn">Closed Cases</button>
+                </div>
+
+                <div id="closedCasesSection" style="display: none;">
+                    <div class="blotter-table">
+                        <h2>Dismissed Reports</h2>
+                        <table id="closedBlotters">
+                            <thead>
+                                <tr>
+                                    <th>Date Reported</th>
+                                    <th>Complainant</th>
+                                    <th>Accused</th>
+                                    <th>Complaint Type</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="7">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -699,8 +740,22 @@
             
             // Set up event listeners
             document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+            document.getElementById('showClosedCasesBtn').addEventListener('click', toggleClosedCases);
             setupDarkModeToggle();
         });
+
+        function toggleClosedCases() {
+            const closedCasesSection = document.getElementById('closedCasesSection');
+            const showClosedCasesBtn = document.getElementById('showClosedCasesBtn');
+            
+            if (closedCasesSection.style.display === 'none') {
+                closedCasesSection.style.display = 'block';
+                showClosedCasesBtn.textContent = 'Hide Closed Cases';
+            } else {
+                closedCasesSection.style.display = 'none';
+                showClosedCasesBtn.textContent = 'Show Closed Cases';
+            }
+        }
 
         function checkAuthStatus() {
             fetch('/api/admin/check-auth', {
@@ -803,11 +858,55 @@
                         `<button class="action-btn call-btn" onclick="initiateCall('${blotter._id}', '${blotter.accused.contact || ''}')">
                             <i class="uil uil-phone"></i> Call
                         </button>` : ''}
+                    ${blotter.status === 'Dismissed' ? 
+                        `<button class="action-btn delete-btn" onclick="deleteDismissedReport('${blotter._id}')">
+                            <i class="uil uil-trash-alt"></i> Delete
+                        </button>` : ''}
                 </td>
             `;
             
             return row;
         }
+
+        function deleteDismissedReport(blotterId) {
+    if (!confirm('Are you sure you want to delete this dismissed report? This action cannot be undone.')) {
+        return;
+    }
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/admin-login.html';
+        return;
+    }
+
+    // Add console log to verify the ID being sent
+    console.log('Attempting to delete blotter with ID:', blotterId);
+
+    fetch(`/api/blotter/${blotterId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Get more detailed error information
+            return response.json().then(err => {
+                throw new Error(err.message || 'Network response was not ok');
+            });
+        }
+        return response.json();
+    })
+    .then(() => {
+        alert('Dismissed report deleted successfully');
+        loadBlotterReports();
+    })
+    .catch(error => {
+        console.error('Error deleting dismissed report:', error);
+        alert(`Failed to delete dismissed report: ${error.message}`);
+    });
+}
 
         function viewBlotter(blotterId) {
             const token = localStorage.getItem('token');
@@ -984,292 +1083,292 @@
         }
 
         function banUser() {
-            if (!accusedUserId) return;
-            
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/admin-login.html';
-                return;
-            }
+    if (!accusedUserId) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/admin-login.html';
+        return;
+    }
 
-            fetch(`/api/users/${accusedUserId}/ban`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(result => {
-                isBanned = true;
-                updateCallAttemptsDisplay();
-                loadBlotterReports(); // Refresh the table to show banned status
-                
-                // Automatically escalate to PNP
-                escalateToPNP();
-            })
-            .catch(error => {
-                console.error('Error banning user:', error);
-                alert('Failed to ban user');
-            });
+    fetch(`/api/users/${accusedUserId}/ban`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(result => {
+        isBanned = true;
+        updateCallAttemptsDisplay();
+        loadBlotterReports(); // Refresh the table to show banned status
+        
+        // Automatically escalate to PNP
+        escalateToPNP();
+    })
+    .catch(error => {
+        console.error('Error banning user:', error);
+        alert('Failed to ban user');
+    });
+}
+
+function unbanUser() {
+    if (!accusedUserId) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/admin-login.html';
+        return;
+    }
+
+    if (!confirm('Are you sure you want to lift the document request restriction for this user?')) {
+        return;
+    }
+
+    fetch(`/api/users/${accusedUserId}/unban`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(result => {
+        isBanned = false;
+        updateCallAttemptsDisplay();
+        loadBlotterReports(); // Refresh the table to remove banned status
+        alert('User restriction lifted successfully');
+    })
+    .catch(error => {
+        console.error('Error unbanning user:', error);
+        alert('Failed to lift restriction');
+    });
+}
+
+function escalateToPNP() {
+    if (!currentBlotterId) return;
+    
+    if (!confirm('Are you sure you want to escalate this case to PNP? This action cannot be undone.')) {
+        return;
+    }
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/admin-login.html';
+        return;
+    }
+
+    const resolutionDetails = document.getElementById('resolutionDetails').value;
+    
+    fetch(`/api/blotter/${currentBlotterId}/escalate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            resolutionDetails,
+            status: 'Escalated to PNP'
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(updatedBlotter => {
+        alert('Case has been escalated to PNP');
+        closeModal();
+        loadBlotterReports();
+    })
+    .catch(error => {
+        console.error('Error escalating case:', error);
+        alert('Failed to escalate case');
+    });
+}
+
+function updateBlotterStatus(newStatus) {
+    if (!currentBlotterId) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/admin-login.html';
+        return;
+    }
+
+    const resolutionDetails = document.getElementById('resolutionDetails').value;
+    
+    if ((newStatus === 'Resolved' || newStatus === 'Dismissed') && !resolutionDetails) {
+        alert('Please enter resolution details before marking as ' + newStatus.toLowerCase());
+        return;
+    }
+    
+    fetch(`/api/blotter/${currentBlotterId}/status`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            status: newStatus,
+            resolutionDetails
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(updatedBlotter => {
+        alert(`Case status updated to ${newStatus}`);
+        closeModal();
+        loadBlotterReports();
+    })
+    .catch(error => {
+        console.error('Error updating status:', error);
+        alert('Failed to update status');
+    });
+}
+
+function saveBlotterChanges() {
+    if (!currentBlotterId) return;
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/admin-login.html';
+        return;
+    }
+
+    const status = document.getElementById('blotterStatus').value;
+    const accusedContact = document.getElementById('accusedContact').value;
+    const resolutionDetails = document.getElementById('resolutionDetails').value;
+    
+    fetch(`/api/blotter/${currentBlotterId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            status,
+            accusedContact,
+            resolutionDetails
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(updatedBlotter => {
+        alert('Blotter changes saved successfully');
+        closeModal();
+        loadBlotterReports();
+    })
+    .catch(error => {
+        console.error('Error saving changes:', error);
+        alert('Failed to save changes');
+    });
+}
+
+function closeModal() {
+    document.getElementById('blotterModal').style.display = 'none';
+}
+
+// Search functionality
+function searchBlotters() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    if (!searchTerm) {
+        populateBlotterTables(allBlotters);
+        return;
+    }
+    
+    const filteredBlotters = allBlotters.filter(blotter => {
+        return (
+            (blotter.complainantName && blotter.complainantName.toLowerCase().includes(searchTerm)) ||
+            (blotter.accused.name && blotter.accused.name.toLowerCase().includes(searchTerm)) ||
+            (blotter.complaintType && blotter.complaintType.toLowerCase().includes(searchTerm)) ||
+            (blotter.location && blotter.location.toLowerCase().includes(searchTerm)) ||
+            (blotter.status && blotter.status.toLowerCase().includes(searchTerm))
+        );
+    });
+    
+    populateBlotterTables(filteredBlotters);
+}
+
+// Logout functionality
+function logoutUser(e) {
+    if (e) e.preventDefault();
+    
+    if (confirm('Are you sure you want to logout?')) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login.html';
+            return;
         }
 
-        function unbanUser() {
-            if (!accusedUserId) return;
-            
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/admin-login.html';
-                return;
+        fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-
-            if (!confirm('Are you sure you want to lift the document request restriction for this user?')) {
-                return;
-            }
-
-            fetch(`/api/users/${accusedUserId}/unban`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(result => {
-                isBanned = false;
-                updateCallAttemptsDisplay();
-                loadBlotterReports(); // Refresh the table to remove banned status
-                alert('User restriction lifted successfully');
-            })
-            .catch(error => {
-                console.error('Error unbanning user:', error);
-                alert('Failed to lift restriction');
-            });
-        }
-
-        function escalateToPNP() {
-            if (!currentBlotterId) return;
-            
-            if (!confirm('Are you sure you want to escalate this case to PNP? This action cannot be undone.')) {
-                return;
-            }
-            
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/admin-login.html';
-                return;
-            }
-
-            const resolutionDetails = document.getElementById('resolutionDetails').value;
-            
-            fetch(`/api/blotter/${currentBlotterId}/escalate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    resolutionDetails,
-                    status: 'Escalated to PNP'
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(updatedBlotter => {
-                alert('Case has been escalated to PNP');
-                closeModal();
-                loadBlotterReports();
-            })
-            .catch(error => {
-                console.error('Error escalating case:', error);
-                alert('Failed to escalate case');
-            });
-        }
-
-        function updateBlotterStatus(newStatus) {
-            if (!currentBlotterId) return;
-            
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/admin-login.html';
-                return;
-            }
-
-            const resolutionDetails = document.getElementById('resolutionDetails').value;
-            
-            if ((newStatus === 'Resolved' || newStatus === 'Dismissed') && !resolutionDetails) {
-                alert('Please enter resolution details before marking as ' + newStatus.toLowerCase());
-                return;
-            }
-            
-            fetch(`/api/blotter/${currentBlotterId}/status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    status: newStatus,
-                    resolutionDetails
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(updatedBlotter => {
-                alert(`Case status updated to ${newStatus}`);
-                closeModal();
-                loadBlotterReports();
-            })
-            .catch(error => {
-                console.error('Error updating status:', error);
-                alert('Failed to update status');
-            });
-        }
-
-        function saveBlotterChanges() {
-            if (!currentBlotterId) return;
-            
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/admin-login.html';
-                return;
-            }
-
-            const status = document.getElementById('blotterStatus').value;
-            const accusedContact = document.getElementById('accusedContact').value;
-            const resolutionDetails = document.getElementById('resolutionDetails').value;
-            
-            fetch(`/api/blotter/${currentBlotterId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    status,
-                    accusedContact,
-                    resolutionDetails
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(updatedBlotter => {
-                alert('Blotter changes saved successfully');
-                closeModal();
-                loadBlotterReports();
-            })
-            .catch(error => {
-                console.error('Error saving changes:', error);
-                alert('Failed to save changes');
-            });
-        }
-
-        function closeModal() {
-            document.getElementById('blotterModal').style.display = 'none';
-        }
-
-        // Search functionality
-        function searchBlotters() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            if (!searchTerm) {
-                populateBlotterTables(allBlotters);
-                return;
-            }
-            
-            const filteredBlotters = allBlotters.filter(blotter => {
-                return (
-                    (blotter.complainantName && blotter.complainantName.toLowerCase().includes(searchTerm)) ||
-                    (blotter.accused.name && blotter.accused.name.toLowerCase().includes(searchTerm)) ||
-                    (blotter.complaintType && blotter.complaintType.toLowerCase().includes(searchTerm)) ||
-                    (blotter.location && blotter.location.toLowerCase().includes(searchTerm)) ||
-                    (blotter.status && blotter.status.toLowerCase().includes(searchTerm))
-                );
-            });
-            
-            populateBlotterTables(filteredBlotters);
-        }
-
-        // Logout functionality
-        function logoutUser(e) {
-            if (e) e.preventDefault();
-            
-            if (confirm('Are you sure you want to logout?')) {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/login.html';
-                    return;
-                }
-
-                fetch('/api/auth/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                .then(() => {
-                    localStorage.removeItem('token');
-                    window.location.href = '/login.html';
-                })
-                .catch(error => {
-                    console.error('Logout error:', error);
-                    localStorage.removeItem('token');
-                    window.location.href = '/login.html';
-                });
-            }
-        }
-
-        // Dark mode toggle
-        function setupDarkModeToggle() {
-            const modeToggle = document.querySelector('.mode-toggle');
-            const body = document.body;
-            const darkMode = localStorage.getItem('darkMode');
-
-            if (darkMode === 'enabled') {
-                body.classList.add('dark-mode');
-                modeToggle.querySelector('.switch').classList.add('active');
-            }
-
-            modeToggle.addEventListener('click', function() {
-                body.classList.toggle('dark-mode');
-                const isDarkMode = body.classList.contains('dark-mode');
-                
-                if (isDarkMode) {
-                    localStorage.setItem('darkMode', 'enabled');
-                    modeToggle.querySelector('.switch').classList.add('active');
-                } else {
-                    localStorage.setItem('darkMode', 'disabled');
-                    modeToggle.querySelector('.switch').classList.remove('active');
-                }
-            });
-        }
-
-        // Close modal when clicking outside
-        window.addEventListener('click', (event) => {
-            if (event.target === document.getElementById('blotterModal')) {
-                closeModal();
-            }
+        })
+        .then(() => {
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        })
+        .catch(error => {
+            console.error('Logout error:', error);
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
         });
-    </script>
+    }
+}
+
+// Dark mode toggle
+function setupDarkModeToggle() {
+    const modeToggle = document.querySelector('.mode-toggle');
+    const body = document.body;
+    const darkMode = localStorage.getItem('darkMode');
+
+    if (darkMode === 'enabled') {
+        body.classList.add('dark-mode');
+        modeToggle.querySelector('.switch').classList.add('active');
+    }
+
+    modeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark-mode');
+        const isDarkMode = body.classList.contains('dark-mode');
+        
+        if (isDarkMode) {
+            localStorage.setItem('darkMode', 'enabled');
+            modeToggle.querySelector('.switch').classList.add('active');
+        } else {
+            localStorage.setItem('darkMode', 'disabled');
+            modeToggle.querySelector('.switch').classList.remove('active');
+        }
+    });
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', (event) => {
+    if (event.target === document.getElementById('blotterModal')) {
+        closeModal();
+    }
+});
+</script>
 </body>
 </html>

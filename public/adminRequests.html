@@ -11,7 +11,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
-    
+        
         /* Sidebar */
         .sidebar {
             height: 100%;
@@ -45,57 +45,63 @@
             transition: 0.3s;
         }
         .sidebar a:hover { background-color: #5ECF89; }
-    
+        
         /* Main Content */
         .main-content {
             margin-left: 250px;
             padding: 20px;
         }
-    
+        
         .top {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between;            
             align-items: center;
             padding: 15px 30px;
-            background-color: #fff;
+            background-color: #fff; 
             box-shadow: 0 1px 5px rgba(0,0,0,0.1);
         }
-    
+        
         .sidebar-toggle {
             font-size: 24px;
             color: #333;
             cursor: pointer;
         }
-    
+        
         .dash-content {
             padding: 20px;
+            padding-top: 15px; /* raised everything slightly */
         }
-    
+        
+        .overview {
+            margin-top: -20px; /* move section upward */
+        }
+        
         /* Filter Controls */
         .filter-controls {
             display: flex;
             gap: 15px;
+            margin-top: -20px; /* raise filters */
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-    
+        
         .filter-group {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-    
+        
         .filter-group label {
             font-weight: 500;
         }
-    
+        
         .filter-group select,
         .filter-group input {
             padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-    
+        
         .filter-group button {
             padding: 8px 16px;
             background-color: #5ECF89;
@@ -104,101 +110,103 @@
             border-radius: 4px;
             cursor: pointer;
         }
-    
-        /* Table Styling */
+        
+        /* Blotter Table Styles */
+        .blotter-tables {
+            display: flex;
+            flex-direction: column;
+            margin-top: -10px;
+            gap: 2rem;
+        }
+        .blotter-table {
+            background: #fff;
+            padding: 1.2rem;
+            width: 100%;
+            border-radius: 2rem;
+            box-shadow: 0 2rem 3rem rgba(132, 139, 200, 0.18);
+            transition: all 300ms ease;
+        }
+        .blotter-table:hover {
+            box-shadow: none;
+        }
+        .blotter-table h2 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.5rem;
+        }
         table {
             width: 100%;
-            font-size: 14px;
             border-collapse: collapse;
-            margin-top: 20px;
-            table-layout: fixed;
+            margin-top: 10px;
+            font-size: 14px;
         }
-    
         th, td {
-            padding: 10px 12px;
-            border: 1px solid #ddd;
+            padding: 12px;
             text-align: left;
-            word-break: break-word;
+            border: 1px solid #e0e0e0;
         }
-    
         th {
-            background-color: #f0f0f0;
+            background-color: #f8f9fa;
             font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 1;
+            color: #333;
         }
-    
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-    
         tr:hover {
             background-color: #f1f1f1;
         }
-    
-        /* Adjusted column widths */
-        #requestsTable th:nth-child(1), /* Full Name */
-        #requestsTable td:nth-child(1) {
-            width: 15%;
+        .action-btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
         }
-        
-        #requestsTable th:nth-child(2), /* Address */
-        #requestsTable td:nth-child(2) {
-            width: 20%;
+        .view-btn {
+            background-color: #17a2b8;
+            color: white;
         }
-        
-        #requestsTable th:nth-child(3), /* Document Type - Reduced width */
-        #requestsTable td:nth-child(3) {
-            width: 16%;
+        .view-btn:hover {
+            background-color: #115a65;
         }
-        
-        #requestsTable th:nth-child(4), /* Purpose - Increased width */
-        #requestsTable td:nth-child(4) {
-            width: 20%;
+        .call-btn {
+            background-color: #28a745;
+            color: white;
         }
-        
-        #requestsTable th:nth-child(5), /* Date Requested */
-        #requestsTable td:nth-child(5) {
-            width: 13%;
+        .call-btn:hover {
+            background-color: #175625;
         }
-        
-        #requestsTable th:nth-child(6), /* Status - Increased width */
-        #requestsTable td:nth-child(6) {
-            width: 11%;
+        .status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
         }
-        
-        #requestsTable th:nth-child(7), /* Actions - Reduced width */
-        #requestsTable td:nth-child(7) {
-            width: 13%;
-        }
-    
-        /* Status column styling */
         .status-pending {
-            color: #ffc107;
-            font-weight: 500;
+            background: #fff3cd;
+            color: #856404;
         }
-    
         .status-approved {
-            color: #28a745;
-            font-weight: 500;
+            background: #d4edda;
+            color: #155724;
         }
-    
         .status-rejected {
-            color: #dc3545;
-            font-weight: 500;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-ready-to-claim {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status-claimed {
+            background: #e2e3e5;
+            color: #383d41;
         }
         
-        .status-ready-to-claim {
-            color: #17a2b8;
-            font-weight: 500;
-        }
-    
-        .status-claimed {
-            color: #6c757d;
-            font-weight: 500;
-        }
-    
         /* Button Styles */
         .action-button {
             padding: 6px 10px;
@@ -209,43 +217,35 @@
             font-size: 13px;
             transition: all 0.3s;
         }
-    
         .approve-btn {
             background-color: #28a745;
             color: white;
         }
-    
         .approve-btn:hover {
             background-color: #218838;
         }
-    
         .reject-btn {
             background-color: #dc3545;
             color: white;
         }
-    
         .reject-btn:hover {
             background-color: #c82333;
         }
-        
         .ready-btn {
             background-color: #17a2b8;
             color: white;
         }
-    
         .ready-btn:hover {
             background-color: #138496;
         }
-    
         .archive-btn {
             background-color: #6c757d;
             color: white;
         }
-    
         .archive-btn:hover {
             background-color: #5a6268;
         }
-    
+        
         /* Notification */
         .notification {
             position: fixed;
@@ -260,24 +260,16 @@
             display: none;
             animation: slideIn 0.5s forwards;
         }
-    
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-    
         .notification.hide {
             animation: slideOut 0.5s forwards;
         }
-    
         @keyframes slideOut {
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(100%); opacity: 0; }
-        }
-    
-        /* Date column styling */
-        .date-cell {
-            white-space: nowrap;
         }
         
         /* Archive controls */
@@ -285,17 +277,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: -5px; /* raise buttons */
             margin-bottom: 20px;
             padding: 10px;
             background-color: #f8f9fa;
             border-radius: 5px;
         }
-        
         .archive-toggle {
             display: flex;
             gap: 10px;
         }
-        
         .archive-toggle button {
             padding: 8px 16px;
             border: none;
@@ -303,17 +294,29 @@
             cursor: pointer;
             font-weight: 500;
         }
-        
         .active-archive {
             background-color: #5ECF89;
             color: white;
         }
-        
         .inactive-archive {
             background-color: #e9ecef;
             color: #495057;
         }
-
+        
+        /* Cleanup button styling */
+        .cleanup-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .cleanup-btn:hover {
+            background-color: #c82333;
+        }
+        
         /* Error message styling */
         .error-message {
             text-align: center;
@@ -321,7 +324,31 @@
             padding: 20px;
             font-weight: 500;
         }
-    </style>
+        
+        /* Closed cases control */
+        .closed-cases-control {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .show-closed-cases-btn {
+            background-color: #981219;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            width: 120px;
+            height: 50px;
+            margin-left: 10px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .show-closed-cases-btn:hover {
+            background-color: #a75d64;
+        }
+        </style>
+        
     
     <!-- Load socket.io client -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
@@ -362,7 +389,7 @@
                 </a></li>
             </ul>
             <ul class="logout-mode">
-                <li><a href="#">
+                <li><a href="#" id="logoutBtn">
                     <i class="uil uil-signout"></i>
                     <span class="link-name">Logout</span>
                 </a></li>
@@ -399,7 +426,7 @@
                         <button id="archivedRequestsBtn" class="inactive-archive">Archive</button>
                     </div>
                     <div>
-                        <button id="cleanupArchive" class="archive-btn">Clean Up Archive</button>
+                        <button id="cleanupArchive" class="cleanup-btn">Clean Up Archive</button>
                     </div>
                 </div>
                 
@@ -448,22 +475,26 @@
                     <button id="resetFilters" class="filter-button">Reset</button>
                 </div>
                 
-                <table id="requestsTable">
-                    <thead>
-                        <tr>
-                            <th>Full Name</th>
-                            <th>Address</th>
-                            <th>Document Type</th>
-                            <th>Purpose</th>
-                            <th>Date Requested</th>
-                            <th>Status</th>
-                            <th class="actions-column">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be dynamically inserted here -->
-                    </tbody>
-                </table>
+                <div class="blotter-tables">
+                    <div class="blotter-table">
+                        <table id="requestsTable">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Address</th>
+                                    <th>Document Type</th>
+                                    <th>Purpose</th>
+                                    <th>Date Requested</th>
+                                    <th>Status</th>
+                                    <th class="actions-column">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -486,6 +517,7 @@
         const activeRequestsBtn = document.getElementById('activeRequestsBtn');
         const archivedRequestsBtn = document.getElementById('archivedRequestsBtn');
         const cleanupArchive = document.getElementById('cleanupArchive');
+        const logoutBtn = document.getElementById('logoutBtn');
     
         let currentFilters = {
             search: '',
@@ -497,10 +529,19 @@
         };
     
         document.addEventListener('DOMContentLoaded', () => {
+            checkAuthStatus();
             setupEventListeners();
             setupWebSocketListeners();
             fetchRequests();
         });
+
+        function checkAuthStatus() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
+        }
     
         function setupEventListeners() {
             applyFilters.addEventListener('click', applyFiltersHandler);
@@ -520,6 +561,7 @@
             });
     
             cleanupArchive.addEventListener('click', cleanupArchiveHandler);
+            logoutBtn.addEventListener('click', logoutUser);
         }
     
         function updateArchiveUI() {
@@ -544,9 +586,18 @@
             }
     
             try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+
                 const response = await fetch('/api/requests/cleanup', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
     
                 if (!response.ok) {
@@ -634,6 +685,12 @@
     
         async function fetchRequests() {
             try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+
                 const queryParams = new URLSearchParams();
     
                 if (currentFilters.search) queryParams.append('search', currentFilters.search);
@@ -643,7 +700,11 @@
                 if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
                 queryParams.append('archive', currentFilters.archive);
     
-                const response = await fetch(`/api/requests?${queryParams.toString()}`);
+                const response = await fetch(`/api/requests?${queryParams.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
     
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -690,7 +751,7 @@
                         <div>${request.formattedDate || 'N/A'}</div>
                         <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
                     </td>
-                    <td class="${statusClass}">${request.status || 'Pending'}</td>
+                    <td><span class="status ${statusClass}">${request.status || 'Pending'}</span></td>
                     <td class="actions-column">
                         ${showApproveReject ? `
                             <button class="action-button approve-btn" data-id="${request.id}">Approve</button>
@@ -723,9 +784,18 @@
             if (!confirm(`Are you sure you want to ${action} this request?`)) return;
     
             try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+
                 const response = await fetch(`/api/requests/${requestId}/${action}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
     
                 if (!response.ok) {
@@ -758,7 +828,14 @@
             sidebar.classList.toggle("active");
             mainContent.classList.toggle("active");
         }
+
+        function logoutUser(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('token');
+                window.location.href = '/login.html';
+            }
+        }
     </script>
-    
 </body>
 </html>

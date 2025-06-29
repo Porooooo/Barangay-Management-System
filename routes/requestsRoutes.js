@@ -159,11 +159,12 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Get requests for the logged-in user
+// Get requests for the logged-in user (UPDATED)
 router.get("/user", verifySession, checkNotBanned, async (req, res) => {
     try {
         const requests = await Request.find({ 
-            userId: req.session.userId 
+            userId: req.session.userId,
+            status: { $ne: "Claimed" } // Exclude claimed requests
         }).sort({ createdAt: -1 }).lean();
 
         const formattedRequests = requests.map(request => {
@@ -208,13 +209,14 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
+        const createdAt = new Date(request.createdAt);
         const formattedRequest = {
             ...request._doc,
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
-            formattedDate: format(new Date(request.createdAt), 'MMM dd, yyyy'),
-            formattedTime: format(new Date(request.createdAt), 'hh:mm a')
+            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
         };
 
         req.app.get('io').emit('request-update', {
@@ -254,13 +256,14 @@ router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
+        const createdAt = new Date(request.createdAt);
         const formattedRequest = {
             ...request._doc,
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
-            formattedDate: format(new Date(request.createdAt), 'MMM dd, yyyy'),
-            formattedTime: format(new Date(request.createdAt), 'hh:mm a')
+            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
         };
 
         req.app.get('io').emit('request-update', {
@@ -300,13 +303,14 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
+        const createdAt = new Date(request.createdAt);
         const formattedRequest = {
             ...request._doc,
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
-            formattedDate: format(new Date(request.createdAt), 'MMM dd, yyyy'),
-            formattedTime: format(new Date(request.createdAt), 'hh:mm a')
+            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
         };
 
         req.app.get('io').emit('request-update', {
@@ -327,7 +331,7 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Mark request as claimed
+// Mark request as claimed (UPDATED with more robust response)
 router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
@@ -346,13 +350,23 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
+        // Verify the requesting user owns this request
+        if (request.userId.toString() !== req.session.userId) {
+            return res.status(403).json({
+                error: "Forbidden",
+                message: "You can only claim your own requests"
+            });
+        }
+
+        const createdAt = new Date(request.createdAt);
         const formattedRequest = {
             ...request._doc,
+            id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
-            formattedDate: format(new Date(request.createdAt), 'MMM dd, yyyy'),
-            formattedTime: format(new Date(request.createdAt), 'hh:mm a')
+            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
         };
 
         req.app.get('io').emit('request-update', {
@@ -362,25 +376,24 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
 
         res.status(200).json({
             message: "Request marked as claimed!",
-            request: formattedRequest
+            request: formattedRequest,
+            success: true
         });
     } catch (error) {
         console.error("Error updating request:", error);
         res.status(500).json({ 
             error: "Server error",
-            message: "Failed to mark request as claimed. Please try again later."
+            message: "Failed to mark request as claimed. Please try again later.",
+            success: false
         });
     }
 });
 
-// Clean up old requests
+// Clean up ALL archived requests
 router.post("/cleanup", verifySession, checkNotBanned, async (req, res) => {
     try {
-        const oneMonthAgo = subMonths(new Date(), 1);
-
         const result = await Request.deleteMany({
-            status: { $in: ['Approved', 'Rejected', 'Claimed'] },
-            updatedAt: { $lt: oneMonthAgo }
+            status: { $in: ['Approved', 'Rejected', 'Claimed'] }
         });
 
         req.app.get('io').emit('request-update', {
@@ -389,14 +402,14 @@ router.post("/cleanup", verifySession, checkNotBanned, async (req, res) => {
         });
 
         res.status(200).json({
-            message: `Deleted ${result.deletedCount} old requests`,
+            message: `Deleted ${result.deletedCount} archived requests`,
             deletedCount: result.deletedCount
         });
     } catch (error) {
-        console.error("Error cleaning up old requests:", error);
+        console.error("Error cleaning up archived requests:", error);
         res.status(500).json({ 
             error: "Server error",
-            message: "Failed to clean up old requests. Please try again later."
+            message: "Failed to clean up archived requests. Please try again later."
         });
     }
 });

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
   // Basic Information
@@ -124,7 +125,6 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-
   soloParent: {
     type: Boolean,
     default: false
@@ -156,6 +156,21 @@ const UserSchema = new mongoose.Schema({
     default: false
   },
 
+  // Password Reset Fields
+  resetPasswordToken: {
+    type: String,
+    select: false
+  },
+  resetPasswordExpires: {
+    type: Date,
+    select: false
+  },
+  resetPasswordVerified: {
+    type: Boolean,
+    default: false,
+    select: false
+  },
+
   // Admin Specific Fields
   adminSpecificFields: {
     position: {
@@ -183,7 +198,7 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-// 🔒 Pre-save hook to hash password (CRITICAL FIX)
+// 🔒 Pre-save hook to hash password
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
@@ -207,5 +222,24 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+// 🔑 Create password reset token method
+UserSchema.methods.createPasswordResetToken = function() {
+  // Generate 6-digit OTP
+  const otp = crypto.randomInt(100000, 999999).toString();
   
+  // Set expiration (10 minutes from now)
+  this.resetPasswordToken = otp;
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  this.resetPasswordVerified = false;
+  
+  return otp;
+};
+
+// 🚫 Clear password reset token method
+UserSchema.methods.clearPasswordResetToken = function() {
+  this.resetPasswordToken = undefined;
+  this.resetPasswordExpires = undefined;
+  this.resetPasswordVerified = undefined;
+};
+
+module.exports = mongoose.model('User', UserSchema);

@@ -132,6 +132,68 @@
         .other-document-input.show {
             display: block;
         }
+
+        /* Success Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #2c5282;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .modal-button {
+            background-color: #2c5282;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .modal-button:hover {
+            background-color: #1a365d;
+        }
     </style>
 </head>
 <body>
@@ -251,6 +313,18 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="uil uil-check-circle"></i>
+            </div>
+            <h2 class="modal-title">Request Submitted Successfully!</h2>
+            <p class="modal-message">Your document request has been received. You can track the status in Your Requests section.</p>
+            <button class="modal-button" onclick="closeModalAndRedirect()">Continue</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
         // Toggle other document input field
@@ -325,6 +399,19 @@
             }
         }
     
+        // Show success modal
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'block';
+        }
+
+        // Close modal and redirect
+        function closeModalAndRedirect() {
+            const modal = document.getElementById('successModal');
+            modal.style.display = 'none';
+            window.location.href = 'residentdashboard.html';
+        }
+    
         // Handle form submission
         document.getElementById('documentRequestForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -379,8 +466,8 @@
                     throw new Error(result.error || 'Failed to submit request');
                 }
     
-                alert('Request submitted successfully!');
-                window.location.href = 'residentdashboard.html';
+                // Show success modal instead of alert
+                showSuccessModal();
             } catch (error) {   
                 console.error('Error submitting request:', error);
                 alert(error.message || 'An error occurred. Please try again.');

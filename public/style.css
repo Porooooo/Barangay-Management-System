@@ -158,9 +158,8 @@ body.dark{
     background-color: #c82333;
 }
 
-.view-button:hover,
-.action-btn:hover {
-    background-color: #0b3cc1;
+.view-button:hover {
+    background-color: #b1995f;
 }
 
 /* Empty State */

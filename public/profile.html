@@ -436,16 +436,6 @@
                 <button class="btn button border edit-field" id="cancelEditBtn" style="display: none;">Cancel</button>
                 <button class="btn button border" onclick="logout()">Logout</button>
             </div>
-            <div class="d-sm-flex align-items-center pt-3" id="deactivate">
-                <div>
-                    <b>Deactivate your account</b>
-                    <p>This will permanently delete your account and all associated data</p>
-                </div>
-                <div class="ml-auto">
-                    <button class="btn danger" onclick="confirmDeactivate()">Deactivate</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -722,12 +712,7 @@
             }   
         }
     
-        function confirmDeactivate() {
-            if (confirm('Are you sure you want to deactivate your account? This action cannot be undone.')) {
-                // Add deactivation logic here
-                alert('Account deactivation request sent.');
-            }
-        }
+        
     
         function toggleEditMode(edit) {
             const displayFields = document.querySelectorAll('.profile-value');

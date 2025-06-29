@@ -186,4 +186,40 @@ router.put("/:id", async (req, res) => {
     }
 });
 
+// ✅ Delete a blotter report
+router.delete("/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        
+        // First verify the blotter exists
+        const blotter = await Blotter.findById(id);
+        if (!blotter) {
+            return res.status(404).json({ 
+                error: "Blotter not found",
+                details: `No blotter found with ID: ${id}`
+            });
+        }
+
+        // Only allow deletion of dismissed reports
+        if (blotter.status !== "Dismissed") {
+            return res.status(400).json({ 
+                error: "Only dismissed reports can be deleted",
+                details: `Current status is: ${blotter.status}`
+            });
+        }
+
+        await Blotter.findByIdAndDelete(id);
+        res.status(200).json({ 
+            message: "Blotter report deleted successfully",
+            deletedId: id
+        });
+    } catch (error) {
+        console.error("Error deleting blotter:", error);
+        res.status(500).json({ 
+            error: "Server error",
+            details: error.message 
+        });
+    }
+});
+
 module.exports = router;
