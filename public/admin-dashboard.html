@@ -87,6 +87,91 @@
             padding: 20px;
         }
 
+        /* Emergency Notification */
+        .emergency-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #ff4444;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1100;
+            display: none;
+            width: 350px;
+            animation: slideIn 0.5s forwards;
+            border-left: 5px solid #cc0000;
+        }
+
+        .emergency-content {
+            display: flex;
+            padding: 15px;
+            align-items: center;
+        }
+
+        .emergency-icon {
+            font-size: 30px;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .emergency-text {
+            flex: 1;
+        }
+
+        .emergency-text h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+
+        .emergency-text p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+
+        .emergency-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .emergency-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .acknowledge-btn {
+            background-color: #ffbb33;
+            color: #000;
+        }
+
+        .acknowledge-btn:hover {
+            background-color: #ff8800;
+        }
+
+        .resolve-btn {
+            background-color: #00C851;
+            color: white;
+        }
+
+        .resolve-btn:hover {
+            background-color: #007E33;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
         /* Emergency Emblem */
         .emergency-emblem {
             position: fixed;
@@ -446,6 +531,21 @@
     </style>
 </head>
 <body>
+    <!-- Emergency Notification -->
+    <div id="emergencyNotification" class="emergency-notification">
+        <div class="emergency-content">
+            <i class="uil uil-bell emergency-icon"></i>
+            <div class="emergency-text">
+                <h3>EMERGENCY ALERT</h3>
+                <p id="emergencyMessage"></p>
+                <div class="emergency-buttons">
+                    <button id="acknowledgeEmergency" class="emergency-btn acknowledge-btn">Acknowledge</button>
+                    <button id="resolveEmergency" class="emergency-btn resolve-btn">Resolve</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Emergency Emblem (Top Right Corner) -->
     <div class="emergency-emblem" title="Emergency Alerts" onclick="window.location.href='emergency.html'">
         <i class="uil uil-bell"></i>
@@ -608,6 +708,13 @@
         // Initialize socket connection
         const socket = io();
 
+        // Emergency notification elements
+        const emergencyNotification = document.getElementById('emergencyNotification');
+        const emergencyMessage = document.getElementById('emergencyMessage');
+        const acknowledgeEmergency = document.getElementById('acknowledgeEmergency');
+        const resolveEmergency = document.getElementById('resolveEmergency');
+        let currentEmergencyAlert = null;
+
         // Toggle sidebar
         function toggleMenu() {
             const sidebar = document.querySelector(".sidebar");
@@ -636,8 +743,97 @@
                 .catch(error => console.error('Error:', error));
         }
 
+        // Show emergency notification
+        function showEmergencyNotification(alert) {
+            emergencyMessage.textContent = `${alert.residentName}: ${alert.message}`;
+            emergencyNotification.style.display = 'block';
+            
+            // Set up button event listeners
+            acknowledgeEmergency.onclick = () => acknowledgeAlert(alert._id);
+            resolveEmergency.onclick = () => resolveAlert(alert._id);
+            
+            // Auto-hide after 1 minute if not acknowledged
+            setTimeout(() => {
+                if (emergencyNotification.style.display === 'block') {
+                    emergencyNotification.classList.add('hide');
+                    setTimeout(() => {
+                        emergencyNotification.style.display = 'none';
+                        emergencyNotification.classList.remove('hide');
+                    }, 500);
+                }
+            }, 60000);
+        }
+
+        // Hide emergency notification
+        function hideEmergencyNotification() {
+            emergencyNotification.classList.add('hide');
+            setTimeout(() => {
+                emergencyNotification.style.display = 'none';
+                emergencyNotification.classList.remove('hide');
+                currentEmergencyAlert = null;
+            }, 500);
+        }
+
+        // Acknowledge emergency alert
+        async function acknowledgeAlert(alertId) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+
+                const response = await fetch(`/api/emergency/${alertId}/acknowledge`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to acknowledge alert');
+                }
+
+                hideEmergencyNotification();
+            } catch (error) {
+                console.error('Acknowledge error:', error);
+                showNotification(`Error: ${error.message}`);
+            }
+        }
+
+        // Resolve emergency alert
+        async function resolveAlert(alertId) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+
+                const response = await fetch(`/api/emergency/${alertId}/resolve`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to resolve alert');
+                }
+
+                hideEmergencyNotification();
+            } catch (error) {
+                console.error('Resolve error:', error);
+                showNotification(`Error: ${error.message}`);
+            }
+        }
+
         // Listen for new emergency alerts
         socket.on('newEmergencyAlert', (alert) => {
+            currentEmergencyAlert = alert;
+            showEmergencyNotification(alert);
             updateEmergencyAlertCount();
             
             // Show notification
@@ -649,12 +845,26 @@
         });
 
         // Listen for acknowledged alerts
-        socket.on('alertAcknowledged', () => {
+        socket.on('alertAcknowledged', (alert) => {
+            if (currentEmergencyAlert && currentEmergencyAlert._id === alert._id) {
+                hideEmergencyNotification();
+            }
             updateEmergencyAlertCount();
         });
 
         // Listen for resolved alerts
-        socket.on('alertResolved', () => {
+        socket.on('alertResolved', (alertId) => {
+            if (currentEmergencyAlert && currentEmergencyAlert._id === alertId) {
+                hideEmergencyNotification();
+            }
+            updateEmergencyAlertCount();
+        });
+
+        // Listen for removed alerts
+        socket.on('alertRemoved', (alertId) => {
+            if (currentEmergencyAlert && currentEmergencyAlert._id === alertId) {
+                hideEmergencyNotification();
+            }
             updateEmergencyAlertCount();
         });
 
@@ -711,29 +921,27 @@
 
                 let activeBlotterCases = [];
 
-try {
-    const blotterResponse = await fetch('/api/blotter');
-    if (!blotterResponse.ok) {
-        throw new Error('Failed to fetch blotter cases');
-    }
+                try {
+                    const blotterResponse = await fetch('/api/blotter');
+                    if (!blotterResponse.ok) {
+                        throw new Error('Failed to fetch blotter cases');
+                    }
 
-    const blotterCases = await blotterResponse.json();
-    activeBlotterCases = blotterCases.filter(caseItem =>
-        caseItem.status !== "Resolved" &&
-        caseItem.status !== "Dismissed" &&
-        caseItem.status !== "Escalated to PNP"
-    );
+                    const blotterCases = await blotterResponse.json();
+                    activeBlotterCases = blotterCases.filter(caseItem =>
+                        caseItem.status !== "Resolved" &&
+                        caseItem.status !== "Dismissed" &&
+                        caseItem.status !== "Escalated to PNP"
+                    );
 
-    console.log("✅ Active blotter cases:", activeBlotterCases);
+                    console.log("✅ Active blotter cases:", activeBlotterCases);
 
-    // ⬇️ Place any DOM manipulation using activeBlotterCases here
-    // For example:
-    document.getElementById('blotterCases').textContent = activeBlotterCases.length;
+                    // Update blotter cases count
+                    document.getElementById('blotterCases').textContent = activeBlotterCases.length;
 
-} catch (error) {
-    console.error("Error fetching dashboard data:", error);
-}
-
+                } catch (error) {
+                    console.error("Error fetching dashboard data:", error);
+                }
 
                 // Update summary cards with all data
                 updateSummaryCards(residents, documentRequests, activeBlotterCases);
@@ -783,7 +991,6 @@ try {
             document.getElementById('fourPsCount').textContent = fourPsMember;
             
             // Update from API data
-            document.getElementById('blotterCases').textContent = blotterCases.length;
             document.getElementById('documentRequests').textContent = documentRequests.length;
         }
 
