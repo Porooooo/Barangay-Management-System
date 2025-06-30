@@ -105,11 +105,45 @@ router.get("/resident/:residentId", async (req, res) => {
             residentId: req.params.residentId,
             status: { $ne: 'resolved' }
         }).sort({ createdAt: -1 });
-        
+            
         res.json(alerts);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch alerts" });
     }
-}); 
+});
+
+router.post("/:id/respond", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { adminMessage } = req.body;
+        
+        const alert = await EmergencyAlert.findById(id);
+        if (!alert) {
+            return res.status(404).json({ error: "Alert not found" });
+        }
+
+        // Update the alert with admin response
+        const updatedAlert = await EmergencyAlert.findByIdAndUpdate(
+            id,
+            { 
+                status: 'acknowledged',
+                acknowledgedAt: new Date(),
+                adminResponse: adminMessage 
+            },
+            { new: true }
+        ).populate('residentId');
+        
+        // Emit event to notify resident
+        req.app.get('io').emit('emergencyResponse', {
+            alertId: id,
+            residentId: alert.residentId._id,
+            message: adminMessage
+        });
+        
+        res.json(updatedAlert);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to respond to alert" });
+    }
+});
 
 module.exports = router;

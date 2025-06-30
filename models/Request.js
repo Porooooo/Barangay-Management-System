@@ -47,6 +47,10 @@ const requestSchema = new mongoose.Schema({
         },
         index: true
     },
+    rejectionReason: {
+        type: String,
+        trim: true
+    },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -72,6 +76,10 @@ const requestSchema = new mongoose.Schema({
             ret.id = ret._id.toString();
             delete ret._id;
             delete ret.__v;
+            // Include rejectionReason in the output
+            if (ret.rejectionReason) {
+                ret.rejectionReason = ret.rejectionReason;
+            }
             return ret;
         }
     },
@@ -101,6 +109,11 @@ requestSchema.virtual('formattedTime').get(function() {
 requestSchema.pre('save', function(next) {
     if (this.isModified('status')) {
         this.updatedAt = new Date();
+        
+        // Clear rejection reason if status is changed from Rejected to something else
+        if (this.status !== 'Rejected' && this.rejectionReason) {
+            this.rejectionReason = undefined;
+        }
     }
     next();
 });

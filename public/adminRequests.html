@@ -69,18 +69,18 @@
         
         .dash-content {
             padding: 20px;
-            padding-top: 15px; /* raised everything slightly */
+            padding-top: 15px;
         }
         
         .overview {
-            margin-top: -20px; /* move section upward */
+            margin-top: -20px;
         }
         
         /* Filter Controls */
         .filter-controls {
             display: flex;
             gap: 15px;
-            margin-top: -20px; /* raise filters */
+            margin-top: -20px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
@@ -277,7 +277,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: -5px; /* raise buttons */
+            margin-top: -5px;
             margin-bottom: 20px;
             padding: 10px;
             background-color: #f8f9fa;
@@ -325,30 +325,56 @@
             font-weight: 500;
         }
         
-        /* Closed cases control */
-        .closed-cases-control {
-            text-align: left;
-            margin-bottom: 20px;
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
         }
-        .show-closed-cases-btn {
-            background-color: #981219;
-            color: white;
-            padding: 6px 12px;
-            border: none;
+        .modal-content {
+            background: white;
+            padding: 20px;
             border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .modal-content h2 {
+            margin-bottom: 15px;
+        }
+        .modal-content textarea {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-            width: 120px;
-            height: 50px;
-            margin-left: 10px;
-            transition: all 0.3s;
-            text-align: center;
         }
-        .show-closed-cases-btn:hover {
-            background-color: #a75d64;
+        .modal-cancel {
+            background: #ccc;
         }
-        </style>
-        
+        .modal-submit {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
     
     <!-- Load socket.io client -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
@@ -499,6 +525,19 @@
         </div>
     </section>
 
+    <!-- Rejection Reason Modal -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <h2>Reject Request</h2>
+            <p>Please provide a reason for rejection:</p>
+            <textarea id="rejectionReason" placeholder="Enter the reason for rejecting this request..."></textarea>
+            <div class="modal-buttons">
+                <button class="modal-cancel" onclick="document.getElementById('rejectModal').style.display = 'none'">Cancel</button>
+                <button class="modal-submit" onclick="submitRejection()">Submit Rejection</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Real-time Notification -->
     <div id="notification" class="notification"></div>
 
@@ -527,6 +566,8 @@
             endDate: '',
             archive: false
         };
+
+        let currentRejectRequestId = null;
     
         document.addEventListener('DOMContentLoaded', () => {
             checkAuthStatus();
@@ -780,9 +821,30 @@
             });
         }
     
-        async function handleRequestAction(requestId, action) {
+        function handleRequestAction(requestId, action) {
+            if (action === 'reject') {
+                currentRejectRequestId = requestId;
+                document.getElementById('rejectModal').style.display = 'flex';
+                document.getElementById('rejectionReason').value = '';
+                return;
+            }
+            
             if (!confirm(`Are you sure you want to ${action} this request?`)) return;
+            performRequestAction(requestId, action);
+        }
+
+        function submitRejection() {
+            const reason = document.getElementById('rejectionReason').value.trim();
+            if (!reason) {
+                alert('Please provide a rejection reason');
+                return;
+            }
+            
+            document.getElementById('rejectModal').style.display = 'none';
+            performRequestAction(currentRejectRequestId, 'reject', reason);
+        }
     
+        async function performRequestAction(requestId, action, rejectionReason = '') {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
@@ -790,19 +852,26 @@
                     return;
                 }
 
-                const response = await fetch(`/api/requests/${requestId}/${action}`, {
+                const url = `/api/requests/${requestId}/${action}`;
+                const options = {
                     method: 'PUT',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     }
-                });
-    
+                };
+
+                if (action === 'reject') {
+                    options.body = JSON.stringify({ rejectionReason });
+                }
+
+                const response = await fetch(url, options);
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `Failed to ${action}`);
                 }
-    
+
                 showNotification(`Request ${action === 'ready' ? 'marked as ready to claim' : action + 'd'} successfully`);
                 fetchRequests();
             } catch (error) {

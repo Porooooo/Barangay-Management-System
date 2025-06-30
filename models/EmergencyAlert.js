@@ -13,6 +13,7 @@ const emergencyAlertSchema = new mongoose.Schema({
         enum: ['pending', 'acknowledged', 'resolved'],
         default: 'pending'
     },
+    adminResponse: { type: String },
     createdAt: { type: Date, default: Date.now },
     acknowledgedAt: { type: Date },
     resolvedAt: { type: Date }

@@ -119,6 +119,22 @@ body.dark{
     background-color: #e2e3e5;
     color: #383d41;
 }
+.status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+.status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+.status-ready-to-claim {
+    background: #cce5ff;
+    color: #004085;
+}
+.status-claimed {
+    background: #e2e3e5;
+    color: #383d41;
+}
 
 /* Action Buttons */
 .approve,
@@ -144,7 +160,19 @@ body.dark{
 .reject {
     background-color: #dc3545;
 }
-
+.delete-btn {
+    padding: 6px 12px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.rejection-reason {
+    color: #721c24;
+    background-color: #f8d7da;
+}    
 .view-button,
 .action-btn {
     background-color: var(--primary-color);
@@ -160,6 +188,9 @@ body.dark{
 
 .view-button:hover {
     background-color: #b1995f;
+}
+.delete-btn:hover {
+    background-color: #c82333;
 }
 
 /* Empty State */

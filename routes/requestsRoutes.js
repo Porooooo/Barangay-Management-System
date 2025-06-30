@@ -159,7 +159,7 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Get requests for the logged-in user (UPDATED)
+// Get requests for the logged-in user
 router.get("/user", verifySession, checkNotBanned, async (req, res) => {
     try {
         const requests = await Request.find({ 
@@ -237,13 +237,23 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Reject a request
+// Reject a request (updated with rejection reason)
 router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
     try {
+        const { rejectionReason } = req.body;
+
+        if (!rejectionReason || rejectionReason.trim() === '') {
+            return res.status(400).json({ 
+                error: "Validation error", 
+                message: "Rejection reason is required" 
+            });
+        }
+
         const request = await Request.findByIdAndUpdate(
             req.params.id,
             {
                 status: "Rejected",
+                rejectionReason: rejectionReason.trim(),
                 updatedAt: new Date()
             },
             { new: true }
@@ -331,7 +341,7 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Mark request as claimed (UPDATED with more robust response)
+// Mark request as claimed
 router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
@@ -384,6 +394,58 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
         res.status(500).json({ 
             error: "Server error",
             message: "Failed to mark request as claimed. Please try again later.",
+            success: false
+        });
+    }
+});
+
+// Delete a rejected request (user can only delete their own rejected requests)
+// Delete a rejected request (user can only delete their own rejected requests)
+router.delete("/:id", verifySession, checkNotBanned, async (req, res) => {
+    try {
+        const request = await Request.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({ 
+                error: "Not found", 
+                message: "Request not found",
+                success: false
+            });
+        }
+
+        // Verify the requesting user owns this request and it's rejected
+        if (request.userId.toString() !== req.session.userId) {
+            return res.status(403).json({
+                error: "Forbidden",
+                message: "You can only delete your own requests",
+                success: false
+            });
+        }
+
+        if (request.status !== 'Rejected') {
+            return res.status(400).json({
+                error: "Bad Request",
+                message: "Only rejected requests can be deleted",
+                success: false
+            });
+        }
+
+        await Request.findByIdAndDelete(req.params.id);
+
+        req.app.get('io').emit('request-update', {
+            type: 'deleted',
+            requestId: req.params.id
+        });
+
+        res.status(200).json({
+            message: "Request deleted successfully!",
+            success: true
+        });
+    } catch (error) {
+        console.error("Error deleting request:", error);
+        res.status(500).json({ 
+            error: "Server error",
+            message: "Failed to delete request. Please try again later.",
             success: false
         });
     }

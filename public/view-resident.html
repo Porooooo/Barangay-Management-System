@@ -155,11 +155,6 @@
             color: white;
         }
 
-        .edit-btn {
-            background: #17a2b8;
-            color: white;
-        }
-
         @media (max-width: 768px) {
             .profile-content {
                 flex-direction: column;
@@ -306,7 +301,6 @@
                     </div>
 
                     <div class="action-buttons">
-                        <button class="action-btn edit-btn" id="editBtn">Edit Profile</button>
                         <button class="action-btn disable-btn" id="disableBtn">Disable Account</button>
                     </div>
                 </div>
@@ -348,7 +342,6 @@
         const seniorCitizen = document.getElementById('seniorCitizen');
         const createdAt = document.getElementById('createdAt');
         const disableBtn = document.getElementById('disableBtn');
-        const editBtn = document.getElementById('editBtn');
     
         // Format date safely
         function formatDate(dateString) {
@@ -449,12 +442,12 @@
     
                 // Update DOM
                 profilePicture.src = resident.profilePicture
-  ? resident.profilePicture.startsWith('http') 
-    ? resident.profilePicture 
-    : resident.profilePicture.startsWith('/uploads/')
-      ? resident.profilePicture
-      : `/uploads/${resident.profilePicture}`
-  : 'images/default-profile.png';
+                  ? resident.profilePicture.startsWith('http') 
+                    ? resident.profilePicture 
+                    : resident.profilePicture.startsWith('/uploads/')
+                      ? resident.profilePicture
+                      : `/uploads/${resident.profilePicture}`
+                  : 'images/default-profile.png';
     
                 profileStatus.textContent = safeGet(resident, 'status', 'Active');
                 profileStatus.className = `profile-status status-${(resident.status || 'Active').toLowerCase()}`;
@@ -533,15 +526,9 @@
             }
         }
     
-        // Redirect to edit page
-        function editResident() {
-            window.location.href = `edit-resident.html?id=${residentId}`;
-        }
-    
         // Initialize page
         document.addEventListener('DOMContentLoaded', () => {
             disableBtn.addEventListener('click', toggleResidentStatus);
-            editBtn.addEventListener('click', editResident);
             fetchResidentData();
         });
     </script>

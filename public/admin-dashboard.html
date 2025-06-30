@@ -539,7 +539,7 @@
                 <h3>EMERGENCY ALERT</h3>
                 <p id="emergencyMessage"></p>
                 <div class="emergency-buttons">
-                    <button id="acknowledgeEmergency" class="emergency-btn acknowledge-btn">Acknowledge</button>
+                    <button id="acknowledgeEmergency" class="emergency-btn acknowledge-btn">Respond</button>
                     <button id="resolveEmergency" class="emergency-btn resolve-btn">Resolve</button>
                 </div>
             </div>
@@ -774,34 +774,37 @@
             }, 500);
         }
 
-        // Acknowledge emergency alert
-        async function acknowledgeAlert(alertId) {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/admin-login.html';
-                    return;
-                }
-
-                const response = await fetch(`/api/emergency/${alertId}/acknowledge`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to acknowledge alert');
-                }
-
-                hideEmergencyNotification();
-            } catch (error) {
-                console.error('Acknowledge error:', error);
-                showNotification(`Error: ${error.message}`);
-            }
+       // Modify the acknowledgeAlert function in admin-dashboard.html
+async function acknowledgeAlert(alertId) {
+    try {
+        const adminMessage = prompt("Please enter a message to send to the resident:");
+        if (!adminMessage) return; // User cancelled
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/admin-login.html';
+            return;
         }
 
+        const response = await fetch(`/api/emergency/${alertId}/respond`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ adminMessage })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to acknowledge alert');
+        }
+
+        hideEmergencyNotification();
+    } catch (error) {
+        console.error('Acknowledge error:', error);
+        showNotification(`Error: ${error.message}`);
+    }
+}
         // Resolve emergency alert
         async function resolveAlert(alertId) {
             try {
