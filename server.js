@@ -29,7 +29,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       process.env.FRONTEND_URL,
-      "https://barangay-management-system-eight.vercel.app",
+      "https://barangay-management-system-qelm.onrender.com",
       "http://localhost:3000"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -105,7 +105,7 @@ app.use(session({
 // Production-Grade CORS
 app.use(cors({
   origin: [
-    'https://barangay-management-system-eight.vercel.app',
+    'https://barangay-management-system-qelm.onrender.com',
     'http://localhost:3000'
   ],
   credentials: true,
