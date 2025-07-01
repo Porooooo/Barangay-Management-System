@@ -473,6 +473,35 @@ router.post("/:userId/ban", async (req, res) => {
   }
 });
 
+//check-session route
+router.get('/check-session', async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      return res.json({ isAuthenticated: false });
+    }
+
+    const user = await User.findById(req.session.userId).select('-password');
+    if (!user) {
+      return res.json({ isAuthenticated: false });
+    }
+    
+    return res.json({
+      isAuthenticated: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        fullName: user.fullName,
+        isBanned: user.isBanned,
+        profilePictureUrl: user.profilePicture
+      }
+    });
+  } catch (error) {
+    console.error("Error checking session:", error);
+    res.json({ isAuthenticated: false });
+  }
+});
+
 // Unban user
 router.post("/:userId/unban", async (req, res) => {
   try {

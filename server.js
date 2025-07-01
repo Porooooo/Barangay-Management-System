@@ -107,7 +107,8 @@ app.use(cors({
   origin: [
     process.env.FRONTEND_URL,
     "https://barangay-management-system-eight.vercel.app",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://localhost:5500" // Add if testing locally
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
