@@ -719,85 +719,75 @@
         }
 
         // Handle form submission
-        document.getElementById('registerForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+document.getElementById('registerForm').addEventListener('submit', async function(event) {
+  event.preventDefault();
 
-            // Validate all pages before submission
-            for (let i = 1; i <= 4; i++) {
-                if (!validatePage(i)) {
-                    showPage(i); // Show the first page with errors
-                    return;
-                }
-            }
-            
-            // Validate passwords match
-            if (!validatePassword()) {
-                return;
-            }
+  // Validate all pages before submission
+  for (let i = 1; i <= 4; i++) {
+    if (!validatePage(i)) {
+      showPage(i); // Show the first page with errors
+      return;
+    }
+  }
+  
+  // Validate passwords match
+  if (!validatePassword()) {
+    return;
+  }
 
-            // Check password requirements are met
-            const password = document.getElementById('password').value;
-            if (password.length < 8 || !/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-                alert('Please ensure your password meets all requirements.');
-                return;
-            }
+  // Check password requirements are met
+  const password = document.getElementById('password').value;
+  if (password.length < 8 || !/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    alert('Please ensure your password meets all requirements.');
+    return;
+  }
 
-            // Check if terms are agreed
-            if (!document.getElementById('agreeTerms').checked) {
-                alert('Please certify that the information provided is true and correct.');
-                return;
-            }
+  // Check if terms are agreed
+  if (!document.getElementById('agreeTerms').checked) {
+    alert('Please certify that the information provided is true and correct.');
+    return;
+  }
 
-            const formData = new FormData();
-            // Personal Information
-            formData.append('lastName', document.getElementById('lastName').value);
-            formData.append('firstName', document.getElementById('firstName').value);
-            formData.append('birthdate', document.getElementById('birthdate').value);
-            formData.append('gender', document.getElementById('gender').value);
-            
-            // Contact Information
-            formData.append('email', document.getElementById('email').value);
-            formData.append('contactNumber', document.getElementById('contactNumber').value);
-            
-            // Append profile picture if selected
-            const profilePictureInput = document.getElementById('profilePicture');
-            if (profilePictureInput.files.length > 0) {
-                formData.append('profilePicture', profilePictureInput.files[0]);
-            }
-            
-            // Address Information
-            formData.append('houseNumber', document.getElementById('houseNumber').value);
-            formData.append('street', document.getElementById('street').value);
-            formData.append('barangay', document.getElementById('barangay').value);
-            
-            // Account Setup
-            formData.append('password', document.getElementById('password').value);
-            formData.append('confirmPassword', document.getElementById('confirmPassword').value);
+  const formData = new FormData();
+  // [All your formData.append() calls remain here...]
 
-            try {       
-                showLoading();
-                
-                const response = await fetch('https://barangay-management-system-qelm.onrender.com/auth/register', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include' // Important for sessions
-                });
+  // ====== REPLACE FROM HERE ======
+  try {       
+    showLoading();
+    
+    const response = await fetch('https://barangay-management-system-qelm.onrender.com/api/auth/register', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || errorData.error || 'Registration failed');
-                }
+    // First check if response is OK (status 200-299)
+    if (!response.ok) {
+      // Try to parse error response as JSON
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        // If not JSON, get the text
+        const text = await response.text();
+        throw new Error(`Server error: ${response.status} ${response.statusText} - ${text}`);
+      }
+      throw new Error(errorData.message || errorData.error || 'Registration failed');
+    }
 
-                const result = await response.json();
-                alert(result.message || 'Registration successful!');
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Registration error:', error);
-                alert(error.message || 'An error occurred during registration. Please try again.');
-            } finally {
-                hideLoading();
-            }
-        });
+    const result = await response.json();
+    alert(result.message || 'Registration successful!');
+    window.location.href = 'login.html';
+  } catch (error) {
+    console.error('Registration error:', error);
+    alert(error.message || 'An error occurred during registration. Please try again.');
+  } finally {
+    hideLoading();
+  }
+  // ====== TO HERE ======
+});
+
+// [Rest of your code remains the same...]
 
         // Add event listeners for password validation
         document.getElementById('confirmPassword').addEventListener('input', validatePassword);
