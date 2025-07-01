@@ -105,16 +105,12 @@ app.use(session({
 // Production-Grade CORS
 app.use(cors({
   origin: [
-    process.env.FRONTEND_URL,
-    "https://barangay-management-system-eight.vercel.app",
-    "http://localhost:3000",
-    "http://localhost:5500" // Add if testing locally
+    'https://barangay-management-system-eight.vercel.app',
+    'http://localhost:3000'
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['set-cookie'],
-  maxAge: 600
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Security Middleware
