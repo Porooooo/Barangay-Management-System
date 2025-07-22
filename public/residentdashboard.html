@@ -12,6 +12,53 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
 
+        /* Emergency Response Notification - Top Center Position */
+        .emergency-response-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #5ECF89;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 80%;
+            width: 400px;
+            animation: slideDown 0.3s forwards;
+        }
+
+        .emergency-response-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .emergency-response-content i {
+            font-size: 24px;
+        }
+
+        .emergency-response-content h4 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .emergency-response-content p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translate(-50%, 0); }
+            to { opacity: 0; transform: translate(-50%, -100%); }
+        }
+
         /* Sidebar */
         .sidebar {
             height: 100%;
@@ -57,7 +104,7 @@
 
         /* Main Content */
         .main-content {
-            margin-left: 250px; /* Adjust for sidebar width */
+            margin-left: 250px;
             padding: 20px;
         }
 
@@ -110,6 +157,9 @@
             }
             .main-content {
                 margin-left: 0;
+            }
+            .emergency-response-notification {
+                width: 90%;
             }
         }
 
@@ -457,7 +507,7 @@
           }
         });
         if (response.status === 401) {
-          window.location.href = "login.html";
+          window.location.href = "index.html";
           return null;
         }
         return response;
@@ -586,7 +636,7 @@
   
           if (response && response.ok) {
             localStorage.removeItem('userEmail');
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
           }
         } catch (error) {
           console.error('Logout error:', error);
@@ -611,9 +661,9 @@
         fetchResidentData();
       });
   
-      socket.on('emergency-response', (response) => {
-        if (response.userId === localStorage.getItem('userId')) {
-          showNotification(`Emergency response: ${response.message}`);
+      socket.on('emergencyResponse', (response) => {
+        if (response.residentId === localStorage.getItem('userId')) {
+          showEmergencyResponseNotification(response.message);
         }
       });
   
@@ -631,6 +681,36 @@
           alert(message);
         }
       }
+
+      function showEmergencyResponseNotification(message) {
+        if (Notification.permission === "granted") {
+            new Notification("Emergency Response", { 
+                body: `Admin response: ${message}` 
+            });
+        }
+        
+        // Create a popup notification in the UI at top center
+        const notification = document.createElement('div');
+        notification.className = 'emergency-response-notification';
+        notification.innerHTML = `
+            <div class="emergency-response-content">
+                <i class="uil uil-bell"></i>
+                <div>
+                    <h4>Emergency Response</h4>
+                    <p>${message}</p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 10 seconds with fade out animation
+        setTimeout(() => {
+            notification.style.animation = 'fadeOut 0.5s forwards';
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 10000);
+      }
   
       document.addEventListener('DOMContentLoaded', function () {
         authFetch('/api/auth/check-auth')
@@ -640,7 +720,7 @@
           })
           .then(data => {
             if (!data || !data.isAuthenticated) {
-              window.location.href = 'login.html';
+              window.location.href = 'index.html';
             } else {
               localStorage.setItem('userId', data.user.id);
               fetchResidentData();
@@ -648,7 +728,7 @@
           })
           .catch(error => {
             console.error('Auth check error:', error);
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
           });
   
         document.getElementById('logoutBtn').addEventListener('click', function (e) {

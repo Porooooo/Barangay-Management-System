@@ -197,55 +197,68 @@
     </style>
 </head>
 <body>
+    <!-- Navigation -->
     <nav>
         <div class="logo-name">
             <div class="logo-image">
-                <img src="images/barangay-bg.png" alt="BTMS Logo">
+                <img src="images/barangay-bg.png" alt="Barangay Logo">
             </div>
             <span class="logo_name">Resident Panel</span>
         </div>
+        
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="residentdashboard.html">
-                    <i class="uil uil-estate"></i>
-                    <span class="link-name">Dashboard</span>
-                </a></li>
-
-                <li><a href="requests.html">
-                    <i class="uil uil-file-alt"></i>
-                    <span class="link-name">Request Document</span>
-                </a></li>
-
-                <li><a href="blotter.html">
-                    <i class="uil uil-shield-exclamation"></i>
-                    <span class="link-name">Blotter</span>
-                </a></li>
-
-                <li><a href="residentRequests.html">
-                    <i class="uil uil-file-alt"></i>
-                    <span class="link-name">Your Requests</span>
-                </a></li>
-
-                <li><a href="resident-blotter.html">
-                    <i class="uil uil-shield-exclamation"></i>
-                    <span class="link-name">Your Blotter</span>
-                </a></li>
-
-                <li><a href="announcement.html">
-                    <i class="uil uil-bell"></i>
-                    <span class="link-name">Announcements</span>
-                </a></li>
-
-                <li><a href="profile.html">
-                    <i class="uil uil-user"></i>
-                    <span class="link-name">Profile</span>
-                </a></li>
+                <li>
+                    <a href="residentdashboard.html">
+                        <i class="uil uil-estate"></i>
+                        <span class="link-name">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="requests.html" class="active">
+                        <i class="uil uil-file-alt"></i>
+                        <span class="link-name">Request Document</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="blotter.html">
+                        <i class="uil uil-shield-exclamation"></i>
+                        <span class="link-name">Blotter</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="residentRequests.html">
+                        <i class="uil uil-file-alt"></i>
+                        <span class="link-name">Your Requests</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="resident-blotter.html">
+                        <i class="uil uil-shield-exclamation"></i>
+                        <span class="link-name">Your Blotter</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="announcement.html">
+                        <i class="uil uil-bell"></i>
+                        <span class="link-name">Announcements</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="profile.html">
+                        <i class="uil uil-user"></i>
+                        <span class="link-name">Profile</span>
+                    </a>
+                </li>
             </ul>
+            
             <ul class="logout-mode">
-                <li><a href="#" id="logoutBtn">
-                    <i class="uil uil-signout"></i>
-                    <span class="link-name">Logout</span>
-                </a></li>
+                <li>
+                    <a href="#" id="logoutBtn">
+                        <i class="uil uil-signout"></i>
+                        <span class="link-name">Logout</span>
+                    </a>
+                </li>
                 <li class="mode">
                     <a href="#">
                         <i class="uil uil-moon"></i>
@@ -259,6 +272,7 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <section class="dashboard">
         <div class="top">
             <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
@@ -267,51 +281,51 @@
         <div class="dash-content">
             <div class="form-container">
                 <h2>Request Document</h2>
-            <form id="documentRequestForm">
-                <!-- Full Name and Email fields are removed and auto-filled -->
-                <div class="form-group">
-                    <label for="address">Address:</label>
-                    <input type="text" id="address" name="address" required placeholder="Enter your address">
-                </div>
-
-                <div class="form-group">
-                    <label>Document Type (Select one or more):</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="barangayClearance" name="documentTypes" value="Barangay Clearance">
-                            <label for="barangayClearance">Barangay Clearance</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="businessPermit" name="documentTypes" value="Business Permit">
-                            <label for="businessPermit">Business Permit</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="certificateResidency" name="documentTypes" value="Certificate of Residency">
-                            <label for="certificateResidency">Certificate of Residency</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="certificateIndigency" name="documentTypes" value="Certificate of Indigency">
-                            <label for="certificateIndigency">Certificate of Indigency</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="otherDocument" name="documentTypes" value="Other">
-                            <label for="otherDocument">Other</label>
-                        </div>
+                <form id="documentRequestForm">
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <input type="text" id="address" name="address" required placeholder="Enter your complete address">
                     </div>
-                    <input type="text" id="otherDocumentInput" name="otherDocumentInput" class="other-document-input" placeholder="Please specify other document">
-                </div>
 
-                <div class="form-group">
-                    <label for="purpose">Purpose of Document:</label>
-                    <textarea id="purpose" name="purpose" rows="4" required placeholder="Enter the purpose of your document request"></textarea>
-                </div>
+                    <div class="form-group">
+                        <label>Document Type (Select one or more):</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="barangayClearance" name="documentTypes" value="Barangay Clearance">
+                                <label for="barangayClearance">Barangay Clearance</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="businessPermit" name="documentTypes" value="Business Permit">
+                                <label for="businessPermit">Business Permit</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="certificateResidency" name="documentTypes" value="Certificate of Residency">
+                                <label for="certificateResidency">Certificate of Residency</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="certificateIndigency" name="documentTypes" value="Certificate of Indigency">
+                                <label for="certificateIndigency">Certificate of Indigency</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="otherDocument" name="documentTypes" value="Other">
+                                <label for="otherDocument">Other (Please specify)</label>
+                            </div>
+                        </div>
+                        <input type="text" id="otherDocumentInput" name="otherDocumentInput" class="other-document-input" placeholder="Specify other document type">
+                    </div>
 
-                <div class="form-group">
-                    <input type="submit" value="Submit Request">
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label for="purpose">Purpose of Document:</label>
+                        <textarea id="purpose" name="purpose" required placeholder="Explain why you need this document"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Submit Request">
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    </section>
 
     <!-- Success Modal -->
     <div id="successModal" class="modal">
@@ -320,13 +334,20 @@
                 <i class="uil uil-check-circle"></i>
             </div>
             <h2 class="modal-title">Request Submitted Successfully!</h2>
-            <p class="modal-message">Your document request has been received. You can track the status in Your Requests section.</p>
+            <p class="modal-message">Your document request has been received. You can track the status in the "Your Requests" section.</p>
             <button class="modal-button" onclick="closeModalAndRedirect()">Continue</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
     <script>
+        // Toggle sidebar menu
+        function toggleMenu() {
+            const nav = document.querySelector("nav");
+            const dashboard = document.querySelector(".dashboard");
+            nav.classList.toggle("active");
+            dashboard.classList.toggle("active");
+        }
+
         // Toggle other document input field
         document.getElementById('otherDocument').addEventListener('change', function() {
             const otherInput = document.getElementById('otherDocumentInput');
@@ -366,7 +387,7 @@
             }
         }
     
-        // Fetch the logged-in user's profile data
+        // Fetch user profile data
         async function fetchUserProfile() {
             try {
                 const response = await fetch('/api/auth/profile', {
@@ -391,7 +412,6 @@
             if (user) {
                 document.getElementById('address').value = user.address || '';
                 
-                // Check if user is banned during page load
                 if (user.isBanned) {
                     alert('Your account has been disabled. You cannot submit document requests.');
                     window.location.href = '/residentdashboard.html';
@@ -399,8 +419,8 @@
             }
         }
     
-        // Show success modal
-        function showSuccessModal() {
+         // Show success modal
+         function showSuccessModal() {
             const modal = document.getElementById('successModal');
             modal.style.display = 'block';
         }
@@ -416,7 +436,6 @@
         document.getElementById('documentRequestForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // First check if user is banned
             const isAllowed = await checkUserStatus();
             if (!isAllowed) return;
             
@@ -446,7 +465,7 @@
                 purpose: document.getElementById('purpose').value.trim()
             };
     
-            // Validate form
+            // Basic validation
             if (!formData.address || !formData.purpose) {
                 alert('Please fill in all required fields');
                 return;
@@ -455,7 +474,9 @@
             try {
                 const response = await fetch('/api/requests', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(formData),
                     credentials: 'include'
                 });
@@ -463,10 +484,9 @@
                 const result = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(result.error || 'Failed to submit request');
+                    throw new Error(result.message || 'Failed to submit request');
                 }
     
-                // Show success modal instead of alert
                 showSuccessModal();
             } catch (error) {   
                 console.error('Error submitting request:', error);
@@ -474,26 +494,38 @@
             }
         });
     
-        // Initialize
+        // Initialize page
         window.addEventListener('DOMContentLoaded', async () => {
             await autoFillForm();
             
             // Disable form if user is banned
             const isAllowed = await checkUserStatus();
             if (!isAllowed) {
-                document.getElementById('documentRequestForm').querySelectorAll('input, select, textarea, button').forEach(element => {
+                document.querySelectorAll('#documentRequestForm input, #documentRequestForm textarea, #documentRequestForm button').forEach(element => {
                     element.disabled = true;
                 });
             }
         });
-        
-        // Sidebar Toggle Script
-        function toggleMenu() {
-            const sidebar = document.querySelector(".sidebar");
-            const mainContent = document.querySelector(".main-content");
-            sidebar.classList.toggle("active");
-            mainContent.classList.toggle("active");
-        }   
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/login.html';
+                } else {
+                    alert('Failed to logout. Please try again.');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('An error occurred during logout.');
+            }
+        });
     </script>
 </body>
 </html>

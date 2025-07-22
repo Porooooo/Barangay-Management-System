@@ -35,8 +35,7 @@ const requestSchema = new mongoose.Schema({
     purpose: { 
         type: String, 
         required: [true, "Purpose is required"],
-        trim: true,
-        minlength: [10, "Purpose must be at least 10 characters long"]
+        trim: true
     },
     status: { 
         type: String, 
@@ -76,7 +75,6 @@ const requestSchema = new mongoose.Schema({
             ret.id = ret._id.toString();
             delete ret._id;
             delete ret.__v;
-            // Include rejectionReason in the output
             if (ret.rejectionReason) {
                 ret.rejectionReason = ret.rejectionReason;
             }
@@ -105,12 +103,10 @@ requestSchema.virtual('formattedTime').get(function() {
     });
 });
 
-// Add pre-save hook to update updatedAt when status changes
+// Add pre-save hook
 requestSchema.pre('save', function(next) {
     if (this.isModified('status')) {
         this.updatedAt = new Date();
-        
-        // Clear rejection reason if status is changed from Rejected to something else
         if (this.status !== 'Rejected' && this.rejectionReason) {
             this.rejectionReason = undefined;
         }
@@ -118,7 +114,7 @@ requestSchema.pre('save', function(next) {
     next();
 });
 
-// Add index for frequently queried fields
+// Add indexes
 requestSchema.index({ status: 1, userId: 1 });
 requestSchema.index({ createdAt: -1 });
 requestSchema.index({ updatedAt: -1 });

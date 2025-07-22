@@ -415,7 +415,7 @@
                 </a></li>
             </ul>
             <ul class="logout-mode">
-                <li><a href="#" id="logoutBtn">
+                <li><a href="index.html">
                     <i class="uil uil-signout"></i>
                     <span class="link-name">Logout</span>
                 </a></li>
@@ -428,6 +428,10 @@
                         <span class="switch"></span>
                     </div>
                 </li>
+                <li><a href="admin-register.html">
+                    <i class="uil uil-users-alt"></i>
+                    <span class="link-name">Add New Admin</span>
+                </a></li>
             </ul>
         </div>
     </nav>
@@ -573,6 +577,9 @@
             checkAuthStatus();
             setupEventListeners();
             setupWebSocketListeners();
+            // Initialize with active requests
+            currentFilters.archive = false;
+            updateArchiveUI();
             fetchRequests();
         });
 
@@ -602,7 +609,6 @@
             });
     
             cleanupArchive.addEventListener('click', cleanupArchiveHandler);
-            logoutBtn.addEventListener('click', logoutUser);
         }
     
         function updateArchiveUI() {
@@ -896,14 +902,6 @@
             const mainContent = document.querySelector(".main-content");
             sidebar.classList.toggle("active");
             mainContent.classList.toggle("active");
-        }
-
-        function logoutUser(e) {
-            e.preventDefault();
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('token');
-                window.location.href = '/login.html';
-            }
         }
     </script>
 </body>

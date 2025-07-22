@@ -3,30 +3,12 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
-  // Basic Information
+  // Basic Information (required for all users)
   fullName: {
     type: String,
     required: [true, 'Full name is required'],
     trim: true
   },
-  firstName: {
-    type: String,
-    trim: true
-  },
-  lastName: {
-    type: String,
-    trim: true
-  },
-  middleName: {
-    type: String,
-    trim: true
-  },
-  suffix: {
-    type: String,
-    trim: true
-  },
-
-  // Contact Information
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -35,102 +17,6 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email address']
   },
-  contactNumber: {
-    type: String,
-    trim: true
-  },
-  alternateContact: {
-    type: String,
-    trim: true
-  },
-  address: {
-    type: String,
-    trim: true,
-    default: 'Barangay Hall'
-  },
-
-  // Personal Information
-  birthdate: {
-    type: Date,
-    default: new Date(2000, 0, 1),
-    set: function (val) {
-      if (!val) return null;
-      return val instanceof Date ? val : new Date(val);
-    }
-  },
-  gender: {
-    type: String,
-    enum: ['Male', 'Female', 'Other']
-  },
-  civilStatus: {
-    type: String,
-    enum: ['Single', 'Married', 'Widowed', 'Separated']
-  },
-
-  // Socio-Economic Information
-  occupation: {
-    type: String
-  },
-  educationalAttainment: {
-    type: String,
-    enum: [
-      'Elementary Graduate',
-      'High School Graduate',
-      'Vocational Graduate',
-      'College Graduate',
-      'Post Graduate',
-      'None'
-    ]
-  },
-  monthlyIncome: {
-    type: String,
-    enum: [
-      'Below 5,000',
-      '5,000-10,000',
-      '10,001-20,000',
-      '20,001-30,000',
-      '30,001-50,000',
-      'Above 50,000'
-    ]
-  },
-  homeowner: {
-    type: String,
-    enum: ['Yes', 'No']
-  },
-  yearsResiding: {
-    type: String,
-    enum: [
-      'Since birth',
-      '1-5 years',
-      '6-10 years',
-      '11-20 years',
-      '20+ years'
-    ]
-  },
-
-  // Special Categories
-  registeredVoter: {
-    type: Boolean,
-    default: false
-  },
-  fourPsMember: {
-    type: Boolean,
-    default: false
-  },
-  pwdMember: {
-    type: Boolean,
-    default: false
-  },
-  seniorCitizen: {
-    type: Boolean,
-    default: false
-  },
-  soloParent: {
-    type: Boolean,
-    default: false
-  },
-
-  // Account Information
   password: {
     type: String,
     required: [true, 'Password is required'],
@@ -151,25 +37,6 @@ const UserSchema = new mongoose.Schema({
     enum: ['Active', 'Inactive'],
     default: 'Active'
   },
-  isBanned: {
-    type: Boolean,
-    default: false
-  },
-
-  // Password Reset Fields
-  resetPasswordToken: {
-    type: String,
-    select: false
-  },
-  resetPasswordExpires: {
-    type: Date,
-    select: false
-  },
-  resetPasswordVerified: {
-    type: Boolean,
-    default: false,
-    select: false
-  },
 
   // Admin Specific Fields
   adminSpecificFields: {
@@ -179,11 +46,143 @@ const UserSchema = new mongoose.Schema({
     },
     department: {
       type: String
-    },
-    isSuperAdmin: {
-      type: Boolean,
-      default: false
     }
+  },
+
+  // Optional Fields (for residents, will be null for admins)
+  firstName: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  lastName: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  middleName: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  suffix: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  contactNumber: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  alternateContact: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  address: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  birthdate: {
+    type: Date,
+    default: null
+  },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other'],
+    default: null
+  },
+  civilStatus: {
+    type: String,
+    enum: ['Single', 'Married', 'Widowed', 'Separated'],
+    default: null
+  },
+  occupation: {
+    type: String,
+    default: null
+  },
+  educationalAttainment: {
+    type: String,
+    enum: [
+      'Elementary Graduate',
+      'High School Graduate',
+      'Vocational Graduate',
+      'College Graduate',
+      'Post Graduate',
+      'None'
+    ],
+    default: null
+  },
+  monthlyIncome: {
+    type: String,
+    enum: [
+      'Below 5,000',
+      '5,000-10,000',
+      '10,001-20,000',
+      '20,001-30,000',
+      '30,001-50,000',
+      'Above 50,000'
+    ],
+    default: null
+  },
+  homeowner: {
+    type: String,
+    enum: ['Yes', 'No'],
+    default: null
+  },
+  yearsResiding: {
+    type: String,
+    enum: [
+      'Since birth',
+      '1-5 years',
+      '6-10 years',
+      '11-20 years',
+      '20+ years'
+    ],
+    default: null
+  },
+  registeredVoter: {
+    type: Boolean,
+    default: null
+  },
+  fourPsMember: {
+    type: Boolean,
+    default: null
+  },
+  pwdMember: {
+    type: Boolean,
+    default: null
+  },
+  seniorCitizen: {
+    type: Boolean,
+    default: null
+  },
+  soloParent: {
+    type: Boolean,
+    default: null
+  },
+  isBanned: {
+    type: Boolean,
+    default: false
+  },
+
+  // Password Reset Fields
+  resetPasswordToken: {
+    type: String,
+    select: false,
+    default: null
+  },
+  resetPasswordExpires: {
+    type: Date,
+    select: false,
+    default: null
+  },
+  resetPasswordVerified: {
+    type: Boolean,
+    default: false,
+    select: false
   },
 
   // Timestamps

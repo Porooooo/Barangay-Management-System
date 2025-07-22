@@ -1,4 +1,3 @@
-// middleware/authMiddleware.js
 const User = require('../models/User');
 
 // Auth check
@@ -60,4 +59,4 @@ const adminMiddleware = async (req, res, next) => {
 module.exports = {
   authMiddleware,
   adminMiddleware
-};
+};  

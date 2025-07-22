@@ -5,23 +5,12 @@ const path = require("path");
 const fs = require("fs");
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const cloudinary = require('cloudinary').v2;
-const { promisify } = require('util');
-const stream = require('stream');
-const pipeline = promisify(stream.pipeline);
 const User = require("../models/User");
 
 const router = express.Router();
 
 // Set timezone to UTC for consistent time handling
 process.env.TZ = 'UTC';
-
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
 // Improved email transporter configuration
 const transporter = nodemailer.createTransport({
@@ -47,19 +36,36 @@ transporter.verify((error, success) => {
     }
 });
 
-// Multer configuration for temporary file storage
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-    files: 1
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed!"), false);
+// Multer configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, "../uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, "profile-" + uniqueSuffix + ext);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed!"), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 1
   }
 });
 
@@ -99,7 +105,7 @@ router.get("/debug-otp/:email", async (req, res) => {
     }
 });
 
-// View Profile - Updated with Cloudinary profile picture handling
+// View Profile - Updated with better profile picture handling
 router.get("/profile", async (req, res) => {
   if (!req.session.userId) {
     return res.status(401).json({
@@ -120,9 +126,16 @@ router.get("/profile", async (req, res) => {
     // Convert user to plain object
     const userObj = user.toObject();
 
+    // Check if profile picture exists in uploads folder
+    const profilePicturePath = path.join(__dirname, "../uploads", user.profilePicture);
+    const profilePictureExists = fs.existsSync(profilePicturePath) && 
+                              !user.profilePicture.startsWith('http');
+
     const responseData = {
       ...userObj,
-      profilePictureUrl: user.profilePicture || "https://res.cloudinary.com/dp5m6wkpc/image/upload/v1621234567/default-profile.png"
+      profilePictureUrl: profilePictureExists
+        ? `${req.protocol}://${req.get("host")}/uploads/${user.profilePicture}?${Date.now()}`
+        : `${req.protocol}://${req.get("host")}/images/default-profile.png`
     };
 
     return res.status(200).json(responseData);
@@ -135,7 +148,7 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-// Register User with Cloudinary
+// Register User
 router.post("/register", upload.single("profilePicture"), async (req, res) => {
   try {
     const formData = req.body;
@@ -150,6 +163,7 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     
     const missingFields = requiredFields.filter(field => !formData[field]);
     if (missingFields.length > 0) {
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({
         error: "Validation error",
         message: `Missing required fields: ${missingFields.join(', ')}`
@@ -159,6 +173,7 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({
         error: "Validation error",
         message: "Invalid email format"
@@ -167,6 +182,7 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
 
     // Validate password match
     if (formData.password !== formData.confirmPassword) {
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({
         error: "Validation error",
         message: "Passwords do not match"
@@ -176,48 +192,17 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     // Check for existing user
     const existingUser = await User.findOne({ email: formData.email });
     if (existingUser) {
+      if (file) fs.unlinkSync(file.path);
       return res.status(400).json({
         error: "Duplicate email",
         message: "Email already registered"
       });
     }
 
-    // Upload to Cloudinary if file exists
-    let profilePictureUrl = "https://res.cloudinary.com/dp5m6wkpc/image/upload/v1621234567/default-profile.png";
-    
-    if (file) {
-      // Create a temporary file path
-      const tempFilePath = path.join(__dirname, '..', 'temp', file.originalname);
-      
-      // Ensure temp directory exists
-      if (!fs.existsSync(path.dirname(tempFilePath))) {
-        fs.mkdirSync(path.dirname(tempFilePath), { recursive: true });
-      }
-
-      // Write buffer to temp file
-      await pipeline(
-        file.buffer,
-        fs.createWriteStream(tempFilePath)
-      );
-
-      // Upload to Cloudinary
-      const result = await cloudinary.uploader.upload(tempFilePath, {
-        folder: 'profile-pictures',
-        use_filename: true,
-        unique_filename: false,
-        resource_type: 'auto'
-      });
-
-      // Delete temp file
-      fs.unlinkSync(tempFilePath);
-
-      profilePictureUrl = result.secure_url;
-    }
-
     // Create address string
     const address = `${formData.houseNumber} ${formData.street}, ${formData.barangay}`;
 
-    // Create new user
+    // Create new user - let the pre-save hook handle password hashing
     const newUser = new User({
       fullName: `${formData.firstName} ${formData.lastName}`,
       firstName: formData.firstName,
@@ -227,8 +212,8 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
       address: address,
       birthdate: new Date(formData.birthdate),
       gender: formData.gender,
-      password: formData.password,
-      profilePicture: profilePictureUrl,
+      password: formData.password, // Will be hashed by pre-save hook
+      profilePicture: file ? file.filename : "default-profile.png",
       role: "resident"
     });
 
@@ -243,6 +228,7 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     req.session.save(err => {
       if (err) {
         console.error("Session save error:", err);
+        if (file) fs.unlinkSync(file.path);
         return res.status(500).json({
           error: "Session error",
           message: "Failed to save session"
@@ -255,12 +241,15 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
           id: newUser._id,
           email: newUser.email,
           fullName: newUser.fullName,
-          profilePictureUrl: profilePictureUrl,
+          profilePictureUrl: file
+            ? `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+            : `${req.protocol}://${req.get("host")}/images/default-profile.png`,
           role: newUser.role
         }
       });
     });
   } catch (error) {
+    if (req.file) fs.unlinkSync(req.file.path);
     console.error("Registration error:", error);
 
     if (error.name === "ValidationError") {
@@ -272,7 +261,7 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     if (error.code === "LIMIT_FILE_SIZE") {
       return res.status(400).json({ 
         error: "File too large", 
-        message: "Profile picture must be less than 10MB" 
+        message: "Profile picture must be less than 5MB" 
       });
     }
     if (error.message === "Only image files are allowed!") {
@@ -289,7 +278,7 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
   }
 });
 
-// User Login
+// User Login - Updated to use comparePassword method
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -321,7 +310,7 @@ router.post("/login", async (req, res) => {
     }
 
     console.log(`Comparing passwords for user: ${user.email}`);
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await user.comparePassword(password); // Using the model method
     console.log(`Password match result: ${isMatch}`);
     
     if (!isMatch) {
@@ -353,7 +342,9 @@ router.post("/login", async (req, res) => {
           email: user.email,
           fullName: user.fullName,
           isBanned: user.isBanned,
-          profilePictureUrl: user.profilePicture,
+          profilePictureUrl: user.profilePicture.startsWith("http")
+            ? user.profilePicture
+            : `${req.protocol}://${req.get("host")}/uploads/${user.profilePicture}`,
           role: user.role
         }
       });
@@ -367,10 +358,11 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Update Profile Picture with Cloudinary
+// Update Profile Picture - Updated with better file handling
 router.post("/update-profile-picture", upload.single("profilePicture"), async (req, res) => {
   try {
     if (!req.session.userId) {
+      if (req.file) fs.unlinkSync(req.file.path);
       return res.status(401).json({
         error: "Unauthorized",
         message: "Please log in to update profile picture"
@@ -379,52 +371,37 @@ router.post("/update-profile-picture", upload.single("profilePicture"), async (r
 
     const user = await User.findById(req.session.userId);
     if (!user) {
+      if (req.file) fs.unlinkSync(req.file.path);
       return res.status(404).json({
         error: "Not found",
         message: "User not found"
       });
     }
 
-    if (!req.file) {
-      return res.status(400).json({
-        error: "Validation error",
-        message: "Profile picture is required"
-      });
+    // Delete old profile picture if it exists and isn't the default
+    if (user.profilePicture && user.profilePicture !== "default-profile.png") {
+      const oldPath = path.join(__dirname, "../uploads", user.profilePicture);
+      if (fs.existsSync(oldPath)) {
+        try {
+          fs.unlinkSync(oldPath);
+        } catch (err) {
+          console.error("Error deleting old profile picture:", err);
+        }
+      }
     }
-
-    // Create a temporary file path
-    const tempFilePath = path.join(__dirname, '..', 'temp', req.file.originalname);
-    
-    // Ensure temp directory exists
-    if (!fs.existsSync(path.dirname(tempFilePath))) {
-      fs.mkdirSync(path.dirname(tempFilePath), { recursive: true });
-    }
-
-    // Write buffer to temp file
-    await pipeline(
-      req.file.buffer,
-      fs.createWriteStream(tempFilePath)
-    );
-
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(tempFilePath, {
-      folder: 'profile-pictures',
-      use_filename: true,
-      unique_filename: false
-    });
-
-    // Delete temp file
-    fs.unlinkSync(tempFilePath);
 
     // Update user's profile picture
-    user.profilePicture = result.secure_url;
+    user.profilePicture = req.file.filename;
     await user.save();
 
+    // Return the new profile picture URL with timestamp to prevent caching
+    const timestamp = Date.now();
     return res.status(200).json({
       message: "Profile picture updated successfully",
-      profilePictureUrl: result.secure_url
+      profilePictureUrl: `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}?${timestamp}`
     });
   } catch (error) {
+    if (req.file) fs.unlinkSync(req.file.path);
     console.error("Update profile picture error:", error);
     return res.status(500).json({
       error: "Server error",
@@ -470,35 +447,6 @@ router.post("/:userId/ban", async (req, res) => {
       error: "Server error",
       message: "Failed to ban user"
     });
-  }
-});
-
-//check-session route
-router.get('/check-session', async (req, res) => {
-  try {
-    if (!req.session.userId) {
-      return res.json({ isAuthenticated: false });
-    }
-
-    const user = await User.findById(req.session.userId).select('-password');
-    if (!user) {
-      return res.json({ isAuthenticated: false });
-    }
-    
-    return res.json({
-      isAuthenticated: true,
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        fullName: user.fullName,
-        isBanned: user.isBanned,
-        profilePictureUrl: user.profilePicture
-      }
-    });
-  } catch (error) {
-    console.error("Error checking session:", error);
-    res.json({ isAuthenticated: false });
   }
 });
 
@@ -563,7 +511,9 @@ router.get('/check-auth', async (req, res) => {
         role: user.role,
         fullName: user.fullName,
         isBanned: user.isBanned,
-        profilePictureUrl: user.profilePicture
+        profilePictureUrl: user.profilePicture.startsWith("http")
+          ? user.profilePicture
+          : `${req.protocol}://${req.get("host")}/uploads/${user.profilePicture}`
       }
     });
   } catch (error) {

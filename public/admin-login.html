@@ -150,19 +150,19 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(loginData),
-          credentials: 'include' // Required for session cookie to be sent
+          credentials: 'include'
         });
 
         const result = await response.json();
 
         if (response.ok) {
-          localStorage.setItem('token', result.token || 'session-based'); // Optional: only needed if using JWT
-          localStorage.setItem('user', JSON.stringify(result.user)); // Optional: store user info
+          localStorage.setItem('token', result.token || 'session-based');
+          localStorage.setItem('user', JSON.stringify(result.user));
 
           alert(result.message);
-          window.location.href = result.redirect;
+          window.location.href = result.redirect || 'admin-dashboard.html';
         } else {
-          alert(result.error || "Login failed.");
+          alert(result.error || result.message || "Login failed.");
         }
       } catch (error) {
         console.error('Error:', error);

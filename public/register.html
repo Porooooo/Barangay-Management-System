@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <title>Register</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
@@ -353,43 +352,10 @@
         .password-requirements li.requirement-not-met {
             color: #888;
         }
-
-        /* Loading indicator */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #f3e0b6;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-    </div>
-
     <!-- Main Content -->
     <div class="container">
         <div class="left-section">
@@ -464,9 +430,8 @@
                             <input type="text" id="contactNumber" name="contactNumber" placeholder="Contact Number" required>
                         </div>
                         <div class="form-column">
-                            <label for="profilePicture" class="file-upload-label">Profile Picture (Required):</label>
+                            <label for="profilePicture" class="file-upload-label">ID Picture (Required):</label>
                             <input type="file" id="profilePicture" name="profilePicture" accept="image/*" required>
-                            <div class="error-message" id="file-error">Only image files are allowed (JPG, PNG, GIF)</div>
                         </div>
                     </div>
                     
@@ -611,20 +576,6 @@
                     email.classList.add('input-error');
                     isValid = false;
                 }
-                
-                // Validate profile picture file type
-                const profilePicture = document.getElementById('profilePicture');
-                if (profilePicture.files.length > 0) {
-                    const file = profilePicture.files[0];
-                    if (!file.type.startsWith('image/')) {
-                        document.getElementById('file-error').style.display = 'block';
-                        profilePicture.classList.add('input-error');
-                        isValid = false;
-                    } else {
-                        document.getElementById('file-error').style.display = 'none';
-                        profilePicture.classList.remove('input-error');
-                    }
-                }
             }
             
             if (!isValid) {
@@ -708,109 +659,73 @@
             }
         }
 
-        // Show loading overlay
-        function showLoading() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
-        }
-
-        // Hide loading overlay
-        function hideLoading() {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-
         // Handle form submission
-document.getElementById('registerForm').addEventListener('submit', async function(event) {
-  event.preventDefault();
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
 
-  // Validate all pages before submission
-  for (let i = 1; i <= 4; i++) {
-    if (!validatePage(i)) {
-      showPage(i); // Show the first page with errors
-      return;
-    }
-  }
-  
-  // Validate passwords match
-  if (!validatePassword()) {
-    return;
-  }
+            // Validate all pages before submission
+            for (let i = 1; i <= 4; i++) {
+                if (!validatePage(i)) {
+                    showPage(i); // Show the first page with errors
+                    return;
+                }
+            }
+            
+            // Validate passwords match
+            if (!validatePassword()) {
+                return;
+            }
 
-  // Check password requirements are met
-  const password = document.getElementById('password').value;
-  if (password.length < 8 || !/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    alert('Please ensure your password meets all requirements.');
-    return;
-  }
+            // Check password requirements are met
+            const password = document.getElementById('password').value;
+            if (password.length < 8 || !/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                alert('Please ensure your password meets all requirements.');
+                return;
+            }
 
-  // Check if terms are agreed
-  if (!document.getElementById('agreeTerms').checked) {
-    alert('Please certify that the information provided is true and correct.');
-    return;
-  }
+            const formData = new FormData();
+            // Personal Information
+            formData.append('lastName', document.getElementById('lastName').value);
+            formData.append('firstName', document.getElementById('firstName').value);
+            formData.append('birthdate', document.getElementById('birthdate').value);
+            formData.append('gender', document.getElementById('gender').value);
+            
+            // Contact Information
+            formData.append('email', document.getElementById('email').value);
+            formData.append('contactNumber', document.getElementById('contactNumber').value);
+            formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
+            
+            // Address Information
+            formData.append('houseNumber', document.getElementById('houseNumber').value);
+            formData.append('street', document.getElementById('street').value);
+            formData.append('barangay', document.getElementById('barangay').value);
+            
+            // Account Setup
+            formData.append('password', document.getElementById('password').value);
+            formData.append('confirmPassword', document.getElementById('confirmPassword').value);
 
-  const formData = new FormData();
-  // [All your formData.append() calls remain here...]
+            try {       
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include' // Important for sessions
+                });
 
-  // ====== REPLACE FROM HERE ======
-  try {
-  showLoading();
-  
-  const response = await fetch('https://barangay-management-system-qelm.onrender.com/api/auth/register', {
-    method: 'POST',
-    body: formData,
-    credentials: 'include'
-  });
-
-  const responseData = await response.text(); // First read as text
-  let result;
-  
-  try {
-    result = JSON.parse(responseData); // Try to parse as JSON
-  } catch {
-    throw new Error(responseData || 'Invalid server response');
-  }
-
-  if (!response.ok) {
-    throw new Error(result.message || result.error || 'Registration failed');
-  }
-
-  alert(result.message || 'Registration successful!');
-  window.location.href = 'login.html';
-} catch (error) {
-  console.error('Registration error:', error);
-  alert(error.message || 'An error occurred during registration. Please try again.');
-} finally {
-  hideLoading();
-}
-  // ====== TO HERE ======
-});
-
-// [Rest of your code remains the same...]
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.href = 'login.html';
+                } else {
+                    alert(result.message || result.error || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while registering.');
+            }
+        });
 
         // Add event listeners for password validation
         document.getElementById('confirmPassword').addEventListener('input', validatePassword);
-
-        // File input validation
-        document.getElementById('profilePicture').addEventListener('change', function() {
-            const file = this.files[0];
-            const errorElement = document.getElementById('file-error');
-            
-            if (file) {
-                if (!file.type.startsWith('image/')) {
-                    errorElement.style.display = 'block';
-                    this.classList.add('input-error');
-                } else {
-                    errorElement.style.display = 'none';
-                    this.classList.remove('input-error');
-                    
-                    // Check file size (10MB limit)
-                    if (file.size > 10 * 1024 * 1024) {
-                        alert('Profile picture must be less than 10MB');
-                        this.value = '';
-                    }
-                }
-            }
-        });
     </script>
 </body>
 </html>

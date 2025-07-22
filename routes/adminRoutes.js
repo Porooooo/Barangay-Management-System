@@ -1,4 +1,3 @@
-// routes/adminRoutes.js
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
@@ -6,13 +5,16 @@ const { authMiddleware, adminMiddleware } = require("../middleware/authMiddlewar
 
 const router = express.Router();
 
-// ✅ Admin Registration (only accessible by super admin)
-router.post("/register", authMiddleware, adminMiddleware, async (req, res) => {
+// Special route for initial admin registration (only works when no admins exist)
+router.post("/initial-register", async (req, res) => {
   try {
-    // Check if current user is super admin
-    const currentAdmin = await User.findById(req.session.userId);
-    if (!currentAdmin?.adminSpecificFields?.isSuperAdmin) {
-      return res.status(403).json({ error: "❌ Only super admins can register new admins" });
+    // Check if any admin already exists
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (existingAdmin) {
+      return res.status(403).json({ 
+        error: "Forbidden",
+        message: "Initial admin already exists. Please log in to create new admins."
+      });
     }
 
     const {
@@ -34,26 +36,65 @@ router.post("/register", authMiddleware, adminMiddleware, async (req, res) => {
       return res.status(409).json({ error: "❌ Email already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAdmin = new User({
+      fullName,
+      email,
+      password,
+      role: "admin",
+      adminSpecificFields: {
+        position,
+        department
+      }
+    });
 
-    // Default fields for admin registration
-    const defaultFields = {
-      contactNumber: "N/A",
-      address: "Barangay Hall",
-      birthdate: new Date(2000, 0, 1),
-      status: "Active",
-      role: "admin"
-    };
+    await newAdmin.save();
+
+    return res.status(201).json({
+      message: "✅ Initial admin registered successfully",
+      user: {
+        id: newAdmin._id,
+        email: newAdmin.email,
+        fullName: newAdmin.fullName,
+        role: newAdmin.role,
+        position: newAdmin.adminSpecificFields.position
+      }
+    });
+  } catch (error) {
+    console.error("Initial admin registration error:", error);
+    return res.status(500).json({ error: "❌ Internal server error" });
+  }
+});
+
+// Admin Registration (only accessible by admins)
+router.post("/register", authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const {
+      fullName,
+      email,
+      password,
+      position,
+      department
+    } = req.body;
+
+    // Validate required fields
+    if (!fullName || !email || !password || !position || !department) {
+      return res.status(400).json({ error: "❌ Missing required fields" });
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ error: "❌ Email already exists" });
+    }
 
     const newAdmin = new User({
       fullName,
       email,
-      password: hashedPassword,
-      ...defaultFields,
+      password,
+      role: "admin",
       adminSpecificFields: {
         position,
-        department,
-        isSuperAdmin: false // Only super admins can create other super admins
+        department
       }
     });
 
@@ -75,32 +116,40 @@ router.post("/register", authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Admin Login
+// Admin Login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const admin = await User.findOne({ email, role: 'admin' }).select("+password");
-    if (!admin) {
-      return res.status(400).json({ error: "❌ Admin not found" });
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      return res.status(400).json({ error: "❌ User not found" });
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    // Check if user is an admin
+    if (user.role !== 'admin') {
+      return res.status(403).json({ 
+        error: "Forbidden",
+        message: "Admin login only. Please use the regular user login."
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: "❌ Invalid credentials" });
     }
 
-    req.session.userId = admin._id;
-    req.session.role = admin.role;
-    req.session.userEmail = admin.email;
+    req.session.userId = user._id;
+    req.session.role = user.role;
+    req.session.userEmail = user.email;
 
     return res.status(200).json({
       message: "✅ Login successful",
       user: {
-        id: admin._id,
-        email: admin.email,
-        fullName: admin.fullName,
-        role: admin.role
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role
       },
       redirect: "/admin-dashboard.html"
     });
@@ -110,7 +159,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ✅ Admin Session Check
+// Admin Session Check
 router.get("/check-auth", (req, res) => {
   if (!req.session.userId || req.session.role !== 'admin') {
     return res.json({ isAuthenticated: false });
@@ -126,7 +175,7 @@ router.get("/check-auth", (req, res) => {
   });
 });
 
-// ✅ Fetch All Users (Admin Only)
+// Fetch All Users (Admin Only)
 router.get("/users", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const users = await User.find().select("-password");

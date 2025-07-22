@@ -1,7 +1,7 @@
 const express = require("express");
 const Request = require("../models/Request");
 const User = require("../models/User");
-const { format, isValid, subMonths } = require('date-fns');
+const { format, isValid } = require('date-fns');
 
 const router = express.Router();
 
@@ -41,6 +41,7 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { fullName, address, documentTypes, purpose } = req.body;
 
+        // Basic validation
         if (!fullName || !address || !documentTypes || !purpose) {
             return res.status(400).json({ 
                 error: "Validation error", 
@@ -62,6 +63,7 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
+        // Create new request
         const newRequest = new Request({
             fullName,
             email: req.session.userEmail,
@@ -74,13 +76,16 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
 
         await newRequest.save();
 
+        // Format dates for response
         const createdAt = new Date(newRequest.createdAt);
         const formattedRequest = {
-            ...newRequest._doc,
+            ...newRequest.toObject(),
+            id: newRequest._id.toString(),
             formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
             formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
         };
 
+        // Emit real-time update
         req.app.get('io').emit('request-update', {
             type: 'created',
             request: formattedRequest
@@ -99,16 +104,15 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Get all requests (for admin)
+// Get all requests (admin view)
 router.get("/", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { status, documentType, startDate, endDate, search, archive } = req.query;
         let query = {};
 
+        // Build query based on parameters
         if (archive === 'true') {
-            query = {
-                status: { $in: ['Approved', 'Rejected', 'Claimed'] }
-            };
+            query.status = { $in: ['Approved', 'Rejected', 'Claimed'] };
         } else {
             query.status = status || { $in: ['Pending', 'Approved', 'Ready to Claim'] };
         }
@@ -132,14 +136,18 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
             ];
         }
 
-        const requests = await Request.find(query).sort({ createdAt: -1 }).lean();
+        // Fetch requests
+        const requests = await Request.find(query)
+            .sort({ createdAt: -1 })
+            .lean();
 
+        // Format response
         const formattedRequests = requests.map(request => {
             const createdAt = new Date(request.createdAt);
             const updatedAt = new Date(request.updatedAt);
             return {
                 ...request,
-                id: request._id,
+                id: request._id.toString(),
                 documentType: Array.isArray(request.documentTypes) 
                     ? request.documentTypes.join(', ') 
                     : request.documentTypes || 'N/A',
@@ -159,19 +167,19 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Get requests for the logged-in user
+// Get requests for logged-in user
 router.get("/user", verifySession, checkNotBanned, async (req, res) => {
     try {
         const requests = await Request.find({ 
             userId: req.session.userId,
-            status: { $ne: "Claimed" } // Exclude claimed requests
+            status: { $ne: "Claimed" }
         }).sort({ createdAt: -1 }).lean();
 
         const formattedRequests = requests.map(request => {
             const createdAt = new Date(request.createdAt);
             return {
                 ...request,
-                id: request._id,
+                id: request._id.toString(),
                 documentType: Array.isArray(request.documentTypes) 
                     ? request.documentTypes.join(', ') 
                     : request.documentTypes || 'N/A',
@@ -190,7 +198,7 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Approve a request
+// Approve request
 router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
@@ -211,7 +219,8 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
 
         const createdAt = new Date(request.createdAt);
         const formattedRequest = {
-            ...request._doc,
+            ...request.toObject(),
+            id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
@@ -237,7 +246,7 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Reject a request (updated with rejection reason)
+// Reject request with reason
 router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { rejectionReason } = req.body;
@@ -268,7 +277,8 @@ router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
 
         const createdAt = new Date(request.createdAt);
         const formattedRequest = {
-            ...request._doc,
+            ...request.toObject(),
+            id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
@@ -315,7 +325,8 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
 
         const createdAt = new Date(request.createdAt);
         const formattedRequest = {
-            ...request._doc,
+            ...request.toObject(),
+            id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
@@ -356,21 +367,22 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
         if (!request) {
             return res.status(404).json({ 
                 error: "Not found", 
-                message: "Request not found" 
+                message: "Request not found",
+                success: false
             });
         }
 
-        // Verify the requesting user owns this request
         if (request.userId.toString() !== req.session.userId) {
             return res.status(403).json({
                 error: "Forbidden",
-                message: "You can only claim your own requests"
+                message: "You can only claim your own requests",
+                success: false
             });
         }
 
         const createdAt = new Date(request.createdAt);
         const formattedRequest = {
-            ...request._doc,
+            ...request.toObject(),
             id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
@@ -399,8 +411,7 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Delete a rejected request (user can only delete their own rejected requests)
-// Delete a rejected request (user can only delete their own rejected requests)
+// Delete rejected request
 router.delete("/:id", verifySession, checkNotBanned, async (req, res) => {
     try {
         const request = await Request.findById(req.params.id);
@@ -413,7 +424,6 @@ router.delete("/:id", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        // Verify the requesting user owns this request and it's rejected
         if (request.userId.toString() !== req.session.userId) {
             return res.status(403).json({
                 error: "Forbidden",
@@ -451,7 +461,7 @@ router.delete("/:id", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Clean up ALL archived requests
+// Clean up archived requests
 router.post("/cleanup", verifySession, checkNotBanned, async (req, res) => {
     try {
         const result = await Request.deleteMany({
