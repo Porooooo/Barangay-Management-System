@@ -10,14 +10,13 @@ const { Server } = require('socket.io');
 const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 
-// Import the cleanup scheduler
 const { startCleanupSchedule } = require('./middleware/announcementCleanup');
 const { authMiddleware, adminMiddleware } = require('./middleware/authMiddleware');
 
 const app = express();
 const server = http.createServer(app);
 
-// Enhanced Socket.IO configuration
+// 🔁 Updated CORS for Socket.IO
 const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
@@ -27,10 +26,9 @@ const io = new Server(server, {
   }
 });
 
-// Port Configuration
 const PORT = process.env.PORT || 3000;
 
-// Enhanced MongoDB Atlas Connection
+// ✅ Updated MongoDB Atlas Connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -41,23 +39,21 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(() => {
   console.log("✅ Connected to MongoDB Atlas");
-  
-  // Start the announcement cleanup scheduler
   startCleanupSchedule();
 })
 .catch(err => {
   console.error("❌ MongoDB Atlas Connection Error:", err);
-  process.exit(1); // Exit if DB connection fails
+  process.exit(1);
 });
 
-// Ensure Uploads Folder Exists
+// 📁 Ensure uploads directory
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('📁 Created uploads directory');
 }
 
-// Serve Uploads with proper caching headers
+// 🔁 Serve Uploads
 app.use('/uploads', express.static(uploadsDir, {
   setHeaders: (res, filePath) => {
     if (filePath.match(/\.(jpg|jpeg|png|gif|pdf|docx)$/)) {
@@ -68,7 +64,7 @@ app.use('/uploads', express.static(uploadsDir, {
   }
 }));
 
-// Serve static files from public directory
+// 🔁 Serve Public Assets
 app.use(express.static(path.join(__dirname, "public"), {
   setHeaders: (res, filePath) => {
     if (filePath.match(/\.(css|js|html|json)$/)) {
@@ -77,7 +73,7 @@ app.use(express.static(path.join(__dirname, "public"), {
   }
 }));
 
-// Default profile picture handler
+// Default Profile Image
 app.get('/images/default-profile.png', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'images', 'default-profile.png'), {
     headers: {
@@ -88,32 +84,32 @@ app.get('/images/default-profile.png', (req, res) => {
   });
 });
 
-// Session Store Configuration for Atlas
+// 🧠 Session Store in MongoDB
 const sessionStore = MongoStore.create({
   mongoUrl: process.env.MONGO_URI,
   collectionName: 'sessions',
-  ttl: 14 * 24 * 60 * 60, // 14 days expiration
-  autoRemove: 'native' // Native MongoDB TTL index
+  ttl: 14 * 24 * 60 * 60,
+  autoRemove: 'native'
 });
 
-// Enhanced Session Configuration
+// 🍪 Updated Session Config with Render domain
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+    maxAge: 14 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
+    domain: process.env.NODE_ENV === 'production' ? 'barangay-management-system-1-xfkw.onrender.com' : undefined
   },
-  name: 'btms.sid', // Custom session cookie name
-  rolling: true // Reset maxAge on every request
+  name: 'btms.sid',
+  rolling: true
 }));
 
-// Enhanced CORS Configuration
+// 🔁 Updated CORS Middleware
 const corsOptions = {
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true,
@@ -123,28 +119,26 @@ const corsOptions = {
   maxAge: 86400
 };
 app.use(cors(corsOptions));
-
-// Preflight OPTIONS handling
 app.options('*', cors(corsOptions));
 
-// Enhanced Middleware
+// 📦 Parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Make Socket Available
+// ⚡ Make Socket Available to Routes
 app.set('io', io);
 
-// Rate limiting middleware
+// 🔐 Rate Limit
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // limit each IP to 500 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 500,
   message: 'Too many requests from this IP, please try again later',
   standardHeaders: true,
   legacyHeaders: false
 });
 app.use(limiter);
 
-// Routes
+// 🛣️ Routes
 const authRoutes = require("./routes/authRoutes");
 const residentRoutes = require("./routes/residentRoutes");
 const blotterRoutes = require("./routes/blotterRoutes");
@@ -161,7 +155,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/announcements", announceRoutes);
 app.use("/api/emergency", emergencyRoutes);
 
-// Protected HTML Routes with enhanced security headers
+// 🔐 Protected HTML Routes
 const setSecurityHeaders = (req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -181,12 +175,12 @@ app.get("/residentdashboard.html", setSecurityHeaders, authMiddleware, (req, res
   res.sendFile(path.join(__dirname, "public", "residentdashboard.html"));
 });
 
-// Default Route
+// 📍 Home
 app.get("/", setSecurityHeaders, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Enhanced Health Check
+// 🩺 Health Check
 app.get('/health', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.status(200).json({ 
@@ -197,7 +191,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Socket.IO Connection with enhanced events
+// 📡 Socket.IO Events
 io.on('connection', (socket) => {
   console.log('📡 New user connected:', socket.id);
   
@@ -214,11 +208,10 @@ io.on('connection', (socket) => {
   });
 });
 
-// Enhanced Error Handling
+// ❗ Error Handler
 app.use((err, req, res, next) => {
   console.error(`[${new Date().toISOString()}] Error:`, err.stack);
-  
-  // Different error handling for API vs HTML routes
+
   if (req.originalUrl.startsWith('/api')) {
     res.status(500).json({ 
       error: 'Internal Server Error',
@@ -229,7 +222,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-// 404 Handler
+// ❓ 404 Not Found
 app.use((req, res) => {
   if (req.originalUrl.startsWith('/api')) {
     res.status(404).json({ error: 'Endpoint not found' });
@@ -238,7 +231,7 @@ app.use((req, res) => {
   }
 });
 
-// Server startup with graceful shutdown
+// 🛑 Graceful Shutdown
 const gracefulShutdown = () => {
   console.log('🛑 Shutting down gracefully...');
   server.close(() => {
@@ -253,7 +246,7 @@ const gracefulShutdown = () => {
 process.on('SIGINT', gracefulShutdown);
 process.on('SIGTERM', gracefulShutdown);
 
-// Start Server
+// 🚀 Start Server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 Access via: ${process.env.FRONTEND_URL || `http://localhost:${PORT}`}`);
