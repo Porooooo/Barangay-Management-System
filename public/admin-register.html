@@ -49,9 +49,40 @@
         .modal-content button:hover {
             background-color: #e3d3a8;
         }
+        .loading {
+            display: none;
+            margin-top: 10px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
+    <!-- Check if user is logged in as admin -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+
+                const response = await fetch('/api/admin/check-auth', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                if (!data.isAuthenticated || !data.user || data.user.role !== 'admin') {
+                    window.location.href = 'admin-login.html';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = 'admin-login.html';
+            }
+        });
+    </script>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -74,7 +105,8 @@
                     <option value="Barangay Treasurer Office">Barangay Treasurer Office</option>
                 </select>
                 <input type="password" id="password" placeholder="Password" required>
-                <button type="submit">Register</button>
+                <button type="submit" id="submitBtn">Register</button>
+                <div id="loadingIndicator" class="loading">Processing...</div>
             </form>
         </div>
     </div>
@@ -83,6 +115,12 @@
         // Handle form submission
         document.getElementById('adminRegisterForm').addEventListener('submit', async function(event) {
             event.preventDefault();
+            
+            // Disable submit button and show loading indicator
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            submitBtn.disabled = true;
+            loadingIndicator.style.display = 'block';
 
             const adminData = {
                 fullName: document.getElementById('fullName').value,
@@ -93,10 +131,18 @@
             };
 
             try {
-                const response = await fetch('/api/admin/initial-register', {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Please log in as admin first');
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+
+                const response = await fetch('/api/admin/register', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(adminData)
                 });
@@ -104,13 +150,17 @@
                 const result = await response.json();
                 if (response.ok) {
                     alert(result.message);
-                    window.location.href = 'admin-login.html';
+                    window.location.href = 'admin-dashboard.html';
                 } else {
                     alert(result.error || result.message || 'Registration failed');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred while registering.');
+            } finally {
+                // Re-enable submit button and hide loading indicator
+                submitBtn.disabled = false;
+                loadingIndicator.style.display = 'none';
             }
         });
     </script>

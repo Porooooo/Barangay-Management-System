@@ -3,23 +3,46 @@ const User = require('../models/User');
 // Auth check
 const authMiddleware = async (req, res, next) => {
   try {
-    if (!req.session.userId) {
-      return res.status(401).json({
-        error: "Unauthorized",
-        message: "Please log in to access this resource"
-      });
+    // Check session-based auth first
+    if (req.session && req.session.userId) {
+      const user = await User.findById(req.session.userId);
+      if (!user) {
+        return res.status(401).json({ 
+          error: "Unauthorized",
+          message: "User not found" 
+        });
+      }
+      req.user = user;
+      return next();
     }
 
-    const user = await User.findById(req.session.userId);
-    if (!user) {
-      return res.status(401).json({ 
-        error: "Unauthorized",
-        message: "User not found" 
-      });
+    // Check token-based auth if no session
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        if (!user) {
+          return res.status(401).json({ 
+            error: "Unauthorized",
+            message: "User not found" 
+          });
+        }
+        req.user = user;
+        return next();
+      } catch (err) {
+        return res.status(401).json({ 
+          error: "Unauthorized",
+          message: "Invalid token" 
+        });
+      }
     }
 
-    req.user = user;
-    next();
+    // No auth found
+    return res.status(401).json({
+      error: "Unauthorized",
+      message: "Please log in to access this resource"
+    });
   } catch (error) {
     console.error("Auth Middleware Error:", error);
     res.status(500).json({ 
@@ -59,4 +82,4 @@ const adminMiddleware = async (req, res, next) => {
 module.exports = {
   authMiddleware,
   adminMiddleware
-};  
+};

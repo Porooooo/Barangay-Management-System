@@ -600,7 +600,7 @@
                         <span class="switch"></span>
                     </div>
                 </li>
-                <li><a href="admin-register.html">
+                <li><a href="admin-register.html" id="adminRegisterLink">
                     <i class="uil uil-users-alt"></i>
                     <span class="link-name">Add New Admin</span>
                 </a></li>
@@ -725,7 +725,32 @@
             const mainContent = document.querySelector(".main-content");
             sidebar.classList.toggle("active");
             mainContent.classList.toggle("active");
-        }  
+        } 
+        
+        // Add this script to check admin privileges before showing the register link
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                document.getElementById('adminRegisterLink').style.display = 'none';
+                return;
+            }
+
+            const response = await fetch('/api/admin/check-auth', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            if (!data.isAuthenticated || !data.user || data.user.role !== 'admin') {
+                document.getElementById('adminRegisterLink').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            document.getElementById('adminRegisterLink').style.display = 'none';
+        }
+    });
         
         // Function to update emergency alert count
         function updateEmergencyAlertCount() {
