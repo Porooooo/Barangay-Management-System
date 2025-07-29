@@ -393,6 +393,63 @@
         .form-column {
             margin-bottom: 10px;
         }
+
+        /* Success Modal Styles */
+        .success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .success-modal-content {
+            background: white;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .success-modal h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .success-modal p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .success-modal button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .success-modal button:hover {
+            background-color: #45a049;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -654,6 +711,18 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div class="success-modal" id="successModal">
+        <div class="success-modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Registration Successful!</h2>
+            <p>Your account has been created successfully. You can now login with your credentials.</p>
+            <button onclick="redirectToLogin()">Go to Login Page</button>
+        </div>
+    </div>
+
     <script>
         // Open Modal
         function openModal() {
@@ -822,6 +891,17 @@
             }
         }
 
+        // Show success modal
+        function showSuccessModal() {
+            closeModal(); // Close the registration modal
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        // Redirect to login page
+        function redirectToLogin() {
+            window.location.href = 'login.html';
+        }
+
         // Handle form submission
         document.getElementById('registerForm').addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -892,8 +972,8 @@
 
                 const result = await response.json();
                 if (response.ok) {
-                    alert(result.message);
-                    window.location.href = 'login.html';
+                    // Show success modal instead of alert
+                    showSuccessModal();
                 } else {
                     alert(result.message || result.error || 'Registration failed');
                 }
