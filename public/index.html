@@ -1,12 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#3367D6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Brgy. Talipapa Management System</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary-color: #3367D6;
+      --secondary-color: #f3e0b6;
+      --text-color: #333;
+      --white: #ffffff;
+    }
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       font-family: 'Poppins', sans-serif;
@@ -14,180 +32,190 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      line-height: 1.5;
     }
 
+    /* Header */
     .header {
       display: flex;
       align-items: center;
-      background-color: rgba(255, 255, 255, 0.6);
-      padding: 10px 20px;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-      backdrop-filter: blur(5px);
-      flex-shrink: 0;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .header img {
-      height: 50px;
-      margin-right: 15px;
+      height: 40px;
+      margin-right: 10px;
     }
 
     .header h1 {
-      font-size: 20px;
-      color: #333;
+      font-size: 18px;
+      color: var(--text-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
+    /* Main Container */
     .container {
       display: flex;
-      background-color: #ffffff;
-      border-radius: 20px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      max-width: 750px;
-      width: 85%;
-      height: 420px;
-      margin: 30px auto;
+      flex-direction: column;
+      background-color: var(--white);
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 450px;
+      margin: 20px auto;
       overflow: hidden;
-      flex-shrink: 0;
     }
 
+    /* Form Section */
     .left-section {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 30px;
-      background-color: #ffffff;
+      padding: 25px 20px;
+      order: 2;
     }
 
     .form-container {
-      max-width: 300px;
       width: 100%;
     }
 
     h2 {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 600;
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      color: var(--primary-color);
     }
 
     form input {
       width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 14px;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+
+    form input:focus {
+      border-color: var(--primary-color);
+      outline: none;
     }
 
     button {
       width: 100%;
-      padding: 10px;
-      background-color: #f3e0b6;
+      padding: 12px;
+      background-color: var(--secondary-color);
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
       cursor: pointer;
-      font-size: 14px;
-      margin-top: 5px;
+      margin-top: 15px;
+      transition: background-color 0.3s;
     }
 
     button:hover {
       background-color: #e3d3a8;
     }
 
+    /* Image Section */
     .right-section {
-      flex: 1;
-      background-color: #f3e0b6;
+      background-color: var(--secondary-color);
+      padding: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      order: 1;
     }
 
     .right-section img {
-      width: 200px;
-      height: 200px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       object-fit: cover;
     }
 
+    /* Links */
+    .forgot-password,
     .login-link,
     .admin-link {
-      margin-top: 12px;
       text-align: center;
-      font-size: 13px;
+      margin-top: 15px;
+      font-size: 14px;
     }
 
+    .forgot-password a,
     .login-link a,
     .admin-link a {
-      color: #007bff;
+      color: var(--primary-color);
       text-decoration: none;
+      font-weight: 500;
     }
 
+    .forgot-password a:hover,
     .login-link a:hover,
     .admin-link a:hover {
       text-decoration: underline;
     }
 
-    .forgot-password {
-      margin-top: 8px;
-      text-align: center;
-      font-size: 13px;
-    }
-
-    .forgot-password a {
-      color: #007bff;
-      text-decoration: none;
-    }
-
-    .forgot-password a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
+    /* Mobile-first Media Queries */
+    @media (min-width: 768px) {
       .container {
-        flex-direction: column;
+        flex-direction: row;
         height: auto;
-        max-width: 400px;
-      }
-      
-      .right-section {
-        padding: 20px;
-      }
-      
-      .right-section img {
-        width: 150px;
-        height: 150px;
-      }
-      
-      .header h1 {
-        font-size: 18px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        width: 95%;
-      }
-      
-      .header {
-        flex-direction: column;
-        text-align: center;
-        padding: 10px;
-      }
-      
-      .header img {
-        margin-right: 0;
-        margin-bottom: 5px;
+        max-width: 750px;
       }
       
       .left-section {
-        padding: 20px;
+        order: 1;
+        flex: 1;
+        padding: 40px;
       }
+      
+      .right-section {
+        order: 2;
+        flex: 1;
+      }
+      
+      .right-section img {
+        width: 200px;
+        height: 200px;
+      }
+      
+      .header h1 {
+        font-size: 20px;
+      }
+    }
+
+    /* Install Prompt */
+    #installContainer {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    #installButton {
+      background: var(--primary-color);
+      color: white;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-
   <!-- Header -->
   <div class="header">
     <img src="images/barangay-bg.png" alt="Brgy Logo">
@@ -220,8 +248,49 @@
     </div>
   </div>
 
+  <!-- PWA Install Prompt -->
+  <div id="installContainer">
+    <p>Install BTMS for better experience</p>
+    <button id="installButton">Install Now</button>
+  </div>
+
   <script>
-    // Check for active session on page load
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful');
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+
+    // Handle Install Prompt
+    let deferredPrompt;
+    const installContainer = document.getElementById('installContainer');
+    const installButton = document.getElementById('installButton');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installContainer.style.display = 'block';
+    });
+
+    installButton.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installContainer.style.display = 'none';
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    // Check for active session
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         const response = await fetch('api/auth/check-session', {
@@ -231,7 +300,6 @@
         if (response.ok) {
           const data = await response.json();
           if (data.user) {
-            // Redirect based on role
             if (data.user.role === 'admin') {
               window.location.href = 'admin-dashboard.html';
             } else {
@@ -244,8 +312,9 @@
       }
     });
 
-    document.getElementById('loginForm').addEventListener('submit', async function(event) {
-      event.preventDefault();
+    // Login Form Handling
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
 
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
@@ -253,27 +322,25 @@
       try {
         const response = await fetch('/api/auth/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
-          credentials: 'include' // Important for sessions to work
+          credentials: 'include'
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || errorData.message || 'Login failed');
+          throw new Error(errorData.error || 'Login failed');
         }
 
         const data = await response.json();
         
-        // Store user data in localStorage
+        // Store user data
         localStorage.setItem('userId', data.user._id);
         localStorage.setItem('userEmail', data.user.email);
         localStorage.setItem('userFullName', `${data.user.firstName} ${data.user.lastName}`);
         localStorage.setItem('userRole', data.user.role);
         
-        // Redirect based on user role from backend
+        // Redirect based on role
         if (data.user.role === 'admin') {
           window.location.href = 'admin-dashboard.html';
         } else {
@@ -281,7 +348,7 @@
         }
       } catch (error) {
         console.error('Login error:', error);
-        alert(error.message || 'An error occurred during login. Please try again.');
+        alert(error.message || 'Login failed. Please try again.');
       }
     });
   </script>
