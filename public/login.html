@@ -76,12 +76,26 @@
       text-align: center;
     }
 
+    .input-group {
+      position: relative;
+      margin: 10px 0;
+    }
+
     form input {
       width: 100%;
       padding: 12px;
-      margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
     }
 
     button {
@@ -129,7 +143,10 @@
         <h1>Login</h1>
         <form id="loginForm">
           <input type="email" id="email" name="email" placeholder="Email" required />
-          <input type="password" id="password" name="password" placeholder="Password" required />
+          <div class="input-group">
+            <input type="password" id="password" name="password" placeholder="Password" required />
+            <span class="password-toggle" id="togglePassword">👁️</span>
+          </div>
           <div id="errorMessage" class="error-message" style="display: none;"></div>
           <button type="submit">Log In</button>
         </form>
@@ -144,6 +161,14 @@
   </div>
 
   <script>
+    // Password toggle functionality
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      const passwordInput = document.getElementById('password');
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+    });
+
     // Check for active session on load
     document.addEventListener('DOMContentLoaded', async () => {
       try {

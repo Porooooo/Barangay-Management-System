@@ -376,6 +376,26 @@
             font-size: 12px;
             color: #666;
         }
+
+        /* Required field indicator */
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+
+        /* Form labels */
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Adjusting some spacing for better layout */
+        .form-column {
+            margin-bottom: 10px;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -427,26 +447,52 @@
                     <div class="form-section-title">Personal Information</div>
                     <div class="form-columns">
                         <div class="form-column">
+                            <label for="lastName" class="required-field">Last Name</label>
                             <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+                            
+                            <label for="firstName" class="required-field">First Name</label>
                             <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                            
+                            <label for="middleName">Middle Name</label>
                             <input type="text" id="middleName" name="middleName" placeholder="Middle Name">
-                            <input type="text" id="suffix" name="suffix" placeholder="Suffix (Jr, Sr, etc)">
+                            
+                            <label for="suffix">Suffix</label>
+                            <input type="text" id="suffix" name="suffix" placeholder="Jr, Sr, etc">
                         </div>
                         <div class="form-column">
+                            <label for="birthdate" class="required-field">Birthdate</label>
                             <input type="date" id="birthdate" name="birthdate" placeholder="Birthdate" required>
+                            
+                            <label for="gender" class="required-field">Gender</label>
                             <select id="gender" name="gender" required>
-                                <option value="" disabled selected>Gender</option>
+                                <option value="" disabled selected>Select Gender</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
+                                <option value="Other">Other</option>
                             </select>
+                            
+                            <label for="civilStatus">Civil Status</label>
                             <select id="civilStatus" name="civilStatus">
-                                <option value="" disabled selected>Civil Status</option>
+                                <option value="" disabled selected>Select Civil Status</option>
                                 <option value="Single">Single</option>
                                 <option value="Married">Married</option>
                                 <option value="Widowed">Widowed</option>
                                 <option value="Separated">Separated</option>
                             </select>
-                            <input type="text" id="occupation" name="occupation" placeholder="Occupation">
+                            
+                            <label for="occupation">Occupation</label>
+                            <select id="occupation" name="occupation">
+                                <option value="" disabled selected>Select Occupation</option>
+                                <option value="Unemployed">Unemployed</option>
+                                <option value="Student">Student</option>
+                                <option value="Government Employee">Government Employee</option>
+                                <option value="Private Employee">Private Employee</option>
+                                <option value="Self-Employed">Self-Employed</option>
+                                <option value="Business Owner">Business Owner</option>
+                                <option value="Retired">Retired</option>
+                                <option value="OFW">OFW</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -460,12 +506,17 @@
                     <div class="form-section-title">Contact Information</div>
                     <div class="form-columns">
                         <div class="form-column">
+                            <label for="email" class="required-field">Email Address</label>
                             <input type="email" id="email" name="email" placeholder="Email Address" required>
+                            
+                            <label for="contactNumber" class="required-field">Contact Number</label>
                             <input type="text" id="contactNumber" name="contactNumber" placeholder="Contact Number" required>
+                            
+                            <label for="alternateContactNumber">Alternate Contact Number</label>
                             <input type="text" id="alternateContactNumber" name="alternateContactNumber" placeholder="Alternate Contact Number">
                         </div>
                         <div class="form-column">
-                            <label for="profilePicture" class="file-upload-label">Profile Photo (Required, .png, .jpg, .jpeg, less than 2MB):</label>
+                            <label for="profilePicture" class="required-field file-upload-label">Profile Photo</label>
                             <input type="file" id="profilePicture" name="profilePicture" accept="image/png, image/jpeg" required>
                             
                             <div class="form-section-title" style="margin-top: 15px;">Government Program Participation</div>
@@ -505,30 +556,55 @@
                     <div class="form-section-title">Address Information</div>
                     <div class="form-columns">
                         <div class="form-column">
+                            <label for="houseNumber" class="required-field">House/Bldg Number</label>
                             <input type="text" id="houseNumber" name="houseNumber" placeholder="House/Bldg Number" required>
+                            
+                            <label for="street" class="required-field">Street</label>
                             <input type="text" id="street" name="street" placeholder="Street" required>
+                            
+                            <label for="barangay" class="required-field">Barangay</label>
                             <input type="text" id="barangay" name="barangay" placeholder="Barangay" value="Talipapa" readonly>
                         </div>
                         <div class="form-column">
+                            <label for="homeownerStatus">Homeowner Status</label>
                             <select id="homeownerStatus" name="homeownerStatus">
-                                <option value="" disabled selected>Homeowner Status</option>
-                                <option value="Homeowner">Homeowner</option>
-                                <option value="Renting">Renting</option>
+                                <option value="" disabled selected>Select Homeowner Status</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
                             </select>
-                            <input type="number" id="yearsResiding" name="yearsResiding" placeholder="Years Residing in Barangay">
-                            <input type="number" id="monthlyIncome" name="monthlyIncome" placeholder="Monthly Income (PHP)">
+                            
+                            <label for="yearsResiding">Years Residing in Barangay</label>
+                            <select id="yearsResiding" name="yearsResiding">
+                                <option value="" disabled selected>Select Years Residing</option>
+                                <option value="Since birth">Since birth</option>
+                                <option value="1-5 years">1-5 years</option>
+                                <option value="6-10 years">6-10 years</option>
+                                <option value="11-20 years">11-20 years</option>
+                                <option value="20+ years">20+ years</option>
+                            </select>
+                            
+                            <label for="monthlyIncome">Monthly Income</label>
+                            <select id="monthlyIncome" name="monthlyIncome">
+                                <option value="" disabled selected>Select Monthly Income</option>
+                                <option value="Below 5,000">Below 5,000</option>
+                                <option value="5,000-10,000">5,000-10,000</option>
+                                <option value="10,001-20,000">10,001-20,000</option>
+                                <option value="20,001-30,000">20,001-30,000</option>
+                                <option value="30,001-50,000">30,001-50,000</option>
+                                <option value="Above 50,000">Above 50,000</option>
+                            </select>
                         </div>
                     </div>
                     
                     <div class="form-section-title">Educational Attainment</div>
                     <select id="educationalAttainment" name="educationalAttainment" class="full-width">
                         <option value="" disabled selected>Select Educational Attainment</option>
-                        <option value="No Formal Education">No Formal Education</option>
-                        <option value="Elementary">Elementary</option>
-                        <option value="High School">High School</option>
-                        <option value="Vocational">Vocational</option>
-                        <option value="College">College</option>
+                        <option value="Elementary Graduate">Elementary Graduate</option>
+                        <option value="High School Graduate">High School Graduate</option>
+                        <option value="Vocational Graduate">Vocational Graduate</option>
+                        <option value="College Graduate">College Graduate</option>
                         <option value="Post Graduate">Post Graduate</option>
+                        <option value="None">None</option>
                     </select>
                     
                     <div class="form-navigation">
@@ -542,12 +618,15 @@
                     <div class="form-section-title">Account Setup</div>
                     <div class="form-columns">
                         <div class="form-column">
+                            <label for="password" class="required-field">Create Password</label>
                             <div class="password-input-container">
                                 <input type="password" id="password" name="password" placeholder="Create Password" required oninput="checkPasswordRequirements()">
                                 <span class="password-toggle" onclick="togglePasswordVisibility('password')">
                                     <i class="far fa-eye"></i>
                                 </span>
                             </div>
+                            
+                            <label for="confirmPassword" class="required-field">Confirm Password</label>
                             <div class="password-input-container">
                                 <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
                                 <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">
@@ -817,7 +896,7 @@
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     body: formData,
-                    credentials: 'include' // Important for sessions
+                    credentials: 'include'
                 });
 
                 const result = await response.json();

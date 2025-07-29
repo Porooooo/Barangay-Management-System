@@ -35,6 +35,17 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+        .input-group {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+        }
         .modal-content button {
             width: 100%;
             padding: 10px;
@@ -104,7 +115,10 @@
                     <option value="Barangay Secretary Office">Barangay Secretary Office</option>
                     <option value="Barangay Treasurer Office">Barangay Treasurer Office</option>
                 </select>
-                <input type="password" id="password" placeholder="Password" required>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Password" required>
+                    <span class="password-toggle" id="togglePassword">👁️</span>
+                </div>
                 <button type="submit" id="submitBtn">Register</button>
                 <div id="loadingIndicator" class="loading">Processing...</div>
             </form>
@@ -112,6 +126,14 @@
     </div>
 
     <script>
+        // Password toggle functionality
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+
         // Handle form submission
         document.getElementById('adminRegisterForm').addEventListener('submit', async function(event) {
             event.preventDefault();
