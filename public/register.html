@@ -210,17 +210,14 @@
 
         .password-toggle {
             position: absolute;
-            right: 8px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
             color: #666;
-        }
-
-        .password-toggle i {
             font-size: 16px;
         }
-        
+
         /* Modal heading adjustment */
         .modal-content h2 {
             font-size: 22px;
@@ -471,8 +468,8 @@
                                 <option value="Other">Other</option>
                             </select>
                             
-                            <label for="civilStatus">Civil Status</label>
-                            <select id="civilStatus" name="civilStatus">
+                            <label for="civilStatus" class="required-field">Civil Status</label>
+                            <select id="civilStatus" name="civilStatus" required>
                                 <option value="" disabled selected>Select Civil Status</option>
                                 <option value="Single">Single</option>
                                 <option value="Married">Married</option>
@@ -480,8 +477,8 @@
                                 <option value="Separated">Separated</option>
                             </select>
                             
-                            <label for="occupation">Occupation</label>
-                            <select id="occupation" name="occupation">
+                            <label for="occupation" class="required-field">Occupation</label>
+                            <select id="occupation" name="occupation" required>
                                 <option value="" disabled selected>Select Occupation</option>
                                 <option value="Unemployed">Unemployed</option>
                                 <option value="Student">Student</option>
@@ -621,17 +618,13 @@
                             <label for="password" class="required-field">Create Password</label>
                             <div class="password-input-container">
                                 <input type="password" id="password" name="password" placeholder="Create Password" required oninput="checkPasswordRequirements()">
-                                <span class="password-toggle" onclick="togglePasswordVisibility('password')">
-                                    <i class="far fa-eye"></i>
-                                </span>
+                                <span class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</span>
                             </div>
                             
                             <label for="confirmPassword" class="required-field">Confirm Password</label>
                             <div class="password-input-container">
                                 <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
-                                <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">
-                                    <i class="far fa-eye"></i>
-                                </span>
+                                <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">👁️</span>
                             </div>
                             <div class="error-message" id="password-error">Passwords do not match</div>
                         </div>
@@ -760,16 +753,14 @@
         // Toggle password visibility
         function togglePasswordVisibility(fieldId) {
             const passwordField = document.getElementById(fieldId);
-            const toggleIcon = passwordField.nextElementSibling.querySelector('i');
+            const toggleIcon = passwordField.nextElementSibling;
             
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
+                toggleIcon.textContent = '👁️‍🗨️';
             } else {
                 passwordField.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
+                toggleIcon.textContent = '👁️';
             }
         }
 
