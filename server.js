@@ -16,14 +16,10 @@ const { authMiddleware, adminMiddleware } = require('./middleware/authMiddleware
 const app = express();
 const server = http.createServer(app);
 
-// Enhanced Socket.IO configuration with PWA support
+// 🔁 Updated CORS for Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: [
-      process.env.FRONTEND_URL, 
-      "http://localhost:3000",
-      "https://barangay-management-system-1-xfkw.onrender.com" // Add your PWA domain here
-    ],
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -32,7 +28,7 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3000;
 
-// MongoDB Atlas Connection
+// ✅ Updated MongoDB Atlas Connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -50,26 +46,17 @@ mongoose.connect(process.env.MONGO_URI, {
   process.exit(1);
 });
 
-// Ensure uploads directory exists
+// 📁 Ensure uploads directory
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('📁 Created uploads directory');
 }
 
-// Serve static files with proper caching headers
+// 🔁 Serve Uploads
 app.use('/uploads', express.static(uploadsDir, {
   setHeaders: (res, filePath) => {
     if (filePath.match(/\.(jpg|jpeg|png|gif|pdf|docx)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    }
-  }
-}));
-
-// Serve PWA files with no-cache headers
-app.use(express.static(path.join(__dirname, "public"), {
-  setHeaders: (res, filePath) => {
-    if (filePath.match(/\.(html|css|js|json)$/)) {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
@@ -77,90 +64,71 @@ app.use(express.static(path.join(__dirname, "public"), {
   }
 }));
 
-// Explicit routes for PWA core files
-app.get('/manifest.json', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'manifest.json'), {
-    headers: {
-      'Content-Type': 'application/manifest+json',
-      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+// 🔁 Serve Public Assets
+app.use(express.static(path.join(__dirname, "public"), {
+  setHeaders: (res, filePath) => {
+    if (filePath.match(/\.(css|js|html|json)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=0');
     }
-  });
-});
+  }
+}));
 
-app.get('/sw.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'sw.js'), {
-    headers: {
-      'Content-Type': 'application/javascript',
-      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
-    }
-  });
-});
-
-app.get('/icons/:icon', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'icons', req.params.icon), {
-    headers: {
-      'Cache-Control': 'public, max-age=31536000, immutable'
-    }
-  });
-});
-
-// Default profile picture
+// Default Profile Image
 app.get('/images/default-profile.png', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'images', 'default-profile.png'), {
     headers: {
-      'Cache-Control': 'public, max-age=31536000, immutable'
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
     }
   });
 });
 
-// Session configuration for PWA
+// 🧠 Session Store in MongoDB
 const sessionStore = MongoStore.create({
   mongoUrl: process.env.MONGO_URI,
   collectionName: 'sessions',
-  ttl: 14 * 24 * 60 * 60, // 14 days
+  ttl: 14 * 24 * 60 * 60,
   autoRemove: 'native'
 });
 
+// 🍪 Updated Session Config with Render domain
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: sessionStore,
   cookie: {
-    maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+    maxAge: 14 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : undefined
+    domain: process.env.NODE_ENV === 'production' ? 'barangay-management-system-1-xfkw.onrender.com' : undefined
   },
   name: 'btms.sid',
   rolling: true
 }));
 
-// Enhanced CORS for PWA
+// 🔁 Updated CORS Middleware
 const corsOptions = {
-  origin: [
-    process.env.FRONTEND_URL,
-    "http://localhost:3000",
-    "https://your-pwa-domain.com" // Add your PWA domain here
-  ],
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept'],
-  exposedHeaders: ['set-cookie'],
+  exposedHeaders: ['set-cookie', 'Date', 'ETag'],
   maxAge: 86400
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
-// Body parsers
+// 📦 Parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Make Socket.IO available to routes
+// ⚡ Make Socket Available to Routes
 app.set('io', io);
 
-// Rate limiting
+// 🔐 Rate Limit
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 500,
@@ -170,7 +138,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Routes
+// 🛣️ Routes
 const authRoutes = require("./routes/authRoutes");
 const residentRoutes = require("./routes/residentRoutes");
 const blotterRoutes = require("./routes/blotterRoutes");
@@ -187,24 +155,14 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/announcements", announceRoutes);
 app.use("/api/emergency", emergencyRoutes);
 
-// Security headers middleware
+// 🔐 Protected HTML Routes
 const setSecurityHeaders = (req, res, next) => {
-  // PWA security headers
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  
-  // PWA required headers
-  if (req.path === '/manifest.json') {
-    res.setHeader('Content-Type', 'application/manifest+json');
-  }
-  
   next();
 };
 
-// Protected HTML routes
 app.get("/admin-dashboard.html", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin-dashboard.html"));
 });
@@ -217,12 +175,12 @@ app.get("/residentdashboard.html", setSecurityHeaders, authMiddleware, (req, res
   res.sendFile(path.join(__dirname, "public", "residentdashboard.html"));
 });
 
-// Home route with PWA support
+// 📍 Home
 app.get("/", setSecurityHeaders, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Health check endpoint
+// 🩺 Health Check
 app.get('/health', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.status(200).json({ 
@@ -233,28 +191,16 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Socket.IO events for PWA
+// 📡 Socket.IO Events
 io.on('connection', (socket) => {
   console.log('📡 New user connected:', socket.id);
   
-  // Announcements
   socket.on('new_announcement', (announcement) => {
     io.emit('new_announcement', announcement);
   });
 
-  // Emergency alerts
   socket.on('emergency_alert', (alert) => {
     io.emit('emergency_alert', alert);
-  });
-
-  // Request updates
-  socket.on('request-updated', (request) => {
-    io.to(request.userId).emit('request-updated', request);
-  });
-
-  // Blotter updates
-  socket.on('blotter-updated', (blotter) => {
-    io.to(blotter.complainant).emit('blotter-updated', blotter);
   });
 
   socket.on('disconnect', () => {
@@ -262,10 +208,10 @@ io.on('connection', (socket) => {
   });
 });
 
-// Error handling
+// ❗ Error Handler
 app.use((err, req, res, next) => {
   console.error(`[${new Date().toISOString()}] Error:`, err.stack);
-  
+
   if (req.originalUrl.startsWith('/api')) {
     res.status(500).json({ 
       error: 'Internal Server Error',
@@ -276,7 +222,7 @@ app.use((err, req, res, next) => {
   }
 });
 
-// 404 handling
+// ❓ 404 Not Found
 app.use((req, res) => {
   if (req.originalUrl.startsWith('/api')) {
     res.status(404).json({ error: 'Endpoint not found' });
@@ -285,7 +231,7 @@ app.use((req, res) => {
   }
 });
 
-// Graceful shutdown
+// 🛑 Graceful Shutdown
 const gracefulShutdown = () => {
   console.log('🛑 Shutting down gracefully...');
   server.close(() => {
@@ -300,9 +246,8 @@ const gracefulShutdown = () => {
 process.on('SIGINT', gracefulShutdown);
 process.on('SIGTERM', gracefulShutdown);
 
-// Start server
+// 🚀 Start Server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 Access via: ${process.env.FRONTEND_URL || `http://localhost:${PORT}`}`);
-  console.log('📱 PWA is ready for installation');
 });
