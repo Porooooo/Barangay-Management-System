@@ -156,20 +156,20 @@
         .modal-content input,
         .modal-content select {
             width: 100%;
-            padding: 8px; /* Reduced padding */
+            padding: 8px;
             margin: 6px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
-            font-size: 12px; /* Smaller font size */
+            font-size: 12px;
         }
 
         .modal-content button {
-            padding: 8px; /* Reduced padding */
+            padding: 8px;
             background-color: #f3e0b6;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.85em; /* Smaller font size */
+            font-size: 0.85em;
             margin-top: 8px;
         }
 
@@ -352,6 +352,30 @@
         .password-requirements li.requirement-not-met {
             color: #888;
         }
+
+        /* Checkbox group for government programs */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .checkbox-item {
+            width: 50%;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .checkbox-item label {
+            font-size: 12px;
+            color: #666;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -405,6 +429,8 @@
                         <div class="form-column">
                             <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
                             <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                            <input type="text" id="middleName" name="middleName" placeholder="Middle Name">
+                            <input type="text" id="suffix" name="suffix" placeholder="Suffix (Jr, Sr, etc)">
                         </div>
                         <div class="form-column">
                             <input type="date" id="birthdate" name="birthdate" placeholder="Birthdate" required>
@@ -413,6 +439,14 @@
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                             </select>
+                            <select id="civilStatus" name="civilStatus">
+                                <option value="" disabled selected>Civil Status</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Widowed">Widowed</option>
+                                <option value="Separated">Separated</option>
+                            </select>
+                            <input type="text" id="occupation" name="occupation" placeholder="Occupation">
                         </div>
                     </div>
                     
@@ -428,10 +462,35 @@
                         <div class="form-column">
                             <input type="email" id="email" name="email" placeholder="Email Address" required>
                             <input type="text" id="contactNumber" name="contactNumber" placeholder="Contact Number" required>
+                            <input type="text" id="alternateContactNumber" name="alternateContactNumber" placeholder="Alternate Contact Number">
                         </div>
                         <div class="form-column">
-                            <label for="profilePicture" class="file-upload-label">ID Picture (Required):</label>
-                            <input type="file" id="profilePicture" name="profilePicture" accept="image/*" required>
+                            <label for="profilePicture" class="file-upload-label">Profile Photo (Required, .png, .jpg, .jpeg, less than 2MB):</label>
+                            <input type="file" id="profilePicture" name="profilePicture" accept="image/png, image/jpeg" required>
+                            
+                            <div class="form-section-title" style="margin-top: 15px;">Government Program Participation</div>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="registeredVoter" name="registeredVoter">
+                                    <label for="registeredVoter">Registered Voter</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="fourPsMember" name="fourPsMember">
+                                    <label for="fourPsMember">4Ps Member</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="pwdMember" name="pwdMember">
+                                    <label for="pwdMember">PWD Member</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="seniorCitizen" name="seniorCitizen">
+                                    <label for="seniorCitizen">Senior Citizen</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="soloParent" name="soloParent">
+                                    <label for="soloParent">Solo Parent</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -448,11 +507,29 @@
                         <div class="form-column">
                             <input type="text" id="houseNumber" name="houseNumber" placeholder="House/Bldg Number" required>
                             <input type="text" id="street" name="street" placeholder="Street" required>
-                        </div>
-                        <div class="form-column">
                             <input type="text" id="barangay" name="barangay" placeholder="Barangay" value="Talipapa" readonly>
                         </div>
+                        <div class="form-column">
+                            <select id="homeownerStatus" name="homeownerStatus">
+                                <option value="" disabled selected>Homeowner Status</option>
+                                <option value="Homeowner">Homeowner</option>
+                                <option value="Renting">Renting</option>
+                            </select>
+                            <input type="number" id="yearsResiding" name="yearsResiding" placeholder="Years Residing in Barangay">
+                            <input type="number" id="monthlyIncome" name="monthlyIncome" placeholder="Monthly Income (PHP)">
+                        </div>
                     </div>
+                    
+                    <div class="form-section-title">Educational Attainment</div>
+                    <select id="educationalAttainment" name="educationalAttainment" class="full-width">
+                        <option value="" disabled selected>Select Educational Attainment</option>
+                        <option value="No Formal Education">No Formal Education</option>
+                        <option value="Elementary">Elementary</option>
+                        <option value="High School">High School</option>
+                        <option value="Vocational">Vocational</option>
+                        <option value="College">College</option>
+                        <option value="Post Graduate">Post Graduate</option>
+                    </select>
                     
                     <div class="form-navigation">
                         <button type="button" class="btn-prev" onclick="prevPage(3)">Previous</button>
@@ -576,6 +653,22 @@
                     email.classList.add('input-error');
                     isValid = false;
                 }
+                
+                // Validate profile picture file type and size
+                const profilePicture = document.getElementById('profilePicture');
+                if (profilePicture.files.length > 0) {
+                    const file = profilePicture.files[0];
+                    const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+                    
+                    if (!validTypes.includes(file.type)) {
+                        alert('Please upload a valid image file (PNG, JPG, JPEG).');
+                        isValid = false;
+                    } else if (file.size > maxSize) {
+                        alert('Image file size must be less than 2MB.');
+                        isValid = false;
+                    }
+                }
             }
             
             if (!isValid) {
@@ -687,18 +780,34 @@
             // Personal Information
             formData.append('lastName', document.getElementById('lastName').value);
             formData.append('firstName', document.getElementById('firstName').value);
+            formData.append('middleName', document.getElementById('middleName').value);
+            formData.append('suffix', document.getElementById('suffix').value);
             formData.append('birthdate', document.getElementById('birthdate').value);
             formData.append('gender', document.getElementById('gender').value);
+            formData.append('civilStatus', document.getElementById('civilStatus').value);
+            formData.append('occupation', document.getElementById('occupation').value);
             
             // Contact Information
             formData.append('email', document.getElementById('email').value);
             formData.append('contactNumber', document.getElementById('contactNumber').value);
+            formData.append('alternateContactNumber', document.getElementById('alternateContactNumber').value);
             formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
+            
+            // Government Programs
+            formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
+            formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
+            formData.append('pwdMember', document.getElementById('pwdMember').checked);
+            formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
+            formData.append('soloParent', document.getElementById('soloParent').checked);
             
             // Address Information
             formData.append('houseNumber', document.getElementById('houseNumber').value);
             formData.append('street', document.getElementById('street').value);
             formData.append('barangay', document.getElementById('barangay').value);
+            formData.append('homeownerStatus', document.getElementById('homeownerStatus').value);
+            formData.append('yearsResiding', document.getElementById('yearsResiding').value);
+            formData.append('monthlyIncome', document.getElementById('monthlyIncome').value);
+            formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
             
             // Account Setup
             formData.append('password', document.getElementById('password').value);
