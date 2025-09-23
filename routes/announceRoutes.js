@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: function(req, file, cb) {
         const filetypes = /jpeg|jpg|png|gif/;
         const mimetype = filetypes.test(file.mimetype);
@@ -43,7 +43,6 @@ router.post('/', upload.single('image'), async (req, res) => {
         
         // Validate input
         if (!title || !content || !eventDateTime) {
-            // Delete uploaded file if validation fails
             if (req.file) {
                 fs.unlinkSync(req.file.path);
             }
@@ -82,7 +81,6 @@ router.post('/', upload.single('image'), async (req, res) => {
         res.status(201).json(announcement);
     } catch (error) {
         console.error('Error creating announcement:', error);
-        // Delete uploaded file if error occurs
         if (req.file) {
             fs.unlinkSync(req.file.path);
         }
@@ -166,6 +164,59 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// Update an announcement (Admin only)
+router.put('/:id', upload.single('image'), async (req, res) => {
+    try {
+        const { title, content, targetGroups, targetOccupation, targetEducation, targetCivilStatus, targetIncome, eventDateTime } = req.body;
+        
+        // Find the announcement
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ error: 'Announcement not found' });
+        }
+
+        // Parse targetGroups if it's a string (from FormData)
+        let parsedTargetGroups = [];
+        try {
+            parsedTargetGroups = typeof targetGroups === 'string' ? JSON.parse(targetGroups) : targetGroups || [];
+        } catch (e) {
+            parsedTargetGroups = [];
+        }
+
+        // Update announcement fields
+        announcement.title = title || announcement.title;
+        announcement.content = content || announcement.content;
+        announcement.targetGroups = parsedTargetGroups;
+        announcement.targetOccupation = targetOccupation || announcement.targetOccupation;
+        announcement.targetEducation = targetEducation || announcement.targetEducation;
+        announcement.targetCivilStatus = targetCivilStatus || announcement.targetCivilStatus;
+        announcement.targetIncome = targetIncome || announcement.targetIncome;
+        announcement.eventDateTime = eventDateTime ? new Date(eventDateTime) : announcement.eventDateTime;
+        
+        // Update image if a new one is provided
+        if (req.file) {
+            // Delete old image if it exists
+            if (announcement.imageUrl) {
+                const oldImagePath = path.join(__dirname, '../public', announcement.imageUrl);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+            announcement.imageUrl = `/uploads/announcements/${req.file.filename}`;
+        }
+
+        await announcement.save();
+
+        res.json(announcement);
+    } catch (error) {
+        console.error('Error updating announcement:', error);
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+        res.status(500).json({ error: 'Failed to update announcement' });
+    }
+});
+
 // Delete an announcement (Admin only)
 router.delete('/:id', async (req, res) => {
     try {
@@ -182,7 +233,7 @@ router.delete('/:id', async (req, res) => {
             }
         }
 
-        await announcement.remove();
+        await Announcement.findByIdAndDelete(req.params.id);
 
         res.json({ message: 'Announcement deleted successfully' });
     } catch (error) {
@@ -191,14 +242,140 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Add a comment to an announcement
+router.post('/:id/comments', async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { text } = req.body;
+        if (!text) {
+            return res.status(400).json({ error: 'Comment text is required' });
+        }
+
+        // Get user info
+        const user = await User.findById(req.session.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ error: 'Announcement not found' });
+        }
+
+        // Check if the user is an admin
+        const isAdmin = user.role === 'admin';
+        const displayName = isAdmin ? 'Barangay Admin' : user.fullName;
+
+        // Add comment
+        announcement.comments.push({
+            userId: req.session.userId,
+            userName: displayName,
+            text
+        });
+
+        await announcement.save();
+
+        // Emit socket event for real-time updates
+        if (req.app.get('io')) {
+            req.app.get('io').emit('new_comment', {
+                announcementId: req.params.id,
+                comment: announcement.comments[announcement.comments.length - 1]
+            });
+        }
+
+        res.status(201).json(announcement.comments[announcement.comments.length - 1]);
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).json({ error: 'Failed to add comment' });
+    }
+});
+
+// Get comments for an announcement
+router.get('/:id/comments', async (req, res) => {
+    try {
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ error: 'Announcement not found' });
+        }
+
+        res.json(announcement.comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ error: 'Failed to fetch comments' });
+    }
+});
+
+// Add a reply to a comment
+router.post('/:id/comments/:commentId/replies', async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { text } = req.body;
+        if (!text) {
+            return res.status(400).json({ error: 'Reply text is required' });
+        }
+
+        // Get user info
+        const user = await User.findById(req.session.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ error: 'Announcement not found' });
+        }
+
+        // Find the comment
+        const comment = announcement.comments.id(req.params.commentId);
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+
+        // Check if the user is an admin
+        const isAdmin = user.role === 'admin';
+        const displayName = isAdmin ? 'Barangay Admin' : user.fullName;
+
+        // Add reply
+        comment.replies.push({
+            userId: req.session.userId,
+            userName: displayName,
+            text
+        });
+
+        await announcement.save();
+
+        // Emit socket event for real-time updates
+        if (req.app.get('io')) {
+            req.app.get('io').emit('new_reply', {
+                announcementId: req.params.id,
+                commentId: req.params.commentId,
+                reply: comment.replies[comment.replies.length - 1]
+            });
+        }
+
+        res.status(201).json(comment.replies[comment.replies.length - 1]);
+    } catch (error) {
+        console.error('Error adding reply:', error);
+        res.status(500).json({ error: 'Failed to add reply' });
+    }
+});
+
 // Cleanup expired announcements (can be called periodically)
 router.post('/cleanup', async (req, res) => {
     try {
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        const expiredAnnouncements = await Announcement.find({ createdAt: { $lt: twentyFourHoursAgo } });
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const oldAnnouncements = await Announcement.find({ 
+            createdAt: { $lt: thirtyDaysAgo } 
+        });
         
         // Delete associated images
-        for (const announcement of expiredAnnouncements) {
+        for (const announcement of oldAnnouncements) {
             if (announcement.imageUrl) {
                 const imagePath = path.join(__dirname, '../public', announcement.imageUrl);
                 if (fs.existsSync(imagePath)) {
@@ -208,9 +385,11 @@ router.post('/cleanup', async (req, res) => {
         }
         
         // Delete from database
-        const result = await Announcement.deleteMany({ createdAt: { $lt: twentyFourHoursAgo } });
+        const result = await Announcement.deleteMany({ 
+            createdAt: { $lt: thirtyDaysAgo } 
+        });
         
-        res.json({ message: `Deleted ${result.deletedCount} expired announcements` });
+        res.json({ message: `Deleted ${result.deletedCount} old announcements` });
     } catch (error) {
         console.error('Error cleaning up announcements:', error);
         res.status(500).json({ error: 'Failed to clean up announcements' });

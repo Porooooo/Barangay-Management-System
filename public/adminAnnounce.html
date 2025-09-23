@@ -10,7 +10,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; overflow-x: hidden; }
 
         /* Sidebar */
         .sidebar {
@@ -52,7 +52,7 @@
             left: 250px;
             width: calc(100% - 250px);
             min-height: 100vh;
-            background-color: #f5f5f5;
+            background-color: #f0f2f5;
             transition: all 0.5s ease;
         }
 
@@ -96,11 +96,11 @@
         /* Announcement Form */
         .announcement-container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 0 auto 30px;
             padding: 20px;
-            background-color: #f9f9f9;
+            background-color: #fff;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .form-group {
@@ -193,6 +193,11 @@
             border-radius: 5px;
         }
 
+        .admin-name {
+    color: #5ECF89 !important;
+    font-weight: bold !important;
+}
+
         .upload-btn {
             display: inline-block;
             padding: 10px 15px;
@@ -217,6 +222,334 @@
             flex: 1;
         }
 
+        /* Create Announcement Button */
+        .create-announcement-btn {
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .create-announcement-btn:hover {
+            background-color: #4db777;
+        }
+
+        /* Facebook-style posts */
+        .announcements-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .post {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 16px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .post-user-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-username {
+            font-weight: 600;
+            margin: 0;
+            color: #050505;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #65676B;
+            margin: 0;
+        }
+
+        .post-content {
+            margin-bottom: 12px;
+        }
+
+        .post-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #050505;
+        }
+
+        .post-text {
+            color: #050505;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .post-footer {
+            border-top: 1px solid #E4E6EB;
+            padding-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .post-action-btn {
+            background: none;
+            border: none;
+            color: #65676B;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .post-action-btn:hover {
+            background-color: #f0f2f5;
+        }
+
+        .edit-btn {
+            color: #1877F2;
+        }
+
+        .delete-btn {
+            color: #F02849;
+        }
+
+        /* Comments Section */
+        .comments-section {
+            margin-top: 12px;
+            border-top: 1px solid #E4E6EB;
+            padding-top: 12px;
+        }
+
+        .comments-toggle {
+            background: none;
+            border: none;
+            color: #65676B;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .comments-toggle:hover {
+            background-color: #f0f2f5;
+        }
+
+        .comments-list {
+            margin-top: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .comment {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
+        }
+
+        .comment-user {
+            font-weight: 600;
+            font-size: 14px;
+            color: #050505;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: #65676B;
+            margin-left: 8px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #050505;
+            margin-left: 40px;
+        }
+
+        .comment-reply {
+            font-size: 12px;
+            color: #65676B;
+            margin-left: 40px;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .comment-reply:hover {
+            text-decoration: underline;
+        }
+
+        .reply-form {
+            margin-left: 40px;
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .reply-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .reply-submit {
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .reply-submit:hover {
+            background-color: #4db777;
+        }
+
+        .admin-reply {
+            background-color: #f0f8ff;
+            border-left: 3px solid #5ECF89;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .admin-reply .comment-user {
+            color: #5ECF89;
+        }
+
+        .no-comments {
+            padding: 10px;
+            text-align: center;
+            color: #65676B;
+            font-style: italic;
+        }
+
+        .admin-comment {
+  background-color: #f0f8ff;
+  border-left: 3px solid #5ECF89;
+  padding: 8px;
+  border-radius: 0 8px 8px 0;
+}
+
+.admin-reply {
+  background-color: #f0f8ff;
+  border-left: 3px solid #5ECF89;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 0 8px 8px 0;
+}
+
+.admin-user {
+  color: #5ECF89;
+  font-weight: bold;
+}   
+
+        .target-badge {
+            background-color: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #65676B;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .sidebar {
@@ -234,6 +567,13 @@
             .datetime-group {
                 flex-direction: column;
                 gap: 0;
+            }
+            .reply-form {
+                flex-direction: column;
+                margin-left: 0;
+            }
+            .reply-input {
+                margin-bottom: 8px;
             }
         }
     </style>
@@ -300,151 +640,168 @@
         </div><br><br>
 
         <div class="dash-content">
-            <div class="announcement-container">
-                <h2>Create New Announcement</h2>
-                <form id="announcementForm">
-                    <div class="form-group">
-                        <label for="announcementTitle">Title</label>
-                        <input type="text" id="announcementTitle" name="title" required placeholder="Enter announcement title">
-                    </div>
+            <div class="page-header">
+                <h2 class="page-title">Announcements</h2>
+                <button class="create-announcement-btn" onclick="openAnnouncementForm()">
+                    <i class="uil uil-plus"></i> Create Announcement
+                </button>
+            </div>
 
-                    <div class="form-group">
-                        <label for="announcementContent">Content</label>
-                        <textarea id="announcementContent" name="content" required placeholder="Enter announcement details"></textarea>
+            <!-- Announcement Form Modal -->
+            <div id="announcementModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Create New Announcement</h3>
+                        <button class="close-modal" onclick="closeAnnouncementForm()">&times;</button>
                     </div>
-
-                    <div class="datetime-group">
-                        <div class="form-group">
-                            <label for="announcementDate">Date</label>
-                            <input type="date" id="announcementDate" name="date" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="announcementTime">Time</label>
-                            <input type="time" id="announcementTime" name="time" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="announcementImage">Image (Optional)</label>
-                        <div class="image-upload">
-                            <input type="file" id="announcementImage" name="image" accept="image/*" style="display: none;">
-                            <label for="announcementImage" class="upload-btn">Choose Image</label>
-                            <img id="imagePreview" class="image-preview" src="#" alt="Preview">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Target Groups</label>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="allResidents" name="targetGroups" value="All Residents" checked>
-                                <label for="allResidents">All Residents</label>
+                    <div class="announcement-container">
+                        <form id="announcementForm">
+                            <div class="form-group">
+                                <label for="announcementTitle">Title</label>
+                                <input type="text" id="announcementTitle" name="title" required placeholder="Enter announcement title">
                             </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="pwd" name="targetGroups" value="PWD Member">
-                                <label for="pwd">PWD Member</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="seniors" name="targetGroups" value="Senior Citizen">
-                                <label for="seniors">Senior Citizen</label>
-                            </div>
-                            
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="voters" name="targetGroups" value="Registered Voter">
-                                <label for="voters">Registered Voter</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="fourPs" name="targetGroups" value="4Ps Member">
-                                <label for="fourPs">4Ps Member</label>
-                            </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="soloParent" name="targetGroups" value="Solo Parent">
-                                <label for="soloParent">Solo Parent</label>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Target by Occupation</label>
-                        <select id="occupationFilter" name="occupation" class="form-control">
-                            <option value="">All Occupations</option>
-                            <option value="Government Employee">Government Employee</option>
-                            <option value="Private Employee">Private Employee</option>
-                            <option value="OFW">OFW</option>
-                            <option value="Business Owner">Business Owner</option>
-                            <option value="Farmer">Farmer</option>
-                            <option value="Fisherman">Fisherman</option>
-                            <option value="Teacher">Teacher</option>
-                            <option value="Nurse">Nurse</option>
-                            <option value="Healthcare Worker">Healthcare Worker</option>
-                            <option value="Driver">Driver</option>
-                            <option value="Construction Worker">Construction Worker</option>
-                            <option value="Factory Worker">Factory Worker</option>
-                            <option value="Household Helper">Household Helper</option>
-                            <option value="Student">Student</option>
-                            <option value="Unemployed">Unemployed</option>
-                            <option value="Retired">Retired</option>
-                            <option value="Self-employed">Self-employed</option>
-                            <option value="Freelancer">Freelancer</option>
-                        </select>
-                    </div>
+                            <div class="form-group">
+                                <label for="announcementContent">Content</label>
+                                <textarea id="announcementContent" name="content" required placeholder="Enter announcement details"></textarea>
+                            </div>
 
-                    <div class="form-group">
-                        <label>Target by Educational Attainment</label>
-                        <select id="educationFilter" name="education" class="form-control">
-                            <option value="">All Education Levels</option>
-                            <option value="Elementary Graduate">Elementary Graduate</option>
-                            <option value="High School Graduate">High School Graduate</option>
-                            <option value="Vocational Graduate">Vocational Graduate</option>
-                            <option value="College Graduate">College Graduate</option>
-                            <option value="Post Graduate">Post Graduate</option>
-                            <option value="None">None</option>
-                        </select>
-                    </div>
+                            <div class="datetime-group">
+                                <div class="form-group">
+                                    <label for="announcementDate">Date</label>
+                                    <input type="date" id="announcementDate" name="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="announcementTime">Time</label>
+                                    <input type="time" id="announcementTime" name="time" required>
+                                </div>
+                            </div>
 
-                    <div class="form-group">
-                        <label>Target by Civil Status</label>
-                        <select id="civilStatusFilter" name="civilStatus" class="form-control">
-                            <option value="">All Civil Status</option>
-                            <option value="Single">Single</option>
-                            <option value="Married">Married</option>
-                            <option value="Widowed">Widowed</option>
-                            <option value="Separated">Separated</option>
-                        </select>
-                    </div>
+                            <div class="form-group">
+                                <label for="announcementImage">Image (Optional)</label>
+                                <div class="image-upload">
+                                    <input type="file" id="announcementImage" name="image" accept="image/*" style="display: none;">
+                                    <label for="announcementImage" class="upload-btn">Choose Image</label>
+                                    <img id="imagePreview" class="image-preview" src="#" alt="Preview">
+                                </div>
+                            </div>
 
-                    <div class="form-group">
-                        <label>Target by Monthly Income</label>
-                        <select id="incomeFilter" name="income" class="form-control">
-                            <option value="">All Income Levels</option>
-                            <option value="Below 5,000">Below 5,000</option>
-                            <option value="5,000-10,000">5,000-10,000</option>
-                            <option value="10,001-20,000">10,001-20,000</option>
-                            <option value="20,001-30,000">20,001-30,000</option>
-                            <option value="30,001-50,000">30,001-50,000</option>
-                            <option value="Above 50,000">Above 50,000</option>
-                        </select>
-                    </div>
+                            <div class="form-group">
+                                <label>Target Groups</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="allResidents" name="targetGroups" value="All Residents" checked>
+                                        <label for="allResidents">All Residents</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="pwd" name="targetGroups" value="PWD Member">
+                                        <label for="pwd">PWD Member</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="seniors" name="targetGroups" value="Senior Citizen">
+                                        <label for="seniors">Senior Citizen</label>
+                                    </div>
+                                    
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="voters" name="targetGroups" value="Registered Voter">
+                                        <label for="voters">Registered Voter</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="fourPs" name="targetGroups" value="4Ps Member">
+                                        <label for="fourPs">4Ps Member</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="soloParent" name="targetGroups" value="Solo Parent">
+                                        <label for="soloParent">Solo Parent</label>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
-                        <button type="submit" class="btn btn-primary">Publish Announcement</button>
+                            <div class="form-group">
+                                <label>Target by Occupation</label>
+                                <select id="occupationFilter" name="occupation" class="form-control">
+                                    <option value="">All Occupations</option>
+                                    <option value="Government Employee">Government Employee</option>
+                                    <option value="Private Employee">Private Employee</option>
+                                    <option value="OFW">OFW</option>
+                                    <option value="Business Owner">Business Owner</option>
+                                    <option value="Farmer">Farmer</option>
+                                    <option value="Fisherman">Fisherman</option>
+                                    <option value="Teacher">Teacher</option>
+                                    <option value="Nurse">Nurse</option>
+                                    <option value="Healthcare Worker">Healthcare Worker</option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Construction Worker">Construction Worker</option>
+                                    <option value="Factory Worker">Factory Worker</option>
+                                    <option value="Household Helper">Household Helper</option>
+                                    <option value="Student">Student</option>
+                                    <option value="Unemployed">Unemployed</option>
+                                    <option value="Retired">Retired</option>
+                                    <option value="Self-employed">Self-employed</option>
+                                    <option value="Freelancer">Freelancer</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Target by Educational Attainment</label>
+                                <select id="educationFilter" name="education" class="form-control">
+                                    <option value="">All Education Levels</option>
+                                    <option value="Elementary Graduate">Elementary Graduate</option>
+                                    <option value="High School Graduate">High School Graduate</option>
+                                    <option value="Vocational Graduate">Vocational Graduate</option>
+                                    <option value="College Graduate">College Graduate</option>
+                                    <option value="Post Graduate">Post Graduate</option>
+                                    <option value="None">None</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Target by Civil Status</label>
+                                <select id="civilStatusFilter" name="civilStatus" class="form-control">
+                                    <option value="">All Civil Status</option>
+                                    <option value="Single">Single</option>
+                                    <option value="Married">Married</option>
+                                    <option value="Widowed">Widowed</option>
+                                    <option value="Separated">Separated</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Target by Monthly Income</label>
+                                <select id="incomeFilter" name="income" class="form-control">
+                                    <option value="">All Income Levels</option>
+                                    <option value="Below 5,000">Below 5,000</option>
+                                    <option value="5,000-10,000">5,000-10,000</option>
+                                    <option value="10,001-20,000">10,001-20,000</option>
+                                    <option value="20,001-30,000">20,001-30,000</option>
+                                    <option value="30,001-50,000">30,001-50,000</option>
+                                    <option value="Above 50,000">Above 50,000</option>
+                                </select>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
+                                <button type="submit" class="btn btn-primary">Publish Announcement</button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
+            </div>
+
+            <!-- Announcements List -->
+            <div class="announcements-list" id="announcementsList">
+                <!-- Announcements will be loaded here -->
             </div>
         </div>
     </section>
 
-    <script src="script.js"></script>
     <script>
         // Toggle sidebar
         function toggleMenu() {
-            const sidebar = document.querySelector(".sidebar");
-            const mainContent = document.querySelector(".main-content");
-            sidebar.classList.toggle("active");
-            mainContent.classList.toggle("active");
+            const sidebar = document.querySelector("nav");
+            sidebar.classList.toggle("close");
         }
-
+    
         // Set default date and time to current
         document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
@@ -453,8 +810,11 @@
             
             document.getElementById('announcementDate').value = dateStr;
             document.getElementById('announcementTime').value = timeStr;
+            
+            // Load existing announcements
+            loadAnnouncements();
         });
-
+    
         // Image preview functionality
         document.getElementById('announcementImage').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -468,7 +828,257 @@
                 reader.readAsDataURL(file);
             }
         });
-
+    
+        // Modal functions
+        function openAnnouncementForm() {
+            document.getElementById('announcementModal').style.display = 'flex';
+        }
+    
+        function closeAnnouncementForm() {
+            document.getElementById('announcementModal').style.display = 'none';
+            resetForm();
+        }
+    
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('announcementModal');
+            if (event.target === modal) {
+                closeAnnouncementForm();
+            }
+        };
+    
+        // Load announcements from server
+        async function loadAnnouncements() {
+            try {
+                const response = await fetch('/api/announcements', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load announcements');
+                }
+                
+                const announcements = await response.json();
+                displayAnnouncements(announcements);
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                document.getElementById('announcementsList').innerHTML = `
+                    <div class="post">
+                        <p>Error loading announcements. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+    
+        // Display announcements in Facebook-style posts
+        function displayAnnouncements(announcements) {
+            const container = document.getElementById('announcementsList');
+            
+            if (!announcements || announcements.length === 0) {
+                container.innerHTML = `
+                    <div class="post">
+                        <p>No announcements yet. Create your first announcement!</p>
+                    </div>
+                `;
+                return;
+            }
+    
+            container.innerHTML = announcements.map(announcement => {
+                const createdAt = new Date(announcement.createdAt);
+                const eventTime = announcement.eventDateTime ? new Date(announcement.eventDateTime) : null;
+                
+                return `
+                <div class="post" id="post-${announcement._id}">
+                    <div class="post-header">
+                        <img src="/images/default-profile.png" alt="Admin" class="post-avatar">
+                        <div class="post-user-info">
+                            <h3 class="post-username">Barangay Admin</h3>
+                            <p class="post-time">${createdAt.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h4 class="post-title">${announcement.title}</h4>
+                        <p class="post-text">${announcement.content}</p>
+                        ${announcement.imageUrl ? `<img src="${announcement.imageUrl}" class="post-image" alt="Announcement Image">` : ''}
+                        ${eventTime ? `<p><strong>Event Time:</strong> ${eventTime.toLocaleString()}</p>` : ''}
+                        <div>
+                            ${announcement.targetGroups?.map(group => `
+                                <span class="target-badge">${group}</span>
+                            `).join('')}
+                            ${announcement.targetOccupation ? `<span class="target-badge">Occupation: ${announcement.targetOccupation}</span>` : ''}
+                            ${announcement.targetEducation ? `<span class="target-badge">Education: ${announcement.targetEducation}</span>` : ''}
+                            ${announcement.targetCivilStatus ? `<span class="target-badge">Civil Status: ${announcement.targetCivilStatus}</span>` : ''}
+                            ${announcement.targetIncome ? `<span class="target-badge">Income: ${announcement.targetIncome}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="post-footer">
+                        <button class="post-action-btn edit-btn" onclick="editAnnouncement('${announcement._id}')">
+                            <i class="uil uil-edit"></i> Edit
+                        </button>
+                        <button class="post-action-btn delete-btn" onclick="deleteAnnouncement('${announcement._id}')">
+                            <i class="uil uil-trash-alt"></i> Delete
+                        </button>
+                    </div>
+                    
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <button class="comments-toggle" onclick="toggleComments('${announcement._id}')">
+                            <i class="uil uil-comment"></i> View Comments
+                        </button>
+                        <div class="comments-list" id="comments-${announcement._id}" style="display: none;">
+                            <!-- Comments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+    
+            // Load comments for each announcement
+            announcements.forEach(announcement => {
+                loadComments(announcement._id);
+            });
+        }
+    
+        // Toggle comments section
+        function toggleComments(announcementId) {
+            const commentsSection = document.getElementById(`comments-${announcementId}`);
+            if (commentsSection.style.display === 'block') {
+                commentsSection.style.display = 'none';
+            } else {
+                commentsSection.style.display = 'block';
+                // Ensure comments are loaded when section is opened
+                loadComments(announcementId);
+            }
+        }
+    
+        // Load comments for an announcement
+        async function loadComments(announcementId) {
+            try {
+                const response = await fetch(`/api/announcements/${announcementId}/comments`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load comments');
+                }
+                
+                const comments = await response.json();
+                displayComments(announcementId, comments);
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                document.getElementById(`comments-${announcementId}`).innerHTML = `
+                    <div class="no-comments">
+                        <p>Error loading comments. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+    
+        // Display comments
+        function displayComments(announcementId, comments) {
+            const container = document.getElementById(`comments-${announcementId}`);
+            
+            if (!comments || comments.length === 0) {
+                container.innerHTML = `
+                    <div class="no-comments">
+                        <p>No comments yet.</p>
+                    </div>
+                `;
+                return;
+            }
+    
+            container.innerHTML = comments.map(comment => {
+                const commentTime = new Date(comment.createdAt);
+                const isAdminComment = comment.userName === 'Barangay Admin';
+                
+                return `
+                <div class="comment ${isAdminComment ? 'admin-comment' : ''}" id="comment-${comment._id}">
+                    <div class="comment-header">
+                        <img src="/images/default-profile.png" alt="User" class="comment-avatar">
+                        <span class="comment-user ${isAdminComment ? 'admin-user' : ''}">${comment.userName}</span>
+                        <span class="comment-time">${commentTime.toLocaleString()}</span>
+                    </div>
+                    <p class="comment-text">${comment.text}</p>
+                    
+                    ${comment.replies && comment.replies.length > 0 ? `
+                        <div class="replies">
+                            ${comment.replies.map(reply => {
+                                const replyTime = new Date(reply.createdAt);
+                                const isAdminReply = reply.userName === 'Barangay Admin';
+                                return `
+                                <div class="comment reply ${isAdminReply ? 'admin-reply' : ''}">
+                                    <div class="comment-header">
+                                        <img src="/images/default-profile.png" alt="User" class="comment-avatar">
+                                        <span class="comment-user ${isAdminReply ? 'admin-user' : ''}">${reply.userName}</span>
+                                        <span class="comment-time">${replyTime.toLocaleString()}</span>
+                                    </div>
+                                    <p class="comment-text">${reply.text}</p>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <p class="comment-reply" onclick="toggleReplyForm('${announcementId}', '${comment._id}')">
+                        <i class="uil uil-corner-up-right"></i> Reply as Admin
+                    </p>
+                    <div class="reply-form" id="reply-form-${announcementId}-${comment._id}" style="display: none;">
+                        <input type="text" class="reply-input" id="reply-input-${announcementId}-${comment._id}" placeholder="Write a reply as admin...">
+                        <button class="reply-submit" onclick="postReply('${announcementId}', '${comment._id}')">Reply</button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+    
+        // Toggle reply form
+        function toggleReplyForm(announcementId, commentId) {
+            const replyForm = document.getElementById(`reply-form-${announcementId}-${commentId}`);
+            if (replyForm.style.display === 'block') {
+                replyForm.style.display = 'none';
+            } else {
+                // Hide any other open reply forms
+                document.querySelectorAll('.reply-form').forEach(form => {
+                    form.style.display = 'none';
+                });
+                replyForm.style.display = 'flex';
+            }
+        }
+    
+        // Post a reply as admin
+        async function postReply(announcementId, commentId) {
+            const replyInput = document.getElementById(`reply-input-${announcementId}-${commentId}`);
+            const text = replyInput.value.trim();
+            
+            if (!text) {
+                alert('Please enter a reply');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/announcements/${announcementId}/comments/${commentId}/replies`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text }),
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to post reply');
+                }
+                
+                const newReply = await response.json();
+                replyInput.value = '';
+                document.getElementById(`reply-form-${announcementId}-${commentId}`).style.display = 'none';
+                loadComments(announcementId); // Reload comments
+            } catch (error) {
+                console.error('Error posting reply:', error);
+                alert('Failed to post reply. Please try again.');
+            }
+        }
+    
         // Handle form submission with image
         document.getElementById('announcementForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -489,10 +1099,10 @@
                 alert('Please fill in all required fields');
                 return;
             }
-
+    
             // Combine date and time into a single datetime string
             const eventDateTime = new Date(`${date}T${time}`).toISOString();
-
+    
             const formData = new FormData();
             formData.append('title', title);
             formData.append('content', content);
@@ -503,28 +1113,106 @@
             if (civilStatus) formData.append('targetCivilStatus', civilStatus);
             if (income) formData.append('targetIncome', income);
             if (imageFile) formData.append('image', imageFile);
-
+    
             try {
                 const response = await fetch('/api/announcements', {
                     method: 'POST',
                     body: formData,
                     credentials: 'include'
                 });
-
+    
                 const result = await response.json();
                 
                 if (!response.ok) {
                     throw new Error(result.error || 'Failed to create announcement');
                 }
-
+    
                 alert('Announcement published successfully!');
-                resetForm();
+                closeAnnouncementForm();
+                loadAnnouncements(); // Reload the announcements list
             } catch (error) {
                 console.error('Error:', error);
                 alert(error.message || 'An error occurred. Please try again.');
             }
         });
-
+    
+        // Edit announcement
+        async function editAnnouncement(id) {
+            try {
+                const response = await fetch(`/api/announcements/${id}`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch announcement');
+                }
+                
+                const announcement = await response.json();
+                
+                // Populate the form with announcement data
+                document.getElementById('announcementTitle').value = announcement.title;
+                document.getElementById('announcementContent').value = announcement.content;
+                
+                if (announcement.eventDateTime) {
+                    const eventDate = new Date(announcement.eventDateTime);
+                    document.getElementById('announcementDate').value = eventDate.toISOString().substr(0, 10);
+                    document.getElementById('announcementTime').value = eventDate.toTimeString().substr(0, 5);
+                }
+                
+                // Set target groups
+                const checkboxes = document.querySelectorAll('input[name="targetGroups"]');
+                checkboxes.forEach(cb => {
+                    cb.checked = announcement.targetGroups.includes(cb.value);
+                });
+                
+                document.getElementById('occupationFilter').value = announcement.targetOccupation || '';
+                document.getElementById('educationFilter').value = announcement.targetEducation || '';
+                document.getElementById('civilStatusFilter').value = announcement.targetCivilStatus || '';
+                document.getElementById('incomeFilter').value = announcement.targetIncome || '';
+                
+                // Show image preview if exists
+                if (announcement.imageUrl) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = announcement.imageUrl;
+                    preview.style.display = 'block';
+                }
+                
+                // Change form to update mode
+                const form = document.getElementById('announcementForm');
+                form.dataset.editId = id;
+                form.querySelector('button[type="submit"]').textContent = 'Update Announcement';
+                
+                openAnnouncementForm();
+            } catch (error) {
+                console.error('Error fetching announcement:', error);
+                alert('Failed to load announcement for editing');
+            }
+        }
+    
+        // Delete announcement
+        async function deleteAnnouncement(id) {
+            if (!confirm('Are you sure you want to delete this announcement?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/announcements/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete announcement');
+                }
+                
+                alert('Announcement deleted successfully!');
+                loadAnnouncements(); // Reload the announcements list
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'An error occurred. Please try again.');
+            }
+        }
+    
         // Reset form
         function resetForm() {
             document.getElementById('announcementForm').reset();
@@ -536,6 +1224,13 @@
             document.getElementById('civilStatusFilter').value = '';
             document.getElementById('incomeFilter').value = '';
             
+            // Remove edit mode if active
+            const form = document.getElementById('announcementForm');
+            if (form.dataset.editId) {
+                delete form.dataset.editId;
+                form.querySelector('button[type="submit"]').textContent = 'Publish Announcement';
+            }
+            
             // Reset date and time to current
             const now = new Date();
             const dateStr = now.toISOString().substr(0, 10);
@@ -544,7 +1239,7 @@
             document.getElementById('announcementDate').value = dateStr;
             document.getElementById('announcementTime').value = timeStr;
         }
-
+    
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             // Handle "All Residents" checkbox
@@ -563,10 +1258,10 @@
                     });
                 }
             });
-
+    
             // Trigger change event to set initial state
             document.getElementById('allResidents').dispatchEvent(new Event('change'));
         });
     </script>
 </body>
-</html>
+</html> 

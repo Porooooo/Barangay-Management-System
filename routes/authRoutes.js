@@ -10,7 +10,7 @@ const User = require("../models/User");
 const router = express.Router();
 
 // Set timezone to UTC for consistent time handling
-process.env.TZ = 'UTC';
+process.env.TZ = 'UTC'; 
 
 // Improved email transporter configuration
 const transporter = nodemailer.createTransport({

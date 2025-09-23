@@ -16,14 +16,14 @@
             font-family: 'Poppins', sans-serif; 
         }
         
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; overflow-x: hidden; }
         /* Main Content */
         .dashboard {
             position: relative;
             left: 250px;
             width: calc(100% - 250px);
             min-height: 100vh;
-            background-color: #f5f5f5;
+            background-color: #f0f2f5;
             transition: all 0.5s ease;
         }
 
@@ -51,104 +51,241 @@
             padding: 20px;
         }
 
-        /* Notification Container */
-        .notification-container {
+        /* Facebook-style posts */
+        .announcements-list {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+        }
+
+        .post {
             background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 16px;
         }
 
-        .notification {
-            border-bottom: 1px solid #ddd;
-            padding: 15px 0;
-            position: relative;
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
-        .notification:last-child {
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-weight: 600;
+            margin: 0;
+            color: #050505;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #65676B;
+            margin: 0;
+        }
+
+        .post-content {
+            margin-bottom: 12px;
+        }
+
+        .post-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #050505;
+        }
+
+        .post-text {
+            color: #050505;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .post-footer {
+            border-top: 1px solid #E4E6EB;
+            padding-top: 12px;
+        }
+
+        .post-actions {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .post-action-btn {
+            background: none;
+            border: none;
+            color: #65676B;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .post-action-btn:hover {
+            background-color: #f0f2f5;
+        }
+
+        .comments-section {
+            margin-top: 12px;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .comment-submit {
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .comments-list {
+            margin-top: 12px;
+        }
+
+        .comment {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .comment:last-child {
             border-bottom: none;
         }
 
-        .notification-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #2c3e50;
+        .comment-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            margin-bottom: 4px;
         }
 
-        .notification-time {
-            font-size: 0.9em;
-            color: #888;
-            margin-bottom: 8px;
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
         }
 
-        .notification-event-time {
-            font-size: 0.9em;
-            color: #5ECF89;
-            font-weight: 500;
-            margin-bottom: 8px;
+        .comment-user {
+            font-weight: 600;
+            font-size: 14px;
+            color: #050505;
         }
 
-        .notification-message {
-            color: #34495e;
-            line-height: 1.6;
-            margin-bottom: 10px;
+        .comment-time {
+            font-size: 12px;
+            color: #65676B;
+            margin-left: 8px;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
+        .comment-text {
+            font-size: 14px;
+            color: #050505;
+            margin-left: 40px;
+        }
+
+        .comment-reply {
+            font-size: 12px;
+            color: #65676B;
+            margin-left: 40px;
+            cursor: pointer;
+        }
+
+        .reply-form {
+            margin-left: 40px;
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .reply-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .reply-submit {
             background-color: #5ECF89;
             color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .target-badge {
+            background-color: #e9ecef;
+            padding: 4px 8px;
             border-radius: 12px;
             font-size: 12px;
             margin-right: 5px;
-            margin-top: 8px;
-        }
-
-        .expired-badge {
-            background-color: #ff6b6b;
+            display: inline-block;
+            margin-bottom: 5px;
         }
 
         .no-announcements {
             text-align: center;
             padding: 40px;
-            color: #7f8c8d;
+            background-color: #fff;
+            border-radius: 8px;
+            color: #65676B;
         }
 
-        /* Announcement Details */
-        .announcement-details {
-            display: none;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            margin-top: 10px;
+        /* Admin comment styling */
+        .admin-comment {
+            background-color: #f0f8ff;
+            border-left: 3px solid #5ECF89;
+            padding: 8px;
+            border-radius: 0 8px 8px 0;
         }
 
-        .announcement-image {
-            max-width: 100%;
-            max-height: 400px;
-            margin: 15px 0;
-            border-radius: 5px;
-            display: block;
+        .admin-reply {
+            background-color: #f0f8ff;
+            border-left: 3px solid #5ECF89;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 0 8px 8px 0;
         }
 
-        .view-btn {
-            background-color: #5ECF89;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .view-btn:hover {
-            background-color: #4db777;
+        .admin-user {
+            color: #5ECF89;
+            font-weight: bold;
         }
 
         /* Responsive Design */
@@ -191,7 +328,7 @@
             <div class="logo-image">
                 <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
-            <span class="logo_name">Resident Panel</span>
+            <span class="logo_name">Brgy. Talipapa</span>
         </div>
         <div class="menu-items">
             <ul class="nav-links">
@@ -254,12 +391,9 @@
         </div><br><br>
 
         <div class="dash-content">
-            <div class="notification-container">
-                <h2>Announcements</h2>
-                <div id="announcementsContainer">
-                    <div class="no-announcements">
-                        <p>Loading announcements...</p>
-                    </div>
+            <div class="announcements-list" id="announcementsList">
+                <div class="no-announcements">
+                    <p>Loading announcements...</p>
                 </div>
             </div>
         </div>
@@ -272,20 +406,6 @@
         function toggleMenu() {
             const sidebar = document.querySelector("nav");
             sidebar.classList.toggle("close");
-        }
-
-        // Toggle announcement details
-        function toggleDetails(button) {
-            const announcementId = button.getAttribute('data-id');
-            const detailsDiv = document.getElementById(`details-${announcementId}`);
-            
-            if (detailsDiv.style.display === 'block') {
-                detailsDiv.style.display = 'none';
-                button.textContent = 'View';
-            } else {
-                detailsDiv.style.display = 'block';
-                button.textContent = 'Hide';
-            }
         }
 
         // Load user-specific announcements
@@ -303,7 +423,7 @@
                 displayAnnouncements(announcements);
             } catch (error) {
                 console.error('Error loading announcements:', error);
-                document.getElementById('announcementsContainer').innerHTML = `
+                document.getElementById('announcementsList').innerHTML = `
                     <div class="no-announcements">
                         <p>Error loading announcements. Please try again later.</p>
                     </div>
@@ -311,9 +431,9 @@
             }
         }
 
-        // Display announcements in notification style
+        // Display announcements in Facebook-style posts
         function displayAnnouncements(announcements) {
-            const container = document.getElementById('announcementsContainer');
+            const container = document.getElementById('announcementsList');
             
             if (!announcements || announcements.length === 0) {
                 container.innerHTML = `
@@ -334,33 +454,220 @@
                 const isExpired = (now - createdAt) > (24 * 60 * 60 * 1000);
                 
                 return `
-                <div class="notification">
-                    ${isExpired ? '<span class="badge expired-badge">Expired</span>' : ''}
-                    <div class="notification-title">
-                        ${announcement.title}
-                        <button class="view-btn" data-id="${announcement._id}" onclick="toggleDetails(this)">View</button>
+                <div class="post" id="post-${announcement._id}">
+                    <div class="post-header">
+                        <img src="/images/default-profile.png" alt="Admin" class="post-avatar">
+                        <div class="post-user-info">
+                            <h3 class="post-username">Barangay Admin</h3>
+                            <p class="post-time">${createdAt.toLocaleString()}</p>
+                        </div>
                     </div>
-                    <div class="notification-time">Posted: ${createdAt.toLocaleString()}</div>
-                    ${eventTime ? `<div class="notification-event-time">Event Time: ${eventTime.toLocaleString()}</div>` : ''}
-                    <div class="notification-message">${announcement.content.substring(0, 100)}${announcement.content.length > 100 ? '...' : ''}</div>
-                    <div>
-                        ${announcement.targetGroups?.map(group => `
-                            <span class="badge">${group}</span>
-                        `).join('')}
-                        ${announcement.targetOccupation ? `<span class="badge">Occupation: ${announcement.targetOccupation}</span>` : ''}
-                        ${announcement.targetEducation ? `<span class="badge">Education: ${announcement.targetEducation}</span>` : ''}
-                        ${announcement.targetCivilStatus ? `<span class="badge">Civil Status: ${announcement.targetCivilStatus}</span>` : ''}
-                        ${announcement.targetIncome ? `<span class="badge">Income: ${announcement.targetIncome}</span>` : ''}
+                    <div class="post-content">
+                        <h4 class="post-title">${announcement.title}</h4>
+                        <p class="post-text">${announcement.content}</p>
+                        ${announcement.imageUrl ? `<img src="${announcement.imageUrl}" class="post-image" alt="Announcement Image">` : ''}
+                        ${eventTime ? `<p><strong>Event Time:</strong> ${eventTime.toLocaleString()}</p>` : ''}
+                        <div>
+                            ${announcement.targetGroups?.map(group => `
+                                <span class="target-badge">${group}</span>
+                            `).join('')}
+                            ${announcement.targetOccupation ? `<span class="target-badge">Occupation: ${announcement.targetOccupation}</span>` : ''}
+                            ${announcement.targetEducation ? `<span class="target-badge">Education: ${announcement.targetEducation}</span>` : ''}
+                            ${announcement.targetCivilStatus ? `<span class="target-badge">Civil Status: ${announcement.targetCivilStatus}</span>` : ''}
+                            ${announcement.targetIncome ? `<span class="target-badge">Income: ${announcement.targetIncome}</span>` : ''}
+                        </div>
                     </div>
+                    <div class="post-footer">
+                        <div class="post-actions">
+                            <button class="post-action-btn" onclick="toggleComments('${announcement._id}')">
+                                <i class="uil uil-comment"></i> Comment
+                            </button>
+                        </div>
+                        
+                        <div class="comments-section" id="comments-${announcement._id}" style="display: none;">
+                            <div class="comment-form">
+                                <input type="text" class="comment-input" id="comment-input-${announcement._id}" placeholder="Write a comment...">
+                                <button class="comment-submit" onclick="postComment('${announcement._id}')">Post</button>
+                            </div>
+                            
+                            <div class="comments-list" id="comments-list-${announcement._id}">
+                                <!-- Comments will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            // Load comments for each announcement
+            announcements.forEach(announcement => {
+                loadComments(announcement._id);
+            });
+        }
+
+        // Toggle comments section
+        function toggleComments(announcementId) {
+            const commentsSection = document.getElementById(`comments-${announcementId}`);
+            if (commentsSection.style.display === 'block') {
+                commentsSection.style.display = 'none';
+            } else {
+                commentsSection.style.display = 'block';
+            }
+        }
+
+        // Load comments for an announcement
+        async function loadComments(announcementId) {
+            try {
+                const response = await fetch(`/api/announcements/${announcementId}/comments`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load comments');
+                }
+                
+                const comments = await response.json();
+                displayComments(announcementId, comments);
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                document.getElementById(`comments-list-${announcementId}`).innerHTML = `
+                    <div class="comment">
+                        <p>Error loading comments. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display comments with admin styling
+        function displayComments(announcementId, comments) {
+            const container = document.getElementById(`comments-list-${announcementId}`);
+            
+            if (!comments || comments.length === 0) {
+                container.innerHTML = `
+                    <div class="comment">
+                        <p>No comments yet. Be the first to comment!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = comments.map(comment => {
+                const commentTime = new Date(comment.createdAt);
+                const isAdminComment = comment.userName === 'Barangay Admin';
+                
+                return `
+                <div class="comment ${isAdminComment ? 'admin-comment' : ''}" id="comment-${comment._id}">
+                    <div class="comment-header">
+                        <img src="/images/default-profile.png" alt="User" class="comment-avatar">
+                        <span class="comment-user ${isAdminComment ? 'admin-user' : ''}">${comment.userName}</span>
+                        <span class="comment-time">${commentTime.toLocaleString()}</span>
+                    </div>
+                    <p class="comment-text">${comment.text}</p>
                     
-                    <div id="details-${announcement._id}" class="announcement-details">
-                        <p>${announcement.content}</p>
-                        ${announcement.imageUrl ? `<img src="${announcement.imageUrl}" class="announcement-image" alt="Announcement Image">` : ''}
+                    ${comment.replies && comment.replies.length > 0 ? `
+                        <div class="replies">
+                            ${comment.replies.map(reply => {
+                                const replyTime = new Date(reply.createdAt);
+                                const isAdminReply = reply.userName === 'Barangay Admin';
+                                return `
+                                <div class="comment reply ${isAdminReply ? 'admin-reply' : ''}">
+                                    <div class="comment-header">
+                                        <img src="/images/default-profile.png" alt="User" class="comment-avatar">
+                                        <span class="comment-user ${isAdminReply ? 'admin-user' : ''}">${reply.userName}</span>
+                                        <span class="comment-time">${replyTime.toLocaleString()}</span>
+                                    </div>
+                                    <p class="comment-text">${reply.text}</p>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <p class="comment-reply" onclick="toggleReplyForm('${comment._id}')">Reply</p>
+                    <div class="reply-form" id="reply-form-${comment._id}" style="display: none;">
+                        <input type="text" class="reply-input" id="reply-input-${comment._id}" placeholder="Write a reply...">
+                        <button class="reply-submit" onclick="postReply('${announcementId}', '${comment._id}')">Reply</button>
                     </div>
                 </div>
                 `;
             }).join('');
         }
+
+        // Post a comment
+        async function postComment(announcementId) {
+            const commentInput = document.getElementById(`comment-input-${announcementId}`);
+            const text = commentInput.value.trim();
+            
+            if (!text) {
+                alert('Please enter a comment');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/announcements/${announcementId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text }),
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to post comment');
+                }
+                
+                const newComment = await response.json();
+                commentInput.value = '';
+                loadComments(announcementId); // Reload comments
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                alert('Failed to post comment. Please try again.');
+            }
+        }
+
+        // Toggle reply form
+        function toggleReplyForm(commentId) {
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            if (replyForm.style.display === 'block') {
+                replyForm.style.display = 'none';
+            } else {
+                replyForm.style.display = 'flex';
+            }
+        }
+
+        // Post a reply
+        async function postReply(announcementId, commentId) {
+            const replyInput = document.getElementById(`reply-input-${commentId}`);
+            const text = replyInput.value.trim();
+            
+            if (!text) {
+                alert('Please enter a reply');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/announcements/${announcementId}/comments/${commentId}/replies`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text }),
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to post reply');
+                }
+                
+                const newReply = await response.json();
+                replyInput.value = '';
+                loadComments(announcementId); // Reload comments
+            } catch (error) {
+                console.error('Error posting reply:', error);
+                alert('Failed to post reply. Please try again.');
+            }
+        }   
 
         // Initialize
         document.addEventListener('DOMContentLoaded', loadAnnouncements);

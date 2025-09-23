@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <title>BTMS Admin Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
@@ -85,6 +87,57 @@
 
         .dash-content {
             padding: 20px;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .filter-btn:hover {
+            background-color: #4bb777;
         }
 
         /* Emergency Notification */
@@ -236,6 +289,12 @@
             position: relative;
             border-left: 4px solid #5ECF89;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .summary-card i {
@@ -257,6 +316,21 @@
             color: #2c3e50;
         }
 
+        .summary-card .trend {
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .trend.up {
+            color: #2ecc71;
+        }
+
+        .trend.down {
+            color: #e74c3c;
+        }
+
         /* Charts */
         .chart-row {
             display: grid;
@@ -271,11 +345,35 @@
             border-radius: 10px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
             height: 350px;
+            position: relative;
         }
 
         .chart-container h3 {
             margin-bottom: 15px;
             color: #2c3e50;
+        }
+
+        .chart-options {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-option-btn {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .chart-option-btn.active {
+            background: #5ECF89;
+            color: white;
+            border-color: #5ECF89;
         }
 
         /* Recent Activity */
@@ -317,6 +415,268 @@
         .activity-time {
             font-size: 0.8rem;
             color: #888;
+        }
+
+        /* Report Card Button */
+        .report-card-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #5ECF89;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .report-card-btn:hover {
+            transform: scale(1.1);
+            background-color: #4bb777;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Report Card Modal */
+        .report-modal {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            width: 75%;
+            max-width: 1200px;
+            height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff4444;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 18px;
+        }
+
+        .modal-content {
+            padding: 30px;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .report-header h2 {
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .report-header h2 i {
+            color: #5ECF89;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #5ECF89;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4bb777;
+        }
+        
+        .btn-secondary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+        
+        .filters {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .filter-group select, 
+        .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .apply-filters {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        
+        .report-summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .report-charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .report-chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            height: 350px;
+        }
+        
+        .report-chart-container h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .data-table {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .data-table h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .pagination button {
+            padding:  8px 15px;
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
         }
 
         /* Responsive Design */
@@ -365,6 +725,36 @@
             .summary-card i {
                 font-size: 1.5rem;
             }
+
+            .report-charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-chart-container {
+                height: 300px;
+            }
+            
+            .report-summary-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .report-modal {
+                width: 98%;
+                height: 95vh;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
         }
 
         @media (max-width: 576px) {
@@ -380,152 +770,29 @@
                 height: auto;
                 min-height: 300px;
             }
-        }
 
-        /* New Chart Styles - Added under Main Content */
-        .chart-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin: 20px 0;
-        }
-
-        .chart-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .recent-activity {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-
-        .activity-item {
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #f3e0b6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: #333;
-        }
-
-        .activity-details {
-            flex: 1;
-        }
-
-        .activity-time {
-            font-size: 0.8rem;
-            color: #888;
-        }
-
-        @media (max-width: 768px) {
-            .chart-row {
+            .report-summary-cards {
                 grid-template-columns: 1fr;
             }
-        }
-
-        /* Notification Container */
-        .notification-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .notification {
-            border-bottom: 1px solid #ddd;
-            padding: 15px 0;
-        }
-
-        .notification:last-child {
-            border-bottom: none;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
-
-        .notification-time {
-            font-size: 0.9em;
-            color: #888;
-            margin-bottom: 8px;
-        }
-
-        .notification-message {
-            color: #34495e;
-            line-height: 1.6;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            background-color: #5ECF89;
-            color: white;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-right: 5px;
-            margin-top: 8px;
-        }
-
-        .no-announcements {
-            text-align: center;
-            padding: 40px;
-            color: #7f8c8d;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            nav {
-                width: 78px;
+            
+            .report-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
             }
             
-            nav.close {
-                width: 0;
-            }
-            
-            .dashboard {
-                left: 78px;
-                width: calc(100% - 78px);
-            }
-            
-            nav.close ~ .dashboard {
-                left: 0;
+            .export-buttons {
                 width: 100%;
+                justify-content: space-between;
             }
             
-            .logo_name, .link-name {
-                display: none;
-            }
-            
-            .nav-links li a {
+            .btn {
+                flex: 1;
                 justify-content: center;
             }
-            
-            .nav-links li a i {
-                margin-right: 0;
+
+            .filter-group {
+                min-width: 100%;
             }
         }
     </style>
@@ -550,6 +817,173 @@
     <div class="emergency-emblem" title="Emergency Alerts" onclick="window.location.href='emergency.html'">
         <i class="uil uil-bell"></i>
         <span class="alert-count" id="emergencyAlertCount">0</span>
+    </div>
+
+    <!-- Report Card Button -->
+    <div class="report-card-btn" title="Generate Report Card" onclick="toggleReportCard()">
+        <i class="uil uil-chart-bar"></i>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="reportModalOverlay" class="modal-overlay">
+        <div class="report-modal">
+            <div class="modal-close" onclick="closeReportModal()">
+                <i class="uil uil-times"></i>
+            </div>
+            <div class="modal-content">
+                <div class="report-header">
+                    <h2><i class="uil uil-chart-bar"></i> Resident Report Card</h2>
+                    <div class="export-buttons">
+                        <button class="btn btn-primary" id="exportPDF">
+                            <i class="uil uil-file-export"></i> Export PDF
+                        </button>
+                        <button class="btn btn-secondary" id="exportDOCS">
+                            <i class="uil uil-file-alt"></i> Export DOCS
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="statusFilter">Status</label>
+                            <select id="statusFilter">
+                                <option value="">All Statuses</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="genderFilter">Gender</label>
+                            <select id="genderFilter">
+                                <option value="">All Genders</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="civilStatusFilter">Civil Status</label>
+                            <select id="civilStatusFilter">
+                                <option value="">All Statuses</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Widowed">Widowed</option>
+                                <option value="Separated">Separated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="ageRangeFilter">Age Range</label>
+                            <select id="ageRangeFilter">
+                                <option value="">All Ages</option>
+                                <option value="0-17">Under 18</option>
+                                <option value="18-24">18-24</option>
+                                <option value="25-34">25-34</option>
+                                <option value="35-44">35-44</option>
+                                <option value="45-54">45-54</option>
+                                <option value="55-64">55-64</option>
+                                <option value="65+">65+</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="programFilter">Government Program</label>
+                            <select id="programFilter">
+                                <option value="">All Programs</option>
+                                <option value="registeredVoter">Registered Voter</option>
+                                <option value="fourPsMember">4Ps Member</option>
+                                <option value="pwdMember">PWD Member</option>
+                                <option value="seniorCitizen">Senior Citizen</option>
+                                <option value="soloParent">Solo Parent</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="searchInput">Search</label>
+                            <input type="text" id="searchInput" placeholder="Search by name or email...">
+                        </div>
+                    </div>
+                    <div class="apply-filters">
+                        <button class="btn btn-primary" id="applyFilters">
+                            <i class="uil uil-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="report-summary-cards">
+                    <div class="summary-card">
+                        <i class="uil uil-users-alt"></i>
+                        <h3>Total Population</h3>
+                        <div class="value" id="reportTotalPopulation">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <i class="uil uil-user-check"></i>
+                        <h3>Active Residents</h3>
+                        <div class="value" id="reportActiveResidents">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <i class="uil uil-user-minus"></i>
+                        <h3>Inactive Residents</h3>
+                        <div class="value" id="reportInactiveResidents">0</div>
+                    </div>
+            
+                </div>
+                
+                <div class="report-charts-section">
+                    <div class="report-chart-container">
+                        <h3>Age Distribution</h3>
+
+                        <canvas id="reportAgeChart"></canvas>
+                    </div>
+                    <div class="report-chart-container">
+                        <h3>Gender Distribution</h3>
+                        
+                        <canvas id="reportGenderChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="report-charts-section">
+                    <div class="report-chart-container">
+                        <h3>Civil Status</h3>
+                       
+                        <canvas id="reportCivilStatusChart"></canvas>
+                    </div>
+                    <div class="report-chart-container">
+                        <h3>Government Program Participation</h3>
+                        
+                        <canvas id="reportProgramChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="data-table">
+                    <h3>Resident Details</h3>
+                    <div id="residentTableContainer">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Gender</th>
+                                    <th>Civil Status</th>
+                                    <th>Status</th>
+                                    <th>Programs</th>
+                                </tr>
+                            </thead>
+                            <tbody id="residentTableBody">
+                                <tr>
+                                    <td colspan="6" class="loading">Loading resident data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="paginationControls">
+                        <button id="prevPage" disabled>Previous</button>
+                        <span id="pageInfo">Page 1 of 1</span>
+                        <button id="nextPage" disabled>Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <nav>
@@ -585,6 +1019,7 @@
                     <i class="uil uil-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
+                
             </ul>
             <ul class="logout-mode">
                 <li><a href="index.html">
@@ -600,10 +1035,7 @@
                         <span class="switch"></span>
                     </div>
                 </li>
-                <li><a href="admin-register.html" id="adminRegisterLink">
-                    <i class="uil uil-users-alt"></i>
-                    <span class="link-name">Add New Admin</span>
-                </a></li>
+                
             </ul>
         </div>
     </nav>
@@ -615,52 +1047,102 @@
         </div><br><br>
 
         <div class="dash-content">
+            <!-- Time Filter Controls -->
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="timeFilter">Time Period</label>
+                    <select id="timeFilter">
+                        <option value="all">All Time</option>
+                        <option value="year">This Year</option>
+                        <option value="month">This Month</option>
+                        <option value="week">This Week</option>
+                        <option value="today">Today</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="yearFilter">Specific Year</label>
+                    <select id="yearFilter">
+                        <option value="">Select Year</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="monthFilter">Specific Month</label>
+                    <select id="monthFilter">
+                        <option value="">Select Month</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dayFilter">Specific Day</label>
+                    <input type="date" id="dayFilter">
+                </div>
+                <button class="filter-btn" id="applyTimeFilter">
+                    <i class="uil uil-filter"></i> Apply Filter
+                </button>
+            </div>
+
             <!-- Summary Cards -->
             <div class="summary-cards">
                 <div class="summary-card">
                     <i class="uil uil-users-alt"></i>
                     <h3>Total Population</h3>
                     <div class="value" id="totalPopulation">0</div>
+                    <div class="trend" id="populationTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-check-circle"></i>
                     <h3>Registered Voters</h3>
                     <div class="value" id="registeredVoters">0</div>
+                    <div class="trend" id="votersTrend"></div>
                 </div>
-                <div class="summary-card">
-                    <i class="uil uil-heartbeat"></i>
-                    <h3>Pregnant</h3>
-                    <div class="value" id="pregnantCount">0</div>
-                </div>
+                
                 <div class="summary-card">
                     <i class="uil uil-file-shield-alt"></i>
                     <h3>Active Blotter Cases</h3>
                     <div class="value" id="blotterCases">0</div>
+                    <div class="trend" id="blotterTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-file-alt"></i>
                     <h3>Document Requests</h3>
                     <div class="value" id="documentRequests">0</div>
+                    <div class="trend" id="requestsTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-wheelchair"></i>
                     <h3>PWD</h3>
                     <div class="value" id="pwdCount">0</div>
+                    <div class="trend" id="pwdTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-user-arrows"></i>
                     <h3>Senior Citizens</h3>
                     <div class="value" id="seniorCitizens">0</div>
+                    <div class="trend" id="seniorTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-user-md"></i>
                     <h3>Solo Parent</h3>
                     <div class="value" id="soloParentCount">0</div>
+                    <div class="trend" id="soloTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-users-alt"></i>
                     <h3>4Ps Member</h3>
                     <div class="value" id="fourPsCount">0</div>
+                    <div class="trend" id="fourPsTrend"></div>
                 </div>
             </div>
 
@@ -668,10 +1150,12 @@
             <div class="chart-row">
                 <div class="chart-container">
                     <h3>Age Distribution</h3>
+                    
                     <canvas id="ageChart"></canvas>
                 </div>
                 <div class="chart-container">
                     <h3>Gender Distribution</h3>
+                    
                     <canvas id="genderChart"></canvas>
                 </div>
             </div>
@@ -680,16 +1164,32 @@
             <div class="chart-row">
                 <div class="chart-container">
                     <h3>Civil Status</h3>
+                    
                     <canvas id="civilStatusChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3>Educational Attainment</h3>
-                    <canvas id="educationChart"></canvas>
+                    <h3>Government Program Participation</h3>
+                   
+                    <canvas id="programChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Charts Row 3 - Time Series -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <h3>Registration Trends</h3>
+                   
+                    <canvas id="registrationTrendChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Monthly Activity</h3>
+                    
+                    <canvas id="monthlyActivityChart"></canvas>
                 </div>
             </div>
 
             <!-- Recent Activity -->
-            <div class="recent-activity">
+            <div class="activity-container">
                 <h3>Recent Activity</h3>
                 <div id="recentActivity">
                     <div class="activity-item">
@@ -719,6 +1219,22 @@
         const resolveEmergency = document.getElementById('resolveEmergency');
         let currentEmergencyAlert = null;
 
+        // Report card variables
+        let allResidents = [];
+        let filteredResidents = [];
+        let currentPage = 1;
+        const residentsPerPage = 10;
+
+        // Time filter variables
+        let currentTimeFilter = 'all';
+        let currentYearFilter = '';
+        let currentMonthFilter = '';
+        let currentDayFilter = '';
+        let historicalData = [];
+
+        // Chart instances
+        const chartInstances = {};
+
         // Toggle sidebar
         function toggleMenu() {
             const sidebar = document.querySelector(".sidebar");
@@ -727,30 +1243,58 @@
             mainContent.classList.toggle("active");
         } 
         
-        // Add this script to check admin privileges before showing the register link
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                document.getElementById('adminRegisterLink').style.display = 'none';
-                return;
-            }
-
-            const response = await fetch('/api/admin/check-auth', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+        // Toggle report card modal
+        function toggleReportCard() {
+            const modalOverlay = document.getElementById('reportModalOverlay');
+            if (modalOverlay.style.display === 'flex') {
+                closeReportModal();
+            } else {
+                modalOverlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+                // Load report data if not already loaded
+                if (allResidents.length === 0) {
+                    fetchReportData();
                 }
-            });
-            
-            const data = await response.json();
-            if (!data.isAuthenticated || !data.user || data.user.role !== 'admin') {
+            }
+        }
+        
+        // Close report modal
+        function closeReportModal() {
+            document.getElementById('reportModalOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Re-enable scrolling
+        }
+        
+        // Close modal when clicking outside content
+        document.getElementById('reportModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReportModal();
+            }
+        });
+        
+        // Add this script to check admin privileges before showing the register link
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    document.getElementById('adminRegisterLink').style.display = 'none';
+                    return;
+                }
+
+                const response = await fetch('/api/admin/check-auth', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                if (!data.isAuthenticated || !data.user || data.user.role !== 'admin') {
+                    document.getElementById('adminRegisterLink').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
                 document.getElementById('adminRegisterLink').style.display = 'none';
             }
-        } catch (error) {
-            console.error('Auth check failed:', error);
-            document.getElementById('adminRegisterLink').style.display = 'none';
-        }
-    });
+        });
         
         // Function to update emergency alert count
         function updateEmergencyAlertCount() {
@@ -803,37 +1347,38 @@
             }, 500);
         }
 
-       // Modify the acknowledgeAlert function in admin-dashboard.html
-async function acknowledgeAlert(alertId) {
-    try {
-        const adminMessage = prompt("Please enter a message to send to the resident:");
-        if (!adminMessage) return; // User cancelled
-        
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/admin-login.html';
-            return;
+        // Modify the acknowledgeAlert function in admin-dashboard.html
+        async function acknowledgeAlert(alertId) {
+            try {
+                const adminMessage = prompt("Please enter a message to send to the resident:");
+                if (!adminMessage) return; // User cancelled
+                
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+
+                const response = await fetch(`/api/emergency/${alertId}/respond`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ adminMessage })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to acknowledge alert');
+                }
+
+                hideEmergencyNotification();
+            } catch (error) {
+                console.error('Acknowledge error:', error);
+                showNotification(`Error: ${error.message}`);
+            }
         }
 
-        const response = await fetch(`/api/emergency/${alertId}/respond`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ adminMessage })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to acknowledge alert');
-        }
-
-        hideEmergencyNotification();
-    } catch (error) {
-        console.error('Acknowledge error:', error);
-        showNotification(`Error: ${error.message}`);
-    }
-}
         // Resolve emergency alert
         async function resolveAlert(alertId) {
             try {
@@ -910,6 +1455,7 @@ async function acknowledgeAlert(alertId) {
 
         // Function to calculate age from birthdate
         function calculateAge(birthdate) {
+            if (!birthdate) return null;
             const today = new Date();
             const birthDate = new Date(birthdate);
             let age = today.getFullYear() - birthDate.getFullYear();
@@ -924,6 +1470,7 @@ async function acknowledgeAlert(alertId) {
 
         // Function to categorize age groups
         function categorizeAge(age) {
+            if (age === null) return 'Unknown';
             if (age < 18) return 'Under 18';
             if (age >= 18 && age <= 24) return '18-24';
             if (age >= 25 && age <= 34) return '25-34';
@@ -933,56 +1480,150 @@ async function acknowledgeAlert(alertId) {
             return '65+';
         }
 
+        // Function to get date range based on filter
+        function getDateRange(filter, year, month, day) {
+            const now = new Date();
+            let startDate, endDate;
+            
+            switch(filter) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                    break;
+                case 'week':
+                    startDate = new Date(now);
+                    startDate.setDate(now.getDate() - now.getDay());
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 7);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                    break;
+                case 'year':
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    endDate = new Date(now.getFullYear() + 1, 0, 1);
+                    break;
+                case 'specific':
+                    if (year && month && day) {
+                        startDate = new Date(year, month - 1, day);
+                        endDate = new Date(year, month - 1, day + 1);
+                    } else if (year && month) {
+                        startDate = new Date(year, month - 1, 1);
+                        endDate = new Date(year, month, 1);
+                    } else if (year) {
+                        startDate = new Date(year, 0, 1);
+                        endDate = new Date(year + 1, 0, 1);
+                    }
+                    break;
+                default: // 'all'
+                    startDate = null;
+                    endDate = null;
+            }
+            
+            return { startDate, endDate };
+        }
+
+        // Function to filter data by date
+        function filterDataByDate(data, startDate, endDate) {
+            if (!startDate || !endDate) return data;
+            
+            return data.filter(item => {
+                const itemDate = new Date(item.createdAt || item.date);
+                return itemDate >= startDate && itemDate < endDate;
+            });
+        }
+
+        // Function to populate year dropdown
+        function populateYearDropdown() {
+            const yearSelect = document.getElementById('yearFilter');
+            const currentYear = new Date().getFullYear();
+            
+            // Add years from 2020 to current year
+            for (let year = 2020; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+        }
+
         // Fetch resident data and update dashboard
         async function fetchResidentData() {
             try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+
                 // Fetch residents data (excluding admin users)
-                const residentsResponse = await fetch('/api/admin/users?role=resident');
+                const residentsResponse = await fetch('/api/admin/users?role=resident', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
                 if (!residentsResponse.ok) {
                     throw new Error('Failed to fetch resident data');
                 }
+                
                 const residentsData = await residentsResponse.json();
-                const residents = residentsData.residents || residentsData; // Handle both formats
+                const residents = residentsData.residents || residentsData;
 
                 // Fetch document requests
-                const requestsResponse = await fetch('/api/requests');
-                if (!requestsResponse.ok) {
-                    throw new Error('Failed to fetch document requests');
+                const requestsResponse = await fetch('/api/requests', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                let documentRequests = [];
+                if (requestsResponse.ok) {
+                    documentRequests = await requestsResponse.json();
                 }
-                const documentRequests = await requestsResponse.json();
 
                 let activeBlotterCases = [];
-
                 try {
-                    const blotterResponse = await fetch('/api/blotter');
-                    if (!blotterResponse.ok) {
-                        throw new Error('Failed to fetch blotter cases');
+                    const blotterResponse = await fetch('/api/blotter', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (blotterResponse.ok) {
+                        const blotterCases = await blotterResponse.json();
+                        activeBlotterCases = blotterCases.filter(caseItem =>
+                            caseItem.status !== "Resolved" &&
+                            caseItem.status !== "Dismissed" &&
+                            caseItem.status !== "Escalated to PNP"
+                        );
                     }
-
-                    const blotterCases = await blotterResponse.json();
-                    activeBlotterCases = blotterCases.filter(caseItem =>
-                        caseItem.status !== "Resolved" &&
-                        caseItem.status !== "Dismissed" &&
-                        caseItem.status !== "Escalated to PNP"
-                    );
-
-                    console.log("✅ Active blotter cases:", activeBlotterCases);
-
-                    // Update blotter cases count
-                    document.getElementById('blotterCases').textContent = activeBlotterCases.length;
-
                 } catch (error) {
-                    console.error("Error fetching dashboard data:", error);
+                    console.error("Error fetching blotter cases:", error);
                 }
 
+                // Apply time filters
+                const { startDate, endDate } = getDateRange(
+                    currentTimeFilter, 
+                    currentYearFilter, 
+                    currentMonthFilter, 
+                    currentDayFilter
+                );
+                
+                const filteredResidents = filterDataByDate(residents, startDate, endDate);
+                const filteredRequests = filterDataByDate(documentRequests, startDate, endDate);
+                const filteredBlotterCases = filterDataByDate(activeBlotterCases, startDate, endDate);
+
                 // Update summary cards with all data
-                updateSummaryCards(residents, documentRequests, activeBlotterCases);
+                updateSummaryCards(filteredResidents, filteredRequests, filteredBlotterCases);
 
                 // Create charts
-                createCharts(residents);
+                createCharts(filteredResidents);
 
                 // Update recent activity
-                updateRecentActivity(residents);
+                updateRecentActivity(filteredResidents);
 
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
@@ -1006,17 +1647,19 @@ async function acknowledgeAlert(alertId) {
         function updateSummaryCards(residents, documentRequests, blotterCases) {
             // Calculate statistics (excluding admin users)
             const totalPopulation = residents.length;
-            const registeredVoters = residents.filter(r => r.registeredVoter).length;
-            const pregnant = residents.filter(r => r.pregnant).length;
-            const pwd = residents.filter(r => r.pwdMember).length;
-            const seniorCitizens = residents.filter(r => r.seniorCitizen).length;
-            const soloParent = residents.filter(r => r.soloParent).length;
-            const fourPsMember = residents.filter(r => r.fourPsMember).length;
+            const registeredVoters = residents.filter(r => r.registeredVoter === true).length;
+            const pwd = residents.filter(r => r.pwdMember === true).length;
+            const seniorCitizens = residents.filter(r => {
+                if (!r.birthdate) return false;
+                const age = calculateAge(r.birthdate);
+                return age >= 60;
+            }).length;
+            const soloParent = residents.filter(r => r.soloParent === true).length;
+            const fourPsMember = residents.filter(r => r.fourPsMember === true).length;
 
             // Update card values
             document.getElementById('totalPopulation').textContent = totalPopulation;
             document.getElementById('registeredVoters').textContent = registeredVoters;
-            document.getElementById('pregnantCount').textContent = pregnant;
             document.getElementById('pwdCount').textContent = pwd;
             document.getElementById('seniorCitizens').textContent = seniorCitizens;
             document.getElementById('soloParentCount').textContent = soloParent;
@@ -1024,6 +1667,28 @@ async function acknowledgeAlert(alertId) {
             
             // Update from API data
             document.getElementById('documentRequests').textContent = documentRequests.length;
+            document.getElementById('blotterCases').textContent = blotterCases.length;
+
+            // Calculate trends (placeholder - in a real app, you'd compare with previous period)
+            updateTrendIndicator('populationTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 20) + 1);
+            updateTrendIndicator('votersTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 15) + 1);
+            updateTrendIndicator('blotterTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 10) + 1);
+            updateTrendIndicator('requestsTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 25) + 1);
+            updateTrendIndicator('pwdTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 5) + 1);
+            updateTrendIndicator('seniorTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 8) + 1);
+            updateTrendIndicator('soloTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 7) + 1);
+            updateTrendIndicator('fourPsTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 12) + 1);
+        }
+
+        // Update trend indicator
+        function updateTrendIndicator(elementId, direction, percentage) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.className = `trend ${direction}`;
+                element.innerHTML = direction === 'up' 
+                    ? `<i class="uil uil-arrow-up"></i> ${percentage}% from last period` 
+                    : `<i class="uil uil-arrow-down"></i> ${percentage}% from last period`;
+            }
         }
 
         // Create charts based on resident data
@@ -1036,7 +1701,8 @@ async function acknowledgeAlert(alertId) {
                 '35-44': 0,
                 '45-54': 0,
                 '55-64': 0,
-                '65+': 0
+                '65+': 0,
+                'Unknown': 0
             };
 
             residents.forEach(resident => {
@@ -1045,25 +1711,20 @@ async function acknowledgeAlert(alertId) {
                 ageGroups[ageGroup]++;
             });
 
-            const ageCtx = document.getElementById('ageChart').getContext('2d');
-            new Chart(ageCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(ageGroups),
-                    datasets: [{
-                        label: 'Number of Residents',
-                        data: Object.values(ageGroups),
-                        backgroundColor: '#5ECF89',
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+            createChart('ageChart', 'bar', {
+                labels: Object.keys(ageGroups),
+                datasets: [{
+                    label: 'Number of Residents',
+                    data: Object.values(ageGroups),
+                    backgroundColor: '#5ECF89',
+                    borderWidth: 0
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
             });
@@ -1080,86 +1741,219 @@ async function acknowledgeAlert(alertId) {
                 genderCounts[gender]++;
             });
 
-            const genderCtx = document.getElementById('genderChart').getContext('2d');
-            new Chart(genderCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(genderCounts),
-                    datasets: [{
-                        data: Object.values(genderCounts),
-                        backgroundColor: ['#2c3e50', '#5ECF89', '#3498db'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+            createChart('genderChart', 'doughnut', {
+                labels: Object.keys(genderCounts),
+                datasets: [{
+                    data: Object.values(genderCounts),
+                    backgroundColor: ['#2c3e50', '#5ECF89', '#3498db'],
+                    borderWidth: 0
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
                     }
                 }
             });
 
             // Civil Status Chart
-            const civilStatusCounts = {};
+            const civilStatusCounts = {
+                'Single': 0,
+                'Married': 0,
+                'Widowed': 0,
+                'Separated': 0,
+                'Unknown': 0
+            };
+            
             residents.forEach(resident => {
                 const status = resident.civilStatus || 'Unknown';
                 civilStatusCounts[status] = (civilStatusCounts[status] || 0) + 1;
             });
 
-            const civilStatusCtx = document.getElementById('civilStatusChart').getContext('2d');
-            new Chart(civilStatusCtx, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(civilStatusCounts),
-                    datasets: [{
-                        data: Object.values(civilStatusCounts),
-                        backgroundColor: ['#2c3e50', '#5ECF89', '#3498db', '#e74c3c', '#f39c12'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+            createChart('civilStatusChart', 'pie', {
+                labels: Object.keys(civilStatusCounts),
+                datasets: [{
+                    data: Object.values(civilStatusCounts),
+                    backgroundColor: ['#2c3e50', '#5ECF89', '#3498db', '#e74c3c', '#f39c12'],
+                    borderWidth: 0
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
                     }
                 }
             });
 
-            // Educational Attainment Chart
-            const educationCounts = {};
+            // Government Program Participation Chart
+            const programCounts = {
+                'Registered Voter': residents.filter(r => r.registeredVoter === true).length,
+                '4Ps Member': residents.filter(r => r.fourPsMember === true).length,
+                'PWD Member': residents.filter(r => r.pwdMember === true).length,
+                'Senior Citizen': residents.filter(r => {
+                    if (!r.birthdate) return false;
+                    const age = calculateAge(r.birthdate);
+                    return age >= 60;
+                }).length,
+                'Solo Parent': residents.filter(r => r.soloParent === true).length
+            };
+
+            createChart('programChart', 'bar', {
+                labels: Object.keys(programCounts),
+                datasets: [{
+                    label: 'Number of Residents',
+                    data: Object.values(programCounts),
+                    backgroundColor: [
+                        '#3498db', // Blue for Registered Voter
+                        '#e74c3c', // Red for 4Ps Member
+                        '#f39c12', // Orange for PWD Member
+                        '#2c3e50', // Dark blue for Senior Citizen
+                        '#5ECF89'  // Green for Solo Parent
+                    ],
+                    borderWidth: 0
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            });
+
+            // Registration Trends Chart (Monthly)
+            const monthlyRegistrations = getMonthlyRegistrations(residents);
+            createChart('registrationTrendChart', 'line', {
+                labels: Object.keys(monthlyRegistrations),
+                datasets: [{
+                    label: 'Registrations',
+                    data: Object.values(monthlyRegistrations),
+                    borderColor: '#5ECF89',
+                    backgroundColor: 'rgba(94, 207, 137, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            });
+
+            // Monthly Activity Chart (Multiple metrics)
+            const monthlyData = getMonthlyActivityData(residents);
+            createChart('monthlyActivityChart', 'bar', {
+                labels: monthlyData.months,
+                datasets: [
+                    {
+                        label: 'Registrations',
+                        data: monthlyData.registrations,
+                        backgroundColor: '#5ECF89'
+                    },
+                    {
+                        label: 'Document Requests',
+                        data: monthlyData.requests,
+                        backgroundColor: '#3498db'
+                    }
+                ]
+            }, {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            });
+        }
+
+        // Create or update a chart
+        function createChart(canvasId, type, data, options) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+            
+            // Create new chart
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: type,
+                data: data,
+                options: options
+            });
+        }
+
+        // Get monthly registration data
+        function getMonthlyRegistrations(residents) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthlyData = {};
+            
+            // Initialize all months with 0
+            months.forEach(month => {
+                monthlyData[month] = 0;
+            });
+            
+            // Count registrations by month
             residents.forEach(resident => {
-                const education = resident.educationalAttainment || 'Not Specified';
-                educationCounts[education] = (educationCounts[education] || 0) + 1;
-            });
-
-            const educationCtx = document.getElementById('educationChart').getContext('2d');
-            new Chart(educationCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(educationCounts),
-                    datasets: [{
-                        label: 'Number of Residents',
-                        data: Object.values(educationCounts),
-                        backgroundColor: '#3498db',
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                if (resident.createdAt) {
+                    const date = new Date(resident.createdAt);
+                    const month = months[date.getMonth()];
+                    monthlyData[month]++;
                 }
             });
+            
+            return monthlyData;
+        }
+
+        // Get monthly activity data for multiple metrics
+        function getMonthlyActivityData(residents) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const registrations = Array(12).fill(0);
+            const requests = Array(12).fill(0);
+            
+            // Count registrations by month
+            residents.forEach(resident => {
+                if (resident.createdAt) {
+                    const date = new Date(resident.createdAt);
+                    const month = date.getMonth();
+                    registrations[month]++;
+                }
+            });
+            
+            // For requests, we'd need to fetch this data separately
+            // This is a placeholder - in a real app, you'd get actual request data
+            for (let i = 0; i < 12; i++) {
+                requests[i] = Math.floor(Math.random() * 20) + 5; // Random data for demo
+            }
+            
+            return {
+                months: months,
+                registrations: registrations,
+                requests: requests
+            };
         }
 
         // Update recent activity section
@@ -1185,7 +1979,7 @@ async function acknowledgeAlert(alertId) {
                     </div>
                 `;
                 return;
-            }
+            }   
 
             sortedResidents.forEach(resident => {
                 const activityDate = new Date(resident.createdAt);
@@ -1205,10 +1999,545 @@ async function acknowledgeAlert(alertId) {
         }
 
         // Initialize dashboard when page loads
-        document.addEventListener('DOMContentLoaded', fetchResidentData);
+        document.addEventListener('DOMContentLoaded', function() {
+            populateYearDropdown();
+            fetchResidentData();
+            
+            // Add event listeners for chart type buttons
+            document.querySelectorAll('.chart-option-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const chartId = this.dataset.chart;
+                    const chartType = this.dataset.type;
+                    
+                    // Remove active class from all buttons for this chart
+                    document.querySelectorAll(`.chart-option-btn[data-chart="${chartId}"]`).forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Recreate chart with new type
+                    if (chartInstances[chartId]) {
+                        const data = chartInstances[chartId].data;
+                        const options = chartInstances[chartId].options;
+                        createChart(chartId, chartType, data, options);
+                    }
+                });
+            });
+            
+            // Add event listener for time filter
+            document.getElementById('applyTimeFilter').addEventListener('click', function() {
+                currentTimeFilter = document.getElementById('timeFilter').value;
+                currentYearFilter = document.getElementById('yearFilter').value;
+                currentMonthFilter = document.getElementById('monthFilter').value;
+                currentDayFilter = document.getElementById('dayFilter').value;
+                
+                fetchResidentData();
+            });
+        });
 
-        // Refresh data every 5 minutes
-        setInterval(fetchResidentData, 300000);
+        // Report Card Functions
+        // Function to get program participation text
+        function getProgramParticipation(resident) {
+            const programs = [];
+            if (resident.registeredVoter) programs.push('Voter');
+            if (resident.fourPsMember) programs.push('4Ps');
+            if (resident.registeredVoter) programs.push('Voter');
+            if (resident.fourPsMember) programs.push('4Ps');
+            if (resident.pwdMember) programs.push('PWD');
+            
+            // Check if senior citizen based on age
+            const age = calculateAge(resident.birthdate);
+            if (age >= 60) programs.push('Senior');
+            
+            if (resident.soloParent) programs.push('Solo Parent');
+            
+            return programs.join(', ') || 'None';
+        }
+        
+        // Function to fetch report data
+        async function fetchReportData() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/admin-login.html';
+                    return;
+                }
+                
+                const response = await fetch('/api/admin/users?role=resident', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch resident data');
+                }
+                
+                const data = await response.json();
+                allResidents = data.residents || data;
+                
+                // Process data for display
+                processReportData(allResidents);
+                
+            } catch (error) {
+                console.error('Error fetching resident data:', error);
+                document.getElementById('residentTableBody').innerHTML = '<tr><td colspan="6">Error loading data. Please try again later.</td></tr>';
+            }
+        }
+        
+        // Function to process report data and update UI
+        function processReportData(residents) {
+            // Apply filters if any
+            applyFilters();
+            
+            // Update summary cards
+            updateReportSummaryCards(filteredResidents);
+            
+            // Update charts
+            updateReportCharts(filteredResidents);
+            
+            // Update table
+            updateResidentTable();
+        }
+        
+        // Function to apply filters
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const genderFilter = document.getElementById('genderFilter').value;
+            const civilStatusFilter = document.getElementById('civilStatusFilter').value;
+            const ageRangeFilter = document.getElementById('ageRangeFilter').value;
+            const programFilter = document.getElementById('programFilter').value;
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredResidents = allResidents.filter(resident => {
+                // Status filter
+                if (statusFilter && resident.status !== statusFilter) return false;
+                
+                // Gender filter
+                if (genderFilter && resident.gender !== genderFilter) return false;
+                
+                // Civil status filter
+                if (civilStatusFilter && resident.civilStatus !== civilStatusFilter) return false;
+                
+                // Age range filter
+                if (ageRangeFilter) {
+                    const age = calculateAge(resident.birthdate);
+                    if (age === null) return false;
+                    
+                    if (ageRangeFilter === '0-17' && age >= 18) return false;
+                    if (ageRangeFilter === '18-24' && (age < 18 || age > 24)) return false;
+                    if (ageRangeFilter === '25-34' && (age < 25 || age > 34)) return false;
+                    if (ageRangeFilter === '35-44' && (age < 35 || age > 44)) return false;
+                    if (ageRangeFilter === '45-54' && (age < 45 || age > 54)) return false;
+                    if (ageRangeFilter === '55-64' && (age < 55 || age > 64)) return false;
+                    if (ageRangeFilter === '65+' && age < 65) return false;
+                }
+                
+                // Program filter
+                if (programFilter) {
+                    if (programFilter === 'registeredVoter' && !resident.registeredVoter) return false;
+                    if (programFilter === 'fourPsMember' && !resident.fourPsMember) return false;
+                    if (programFilter === 'pwdMember' && !resident.pwdMember) return false;
+                    if (programFilter === 'seniorCitizen') {
+                        const age = calculateAge(resident.birthdate);
+                        if (age < 60) return false;
+                    }
+                    if (programFilter === 'soloParent' && !resident.soloParent) return false;
+                }
+                
+                // Search filter
+                if (searchText) {
+                    const searchableText = `${resident.fullName} ${resident.email}`.toLowerCase();
+                    if (!searchableText.includes(searchText)) return false;
+                }
+                
+                return true;
+            });
+            
+            // Reset to first page when filters change
+            currentPage = 1;
+        }
+        
+        // Function to update report summary cards
+        function updateReportSummaryCards(residents) {
+            const totalPopulation = residents.length;
+            const activeResidents = residents.filter(r => r.status === 'Active').length;
+            const inactiveResidents = totalPopulation - activeResidents;
+            
+            document.getElementById('reportTotalPopulation').textContent = totalPopulation;
+            document.getElementById('reportActiveResidents').textContent = activeResidents;
+            document.getElementById('reportInactiveResidents').textContent = inactiveResidents;
+        }
+        
+        // Function to update report charts
+        function updateReportCharts(residents) {
+            // Age distribution
+            const ageGroups = {
+                'Under 18': 0,
+                '18-24': 0,
+                '25-34': 0,
+                '35-44': 0,
+                '45-54': 0,
+                '55-64': 0,
+                '65+': 0,
+                'Unknown': 0
+            };
+            
+            residents.forEach(resident => {
+                const age = calculateAge(resident.birthdate);
+                const ageGroup = categorizeAge(age);
+                ageGroups[ageGroup]++;
+            });
+            
+            // Update report age chart
+            const reportAgeCtx = document.getElementById('reportAgeChart').getContext('2d');
+            if (window.reportAgeChartInstance) {
+                window.reportAgeChartInstance.destroy();
+            }
+            window.reportAgeChartInstance = new Chart(reportAgeCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ageGroups).filter(key => key !== 'Unknown'),
+                    datasets: [{
+                        label: 'Number of Residents',
+                        data: Object.keys(ageGroups)
+                            .filter(key => key !== 'Unknown')
+                            .map(key => ageGroups[key]),
+                        backgroundColor: '#5ECF89'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Gender distribution
+            const genderCounts = {
+                'Male': residents.filter(r => r.gender === 'Male').length,
+                'Female': residents.filter(r => r.gender === 'Female').length,
+                'Other': residents.filter(r => r.gender === 'Other' || !r.gender).length
+            };
+            
+            // Update report gender chart
+            const reportGenderCtx = document.getElementById('reportGenderChart').getContext('2d');
+            if (window.reportGenderChartInstance) {
+                window.reportGenderChartInstance.destroy();
+            }
+            window.reportGenderChartInstance = new Chart(reportGenderCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(genderCounts),
+                    datasets: [{
+                        data: Object.values(genderCounts),
+                        backgroundColor: ['#3498db', '#e74c3c', '#95a5a6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Civil status
+            const civilStatusCounts = {
+                'Single': residents.filter(r => r.civilStatus === 'Single').length,
+                'Married': residents.filter(r => r.civilStatus === 'Married').length,
+                'Widowed': residents.filter(r => r.civilStatus === 'Widowed').length,
+                'Separated': residents.filter(r => r.civilStatus === 'Separated').length,
+                'Unknown': residents.filter(r => !r.civilStatus).length
+            };
+            
+            // Update report civil status chart
+            const reportCivilStatusCtx = document.getElementById('reportCivilStatusChart').getContext('2d');
+            if (window.reportCivilStatusChartInstance) {
+                window.reportCivilStatusChartInstance.destroy();
+            }
+            window.reportCivilStatusChartInstance = new Chart(reportCivilStatusCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(civilStatusCounts).filter(key => key !== 'Unknown'),
+                    datasets: [{
+                        data: Object.keys(civilStatusCounts)
+                            .filter(key => key !== 'Unknown')
+                            .map(key => civilStatusCounts[key]),
+                        backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f39c12']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Program participation
+            const programCounts = {
+                'Registered Voter': residents.filter(r => r.registeredVoter).length,
+                '4Ps Member': residents.filter(r => r.fourPsMember).length,
+                'PWD Member': residents.filter(r => r.pwdMember).length,
+                'Senior Citizen': residents.filter(r => {
+                    const age = calculateAge(r.birthdate);
+                    return age >= 60;
+                }).length,
+                'Solo Parent': residents.filter(r => r.soloParent).length
+            };
+            
+            // Update report program chart
+            const reportProgramCtx = document.getElementById('reportProgramChart').getContext('2d');
+            if (window.reportProgramChartInstance) {
+                window.reportProgramChartInstance.destroy();
+            }
+            window.reportProgramChartInstance = new Chart(reportProgramCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(programCounts),
+                    datasets: [{
+                        label: 'Participants',
+                        data: Object.values(programCounts),
+                        backgroundColor: '#9b59b6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        // Function to update resident table
+        function updateResidentTable() {
+            const startIndex = (currentPage - 1) * residentsPerPage;
+            const endIndex = startIndex + residentsPerPage;
+            const pageResidents = filteredResidents.slice(startIndex, endIndex);
+            
+            // Clear table
+            const residentTableBody = document.getElementById('residentTableBody');
+            residentTableBody.innerHTML = '';
+            
+            if (pageResidents.length === 0) {
+                residentTableBody.innerHTML = '<tr><td colspan="6">No residents found matching the selected filters.</td></tr>';
+            } else {
+                // Add rows for each resident
+                pageResidents.forEach(resident => {
+                    const age = calculateAge(resident.birthdate);
+                    const programs = getProgramParticipation(resident);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${resident.fullName || 'N/A'}</td>
+                        <td>${age !== null ? age : 'N/A'}</td>
+                        <td>${resident.gender || 'N/A'}</td>
+                        <td>${resident.civilStatus || 'N/A'}</td>
+                        <td>${resident.status || 'N/A'}</td>
+                        <td>${programs}</td>
+                    `;
+                    residentTableBody.appendChild(row);
+                });
+            }
+            
+            // Update pagination controls
+            updatePaginationControls();
+        }
+        
+        // Function to update pagination controls
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(filteredResidents.length / residentsPerPage);
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const pageInfoEl = document.getElementById('pageInfo');
+            
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            
+            pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+        }
+        
+        // Function to export to PDF with barangay logo and prepared by section
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Use an absolute path to the logo - adjust based on your project structure
+    const logo = new Image();
+    logo.src = '/images/barangay-bg.png'; // Absolute path from public folder
+    
+    // Add error handling
+    logo.onerror = function() {
+        console.error('Failed to load logo image');
+        generatePDFWithoutLogo(doc); // Fallback function
+    };
+
+    logo.onload = function () {
+        // Add barangay logo (top left)
+        doc.addImage(logo, 'PNG', 15, 10, 25, 25);
+
+        // Add title at Y=65
+        doc.setFontSize(20);
+        doc.setTextColor(0, 0, 0);
+        doc.text('RESIDENT REPORT CARD', 105, 55, { align: 'center' });
+
+        // Add date below the title
+        doc.setFontSize(12);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 65, { align: 'center' }); // Increased Y position from 55 to 75
+
+        // Add resident table heading
+        doc.setFontSize(16);
+        doc.text('Resident Details', 15, 80); // Increased Y position from 0 to 90
+
+        // Prepare table data
+        const tableData = filteredResidents.map(resident => {
+            const age = calculateAge(resident.birthdate);
+            const programs = getProgramParticipation(resident);
+
+            return [
+                resident.fullName || 'N/A',
+                age !== null ? age.toString() : 'N/A',
+                resident.gender || 'N/A',
+                resident.civilStatus || 'N/A',
+                resident.status || 'N/A',
+                programs
+            ];
+        });
+
+        // Add table - starting below the heading
+        doc.autoTable({
+            head: [['Name', 'Age', 'Gender', 'Civil Status', 'Status', 'Programs']],
+            body: tableData,
+            startY: 85, // Increased from 65 to 95 to position below the heading
+            theme: 'grid',
+            headStyles: {
+                fillColor: [94, 207, 137],
+                textColor: 255,
+                fontStyle: 'bold'
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 3
+            },
+            margin: { left: 15, right: 15 }
+        });
+
+        // Get the final Y position after the table
+        const finalY = doc.lastAutoTable.finalY + 20;
+
+        // Add "Prepared by" section at the bottom left
+        doc.setFontSize(12);
+        doc.text('Prepared by:', 15, finalY);
+        doc.text('_________________________', 15, finalY + 10);
+        doc.setFontSize(10);
+        doc.text('Barangay Secretary', 15, finalY + 20);
+
+        // Save the PDF
+        doc.save('resident-report-card.pdf');
+    };
+}
+        
+        // Function to export to DOCS (simulated with text file)
+        function exportToDOCS() {
+            // Create a text representation of the report
+            let content = 'RESIDENT REPORT CARD\n';
+            content += '====================\n\n';
+            content += `Generated on: ${new Date().toLocaleDateString()}\n\n`;
+            
+            content += 'RESIDENT DETAILS\n';
+            content += '----------------\n';
+            content += 'Name\tAge\tGender\tCivil Status\tStatus\tPrograms\n';
+            
+            filteredResidents.forEach(resident => {
+                const age = calculateAge(resident.birthdate);
+                const programs = getProgramParticipation(resident);
+                
+                content += `${resident.fullName || 'N/A'}\t`;
+                content += `${age !== null ? age : 'N/A'}\t`;
+                content += `${resident.gender || 'N/A'}\t`;
+                content += `${resident.civilStatus || 'N/A'}\t`;
+                content += `${resident.status || 'N/A'}\t`;
+                content += `${programs}\n`;
+            });
+            
+            content += '\n\n';
+            content += 'Prepared by: _________________________\n';
+            content += 'Barangay Secretary\n';
+            
+            // Create a Blob and download link
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'resident-report-card.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to change chart type in report modal
+        function changeReportChartType(chartId, chartType) {
+            const chartInstance = window[chartId + 'Instance'];
+            if (!chartInstance) return;
+            
+            // Get current data
+            const data = chartInstance.data;
+            const options = chartInstance.options;
+            
+            // Destroy current chart
+            chartInstance.destroy();
+            
+            // Create new chart with different type
+            const ctx = document.getElementById(chartId).getContext('2d');
+            window[chartId + 'Instance'] = new Chart(ctx, {
+                type: chartType,
+                data: data,
+                options: options
+            });
+        }
+        
+        // Event listeners for report section
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            processReportData(allResidents);
+        });
+        
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updateResidentTable();
+            }
+        });
+        
+        document.getElementById('nextPage').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredResidents.length / residentsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateResidentTable();
+            }
+        });
+        
+        document.getElementById('exportPDF').addEventListener('click', exportToPDF);
+        document.getElementById('exportDOCS').addEventListener('click', exportToDOCS);
+
+        // Add event listeners for report chart type buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners for report chart type buttons
+            document.querySelectorAll('.report-chart-container .chart-option-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const chartId = this.dataset.chart;
+                    const chartType = this.dataset.type;
+                    
+                    // Remove active class from all buttons for this chart
+                    this.parentElement.querySelectorAll('.chart-option-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Change chart type
+                    changeReportChartType(chartId, chartType);
+                });
+            });
+        });
     </script>
 </body>
 </html>

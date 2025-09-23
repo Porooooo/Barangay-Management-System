@@ -49,7 +49,7 @@ const UserSchema = new mongoose.Schema({
     }
   },
 
-  // Optional Fields (for residents, will be null for admins)
+  // Personal Information
   firstName: {
     type: String,
     trim: true,
@@ -85,6 +85,21 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     default: null
   },
+  houseNumber: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  street: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  barangay: {
+    type: String,
+    trim: true,
+    default: 'Talipapa'
+  },
   birthdate: {
     type: Date,
     default: null
@@ -101,6 +116,17 @@ const UserSchema = new mongoose.Schema({
   },
   occupation: {
     type: String,
+    enum: [
+      'Unemployed',
+      'Student',
+      'Government Employee',
+      'Private Employee',
+      'Self-Employed',
+      'Business Owner',
+      'Retired',
+      'OFW',
+      'Other'
+    ],
     default: null
   },
   educationalAttainment: {
@@ -143,29 +169,41 @@ const UserSchema = new mongoose.Schema({
     ],
     default: null
   },
+  
+  // Government Program Participation
   registeredVoter: {
     type: Boolean,
-    default: null
+    default: false
   },
   fourPsMember: {
     type: Boolean,
-    default: null
+    default: false
   },
   pwdMember: {
     type: Boolean,
-    default: null
+    default: false
   },
   seniorCitizen: {
     type: Boolean,
-    default: null
+    default: false
   },
   soloParent: {
     type: Boolean,
-    default: null
+    default: false
   },
   isBanned: {
     type: Boolean,
     default: false
+  },
+
+  // Comment notifications
+  commentNotifications: {
+    type: Boolean,
+    default: true
+  },
+  lastSeenAnnouncements: {
+    type: Date,
+    default: Date.now
   },
 
   // Password Reset Fields
@@ -197,7 +235,7 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-// 🔒 Pre-save hook to hash password
+// Pre-save hook to hash password
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
@@ -210,18 +248,38 @@ UserSchema.pre('save', async function (next) {
   }
 });
 
-// 📅 Pre-save hook to update 'updatedAt'
+// Pre-save hook to update 'updatedAt'
 UserSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();
 });
 
-// 🔍 Password comparison method
+// Method to generate full name from components
+UserSchema.methods.generateFullName = function() {
+  let fullName = '';
+  if (this.firstName) fullName += this.firstName;
+  if (this.middleName) fullName += ' ' + this.middleName;
+  if (this.lastName) fullName += ' ' + this.lastName;
+  if (this.suffix) fullName += ' ' + this.suffix;
+  
+  return fullName.trim();
+};
+
+// Pre-save hook to generate fullName if not provided
+UserSchema.pre('save', function(next) {
+  if ((!this.fullName || this.isModified('firstName') || this.isModified('lastName')) && 
+      (this.firstName || this.lastName)) {
+    this.fullName = this.generateFullName();
+  }
+  next();
+});
+
+// Password comparison method
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// 🔑 Create password reset token method
+// Create password reset token method
 UserSchema.methods.createPasswordResetToken = function() {
   // Generate 6-digit OTP
   const otp = crypto.randomInt(100000, 999999).toString();
@@ -234,11 +292,19 @@ UserSchema.methods.createPasswordResetToken = function() {
   return otp;
 };
 
-// 🚫 Clear password reset token method
+// Clear password reset token method
 UserSchema.methods.clearPasswordResetToken = function() {
   this.resetPasswordToken = undefined;
   this.resetPasswordExpires = undefined;
   this.resetPasswordVerified = undefined;
 };
+
+// Virtual for profile picture URL
+UserSchema.virtual('profilePictureUrl').get(function() {
+  if (this.profilePicture) {
+    return `/uploads/profile-pictures/${this.profilePicture}`;
+  }
+  return '/images/default-profile.png';
+});
 
 module.exports = mongoose.model('User', UserSchema);
