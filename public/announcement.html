@@ -77,6 +77,7 @@
             border-radius: 50%;
             margin-right: 10px;
             object-fit: cover;
+            border: 2px solid #e0e0e0;
         }
 
         .post-user-info {
@@ -198,6 +199,7 @@
             border-radius: 50%;
             margin-right: 8px;
             object-fit: cover;
+            border: 2px solid #e0e0e0;
         }
 
         .comment-user {
@@ -286,6 +288,45 @@
         .admin-user {
             color: #5ECF89;
             font-weight: bold;
+        }
+
+        /* Resident user styling */
+        .resident-user {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .resident-comment {
+            background-color: #f8f9fa;
+            border-left: 3px solid #6c757d;
+        }
+
+        .resident-reply {
+            background-color: #f8f9fa;
+            border-left: 3px solid #6c757d;
+        }
+
+        /* View Image Button */
+        .view-image-btn {
+            background-color: #5ECF89;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-image-btn:hover {
+            background-color: #4db777;
+        }
+
+        .image-section {
+            margin: 10px 0;
         }
 
         /* Responsive Design */
@@ -399,18 +440,49 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
-
     <script>
+        let currentUser = null;
+
+        // Fetch current user profile
+        async function fetchCurrentUser() {
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    currentUser = await response.json();
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+            }
+        }
+
         // Toggle sidebar
         function toggleMenu() {
             const sidebar = document.querySelector("nav");
             sidebar.classList.toggle("close");
         }
 
+        // Toggle image visibility
+        function toggleImage(announcementId) {
+            const image = document.getElementById(`image-${announcementId}`);
+            const button = document.querySelector(`#image-${announcementId}`).previousElementSibling;
+            
+            if (image.style.display === 'none') {
+                image.style.display = 'block';
+                button.innerHTML = '<i class="uil uil-times"></i> Hide Image';
+            } else {
+                image.style.display = 'none';
+                button.innerHTML = '<i class="uil uil-image"></i> View Image';
+            }
+        }
+
         // Load user-specific announcements
         async function loadAnnouncements() {
             try {
+                await fetchCurrentUser(); // Ensure user data is loaded first
+                
                 const response = await fetch('/api/announcements/user', {
                     credentials: 'include'
                 });
@@ -450,9 +522,6 @@
                 const createdAt = new Date(announcement.createdAt);
                 const eventTime = announcement.eventDateTime ? new Date(announcement.eventDateTime) : null;
                 
-                // Check if announcement is expired (more than 24 hours old)
-                const isExpired = (now - createdAt) > (24 * 60 * 60 * 1000);
-                
                 return `
                 <div class="post" id="post-${announcement._id}">
                     <div class="post-header">
@@ -465,7 +534,17 @@
                     <div class="post-content">
                         <h4 class="post-title">${announcement.title}</h4>
                         <p class="post-text">${announcement.content}</p>
-                        ${announcement.imageUrl ? `<img src="${announcement.imageUrl}" class="post-image" alt="Announcement Image">` : ''}
+                        
+                        <!-- Image section with view button -->
+                        ${announcement.imageUrl ? `
+                            <div class="image-section">
+                                <button class="view-image-btn" onclick="toggleImage('${announcement._id}')">
+                                    <i class="uil uil-image"></i> View Image
+                                </button>
+                                <img src="${announcement.imageUrl}" class="post-image" id="image-${announcement._id}" alt="Announcement Image" style="display: none;">
+                            </div>
+                        ` : ''}
+                        
                         ${eventTime ? `<p><strong>Event Time:</strong> ${eventTime.toLocaleString()}</p>` : ''}
                         <div>
                             ${announcement.targetGroups?.map(group => `
@@ -512,6 +591,8 @@
                 commentsSection.style.display = 'none';
             } else {
                 commentsSection.style.display = 'block';
+                // Ensure comments are loaded when section is opened
+                loadComments(announcementId);
             }
         }
 
@@ -538,7 +619,7 @@
             }
         }
 
-        // Display comments with admin styling
+        // Display comments with actual user profiles
         function displayComments(announcementId, comments) {
             const container = document.getElementById(`comments-list-${announcementId}`);
             
@@ -555,11 +636,19 @@
                 const commentTime = new Date(comment.createdAt);
                 const isAdminComment = comment.userName === 'Barangay Admin';
                 
+                // Use actual profile picture or default
+                const profilePicture = comment.userProfilePicture ? 
+                    (comment.userProfilePicture.startsWith('http') ? 
+                        comment.userProfilePicture : 
+                        '/uploads/' + comment.userProfilePicture) : 
+                    '/images/default-profile.png';
+                
                 return `
-                <div class="comment ${isAdminComment ? 'admin-comment' : ''}" id="comment-${comment._id}">
+                <div class="comment ${isAdminComment ? 'admin-comment' : 'resident-comment'}" id="comment-${comment._id}">
                     <div class="comment-header">
-                        <img src="/images/default-profile.png" alt="User" class="comment-avatar">
-                        <span class="comment-user ${isAdminComment ? 'admin-user' : ''}">${comment.userName}</span>
+                        <img src="${profilePicture}" alt="${comment.userName}" class="comment-avatar" 
+                             onerror="this.src='/images/default-profile.png'">
+                        <span class="comment-user ${isAdminComment ? 'admin-user' : 'resident-user'}">${comment.userName}</span>
                         <span class="comment-time">${commentTime.toLocaleString()}</span>
                     </div>
                     <p class="comment-text">${comment.text}</p>
@@ -569,11 +658,18 @@
                             ${comment.replies.map(reply => {
                                 const replyTime = new Date(reply.createdAt);
                                 const isAdminReply = reply.userName === 'Barangay Admin';
+                                const replyProfilePicture = reply.userProfilePicture ? 
+                                    (reply.userProfilePicture.startsWith('http') ? 
+                                        reply.userProfilePicture : 
+                                        '/uploads/' + reply.userProfilePicture) : 
+                                    '/images/default-profile.png';
+                                
                                 return `
-                                <div class="comment reply ${isAdminReply ? 'admin-reply' : ''}">
+                                <div class="comment reply ${isAdminReply ? 'admin-reply' : 'resident-reply'}">
                                     <div class="comment-header">
-                                        <img src="/images/default-profile.png" alt="User" class="comment-avatar">
-                                        <span class="comment-user ${isAdminReply ? 'admin-user' : ''}">${reply.userName}</span>
+                                        <img src="${replyProfilePicture}" alt="${reply.userName}" class="comment-avatar"
+                                             onerror="this.src='/images/default-profile.png'">
+                                        <span class="comment-user ${isAdminReply ? 'admin-user' : 'resident-user'}">${reply.userName}</span>
                                         <span class="comment-time">${replyTime.toLocaleString()}</span>
                                     </div>
                                     <p class="comment-text">${reply.text}</p>
@@ -583,17 +679,19 @@
                         </div>
                     ` : ''}
                     
-                    <p class="comment-reply" onclick="toggleReplyForm('${comment._id}')">Reply</p>
-                    <div class="reply-form" id="reply-form-${comment._id}" style="display: none;">
-                        <input type="text" class="reply-input" id="reply-input-${comment._id}" placeholder="Write a reply...">
-                        <button class="reply-submit" onclick="postReply('${announcementId}', '${comment._id}')">Reply</button>
-                    </div>
+                    ${!isAdminComment ? `
+                        <p class="comment-reply" onclick="toggleReplyForm('${comment._id}')">Reply</p>
+                        <div class="reply-form" id="reply-form-${comment._id}" style="display: none;">
+                            <input type="text" class="reply-input" id="reply-input-${comment._id}" placeholder="Write a reply...">
+                            <button class="reply-submit" onclick="postReply('${announcementId}', '${comment._id}')">Reply</button>
+                        </div>
+                    ` : ''}
                 </div>
                 `;
             }).join('');
         }
 
-        // Post a comment
+        // Post a comment with user data
         async function postComment(announcementId) {
             const commentInput = document.getElementById(`comment-input-${announcementId}`);
             const text = commentInput.value.trim();
@@ -619,7 +717,7 @@
                 
                 const newComment = await response.json();
                 commentInput.value = '';
-                loadComments(announcementId); // Reload comments
+                loadComments(announcementId); // Reload comments to show the new one with proper profile
             } catch (error) {
                 console.error('Error posting comment:', error);
                 alert('Failed to post comment. Please try again.');
@@ -667,10 +765,37 @@
                 console.error('Error posting reply:', error);
                 alert('Failed to post reply. Please try again.');
             }
-        }   
+        }
+
+        // Add logout functionality
+        async function logout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', loadAnnouncements);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAnnouncements();
+            
+            // Add logout event listener
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logout();
+                });
+            }
+        });
     </script>
 </body>
 </html>
