@@ -139,6 +139,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // 🛣️ Routes
+// Routes
 const authRoutes = require("./routes/authRoutes");
 const residentRoutes = require("./routes/residentRoutes");
 const blotterRoutes = require("./routes/blotterRoutes");
@@ -146,6 +147,7 @@ const requestsRoutes = require("./routes/requestsRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const announceRoutes = require("./routes/announceRoutes");
 const emergencyRoutes = require("./routes/emergencyRoutes");
+const approvalRoutes = require("./routes/approvalRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/residents", residentRoutes);
@@ -154,6 +156,8 @@ app.use("/api/requests", requestsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/announcements", announceRoutes);
 app.use("/api/emergency", emergencyRoutes);
+app.use("/api/approvals", approvalRoutes);
+
 
 // 🔐 Protected HTML Routes
 const setSecurityHeaders = (req, res, next) => {
