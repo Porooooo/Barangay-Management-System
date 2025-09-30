@@ -254,8 +254,8 @@ router.post('/:id/comments', async (req, res) => {
             return res.status(400).json({ error: 'Comment text is required' });
         }
 
-        // Get user info
-        const user = await User.findById(req.session.userId);
+        // Get user info with profile data
+        const user = await User.findById(req.session.userId).select('fullName role profilePicture');
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -269,10 +269,12 @@ router.post('/:id/comments', async (req, res) => {
         const isAdmin = user.role === 'admin';
         const displayName = isAdmin ? 'Barangay Admin' : user.fullName;
 
-        // Add comment
+        // Add comment with user profile data
         announcement.comments.push({
             userId: req.session.userId,
             userName: displayName,
+            userProfilePicture: user.profilePicture, // Add profile picture
+            userRole: user.role, // Add user role
             text
         });
 
@@ -320,8 +322,8 @@ router.post('/:id/comments/:commentId/replies', async (req, res) => {
             return res.status(400).json({ error: 'Reply text is required' });
         }
 
-        // Get user info
-        const user = await User.findById(req.session.userId);
+        // Get user info with profile data
+        const user = await User.findById(req.session.userId).select('fullName role profilePicture');
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -341,10 +343,12 @@ router.post('/:id/comments/:commentId/replies', async (req, res) => {
         const isAdmin = user.role === 'admin';
         const displayName = isAdmin ? 'Barangay Admin' : user.fullName;
 
-        // Add reply
+        // Add reply with user profile data
         comment.replies.push({
             userId: req.session.userId,
             userName: displayName,
+            userProfilePicture: user.profilePicture, // Add profile picture
+            userRole: user.role, // Add user role
             text
         });
 

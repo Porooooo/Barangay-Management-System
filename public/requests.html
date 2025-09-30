@@ -133,6 +133,26 @@
             display: block;
         }
 
+        /* Select dropdown styling */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+        }
+
+        .other-purpose-input {
+            margin-top: 5px;
+            display: none;
+        }
+
+        .other-purpose-input.show {
+            display: block;
+        }
+
         /* Success Modal */
         .modal {
             display: none;
@@ -203,7 +223,7 @@
             <div class="logo-image">
                 <img src="images/barangay-bg.png" alt="Barangay Logo">
             </div>
-            <span class="logo_name">Resident Panel</span>
+            <span class="logo_name">Brgy. Talipapa</span>
         </div>
         
         <div class="menu-items">
@@ -316,7 +336,16 @@
 
                     <div class="form-group">
                         <label for="purpose">Purpose of Document:</label>
-                        <textarea id="purpose" name="purpose" required placeholder="Explain why you need this document"></textarea>
+                        <select id="purpose" name="purpose" required>
+                            <option value="" disabled selected>Select a purpose</option>
+                            <option value="Business Permit Application">Business Permit Application</option>
+                            <option value="Employment Requirement">Employment Requirement</option>
+                            <option value="School Requirement">School Requirement</option>
+                            <option value="Government Transaction">Government Transaction</option>
+                            <option value="Loan Application">Loan Application</option>
+                            <option value="Other">Other (Please specify)</option>
+                        </select>
+                        <input type="text" id="otherPurposeInput" name="otherPurposeInput" class="other-purpose-input" placeholder="Specify other purpose">
                     </div>
 
                     <div class="form-group">
@@ -358,6 +387,19 @@
                 otherInput.classList.remove('show');
                 otherInput.required = false;
                 otherInput.value = '';
+            }
+        });
+
+        // Toggle other purpose input field when "Other" is selected
+        document.getElementById('purpose').addEventListener('change', function() {
+            const otherPurposeInput = document.getElementById('otherPurposeInput');
+            if (this.value === 'Other') {
+                otherPurposeInput.classList.add('show');
+                otherPurposeInput.required = true;
+            } else {
+                otherPurposeInput.classList.remove('show');
+                otherPurposeInput.required = false;
+                otherPurposeInput.value = '';
             }
         });
     
@@ -456,17 +498,33 @@
                 alert('Please select at least one document type');
                 return;
             }
+
+            // Get purpose
+            const purposeSelect = document.getElementById('purpose');
+            let purpose = purposeSelect.value;
+            
+            if (purpose === 'Other') {
+                const otherPurpose = document.getElementById('otherPurposeInput').value.trim();
+                if (!otherPurpose) {
+                    alert('Please specify the purpose');
+                    return;
+                }
+                purpose = `Other: ${otherPurpose}`;
+            } else if (!purpose) {
+                alert('Please select a purpose for the document');
+                return;
+            }
     
             const formData = {
                 fullName: user.fullName,
                 email: user.email,
                 address: document.getElementById('address').value.trim(),
                 documentTypes: documentTypes,
-                purpose: document.getElementById('purpose').value.trim()
+                purpose: purpose
             };
     
             // Basic validation
-            if (!formData.address || !formData.purpose) {
+            if (!formData.address) {
                 alert('Please fill in all required fields');
                 return;
             }
@@ -501,7 +559,7 @@
             // Disable form if user is banned
             const isAllowed = await checkUserStatus();
             if (!isAllowed) {
-                document.querySelectorAll('#documentRequestForm input, #documentRequestForm textarea, #documentRequestForm button').forEach(element => {
+                document.querySelectorAll('#documentRequestForm input, #documentRequestForm select, #documentRequestForm textarea, #documentRequestForm button').forEach(element => {
                     element.disabled = true;
                 });
             }
@@ -528,4 +586,4 @@
         });
     </script>
 </body>
-</html>
+</html> 

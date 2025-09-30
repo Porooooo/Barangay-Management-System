@@ -10,6 +10,15 @@ const CommentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  userProfilePicture: {
+    type: String,
+    default: null
+  },
+  userRole: {
+    type: String,
+    enum: ['admin', 'resident'],
+    default: 'resident'
+  },
   text: {
     type: String,
     required: true,
@@ -25,10 +34,19 @@ const CommentSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    userProfilePicture: {
+      type: String,
+      default: null
+    },
+    userRole: {
+      type: String,
+      enum: ['admin', 'resident'],
+      default: 'resident'
+    },
     text: {
       type: String,
       required: true,
-    trim: true
+      trim: true
     },
     createdAt: {
       type: Date,

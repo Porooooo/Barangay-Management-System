@@ -7,6 +7,94 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <title>Your Blotter Reports</title>
+
+    <style>
+        /* Main Content */
+      .main-content {
+          margin-left: 250px;
+          padding: 20px;
+      }
+
+      .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+            margin-top: 20px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-section img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .profile-section span {
+            display: block;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 5px;
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .profile-dropdown.active {
+            display: block;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .profile-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #333;
+            transition: background-color 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .profile-dropdown a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .profile-dropdown .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 5px 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -73,7 +161,18 @@
 
     <section class="dashboard">
         <div class="top">
-            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+          <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+          <div class="profile-section" id="profileDropdown">
+            <img id="profilePicture" src="" alt="Profile Picture" />
+            <span id="userName"></span>
+            <i class="uil uil-angle-down"></i>
+            <div class="profile-dropdown" id="dropdownMenu">
+              <a href="residentRequests.html"><i class="uil uil-file-alt"></i>Your Requests</a>
+              <a href="resident-blotter.html"><i class="uil uil-shield-exclamation"></i>Your Blotter</a>
+              <div class="divider"></div>
+              <a href="profile.html"><i class="uil uil-user"></i>Profile</a>
+            </div>
+          </div>
         </div>
 
         <div class="dash-content">
@@ -178,17 +277,78 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async function () {
+        // Add authFetch function (same as your dashboard)
+        async function authFetch(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+            if (response.status === 401) {
+                window.location.href = "index.html";
+                return null;
+            }
+            return response;
+        }
+    
+        // Add profile fetching function
+        async function fetchUserProfile() {
             try {
-                // First check if user is logged in
-                const userResponse = await fetch('/api/auth/check-auth', {
-                    credentials: 'include'
+                const profileResponse = await authFetch('/api/auth/profile');
+                
+                if (!profileResponse) return;
+                
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    
+                    // Update profile section in the header
+                    const profilePic = document.getElementById('profilePicture');
+                    const userName = document.getElementById('userName');
+                    
+                    if (profileData.profilePicture) {
+                        if (profileData.profilePicture.startsWith('http') || profileData.profilePicture.startsWith('/')) {
+                            profilePic.src = profileData.profilePicture;
+                        } else {
+                            profilePic.src = '/uploads/' + profileData.profilePicture;
+                        }
+                    } else {
+                        profilePic.src = 'images/profile.jpg';
+                    }
+                    
+                    userName.textContent = profileData.fullName || 'User';
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            }
+        }
+    
+        // Add profile dropdown functionality
+        function setupProfileDropdown() {
+            const profileDropdown = document.getElementById('profileDropdown');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            
+            if (profileDropdown && dropdownMenu) {
+                profileDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('active');
                 });
                 
-                if (!userResponse.ok) {
-                    window.location.href = '/login.html';
-                    return;
-                }
+                // Close dropdown when clicking elsewhere
+                document.addEventListener('click', function() {
+                    dropdownMenu.classList.remove('active');
+                });
+            }
+        }
+    
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                // First check if user is logged in using authFetch
+                const userResponse = await authFetch('/api/auth/check-auth');
+                
+                if (!userResponse) return; // Already redirected by authFetch if unauthorized
                 
                 const userData = await userResponse.json();
                 
@@ -198,6 +358,12 @@
                     window.location.href = '/residentdashboard.html';
                     return;
                 }
+    
+                // Fetch and display user profile
+                await fetchUserProfile();
+                
+                // Setup profile dropdown functionality
+                setupProfileDropdown();
                 
                 // If checks pass, fetch blotter reports
                 await fetchBlotterReports();
@@ -213,15 +379,12 @@
                 document.getElementById('loadingMessage').style.display = 'block';
                 document.getElementById('errorMessage').style.display = 'none';
                 
-                const response = await fetch('/api/blotter/user', {
-                    credentials: 'include'
-                });
+                // Use authFetch instead of basic fetch
+                const response = await authFetch('/api/blotter/user');
+                
+                if (!response) return; // authFetch will handle redirect if unauthorized
                 
                 if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = 'login.html';
-                        return;
-                    }
                     throw new Error('Failed to fetch blotter reports');
                 }
                 
@@ -299,9 +462,10 @@
     
         async function viewReportDetails(reportId) {
             try {
-                const response = await fetch(`/api/blotter/${reportId}`, {
-                    credentials: 'include'
-                });
+                // Use authFetch instead of basic fetch
+                const response = await authFetch(`/api/blotter/${reportId}`);
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch report details');
@@ -355,23 +519,22 @@
             }
         });
         
-        // Logout functionality
+        // Update logout functionality to use authFetch
         document.getElementById('logoutBtn').addEventListener('click', async function(e) {
             e.preventDefault();
             try {
-                const response = await fetch('/api/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include'
+                const response = await authFetch('/api/auth/logout', {
+                    method: 'POST'
                 });
                 
-                if (response.ok) {
-                    window.location.href = '/login.html';
+                if (response && response.ok) {
+                    window.location.href = '/index.html';
                 } else {
                     throw new Error('Logout failed');
                 }
             } catch (error) {
                 console.error('Logout error:', error);
-                window.location.href = '/login.html';
+                window.location.href = '/index.html';
             }
         });
     </script>

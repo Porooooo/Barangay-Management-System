@@ -18,34 +18,39 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f7f7f7;
+            /* new background gradient */
+            background: linear-gradient(135deg, #d4eaf7 0%, #f3e0b6 100%);
+            background-attachment: fixed;
+            margin: 0;
         }
 
         .container {
             display: flex;
             background-color: #ffffff;
-            border-radius: 25px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            max-width: 900px;
+            border-radius: 20px;
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;   /* smaller like login page */
             width: 90%;
-            height: 550px;
+            height: 300px;      /* smaller like login page */
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .right-section {
             flex: 1;
-            background-color: #f3e0b6;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
+            background-color: #f3e0b6;
         }
 
         .right-section img {
-            width: 300px;
-            height: 300px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             object-fit: cover;
+            transition: all 0.3s ease;
         }
 
         .left-section {
@@ -53,41 +58,46 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 30px;
+            padding: 25px;
             background-color: #ffffff;
-            border-radius: 20px;
+            border-radius: 20px 0 0 20px;
+            transition: all 0.3s ease;
         }
 
         .form-container {
-            max-width: 400px;
+            max-width: 260px;
             width: 100%;
             text-align: center;
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 800;
             color: #000000;
-            margin-bottom: 15px;
+            text-align: center;
+            margin-bottom: 8px;
         }
 
         p {
             margin-bottom: 15px;
             color: #666;
+            text-align: center;
             font-size: 14px;
         }
 
-        .btn-signup {
+        button {
             width: 100%;
             padding: 10px;
             background-color: #f3e0b6;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: 14px;
+            transition: background 0.3s ease;
+            margin-top: 10px;
         }
 
-        .btn-signup:hover {
+        button:hover {
             background-color: #e3d3a8;
         }
 
@@ -101,10 +111,10 @@
         }
 
         .register-link {
-            margin-top: 15px;
+            margin-top: 12px;
             text-align: center;
             color: #666;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         /* Modal Styles */
@@ -246,19 +256,22 @@
         .form-navigation {
             display: flex;
             justify-content: space-between;
+            gap: 10px;
             margin-top: 20px;
         }
-        
-        .btn-next, .btn-prev {
-            width: 48%;
+
+        .form-navigation button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f3e0b6;
+            transition: background 0.3s ease;
         }
-        
-        .btn-next {
-            margin-left: auto;
-        }
-        
-        .btn-prev {
-            margin-right: auto;
+
+        .form-navigation button:hover {
+            background-color: #e3d3a8;
         }
         
         #submit-btn {
@@ -421,7 +434,7 @@
 
         .success-icon {
             font-size: 60px;
-            color: #4CAF50;
+            color: #ffa500; /* Changed to orange for pending status */
             margin-bottom: 20px;
         }
 
@@ -449,6 +462,128 @@
 
         .success-modal button:hover {
             background-color: #45a049;
+        }   
+
+        /* New styles for ID verification */
+        .id-verification-section {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .id-verification-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .id-verification-note {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .id-preview {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .id-preview-img {
+            max-width: 200px;
+            max-height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .file-requirements {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .required-badge {
+            color: red;
+            margin-left: 3px;
+        }
+
+        /* Adjust form columns for new fields */
+        .form-columns-3 {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .form-column-3 {
+            width: 32%;
+        }
+
+        /* Add responsive styles for mobile devices */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+                max-width: 90%;
+                margin: 20px;
+            }
+
+            .right-section {
+                order: -1; /* Moves logo to top */
+                padding: 15px;
+                background: transparent;
+                text-align: center;
+            }
+
+            .right-section img {
+                width: 140px;
+                height: 140px;
+            }
+
+            .left-section {
+                padding: 20px;
+                border-radius: 0;
+                text-align: center;
+                width: 100%;
+            }
+
+            .form-container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            button {
+                width: 100%;
+                font-size: 13px;
+                padding: 9px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            p, .register-link {
+                font-size: 12px;
+            }
+
+            /* Adjust modal for mobile */
+            .modal-content {
+                width: 95%;
+                max-width: 100%;
+                margin: 10px;
+            }
+
+            .form-column-3 {
+                width: 100%;
+            }
+
+            .form-columns-3 {
+                gap: 5px;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -475,7 +610,7 @@
             <span class="close" onclick="closeModal()">&times;</span>
             <h2>Sign Up</h2>
             
-            <!-- Progress Bar -->
+            <!-- Progress Bar - Updated to 5 steps -->
             <div class="progress-bar">
                 <div class="progress-step active" id="step1">
                     <div class="step-number">1</div>
@@ -491,6 +626,10 @@
                 </div>
                 <div class="progress-step" id="step4">
                     <div class="step-number">4</div>
+                    <div class="step-label">ID Verification</div>
+                </div>
+                <div class="progress-step" id="step5">
+                    <div class="step-number">5</div>
                     <div class="step-label">Account Setup</div>
                 </div>
             </div>
@@ -666,22 +805,81 @@
                         <button type="button" class="btn-next" onclick="nextPage(3)">Next</button>
                     </div>
                 </div>
-                
-                <!-- Page 4: Account Setup -->
+
+                <!-- NEW PAGE: ID Verification -->
                 <div class="form-page" id="page4">
+                    <div class="form-section-title">Identity Verification</div>
+                    
+                    <div class="id-verification-section">
+                        <div class="id-verification-title">
+                            Government-Issued ID Verification
+                            <span class="required-badge">*</span>
+                        </div>
+                        <div class="id-verification-note">
+                            Please submit a clear photo of your valid government-issued ID for verification purposes. This helps us ensure the security and authenticity of our community.
+                        </div>
+                        
+                        <div class="form-columns-3">
+                            <div class="form-column-3">
+                                <label for="idType" class="required-field">ID Type</label>
+                                <select id="idType" name="idType" required>
+                                    <option value="" disabled selected>Select ID Type</option>
+                                    <option value="National ID">National ID</option>
+                                    <option value="Driver License">Driver's License</option>
+                                    <option value="Passport">Passport</option>
+                                    <option value="Voter ID">Voter's ID</option>
+                                    <option value="Barangay ID">Barangay ID</option>
+                                    <option value="Other">Other Government ID</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-column-3">
+                                <label for="idNumber" class="required-field">ID Number</label>
+                                <input type="text" id="idNumber" name="idNumber" placeholder="Enter ID Number" required>
+                            </div>
+                            
+                            <div class="form-column-3">
+                                <label for="idPhoto" class="required-field file-upload-label">Upload ID Photo</label>
+                                <input type="file" id="idPhoto" name="idPhoto" accept="image/png, image/jpeg, image/jpg" required onchange="previewIDPhoto(event)">
+                                <div class="file-requirements">
+                                    Max file size: 2MB | Accepted formats: JPG, JPEG, PNG
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="id-preview">
+                            <img id="idPhotoPreview" class="id-preview-img" alt="ID Preview">
+                        </div>
+                        
+                        <div class="checkbox-item full-width" style="margin-top: 15px;">
+                            <input type="checkbox" id="agreeIdVerification" required>
+                            <label for="agreeIdVerification">
+                                I certify that the ID submitted is valid, current, and belongs to me. I understand that providing false identification may result in account termination.
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-navigation">
+                        <button type="button" class="btn-prev" onclick="prevPage(4)">Previous</button>
+                        <button type="button" class="btn-next" onclick="nextPage(4)">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Page 5: Account Setup (renamed from page4) -->
+                <div class="form-page" id="page5">
                     <div class="form-section-title">Account Setup</div>
                     <div class="form-columns">
                         <div class="form-column">
                             <label for="password" class="required-field">Create Password</label>
                             <div class="password-input-container">
                                 <input type="password" id="password" name="password" placeholder="Create Password" required oninput="checkPasswordRequirements()">
-                                <span class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</span>
+                                <span class="password-toggle" onclick="togglePasswordVisibility('password')">🙈</span>
                             </div>
                             
                             <label for="confirmPassword" class="required-field">Confirm Password</label>
                             <div class="password-input-container">
                                 <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
-                                <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">👁️</span>
+                                <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">🙈</span>
                             </div>
                             <div class="error-message" id="password-error">Passwords do not match</div>
                         </div>
@@ -703,7 +901,7 @@
                     </div>
                     
                     <div class="form-navigation">
-                        <button type="button" class="btn-prev" onclick="prevPage(4)">Previous</button>
+                        <button type="button" class="btn-prev" onclick="prevPage(5)">Previous</button>
                         <button type="submit" id="submit-btn">Submit Registration</button>
                     </div>
                 </div>
@@ -715,11 +913,14 @@
     <div class="success-modal" id="successModal">
         <div class="success-modal-content">
             <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-clock"></i>
             </div>
-            <h2>Registration Successful!</h2>
-            <p>Your account has been created successfully. You can now login with your credentials.</p>
-            <button onclick="redirectToLogin()">Go to Login Page</button>
+            <h2>Registration Submitted!</h2>
+            <p>Your account has been created successfully and is pending administrator approval. You will be able to login once your account is approved.</p>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                Your ID verification is under review. You will receive an email notification once your account is approved.
+            </p>
+            <button onclick="redirectToLogin()">Return to Login</button>
         </div>
     </div>
 
@@ -746,12 +947,12 @@
             // Show the selected page
             document.getElementById('page' + pageNumber).classList.add('active');
             
-            // Update progress bar
+            // Update progress bar for 5 steps
             document.querySelectorAll('.progress-step').forEach(step => {
                 step.classList.remove('active', 'completed');
             });
             
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 5; i++) {
                 const step = document.getElementById('step' + i);
                 if (i < pageNumber) {
                     step.classList.add('completed');
@@ -812,11 +1013,66 @@
                 }
             }
             
+            // Special validation for ID verification page
+            if (pageNumber === 4) {
+                const idPhoto = document.getElementById('idPhoto');
+                if (idPhoto.files.length > 0) {
+                    const file = idPhoto.files[0];
+                    const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+                    
+                    if (!validTypes.includes(file.type)) {
+                        alert('Please upload a valid ID image file (PNG, JPG, JPEG).');
+                        isValid = false;
+                    } else if (file.size > maxSize) {
+                        alert('ID image file size must be less than 2MB.');
+                        isValid = false;
+                    }
+                }
+            }
+            
             if (!isValid) {
                 alert('Please fill in all required fields correctly.');
             }
             
             return isValid;
+        }
+
+        // NEW: ID Photo preview function
+        function previewIDPhoto(event) {
+            const input = event.target;
+            const preview = document.getElementById('idPhotoPreview');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+                
+                // Validate file type
+                if (!validTypes.includes(file.type)) {
+                    alert('Please upload a valid image file (PNG, JPG, JPEG).');
+                    input.value = '';
+                    preview.style.display = 'none';
+                    return;
+                }
+                
+                // Validate file size
+                if (file.size > maxSize) {
+                    alert('Image file size must be less than 2MB.');
+                    input.value = '';
+                    preview.style.display = 'none';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
         }
 
         // Toggle password visibility
@@ -826,10 +1082,10 @@
             
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
-                toggleIcon.textContent = '👁️‍🗨️';
+                toggleIcon.textContent = '🙉';
             } else {
                 passwordField.type = 'password';
-                toggleIcon.textContent = '👁️';
+                toggleIcon.textContent = '🙈';
             }
         }
 
@@ -902,86 +1158,114 @@
             window.location.href = 'login.html';
         }
 
-        // Handle form submission
-        document.getElementById('registerForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+// Handle form submission - FIXED VERSION
+document.getElementById('registerForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
 
-            // Validate all pages before submission
-            for (let i = 1; i <= 4; i++) {
-                if (!validatePage(i)) {
-                    showPage(i); // Show the first page with errors
-                    return;
-                }
-            }
-            
-            // Validate passwords match
-            if (!validatePassword()) {
-                return;
-            }
+    // Validate all pages before submission
+    for (let i = 1; i <= 5; i++) {
+        if (!validatePage(i)) {
+            showPage(i); // Show the first page with errors
+            return;
+        }
+    }
+    
+    // Validate passwords match
+    if (!validatePassword()) {
+        return;
+    }
 
-            // Check password requirements are met
-            const password = document.getElementById('password').value;
-            if (password.length < 8 || !/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-                alert('Please ensure your password meets all requirements.');
-                return;
-            }
+    // Check password requirements are met
+    const password = document.getElementById('password').value;
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        alert('Please ensure your password meets all requirements.');
+        return;
+    }
 
-            const formData = new FormData();
-            // Personal Information
-            formData.append('lastName', document.getElementById('lastName').value);
-            formData.append('firstName', document.getElementById('firstName').value);
-            formData.append('middleName', document.getElementById('middleName').value);
-            formData.append('suffix', document.getElementById('suffix').value);
-            formData.append('birthdate', document.getElementById('birthdate').value);
-            formData.append('gender', document.getElementById('gender').value);
-            formData.append('civilStatus', document.getElementById('civilStatus').value);
-            formData.append('occupation', document.getElementById('occupation').value);
-            
-            // Contact Information
-            formData.append('email', document.getElementById('email').value);
-            formData.append('contactNumber', document.getElementById('contactNumber').value);
-            formData.append('alternateContactNumber', document.getElementById('alternateContactNumber').value);
-            formData.append('profilePicture', document.getElementById('profilePicture').files[0]);
-            
-            // Government Programs
-            formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
-            formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
-            formData.append('pwdMember', document.getElementById('pwdMember').checked);
-            formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
-            formData.append('soloParent', document.getElementById('soloParent').checked);
-            
-            // Address Information
-            formData.append('houseNumber', document.getElementById('houseNumber').value);
-            formData.append('street', document.getElementById('street').value);
-            formData.append('barangay', document.getElementById('barangay').value);
-            formData.append('homeownerStatus', document.getElementById('homeownerStatus').value);
-            formData.append('yearsResiding', document.getElementById('yearsResiding').value);
-            formData.append('monthlyIncome', document.getElementById('monthlyIncome').value);
-            formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
-            
-            // Account Setup
-            formData.append('password', document.getElementById('password').value);
-            formData.append('confirmPassword', document.getElementById('confirmPassword').value);
+    const formData = new FormData();
+    
+    // Personal Information - FIXED field names
+    formData.append('lastName', document.getElementById('lastName').value);
+    formData.append('firstName', document.getElementById('firstName').value);
+    formData.append('middleName', document.getElementById('middleName').value);
+    formData.append('suffix', document.getElementById('suffix').value);
+    formData.append('birthdate', document.getElementById('birthdate').value);
+    formData.append('gender', document.getElementById('gender').value);
+    formData.append('civilStatus', document.getElementById('civilStatus').value);
+    formData.append('occupation', document.getElementById('occupation').value);
+    
+    // Contact Information - FIXED field names
+    formData.append('email', document.getElementById('email').value);
+    formData.append('contactNumber', document.getElementById('contactNumber').value);
+    formData.append('alternateContactNumber', document.getElementById('alternateContactNumber').value);
+    
+    // Profile Picture
+    const profilePictureFile = document.getElementById('profilePicture').files[0];
+    if (profilePictureFile) {
+        formData.append('profilePicture', profilePictureFile);
+    }
+    
+    // Government Programs - FIXED: Convert checkboxes to proper boolean values
+    formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
+    formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
+    formData.append('pwdMember', document.getElementById('pwdMember').checked);
+    formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
+    formData.append('soloParent', document.getElementById('soloParent').checked);
+    
+    // Address Information - FIXED field names
+    formData.append('houseNumber', document.getElementById('houseNumber').value);
+    formData.append('street', document.getElementById('street').value);
+    formData.append('barangay', document.getElementById('barangay').value);
+    formData.append('homeownerStatus', document.getElementById('homeownerStatus').value);
+    formData.append('yearsResiding', document.getElementById('yearsResiding').value);
+    formData.append('monthlyIncome', document.getElementById('monthlyIncome').value);
+    formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
+    
+    // ID Verification Data
+    formData.append('idType', document.getElementById('idType').value);
+    formData.append('idNumber', document.getElementById('idNumber').value);
+    
+    const idPhotoFile = document.getElementById('idPhoto').files[0];
+    if (idPhotoFile) {
+        formData.append('idPhoto', idPhotoFile);
+    }
+    
+    // Account Setup
+    formData.append('password', document.getElementById('password').value);
+    formData.append('confirmPassword', document.getElementById('confirmPassword').value);
 
-            try {       
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
+    console.log("Submitting form data..."); // Debug log
 
-                const result = await response.json();
-                if (response.ok) {
-                    // Show success modal instead of alert
-                    showSuccessModal();
-                } else {
-                    alert(result.message || result.error || 'Registration failed');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while registering.');
-            }
+    // Log form data for debugging
+    for (let [key, value] of formData.entries()) {
+        if (key !== 'profilePicture' && key !== 'idPhoto') {
+            console.log(`${key}: ${value}`);
+        } else {
+            console.log(`${key}: [File]`);
+        }
+    }
+
+    try {       
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
         });
+
+        const result = await response.json();
+        console.log("Registration response:", result); // Debug log
+        
+        if (response.ok) {
+            // Show success modal instead of alert
+            showSuccessModal();
+        } else {
+            alert(result.message || result.error || 'Registration failed');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while registering.');
+    }
+});
 
         // Add event listeners for password validation
         document.getElementById('confirmPassword').addEventListener('input', validatePassword);

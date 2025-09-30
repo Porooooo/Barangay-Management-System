@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en">    
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,405 +8,439 @@
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <title>Resident Dashboard</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
 
-        /* Emergency Response Notification - Top Center Position */
-        .emergency-response-notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #5ECF89;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            max-width: 80%;
-            width: 400px;
-            animation: slideDown 0.3s forwards;
-        }
+/* Emergency Response Notification - Top Center Position */
+.emergency-response-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #5ECF89;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-width: 80%;
+    width: 400px;
+    animation: slideDown 0.3s forwards;
+}
 
-        .emergency-response-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.emergency-response-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-        .emergency-response-content i {
-            font-size: 24px;
-        }
+.emergency-response-content i {
+    font-size: 24px;
+}
 
-        .emergency-response-content h4 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-        }
+.emergency-response-content h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+}
 
-        .emergency-response-content p {
-            margin: 0;
-            font-size: 14px;
-        }
+.emergency-response-content p {
+    margin: 0;
+    font-size: 14px;
+}
 
-        @keyframes slideDown {
-            from { transform: translate(-50%, -100%); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
-        }
+@keyframes slideDown {
+    from { transform: translate(-50%, -100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
 
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translate(-50%, 0); }
-            to { opacity: 0; transform: translate(-50%, -100%); }
-        }
+@keyframes fadeOut {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to { opacity: 0; transform: translate(-50%, -100%); }
+}
 
-        /* Sidebar */
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #333;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .sidebar .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-        }
-        .sidebar a {
-            padding: 15px;
-            text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            text-align: center;
-            transition: 0.3s;
-        }
-        .sidebar a:hover { background-color: #5ECF89; }
+/* Sidebar */
+.sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #333;
+    overflow-x: hidden;
+    transition: 0.3s;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.sidebar .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+}
+.sidebar a {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    display: block;
+    text-align: center;
+    transition: 0.3s;
+}
+.sidebar a:hover { background-color: #5ECF89; }
 
-        /* Sidebar Logo */
-        .sidebar-logo {
-            width: 120px;  
-            height: auto;
-            margin: 10px auto; 
-            display: block;
-            border-radius: 50%; 
-        }
+/* Sidebar Logo */
+.sidebar-logo {
+    width: 120px;  
+    height: auto;
+    margin: 10px auto; 
+    display: block;
+    border-radius: 50%; 
+}
 
-        /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-        }
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+}
 
-        .top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-        }
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
 
-        /* Profile Section */
-        .profile-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-right: 20px;
-            margin-top: 20px;
-        }
+/* Profile Section */
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px;
+    margin-top: 20px;
+}
 
-        .profile-section img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
+.profile-section img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
 
-        .profile-section span {
-            display: block;
-            text-align: center;
-            margin-top: 5px;
-            font-size: 14px;
-            font-weight: 500;
-        }
+.profile-section span {
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 500;
+}
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-            .main-content {
-                margin-left: 200px;
-            }
-        }
+/* Dashboard Content */
+.dash-content {
+    margin-top: 20px;
+}
 
-        @media (max-width: 576px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .emergency-response-notification {
-                width: 90%;
-            }
-        }
+.overview {
+    display: flex;
+    flex-direction: column;
+}
 
-        /* Dashboard Content */
-        .dash-content {
-            margin-top: 20px;
-        }
+.boxes {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 20px;
+}
 
-        .overview {
-            display: flex;
-            flex-direction: column;
-        }
+.box {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 5px;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-        .boxes {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            gap: 20px;
-        }
+.box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
 
-        .box {
-            background-color: #f0f0f0;
-            padding: 20px;
-            border-radius: 5px;
-            flex: 1;
-            min-width: 0;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+.box i {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
 
-        .box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
+.box .text {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
 
-        .box i {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
+.box .number {
+    font-size: 18px;
+    font-weight: 600;
+}
 
-        .box .text {
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
+.box1 { background-color: #e3f2fd; color: #1976d2; }
+.box2 { background-color: #e8f5e9; color: #388e3c; }
+.box3 { background-color: #fff3e0; color: #ffa000; }
 
-        .box .number {
-            font-size: 18px;
-            font-weight: 600;
-        }
+/* Status Badges */
+.status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
 
-        .box1 {
-            background-color: #e3f2fd;
-            color: #1976d2;
-        }
+.status-pending { background-color: #fff3cd; color: #856404; }
+.status-under-investigation { background-color: #d1ecf1; color: #0c5460; }
+.status-resolved { background-color: #d4edda; color: #155724; }
+.status-dismissed { background-color: #f8d7da; color: #721c24; }
 
-        .box2 {
-            background-color: #e8f5e9;
-            color: #388e3c;
-        }
+/* Emergency Button */
+.emergency-button-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
 
-        .box3 {
-            background-color: #fff3e0;
-            color: #ffa000;
-        }
+.emergency-button {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 25px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(255, 68, 68, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
 
-        .activity {
-            margin-top: 20px;
-        }
+.emergency-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(255, 68, 68, 0.4);
+}
 
-        .resident-requests {
-            margin-top: 20px;
-        }
+/* Modal (shared) */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
 
-        /* Status Badges */
-        .status {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            text-transform: uppercase;
-        }
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 500px;
+}
 
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        .status-under-investigation {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
+.close:hover {
+    color: black;
+}
 
-        .status-resolved {
-            background-color: #d4edda;
-            color: #155724;
-        }
+.modal-content textarea {
+    width: 100%;
+    height: 150px;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: none;
+}
 
-        .status-dismissed {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
+.modal-content button {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
 
-        /* Emergency Button */
-        .emergency-button-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-        }
+.modal-content button:hover {
+    background-color: #e53935;
+}
 
-        .emergency-button {
-            background-color: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 15px 25px;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(255, 68, 68, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
+/* Logout Modal (smaller) */
+#logoutModal .modal-content {
+    max-width: 350px;
+    text-align: center;
+}
 
-        .emergency-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(255, 68, 68, 0.4);
-        }
+#logoutModal .modal-content h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
+#logoutModal .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 500px;
-        }
+#logoutModal .modal-actions button {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+}
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+#logoutModal .confirm {
+    background-color: #ff4444;
+    color: #fff;
+}
 
-        .close:hover {
-            color: black;
-        }
+#logoutModal .cancel {
+    background-color: #ddd;
+    color: #333;
+}
 
-        .modal-content textarea {
-            width: 100%;
-            height: 150px;
-            margin: 15px 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            resize: none;
-        }
+/* Recent Activity Table */
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
 
-        .modal-content button {
-            background-color: #ff4444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+.activity-table th, .activity-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
 
-        .modal-content button:hover {
-            background-color: #e53935;
-        }
+.activity-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
 
-        /* Recent Activity Table */
-        .activity-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
+.activity-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
 
-        .activity-table th, .activity-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+.view-button {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
 
-        .activity-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: #2c3e50;
-        }
+.view-button:hover {
+    background-color: #0056b3;
+}
 
-        .activity-table tbody tr:hover {
-            background-color: #f5f5f5;
-        }
+/* Title Styling */
+.title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
 
-        .view-button {
-            background-color: #007bff;
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
+.title i {
+    margin-right: 10px;
+    font-size: 20px;
+}
 
-        .view-button:hover {
-            background-color: #0056b3;
-        }
+.title .text {
+    font-size: 18px;
+    font-weight: 600;
+}
 
-        /* Title Styling */
-        .title {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+/* Responsive Design */
 
-        .title i {
-            margin-right: 10px;
-            font-size: 20px;
-        }
+/* Tablet */
+@media (max-width: 1024px) {
+  .boxes { flex-wrap: wrap; gap: 15px; }
+  .box { flex: 1 1 45%; min-width: 200px; }
+}
 
-        .title .text {
-            font-size: 18px;
-            font-weight: 600;
-        }
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar { left: -250px; width: 250px; position: fixed; height: 100%; transition: left 0.3s ease; z-index: 1000; }
+  .sidebar.active { left: 0; }
+  .main-content { margin-left: 0; padding: 10px; }
+  .sidebar-toggle { display: block; font-size: 28px; cursor: pointer; margin-right: auto; }
+
+  .boxes { flex-direction: column; align-items: stretch; gap: 15px; }
+  .box { width: 100%; }
+
+  .emergency-button-container { bottom: 15px; right: 15px; }
+  .emergency-response-notification { width: 90%; top: 10px; max-width: 350px; }
+
+  .profile-section { margin-right: 10px; margin-top: 0; }
+
+  /* Emergency button only icon */
+  .emergency-button {
+    padding: 12px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    justify-content: center;
+    gap: 0;
+  }
+  .emergency-button span { display: none; }
+  .emergency-button i { margin: 0; font-size: 20px; }
+}
+
+/* Small mobile screens */
+@media (max-width: 576px) {
+  .sidebar a { font-size: 14px; padding: 10px; }
+  .profile-section img { width: 35px; height: 35px; }
+  .profile-section span { font-size: 12px; }
+  .box .text { font-size: 14px; }
+  .box .number { font-size: 14px; }
+  .modal-content { width: 95%; margin: 30% auto; }
+
+  .emergency-button { width: 45px; height: 45px; padding: 10px; }
+  .emergency-button i { font-size: 18px; }
+}
+
+/* Extra tiny screens */
+@media (max-width: 400px) {
+  .box .text, .box .number { font-size: 12px; }
+  .emergency-button { width: 40px; height: 40px; padding: 8px; }
+  .emergency-button i { font-size: 16px; }
+}
     </style>
 </head>
 <body>
@@ -478,7 +512,7 @@
     <!-- Emergency Button -->
     <div class="emergency-button-container">
       <button class="emergency-button" onclick="openEmergencyModal()">
-        <i class="uil uil-bell"></i> Emergency
+        <i class="uil uil-bell"></i> <span>Emergency</span>
       </button>
     </div>
   
@@ -489,6 +523,18 @@
         <h2>Send Emergency Alert</h2>
         <textarea id="emergencyMessage" placeholder="Describe your emergency..."></textarea>
         <button onclick="sendEmergencyAlert()">Send Alert</button>
+      </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeLogoutModal()">&times;</span>
+        <h3>Are you sure you want to logout?</h3>
+        <div class="modal-actions">
+          <button class="confirm" onclick="confirmLogout()">Yes</button>
+          <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
+        </div>
       </div>
     </div>
   
@@ -526,7 +572,6 @@
             return;
           }
 
-          // Check if responses are OK
           if (!profileResponse.ok) console.error('Profile fetch failed');
           if (!requestsResponse.ok) console.error('Requests fetch failed');
           if (!announcementsResponse.ok) console.error('Announcements fetch failed');
@@ -537,7 +582,6 @@
           const announcements = announcementsResponse.ok ? await announcementsResponse.json() : [];
           let blotterCases = [];
 
-          // Handle blotter response carefully
           if (blotterResponse.ok) {
               try {
                   blotterCases = await blotterResponse.json();
@@ -576,7 +620,6 @@
           );
           document.getElementById('newAnnouncements').textContent = unviewedAnnouncements.length;
   
-          // Count active blotter cases safely
           const activeBlotterCases = Array.isArray(blotterCases) ? 
               blotterCases.filter(b => 
                   b.status === "Pending" || b.status === "Under Investigation"
@@ -642,6 +685,19 @@
           console.error('Logout error:', error);
         }
       }
+
+      function openLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'block';
+      }
+
+      function closeLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+      }
+
+      function confirmLogout() {
+        closeLogoutModal();
+        logout();
+      }
   
       const socket = io({ withCredentials: true });
   
@@ -689,7 +745,6 @@
             });
         }
         
-        // Create a popup notification in the UI at top center
         const notification = document.createElement('div');
         notification.className = 'emergency-response-notification';
         notification.innerHTML = `
@@ -703,7 +758,6 @@
         `;
         document.body.appendChild(notification);
         
-        // Auto-remove after 10 seconds with fade out animation
         setTimeout(() => {
             notification.style.animation = 'fadeOut 0.5s forwards';
             setTimeout(() => {
@@ -733,7 +787,7 @@
   
         document.getElementById('logoutBtn').addEventListener('click', function (e) {
           e.preventDefault();
-          logout();
+          openLogoutModal();
         });
       });
   

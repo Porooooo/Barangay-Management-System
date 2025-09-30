@@ -227,6 +227,18 @@
             cursor: pointer;
         }
 
+        .comment-count-badge {
+            background-color: #5ECF89;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
+            margin-left: 5px;
+            min-width: 18px;
+            text-align: center;
+            display: inline-block;
+        }
+
         .reply-form {
             margin-left: 40px;
             margin-top: 8px;
@@ -429,6 +441,9 @@
     <section class="dashboard">
         <div class="top">
             <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <div class="header">
+                <h1><i class="uil uil-megaphone"></i> Barangay Announcements</h1>
+            </div>
         </div><br><br>
 
         <div class="dash-content">
@@ -442,50 +457,90 @@
 
     <script>
         let currentUser = null;
-
-        // Fetch current user profile
+    
+        // Add authFetch function for consistent authentication
+        async function authFetch(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+            if (response.status === 401) {
+                window.location.href = "index.html";
+                return null;
+            }
+            return response;
+        }
+    
+        // Fetch current user profile with proper error handling
         async function fetchCurrentUser() {
             try {
-                const response = await fetch('/api/auth/profile', {
-                    credentials: 'include'
-                });
+                const response = await authFetch('/api/auth/profile');
+                
+                if (!response) return null;
                 
                 if (response.ok) {
                     currentUser = await response.json();
+                    return currentUser;
                 }
             } catch (error) {
                 console.error('Error fetching user profile:', error);
             }
+            return null;
         }
-
+    
+        // Get user profile picture URL
+        function getUserProfilePicture(userData) {
+            if (!userData) return '/images/default-profile.png';
+            
+            if (userData.profilePicture) {
+                if (userData.profilePicture.startsWith('http') || userData.profilePicture.startsWith('/')) {
+                    return userData.profilePicture;
+                } else {
+                    return '/uploads/' + userData.profilePicture;
+                }
+            }
+            return '/images/default-profile.png';
+        }
+    
+        // Calculate total comments (including replies)
+        function calculateTotalComments(comments) {
+            if (!comments || !Array.isArray(comments)) return 0;
+            
+            let total = comments.length;
+            comments.forEach(comment => {
+                if (comment.replies && Array.isArray(comment.replies)) {
+                    total += comment.replies.length;
+                }
+            });
+            
+            return total;
+        }
+    
+        // Format comment count text
+        function formatCommentCount(count) {
+            if (count === 0) return '';
+            if (count === 1) return '1 comment';
+            return `${count} comments`;
+        }
+    
         // Toggle sidebar
         function toggleMenu() {
             const sidebar = document.querySelector("nav");
             sidebar.classList.toggle("close");
         }
-
-        // Toggle image visibility
-        function toggleImage(announcementId) {
-            const image = document.getElementById(`image-${announcementId}`);
-            const button = document.querySelector(`#image-${announcementId}`).previousElementSibling;
-            
-            if (image.style.display === 'none') {
-                image.style.display = 'block';
-                button.innerHTML = '<i class="uil uil-times"></i> Hide Image';
-            } else {
-                image.style.display = 'none';
-                button.innerHTML = '<i class="uil uil-image"></i> View Image';
-            }
-        }
-
-        // Load user-specific announcements
+    
+        // Load announcements from server
         async function loadAnnouncements() {
             try {
                 await fetchCurrentUser(); // Ensure user data is loaded first
                 
-                const response = await fetch('/api/announcements/user', {
-                    credentials: 'include'
-                });
+                const response = await authFetch('/api/announcements');
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to load announcements');
@@ -496,28 +551,26 @@
             } catch (error) {
                 console.error('Error loading announcements:', error);
                 document.getElementById('announcementsList').innerHTML = `
-                    <div class="no-announcements">
+                    <div class="post">
                         <p>Error loading announcements. Please try again later.</p>
                     </div>
                 `;
             }
         }
-
+    
         // Display announcements in Facebook-style posts
         function displayAnnouncements(announcements) {
             const container = document.getElementById('announcementsList');
             
             if (!announcements || announcements.length === 0) {
                 container.innerHTML = `
-                    <div class="no-announcements">
+                    <div class="post">
                         <p>No announcements available at this time.</p>
                     </div>
                 `;
                 return;
             }
-
-            const now = new Date();
-            
+    
             container.innerHTML = announcements.map(announcement => {
                 const createdAt = new Date(announcement.createdAt);
                 const eventTime = announcement.eventDateTime ? new Date(announcement.eventDateTime) : null;
@@ -525,7 +578,7 @@
                 return `
                 <div class="post" id="post-${announcement._id}">
                     <div class="post-header">
-                        <img src="/images/default-profile.png" alt="Admin" class="post-avatar">
+                        <img src="/images/barangay-bg.png" alt="Admin" class="post-avatar">
                         <div class="post-user-info">
                             <h3 class="post-username">Barangay Admin</h3>
                             <p class="post-time">${createdAt.toLocaleString()}</p>
@@ -557,33 +610,30 @@
                         </div>
                     </div>
                     <div class="post-footer">
-                        <div class="post-actions">
-                            <button class="post-action-btn" onclick="toggleComments('${announcement._id}')">
-                                <i class="uil uil-comment"></i> Comment
-                            </button>
+                        <!-- Comment count will be inserted here by loadComments function -->
+                        <div id="comment-count-${announcement._id}" class="comment-count"></div>
+                    </div>
+                    
+                    <!-- Comments Section -->
+                    <div class="comments-section" id="comments-${announcement._id}" style="display: none;">
+                        <div class="comment-form">
+                            <input type="text" class="comment-input" id="comment-input-${announcement._id}" placeholder="Write a comment...">
+                            <button class="comment-submit" onclick="postComment('${announcement._id}')">Comment</button>
                         </div>
-                        
-                        <div class="comments-section" id="comments-${announcement._id}" style="display: none;">
-                            <div class="comment-form">
-                                <input type="text" class="comment-input" id="comment-input-${announcement._id}" placeholder="Write a comment...">
-                                <button class="comment-submit" onclick="postComment('${announcement._id}')">Post</button>
-                            </div>
-                            
-                            <div class="comments-list" id="comments-list-${announcement._id}">
-                                <!-- Comments will be loaded here -->
-                            </div>
+                        <div class="comments-list" id="comments-list-${announcement._id}">
+                            <!-- Comments will be loaded here -->
                         </div>
                     </div>
                 </div>
                 `;
             }).join('');
-
+    
             // Load comments for each announcement
             announcements.forEach(announcement => {
                 loadComments(announcement._id);
             });
         }
-
+    
         // Toggle comments section
         function toggleComments(announcementId) {
             const commentsSection = document.getElementById(`comments-${announcementId}`);
@@ -595,60 +645,94 @@
                 loadComments(announcementId);
             }
         }
-
+    
         // Load comments for an announcement
         async function loadComments(announcementId) {
             try {
-                const response = await fetch(`/api/announcements/${announcementId}/comments`, {
-                    credentials: 'include'
-                });
+                const response = await authFetch(`/api/announcements/${announcementId}/comments`);
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to load comments');
                 }
                 
                 const comments = await response.json();
+                
+                // Update comment count
+                updateCommentCount(announcementId, comments);
+                
+                // Display comments
                 displayComments(announcementId, comments);
             } catch (error) {
                 console.error('Error loading comments:', error);
                 document.getElementById(`comments-list-${announcementId}`).innerHTML = `
-                    <div class="comment">
+                    <div class="no-comments">
                         <p>Error loading comments. Please try again later.</p>
                     </div>
                 `;
             }
         }
-
+    
+        // Update comment count display
+        function updateCommentCount(announcementId, comments) {
+            const commentCountElement = document.getElementById(`comment-count-${announcementId}`);
+            const totalComments = calculateTotalComments(comments);
+            const commentCountText = formatCommentCount(totalComments);
+            
+            if (commentCountText) {
+                commentCountElement.innerHTML = `
+                    <button class="post-action-btn" onclick="toggleComments('${announcementId}')">
+                        <i class="uil uil-comment"></i> ${commentCountText}
+                    </button>
+                `;
+                commentCountElement.style.display = 'block';
+            } else {
+                commentCountElement.innerHTML = `
+                    <button class="post-action-btn" onclick="toggleComments('${announcementId}')">
+                        <i class="uil uil-comment"></i> Comment
+                    </button>
+                `;
+                commentCountElement.style.display = 'block';
+            }
+        }
+    
         // Display comments with actual user profiles
         function displayComments(announcementId, comments) {
             const container = document.getElementById(`comments-list-${announcementId}`);
             
             if (!comments || comments.length === 0) {
                 container.innerHTML = `
-                    <div class="comment">
+                    <div class="no-comments">
                         <p>No comments yet. Be the first to comment!</p>
                     </div>
                 `;
                 return;
             }
-
+    
             container.innerHTML = comments.map(comment => {
                 const commentTime = new Date(comment.createdAt);
                 const isAdminComment = comment.userName === 'Barangay Admin';
                 
-                // Use actual profile picture or default
-                const profilePicture = comment.userProfilePicture ? 
-                    (comment.userProfilePicture.startsWith('http') ? 
-                        comment.userProfilePicture : 
-                        '/uploads/' + comment.userProfilePicture) : 
-                    '/images/default-profile.png';
+                // Use actual profile picture from comment data or fallback to current user's picture
+                let profilePicture = '/images/default-profile.png';
+                
+                if (comment.userProfilePicture) {
+                    // Use the profile picture from the comment data (if provided by server)
+                    profilePicture = comment.userProfilePicture.startsWith('http') || comment.userProfilePicture.startsWith('/') 
+                        ? comment.userProfilePicture 
+                        : '/uploads/' + comment.userProfilePicture;
+                } else if (currentUser && comment.userId === currentUser._id) {
+                    // Fallback: if it's the current user's comment, use their profile picture
+                    profilePicture = getUserProfilePicture(currentUser);
+                }
                 
                 return `
-                <div class="comment ${isAdminComment ? 'admin-comment' : 'resident-comment'}" id="comment-${comment._id}">
+                <div class="comment ${isAdminComment ? 'admin-comment' : ''}" id="comment-${comment._id}">
                     <div class="comment-header">
                         <img src="${profilePicture}" alt="${comment.userName}" class="comment-avatar" 
                              onerror="this.src='/images/default-profile.png'">
-                        <span class="comment-user ${isAdminComment ? 'admin-user' : 'resident-user'}">${comment.userName}</span>
+                        <span class="comment-user ${isAdminComment ? 'admin-user' : ''}">${comment.userName}</span>
                         <span class="comment-time">${commentTime.toLocaleString()}</span>
                     </div>
                     <p class="comment-text">${comment.text}</p>
@@ -658,18 +742,22 @@
                             ${comment.replies.map(reply => {
                                 const replyTime = new Date(reply.createdAt);
                                 const isAdminReply = reply.userName === 'Barangay Admin';
-                                const replyProfilePicture = reply.userProfilePicture ? 
-                                    (reply.userProfilePicture.startsWith('http') ? 
-                                        reply.userProfilePicture : 
-                                        '/uploads/' + reply.userProfilePicture) : 
-                                    '/images/default-profile.png';
+                                
+                                let replyProfilePicture = '/images/default-profile.png';
+                                if (reply.userProfilePicture) {
+                                    replyProfilePicture = reply.userProfilePicture.startsWith('http') || reply.userProfilePicture.startsWith('/') 
+                                        ? reply.userProfilePicture 
+                                        : '/uploads/' + reply.userProfilePicture;
+                                } else if (currentUser && reply.userId === currentUser._id) {
+                                    replyProfilePicture = getUserProfilePicture(currentUser);
+                                }
                                 
                                 return `
-                                <div class="comment reply ${isAdminReply ? 'admin-reply' : 'resident-reply'}">
+                                <div class="comment reply ${isAdminReply ? 'admin-reply' : ''}">
                                     <div class="comment-header">
                                         <img src="${replyProfilePicture}" alt="${reply.userName}" class="comment-avatar"
                                              onerror="this.src='/images/default-profile.png'">
-                                        <span class="comment-user ${isAdminReply ? 'admin-user' : 'resident-user'}">${reply.userName}</span>
+                                        <span class="comment-user ${isAdminReply ? 'admin-user' : ''}">${reply.userName}</span>
                                         <span class="comment-time">${replyTime.toLocaleString()}</span>
                                     </div>
                                     <p class="comment-text">${reply.text}</p>
@@ -679,19 +767,47 @@
                         </div>
                     ` : ''}
                     
-                    ${!isAdminComment ? `
-                        <p class="comment-reply" onclick="toggleReplyForm('${comment._id}')">Reply</p>
-                        <div class="reply-form" id="reply-form-${comment._id}" style="display: none;">
-                            <input type="text" class="reply-input" id="reply-input-${comment._id}" placeholder="Write a reply...">
-                            <button class="reply-submit" onclick="postReply('${announcementId}', '${comment._id}')">Reply</button>
-                        </div>
-                    ` : ''}
+                    <p class="comment-reply" onclick="toggleReplyForm('${announcementId}', '${comment._id}')">
+                        <i class="uil uil-corner-up-right"></i> Reply
+                    </p>
+                    <div class="reply-form" id="reply-form-${announcementId}-${comment._id}" style="display: none;">
+                        <input type="text" class="reply-input" id="reply-input-${announcementId}-${comment._id}" placeholder="Write a reply...">
+                        <button class="reply-submit" onclick="postReply('${announcementId}', '${comment._id}')">Reply</button>
+                    </div>
                 </div>
                 `;
             }).join('');
         }
-
-        // Post a comment with user data
+    
+        // Toggle image visibility
+        function toggleImage(announcementId) {
+            const image = document.getElementById(`image-${announcementId}`);
+            const button = document.querySelector(`#image-${announcementId}`).previousElementSibling;
+            
+            if (image.style.display === 'none') {
+                image.style.display = 'block';
+                button.innerHTML = '<i class="uil uil-times"></i> Hide Image';
+            } else {
+                image.style.display = 'none';
+                button.innerHTML = '<i class="uil uil-image"></i> View Image';
+            }
+        }
+    
+        // Toggle reply form
+        function toggleReplyForm(announcementId, commentId) {
+            const replyForm = document.getElementById(`reply-form-${announcementId}-${commentId}`);
+            if (replyForm.style.display === 'block') {
+                replyForm.style.display = 'none';
+            } else {
+                // Hide any other open reply forms
+                document.querySelectorAll('.reply-form').forEach(form => {
+                    form.style.display = 'none';
+                });
+                replyForm.style.display = 'flex';
+            }
+        }
+    
+        // Post a comment
         async function postComment(announcementId) {
             const commentInput = document.getElementById(`comment-input-${announcementId}`);
             const text = commentInput.value.trim();
@@ -702,14 +818,12 @@
             }
             
             try {
-                const response = await fetch(`/api/announcements/${announcementId}/comments`, {
+                const response = await authFetch(`/api/announcements/${announcementId}/comments`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text }),
-                    credentials: 'include'
+                    body: JSON.stringify({ text })
                 });
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to post comment');
@@ -717,26 +831,16 @@
                 
                 const newComment = await response.json();
                 commentInput.value = '';
-                loadComments(announcementId); // Reload comments to show the new one with proper profile
+                loadComments(announcementId); // Reload comments
             } catch (error) {
                 console.error('Error posting comment:', error);
                 alert('Failed to post comment. Please try again.');
             }
         }
-
-        // Toggle reply form
-        function toggleReplyForm(commentId) {
-            const replyForm = document.getElementById(`reply-form-${commentId}`);
-            if (replyForm.style.display === 'block') {
-                replyForm.style.display = 'none';
-            } else {
-                replyForm.style.display = 'flex';
-            }
-        }
-
+    
         // Post a reply
         async function postReply(announcementId, commentId) {
-            const replyInput = document.getElementById(`reply-input-${commentId}`);
+            const replyInput = document.getElementById(`reply-input-${announcementId}-${commentId}`);
             const text = replyInput.value.trim();
             
             if (!text) {
@@ -745,14 +849,12 @@
             }
             
             try {
-                const response = await fetch(`/api/announcements/${announcementId}/comments/${commentId}/replies`, {
+                const response = await authFetch(`/api/announcements/${announcementId}/comments/${commentId}/replies`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text }),
-                    credentials: 'include'
+                    body: JSON.stringify({ text })
                 });
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to post reply');
@@ -760,31 +862,32 @@
                 
                 const newReply = await response.json();
                 replyInput.value = '';
+                document.getElementById(`reply-form-${announcementId}-${commentId}`).style.display = 'none';
                 loadComments(announcementId); // Reload comments
             } catch (error) {
                 console.error('Error posting reply:', error);
                 alert('Failed to post reply. Please try again.');
             }
         }
-
+    
         // Add logout functionality
         async function logout() {
             try {
-                const response = await fetch('/api/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include'
+                const response = await authFetch('/api/auth/logout', {
+                    method: 'POST'
                 });
                 
-                if (response.ok) {
+                if (response && response.ok) {
                     window.location.href = 'index.html';
                 }
             } catch (error) {
                 console.error('Logout error:', error);
             }
         }
-
+    
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load announcements when page loads
             loadAnnouncements();
             
             // Add logout event listener

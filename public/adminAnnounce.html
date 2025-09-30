@@ -314,7 +314,12 @@
             border-top: 1px solid #E4E6EB;
             padding-top: 12px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-actions {
+            display: flex;
             gap: 15px;
         }
 
@@ -341,7 +346,21 @@
             color: #F02849;
         }
 
-        /* Comments Section */
+        /* Comment count styling */
+        .comment-count {
+            font-size: 14px;
+            color: #65676B;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .comment-count:hover {
+            text-decoration: underline;
+        }
+
+        /* Comments Section - Updated to match user page style */
         .comments-section {
             margin-top: 12px;
             border-top: 1px solid #E4E6EB;
@@ -394,6 +413,7 @@
             border-radius: 50%;
             margin-right: 8px;
             object-fit: cover;
+            border: 2px solid #e0e0e0;
         }
 
         .comment-user {
@@ -456,16 +476,17 @@
             background-color: #4db777;
         }
 
-        .admin-reply {
-            background-color: #f0f8ff;
-            border-left: 3px solid #5ECF89;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 0 8px 8px 0;
+        .replies {
+            margin-left: 20px;
+            border-left: 2px solid #f0f2f5;
+            padding-left: 15px;
+            margin-top: 8px;
         }
 
-        .admin-reply .comment-user {
-            color: #5ECF89;
+        .reply {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #f0f2f5;
         }
 
         .no-comments {
@@ -475,6 +496,20 @@
             font-style: italic;
         }
 
+        /* Comment count badge styling */
+        .comment-count-badge {
+            background-color: #5ECF89;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
+            margin-left: 5px;
+            min-width: 18px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        /* Admin comment styling */
         .admin-comment {
             background-color: #f0f8ff;
             border-left: 3px solid #5ECF89;
@@ -606,6 +641,15 @@
             .reply-input {
                 margin-bottom: 8px;
             }
+            .post-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .post-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
@@ -637,15 +681,20 @@
                 </a></li>
                 <li><a href="adminAnnounce.html">
                     <i class="uil uil-megaphone"></i>
-                    <span class="link-name">Make Announcement</span>
+                    <span class="link-name">Announcement</span>
+                </a></li>
+                <li><a href="admin-approvals.html">
+                    <i class="uil uil-user-check"></i>
+                    <span class="link-name">Approval</span>
                 </a></li>
                 <li><a href="emergency.html">
                     <i class="uil uil-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
+                
             </ul>
             <ul class="logout-mode">
-                <li><a href="#">
+                <li><a href="index.html">
                     <i class="uil uil-signout"></i>
                     <span class="link-name">Logout</span>
                 </a></li>
@@ -658,6 +707,7 @@
                         <span class="switch"></span>
                     </div>
                 </li>
+                
             </ul>
         </div>
     </nav>
@@ -826,13 +876,88 @@
         </div>
     </section>
 
+    <script src="script.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/index.min.js"></script>
+
     <script>
+        let currentUser = null;
+    
+        // Add authFetch function for consistent authentication
+        async function authFetch(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+            if (response.status === 401) {
+                window.location.href = "index.html";
+                return null;
+            }
+            return response;
+        }
+    
+        // Fetch current user profile with proper error handling
+        async function fetchCurrentUser() {
+            try {
+                const response = await authFetch('/api/auth/profile');
+                
+                if (!response) return null;
+                
+                if (response.ok) {
+                    currentUser = await response.json();
+                    return currentUser;
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+            }
+            return null;
+        }
+    
+        // Get user profile picture URL
+        function getUserProfilePicture(userData) {
+            if (!userData) return '/images/default-profile.png';
+            
+            if (userData.profilePicture) {
+                if (userData.profilePicture.startsWith('http') || userData.profilePicture.startsWith('/')) {
+                    return userData.profilePicture;
+                } else {
+                    return '/uploads/' + userData.profilePicture;
+                }
+            }
+            return '/images/default-profile.png';
+        }
+    
+        // Calculate total comments (including replies)
+        function calculateTotalComments(comments) {
+            if (!comments || !Array.isArray(comments)) return 0;
+            
+            let total = comments.length;
+            comments.forEach(comment => {
+                if (comment.replies && Array.isArray(comment.replies)) {
+                    total += comment.replies.length;
+                }
+            });
+            
+            return total;
+        }
+    
+        // Format comment count text
+        function formatCommentCount(count) {
+            if (count === 0) return '';
+            if (count === 1) return '1 comment';
+            return `${count} comments`;
+        }
+    
         // Toggle sidebar
         function toggleMenu() {
             const sidebar = document.querySelector("nav");
             sidebar.classList.toggle("close");
         }
-
+    
         // Set default date and time to current
         document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
@@ -845,7 +970,7 @@
             // Load existing announcements
             loadAnnouncements();
         });
-
+    
         // Image preview functionality
         document.getElementById('announcementImage').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -859,17 +984,17 @@
                 reader.readAsDataURL(file);
             }
         });
-
+    
         // Modal functions
         function openAnnouncementForm() {
             document.getElementById('announcementModal').style.display = 'flex';
         }
-
+    
         function closeAnnouncementForm() {
             document.getElementById('announcementModal').style.display = 'none';
             resetForm();
         }
-
+    
         // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('announcementModal');
@@ -877,7 +1002,7 @@
                 closeAnnouncementForm();
             }
         };
-
+    
         // Toggle image visibility
         function toggleImage(announcementId) {
             const image = document.getElementById(`image-${announcementId}`);
@@ -891,13 +1016,15 @@
                 button.innerHTML = '<i class="uil uil-image"></i> View Image';
             }
         }
-
+    
         // Load announcements from server
         async function loadAnnouncements() {
             try {
-                const response = await fetch('/api/announcements', {
-                    credentials: 'include'
-                });
+                await fetchCurrentUser(); // Ensure user data is loaded first
+                
+                const response = await authFetch('/api/announcements');
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to load announcements');
@@ -914,7 +1041,7 @@
                 `;
             }
         }
-
+    
         // Display announcements in Facebook-style posts
         function displayAnnouncements(announcements) {
             const container = document.getElementById('announcementsList');
@@ -927,7 +1054,7 @@
                 `;
                 return;
             }
-
+    
             container.innerHTML = announcements.map(announcement => {
                 const createdAt = new Date(announcement.createdAt);
                 const eventTime = announcement.eventDateTime ? new Date(announcement.eventDateTime) : null;
@@ -935,7 +1062,7 @@
                 return `
                 <div class="post" id="post-${announcement._id}">
                     <div class="post-header">
-                        <img src="/images/default-profile.png" alt="Admin" class="post-avatar">
+                        <img src="/images/barangay-bg.png" alt="Admin" class="post-avatar">
                         <div class="post-user-info">
                             <h3 class="post-username">Barangay Admin</h3>
                             <p class="post-time">${createdAt.toLocaleString()}</p>
@@ -967,33 +1094,35 @@
                         </div>
                     </div>
                     <div class="post-footer">
-                        <button class="post-action-btn edit-btn" onclick="editAnnouncement('${announcement._id}')">
-                            <i class="uil uil-edit"></i> Edit
-                        </button>
-                        <button class="post-action-btn delete-btn" onclick="deleteAnnouncement('${announcement._id}')">
-                            <i class="uil uil-trash-alt"></i> Delete
-                        </button>
+                        <!-- Comment count will be inserted here by loadComments function -->
+                        <div id="comment-count-${announcement._id}" class="comment-count"></div>
+                        
+                        <div class="post-actions">
+                            <button class="post-action-btn edit-btn" onclick="editAnnouncement('${announcement._id}')">
+                                <i class="uil uil-edit"></i> Edit
+                            </button>
+                            <button class="post-action-btn delete-btn" onclick="deleteAnnouncement('${announcement._id}')">
+                                <i class="uil uil-trash-alt"></i> Delete
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Comments Section -->
-                    <div class="comments-section">
-                        <button class="comments-toggle" onclick="toggleComments('${announcement._id}')">
-                            <i class="uil uil-comment"></i> View Comments
-                        </button>
-                        <div class="comments-list" id="comments-${announcement._id}" style="display: none;">
+                    <div class="comments-section" id="comments-${announcement._id}" style="display: none;">
+                        <div class="comments-list" id="comments-list-${announcement._id}">
                             <!-- Comments will be loaded here -->
                         </div>
                     </div>
                 </div>
                 `;
             }).join('');
-
+    
             // Load comments for each announcement
             announcements.forEach(announcement => {
                 loadComments(announcement._id);
             });
         }
-
+    
         // Toggle comments section
         function toggleComments(announcementId) {
             const commentsSection = document.getElementById(`comments-${announcementId}`);
@@ -1005,33 +1134,55 @@
                 loadComments(announcementId);
             }
         }
-
+    
         // Load comments for an announcement
         async function loadComments(announcementId) {
             try {
-                const response = await fetch(`/api/announcements/${announcementId}/comments`, {
-                    credentials: 'include'
-                });
+                const response = await authFetch(`/api/announcements/${announcementId}/comments`);
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to load comments');
                 }
                 
                 const comments = await response.json();
+                
+                // Update comment count
+                updateCommentCount(announcementId, comments);
+                
+                // Display comments
                 displayComments(announcementId, comments);
             } catch (error) {
                 console.error('Error loading comments:', error);
-                document.getElementById(`comments-${announcementId}`).innerHTML = `
+                document.getElementById(`comments-list-${announcementId}`).innerHTML = `
                     <div class="no-comments">
                         <p>Error loading comments. Please try again later.</p>
                     </div>
                 `;
             }
         }
-
-        // Display comments
+    
+        // Update comment count display
+        function updateCommentCount(announcementId, comments) {
+            const commentCountElement = document.getElementById(`comment-count-${announcementId}`);
+            const totalComments = calculateTotalComments(comments);
+            const commentCountText = formatCommentCount(totalComments);
+            
+            if (commentCountText) {
+                commentCountElement.innerHTML = `
+                    <i class="uil uil-comment"></i>
+                    <span onclick="toggleComments('${announcementId}')">${commentCountText}</span>
+                `;
+                commentCountElement.style.display = 'flex';
+            } else {
+                commentCountElement.style.display = 'none';
+            }
+        }
+    
+        // Display comments with actual user profiles
         function displayComments(announcementId, comments) {
-            const container = document.getElementById(`comments-${announcementId}`);
+            const container = document.getElementById(`comments-list-${announcementId}`);
             
             if (!comments || comments.length === 0) {
                 container.innerHTML = `
@@ -1041,15 +1192,29 @@
                 `;
                 return;
             }
-
+    
             container.innerHTML = comments.map(comment => {
                 const commentTime = new Date(comment.createdAt);
                 const isAdminComment = comment.userName === 'Barangay Admin';
                 
+                // Use actual profile picture from comment data or fallback to current user's picture
+                let profilePicture = '/images/default-profile.png';
+                
+                if (comment.userProfilePicture) {
+                    // Use the profile picture from the comment data (if provided by server)
+                    profilePicture = comment.userProfilePicture.startsWith('http') || comment.userProfilePicture.startsWith('/') 
+                        ? comment.userProfilePicture 
+                        : '/uploads/' + comment.userProfilePicture;
+                } else if (currentUser && comment.userId === currentUser._id) {
+                    // Fallback: if it's the current user's comment, use their profile picture
+                    profilePicture = getUserProfilePicture(currentUser);
+                }
+                
                 return `
                 <div class="comment ${isAdminComment ? 'admin-comment' : ''}" id="comment-${comment._id}">
                     <div class="comment-header">
-                        <img src="/images/default-profile.png" alt="User" class="comment-avatar">
+                        <img src="${profilePicture}" alt="${comment.userName}" class="comment-avatar" 
+                             onerror="this.src='/images/default-profile.png'">
                         <span class="comment-user ${isAdminComment ? 'admin-user' : ''}">${comment.userName}</span>
                         <span class="comment-time">${commentTime.toLocaleString()}</span>
                     </div>
@@ -1060,10 +1225,21 @@
                             ${comment.replies.map(reply => {
                                 const replyTime = new Date(reply.createdAt);
                                 const isAdminReply = reply.userName === 'Barangay Admin';
+                                
+                                let replyProfilePicture = '/images/default-profile.png';
+                                if (reply.userProfilePicture) {
+                                    replyProfilePicture = reply.userProfilePicture.startsWith('http') || reply.userProfilePicture.startsWith('/') 
+                                        ? reply.userProfilePicture 
+                                        : '/uploads/' + reply.userProfilePicture;
+                                } else if (currentUser && reply.userId === currentUser._id) {
+                                    replyProfilePicture = getUserProfilePicture(currentUser);
+                                }
+                                
                                 return `
                                 <div class="comment reply ${isAdminReply ? 'admin-reply' : ''}">
                                     <div class="comment-header">
-                                        <img src="/images/default-profile.png" alt="User" class="comment-avatar">
+                                        <img src="${replyProfilePicture}" alt="${reply.userName}" class="comment-avatar"
+                                             onerror="this.src='/images/default-profile.png'">
                                         <span class="comment-user ${isAdminReply ? 'admin-user' : ''}">${reply.userName}</span>
                                         <span class="comment-time">${replyTime.toLocaleString()}</span>
                                     </div>
@@ -1085,7 +1261,7 @@
                 `;
             }).join('');
         }
-
+    
         // Toggle reply form
         function toggleReplyForm(announcementId, commentId) {
             const replyForm = document.getElementById(`reply-form-${announcementId}-${commentId}`);
@@ -1099,7 +1275,7 @@
                 replyForm.style.display = 'flex';
             }
         }
-
+    
         // Post a reply as admin
         async function postReply(announcementId, commentId) {
             const replyInput = document.getElementById(`reply-input-${announcementId}-${commentId}`);
@@ -1111,14 +1287,12 @@
             }
             
             try {
-                const response = await fetch(`/api/announcements/${announcementId}/comments/${commentId}/replies`, {
+                const response = await authFetch(`/api/announcements/${announcementId}/comments/${commentId}/replies`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text }),
-                    credentials: 'include'
+                    body: JSON.stringify({ text })
                 });
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to post reply');
@@ -1133,7 +1307,7 @@
                 alert('Failed to post reply. Please try again.');
             }
         }
-
+    
         // Handle form submission (both create and update)
         document.getElementById('announcementForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1154,10 +1328,10 @@
                 alert('Please fill in all required fields');
                 return;
             }
-
+    
             // Combine date and time into a single datetime string
             const eventDateTime = new Date(`${date}T${time}`).toISOString();
-
+    
             const formData = new FormData();
             formData.append('title', title);
             formData.append('content', content);
@@ -1168,26 +1342,26 @@
             if (civilStatus) formData.append('targetCivilStatus', civilStatus);
             if (income) formData.append('targetIncome', income);
             if (imageFile) formData.append('image', imageFile);
-
+    
             const form = document.getElementById('announcementForm');
             const isEditMode = form.dataset.editId;
             
             try {
                 const url = isEditMode ? `/api/announcements/${form.dataset.editId}` : '/api/announcements';
                 const method = isEditMode ? 'PUT' : 'POST';
-
+    
                 const response = await fetch(url, {
                     method: method,
                     body: formData,
                     credentials: 'include'
                 });
-
+    
                 const result = await response.json();
                 
                 if (!response.ok) {
                     throw new Error(result.error || `Failed to ${isEditMode ? 'update' : 'create'} announcement`);
                 }
-
+    
                 alert(`Announcement ${isEditMode ? 'updated' : 'published'} successfully!`);
                 closeAnnouncementForm();
                 loadAnnouncements(); // Reload the announcements list
@@ -1196,13 +1370,13 @@
                 alert(error.message || 'An error occurred. Please try again.');
             }
         });
-
+    
         // Edit announcement
         async function editAnnouncement(id) {
             try {
-                const response = await fetch(`/api/announcements/${id}`, {
-                    credentials: 'include'
-                });
+                const response = await authFetch(`/api/announcements/${id}`);
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch announcement');
@@ -1255,7 +1429,7 @@
                 alert('Failed to load announcement for editing');
             }
         }
-
+    
         // Delete announcement
         async function deleteAnnouncement(id) {
             if (!confirm('Are you sure you want to delete this announcement?')) {
@@ -1263,10 +1437,11 @@
             }
             
             try {
-                const response = await fetch(`/api/announcements/${id}`, {
-                    method: 'DELETE',
-                    credentials: 'include'
+                const response = await authFetch(`/api/announcements/${id}`, {
+                    method: 'DELETE'
                 });
+                
+                if (!response) return;
                 
                 if (!response.ok) {
                     throw new Error('Failed to delete announcement');
@@ -1279,7 +1454,7 @@
                 alert(error.message || 'An error occurred. Please try again.');
             }
         }
-
+    
         // Reset form
         function resetForm() {
             document.getElementById('announcementForm').reset();
@@ -1309,7 +1484,22 @@
             document.getElementById('announcementDate').value = dateStr;
             document.getElementById('announcementTime').value = timeStr;
         }
-
+    
+        // Add logout functionality
+        async function logout() {
+            try {
+                const response = await authFetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+                
+                if (response && response.ok) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+    
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             // Handle "All Residents" checkbox
@@ -1328,9 +1518,18 @@
                     });
                 }
             });
-
+    
             // Trigger change event to set initial state
             document.getElementById('allResidents').dispatchEvent(new Event('change'));
+    
+            // Add logout event listener
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logout();
+                });
+            }
         });
     </script>
 </body>

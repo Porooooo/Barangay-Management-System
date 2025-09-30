@@ -36,7 +36,7 @@ transporter.verify((error, success) => {
     }
 });
 
-// Multer configuration
+// Multer configuration for multiple file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = path.join(__dirname, "../uploads");
@@ -48,7 +48,16 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
-    cb(null, "profile-" + uniqueSuffix + ext);
+    
+    // Different prefix for different file types
+    let prefix = "file-";
+    if (file.fieldname === "profilePicture") {
+      prefix = "profile-";
+    } else if (file.fieldname === "idPhoto") {
+      prefix = "id-";
+    }
+    
+    cb(null, prefix + uniqueSuffix + ext);
   }
 });
 
@@ -65,7 +74,7 @@ const upload = multer({
   fileFilter: fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024,
-    files: 1
+    files: 2 // Allow up to 2 files (profile picture and ID photo)
   }
 });
 
@@ -148,22 +157,32 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-// Register User
-router.post("/register", upload.single("profilePicture"), async (req, res) => {
+// Register User - UPDATED TO PROPERLY HANDLE ALL FIELDS
+router.post("/register", upload.fields([
+  { name: "profilePicture", maxCount: 1 },
+  { name: "idPhoto", maxCount: 1 }
+]), async (req, res) => {
   try {
     const formData = req.body;
-    const file = req.file;
+    const files = req.files;
 
-    // Validate required fields
+    const profilePictureFile = files?.profilePicture?.[0];
+    const idPhotoFile = files?.idPhoto?.[0];
+
+    console.log("Received registration data:", formData); // Debug log
+
+    // Validate required fields including ID verification
     const requiredFields = [
       'lastName', 'firstName', 'birthdate', 'gender',
       'email', 'contactNumber', 'houseNumber', 'street',
-      'barangay', 'password', 'confirmPassword'
+      'barangay', 'password', 'confirmPassword',
+      'idType', 'idNumber' // ID verification fields
     ];
     
     const missingFields = requiredFields.filter(field => !formData[field]);
     if (missingFields.length > 0) {
-      if (file) fs.unlinkSync(file.path);
+      if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
+      if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
       return res.status(400).json({
         error: "Validation error",
         message: `Missing required fields: ${missingFields.join(', ')}`
@@ -173,7 +192,8 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      if (file) fs.unlinkSync(file.path);
+      if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
+      if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
       return res.status(400).json({
         error: "Validation error",
         message: "Invalid email format"
@@ -182,7 +202,8 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
 
     // Validate password match
     if (formData.password !== formData.confirmPassword) {
-      if (file) fs.unlinkSync(file.path);
+      if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
+      if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
       return res.status(400).json({
         error: "Validation error",
         message: "Passwords do not match"
@@ -192,7 +213,8 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     // Check for existing user
     const existingUser = await User.findOne({ email: formData.email });
     if (existingUser) {
-      if (file) fs.unlinkSync(file.path);
+      if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
+      if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
       return res.status(400).json({
         error: "Duplicate email",
         message: "Email already registered"
@@ -202,22 +224,77 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     // Create address string
     const address = `${formData.houseNumber} ${formData.street}, ${formData.barangay}`;
 
-    // Create new user - let the pre-save hook handle password hashing
-    const newUser = new User({
-      fullName: `${formData.firstName} ${formData.lastName}`,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      contactNumber: formData.contactNumber,
-      address: address,
-      birthdate: new Date(formData.birthdate),
-      gender: formData.gender,
-      password: formData.password, // Will be hashed by pre-save hook
-      profilePicture: file ? file.filename : "default-profile.png",
-      role: "resident"
-    });
+    // Process checkbox values properly
+    const registeredVoter = formData.registeredVoter === 'true' || formData.registeredVoter === true;
+    const fourPsMember = formData.fourPsMember === 'true' || formData.fourPsMember === true;
+    const pwdMember = formData.pwdMember === 'true' || formData.pwdMember === true;
+    const seniorCitizen = formData.seniorCitizen === 'true' || formData.seniorCitizen === true;
+    const soloParent = formData.soloParent === 'true' || formData.soloParent === true;
 
+    // Create new user with ALL fields - FIXED fullName generation
+const newUser = new User({
+  // Personal Information
+  firstName: formData.firstName,
+  lastName: formData.lastName,
+  middleName: formData.middleName || null,
+  suffix: formData.suffix || null,
+  // EXPLICITLY SET fullName to ensure it's not undefined
+  fullName: `${formData.firstName} ${formData.middleName ? formData.middleName + ' ' : ''}${formData.lastName}${formData.suffix ? ' ' + formData.suffix : ''}`.trim(),
+  birthdate: new Date(formData.birthdate),
+  gender: formData.gender,
+  civilStatus: formData.civilStatus || null,
+  occupation: formData.occupation || null,
+  
+  // Contact Information
+  email: formData.email,
+  contactNumber: formData.contactNumber,
+  alternateContact: formData.alternateContactNumber || null,
+  profilePicture: profilePictureFile ? profilePictureFile.filename : "default-profile.png",
+  
+  // Address Information
+  address: address,
+  houseNumber: formData.houseNumber,
+  street: formData.street,
+  barangay: formData.barangay,
+  homeowner: formData.homeownerStatus || null,
+  yearsResiding: formData.yearsResiding || null,
+  monthlyIncome: formData.monthlyIncome || null,
+  
+  // Additional Information
+  educationalAttainment: formData.educationalAttainment || null,
+  
+  // Government Programs
+  registeredVoter: registeredVoter,
+  fourPsMember: fourPsMember,
+  pwdMember: pwdMember,
+  seniorCitizen: seniorCitizen,
+  soloParent: soloParent,
+  
+  // Account Information
+  password: formData.password,
+  role: "resident",
+  approvalStatus: "pending",
+  
+  // ID Verification
+  idVerification: {
+    idType: formData.idType,
+    idNumber: formData.idNumber,
+    idPhoto: idPhotoFile ? idPhotoFile.filename : null,
+    submittedAt: new Date()
+  }
+});
+
+console.log("Generated fullName:", newUser.fullName); // Debug log
+
+    // Let the pre-save hook generate the fullName
     await newUser.save();
+
+    console.log("User created successfully:", {
+      id: newUser._id,
+      email: newUser.email,
+      fullName: newUser.fullName,
+      approvalStatus: newUser.approvalStatus
+    });
 
     // Set session data
     req.session.userId = newUser._id;
@@ -228,7 +305,8 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     req.session.save(err => {
       if (err) {
         console.error("Session save error:", err);
-        if (file) fs.unlinkSync(file.path);
+        if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
+        if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
         return res.status(500).json({
           error: "Session error",
           message: "Failed to save session"
@@ -236,20 +314,30 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
       }
 
       return res.status(201).json({
-        message: "User registered successfully",
+        message: "User registered successfully - pending approval",
         user: {
           id: newUser._id,
           email: newUser.email,
           fullName: newUser.fullName,
-          profilePictureUrl: file
-            ? `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+          profilePictureUrl: profilePictureFile
+            ? `${req.protocol}://${req.get("host")}/uploads/${profilePictureFile.filename}`
             : `${req.protocol}://${req.get("host")}/images/default-profile.png`,
-          role: newUser.role
+          role: newUser.role,
+          approvalStatus: newUser.approvalStatus
         }
       });
     });
   } catch (error) {
-    if (req.file) fs.unlinkSync(req.file.path);
+    // Clean up uploaded files on error
+    if (req.files) {
+      Object.values(req.files).forEach(fileArray => {
+        fileArray.forEach(file => {
+          if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        });
+      });
+    }
     console.error("Registration error:", error);
 
     if (error.name === "ValidationError") {
@@ -261,7 +349,7 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
     if (error.code === "LIMIT_FILE_SIZE") {
       return res.status(400).json({ 
         error: "File too large", 
-        message: "Profile picture must be less than 5MB" 
+        message: "Files must be less than 5MB" 
       });
     }
     if (error.message === "Only image files are allowed!") {
@@ -278,7 +366,7 @@ router.post("/register", upload.single("profilePicture"), async (req, res) => {
   }
 });
 
-// User Login - Updated to use comparePassword method
+// User Login - Updated to check approval status
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -301,6 +389,21 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    // NEW: Check if user is approved
+    if (user.role === 'resident' && user.approvalStatus !== 'approved') {
+      if (user.approvalStatus === 'pending') {
+        return res.status(403).json({
+          error: "Account pending approval",
+          message: "Your account is pending administrator approval. Please wait for approval before logging in."
+        });
+      } else if (user.approvalStatus === 'rejected') {
+        return res.status(403).json({
+          error: "Account rejected",
+          message: user.rejectionReason || "Your account registration has been rejected. Please contact administration for more information."
+        });
+      }
+    }
+
     if (user.isBanned) {
       console.log(`Banned user attempted login: ${email}`);
       return res.status(403).json({
@@ -310,7 +413,7 @@ router.post("/login", async (req, res) => {
     }
 
     console.log(`Comparing passwords for user: ${user.email}`);
-    const isMatch = await user.comparePassword(password); // Using the model method
+    const isMatch = await user.comparePassword(password);
     console.log(`Password match result: ${isMatch}`);
     
     if (!isMatch) {
@@ -345,7 +448,8 @@ router.post("/login", async (req, res) => {
           profilePictureUrl: user.profilePicture.startsWith("http")
             ? user.profilePicture
             : `${req.protocol}://${req.get("host")}/uploads/${user.profilePicture}`,
-          role: user.role
+          role: user.role,
+          approvalStatus: user.approvalStatus // NEW: Include approval status in response
         }
       });
     });
