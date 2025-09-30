@@ -10,7 +10,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; overflow-x: hidden; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f5f5f5; overflow-x: hidden; }
 
         /* Sidebar */
         .sidebar {
@@ -52,7 +52,7 @@
             left: 250px;
             width: calc(100% - 250px);
             min-height: 100vh;
-            background-color: #f0f2f5;
+            background-color: #f5f5f5;
             transition: all 0.5s ease;
         }
 
@@ -182,12 +182,16 @@
             background: #4db777;
         }
 
-        /* Users Table */
+        /* Users Table - UPDATED TO MATCH BLOTTER STYLE */
         .users-table {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            overflow: hidden;
+            background: #fff;
+            padding: 1.8rem;
+            border-radius: 2rem;
+            box-shadow: 0 2rem 3rem rgba(132, 139, 200, 0.18);
+            transition: all 300ms ease;
+        }
+        .users-table:hover {
+            box-shadow: none;
         }
 
         .table-header {
@@ -215,18 +219,24 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
         }
-
         th, td {
-            padding: 15px;
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border: 1px solid #e0e0e0;
         }
-
         th {
-            background: #f8f9fa;
+            background-color: #f8f9fa;
             font-weight: 600;
-            color: #2c3e50;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
         }
 
         .user-info {
@@ -252,67 +262,99 @@
             color: #666;
         }
 
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
+        /* Action Buttons - UPDATED TO MATCH BLOTTER STYLE */
+        .action-btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .view-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .view-btn:hover {
+            background-color: #115a65;
+        }
+        .approve-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .approve-btn:hover {
+            background-color: #175625;
+        }
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .reject-btn:hover {
+            background-color: #6a1c23;
         }
 
+        /* Status Badges - UPDATED TO MATCH BLOTTER STYLE */
+        .status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
         .status-pending {
             background: #fff3cd;
             color: #856404;
         }
-
         .status-approved {
             background: #d4edda;
             color: #155724;
         }
-
         .status-rejected {
             background: #f8d7da;
             color: #721c24;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 8px;
+        /* Loading and Empty States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
         }
 
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8em;
-            transition: all 0.3s;
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
         }
 
-        .btn-approve {
-            background: #d4edda;
-            color: #155724;
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: #bdc3c7;
         }
 
-        .btn-approve:hover {
-            background: #c3e6cb;
+        .initial-state {
+            text-align: center;
+            padding: 60px 40px;
+            color: #666;
         }
 
-        .btn-reject {
-            background: #f8d7da;
-            color: #721c24;
+        .initial-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #bdc3c7;
         }
 
-        .btn-reject:hover {
-            background: #f1b0b7;
+        .initial-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #495057;
         }
 
-        .btn-view {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .btn-view:hover {
-            background: #bee5eb;
+        .initial-state p {
+            font-size: 1em;
+            color: #6c757d;
         }
 
         /* Modal Styles */
@@ -421,47 +463,6 @@
 
         .rejection-option input {
             margin-right: 8px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 10px;
-            color: #bdc3c7;
-        }
-
-        .initial-state {
-            text-align: center;
-            padding: 60px 40px;
-            color: #666;
-        }
-
-        .initial-state i {
-            font-size: 64px;
-            margin-bottom: 20px;
-            color: #bdc3c7;
-        }
-
-        .initial-state h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            color: #495057;
-        }
-
-        .initial-state p {
-            font-size: 1em;
-            color: #6c757d;
         }
 
         /* ID Verification Styles */
@@ -663,7 +664,7 @@
                 </div>
             </div>
 
-            <!-- Users Table -->
+            <!-- Users Table - UPDATED STYLING -->
             <div class="users-table">
                 <div class="table-header">
                     <h2 id="tableTitle">Select a status to view users</h2>
@@ -733,7 +734,7 @@
                     <button class="btn" onclick="closeModal('approvalModal')" style="background: #6c757d; color: white;">
                         Cancel
                     </button>
-                    <button class="btn btn-approve" onclick="confirmApproval()">
+                    <button class="btn approve-btn" onclick="confirmApproval()">
                         <i class="uil uil-check"></i> Confirm Approval
                     </button>
                 </div>
@@ -780,7 +781,7 @@
                     <button class="btn" onclick="closeModal('rejectionModal')" style="background: #6c757d; color: white;">
                         Cancel
                     </button>
-                    <button class="btn btn-reject" onclick="confirmRejection()">
+                    <button class="btn reject-btn" onclick="confirmRejection()">
                         <i class="uil uil-times"></i> Confirm Rejection
                     </button>
                 </div>
@@ -936,7 +937,7 @@
             }   
         }
 
-        // Display users in table
+        // Display users in table - UPDATED WITH NEW STYLING
         function displayUsers(users, status) {
             const table = document.querySelector('table');
             const emptyState = document.getElementById('emptyState');
@@ -966,16 +967,16 @@
                 
                 if (status === 'pending') {
                     actionButtons = `
-                        <button class="btn btn-approve" onclick="showApprovalConfirmation('${user._id}')">
+                        <button class="action-btn approve-btn" onclick="showApprovalConfirmation('${user._id}')">
                             <i class="uil uil-check"></i> Approve
                         </button>
-                        <button class="btn btn-reject" onclick="showRejectionModal('${user._id}')">
+                        <button class="action-btn reject-btn" onclick="showRejectionModal('${user._id}')">
                             <i class="uil uil-times"></i> Reject
                         </button>
                     `;
                 } else if (status === 'rejected') {
                     actionButtons = `
-                        <button class="btn btn-approve" onclick="showApprovalConfirmation('${user._id}')">
+                        <button class="action-btn approve-btn" onclick="showApprovalConfirmation('${user._id}')">
                             <i class="uil uil-check"></i> Approve
                         </button>
                     `;
@@ -994,12 +995,10 @@
                     </td>
                     <td>${user.contactNumber || 'N/A'}</td>
                     <td>${new Date(user.createdAt).toLocaleDateString()}</td>
-                    <td>
-                        <span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>
-                    </td>
+                    <td><span class="status ${statusInfo.class}">${statusInfo.text}</span></td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn btn-view" onclick="viewUserDetails('${user._id}')">
+                            <button class="action-btn view-btn" onclick="viewUserDetails('${user._id}')">
                                 <i class="uil uil-eye"></i> View
                             </button>
                             ${actionButtons}
@@ -1068,7 +1067,7 @@
                                      onclick="viewFullID('${idPhotoUrl}')"
                                      onerror="this.src='/images/default-id.png'">
                                 <div style="margin-top: 5px;">
-                                    <button class="btn btn-view" onclick="viewFullID('${idPhotoUrl}')">
+                                    <button class="action-btn view-btn" onclick="viewFullID('${idPhotoUrl}')">
                                         <i class="uil uil-expand-arrows"></i> View Full Size
                                     </button>
                                 </div>
@@ -1101,16 +1100,16 @@
             let actionButtons = '';
             if (user.approvalStatus === 'pending') {
                 actionButtons = `
-                    <button class="btn btn-approve" onclick="showApprovalConfirmation('${user._id}')">
+                    <button class="action-btn approve-btn" onclick="showApprovalConfirmation('${user._id}')">
                         <i class="uil uil-check"></i> Approve
                     </button>
-                    <button class="btn btn-reject" onclick="showRejectionModal('${user._id}')">
+                    <button class="action-btn reject-btn" onclick="showRejectionModal('${user._id}')">
                         <i class="uil uil-times"></i> Reject
                     </button>
                 `;
             } else if (user.approvalStatus === 'rejected') {
                 actionButtons = `
-                    <button class="btn btn-approve" onclick="showApprovalConfirmation('${user._id}')">
+                    <button class="action-btn approve-btn" onclick="showApprovalConfirmation('${user._id}')">
                         <i class="uil uil-check"></i> Approve User
                     </button>
                 `;
@@ -1123,7 +1122,7 @@
                         <h3>${user.fullName}</h3>
                         <p>${user.email}</p>
                         <p>${user.contactNumber || 'N/A'}</p>
-                        <p><strong>Status:</strong> <span class="status-badge status-${user.approvalStatus}">${user.approvalStatus}</span></p>
+                        <p><strong>Status:</strong> <span class="status status-${user.approvalStatus}">${user.approvalStatus}</span></p>
                     </div>
                 </div>
 

@@ -59,48 +59,6 @@ body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x
     to { opacity: 0; transform: translate(-50%, -100%); }
 }
 
-/* Sidebar */
-.sidebar {
-    height: 100%;
-    width: 250px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: #333;
-    overflow-x: hidden;
-    transition: 0.3s;
-    padding-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.sidebar .close-btn {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 30px;
-    color: white;
-    cursor: pointer;
-}
-.sidebar a {
-    padding: 15px;
-    text-decoration: none;
-    font-size: 20px;
-    color: white;
-    display: block;
-    text-align: center;
-    transition: 0.3s;
-}
-.sidebar a:hover { background-color: #5ECF89; }
-
-/* Sidebar Logo */
-.sidebar-logo {
-    width: 120px;  
-    height: auto;
-    margin: 10px auto; 
-    display: block;
-    border-radius: 50%; 
-}
 
 /* Main Content */
 .main-content {
@@ -444,32 +402,67 @@ body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x
     </style>
 </head>
 <body>
-    <nav>
-      <div class="logo-name">
+  <nav>
+    <div class="logo-name">
         <div class="logo-image">
-          <img src="images/barangay-bg.png" alt="BTMS Logo" />
+            <img src="images/barangay-bg.png" alt="BTMS Logo">
         </div>
         <span class="logo_name">Brgy. Talipapa</span>
-      </div>
-      <div class="menu-items">
+    </div>
+    <div class="menu-items">
         <ul class="nav-links">
-          <li><a href="residentdashboard.html"><i class="uil uil-estate"></i><span class="link-name">Dashboard</span></a></li>
-          <li><a href="requests.html"><i class="uil uil-file-alt"></i><span class="link-name">Request Document</span></a></li>
-          <li><a href="blotter.html"><i class="uil uil-shield-exclamation"></i><span class="link-name">Blotter</span></a></li>
-          <li><a href="residentRequests.html"><i class="uil uil-file-alt"></i><span class="link-name">Your Requests</span></a></li>
-          <li><a href="resident-blotter.html"><i class="uil uil-shield-exclamation"></i><span class="link-name">Your Blotter</span></a></li>
-          <li><a href="announcement.html"><i class="uil uil-bell"></i><span class="link-name">Announcements</span></a></li>
-          <li><a href="profile.html"><i class="uil uil-user"></i><span class="link-name">Profile</span></a></li>
+            <li><a href="residentdashboard.html">
+                <i class="uil uil-estate"></i>
+                <span class="link-name">Dashboard</span>
+            </a></li>
+
+            <li><a href="requests.html">
+                <i class="uil uil-file-alt"></i>
+                <span class="link-name">Request Document</span>
+            </a></li>
+
+            <li><a href="blotter.html">
+                <i class="uil uil-shield-exclamation"></i>
+                <span class="link-name">Blotter</span>
+            </a></li>
+
+            <li><a href="residentRequests.html">
+                <i class="uil uil-file-alt"></i>
+                <span class="link-name">Your Requests</span>
+            </a></li>
+
+            <li><a href="resident-blotter.html">
+                <i class="uil uil-shield-exclamation"></i>
+                <span class="link-name">Your Blotter</span>
+            </a></li>
+
+            <li><a href="announcement.html">
+                <i class="uil uil-bell"></i>
+                <span class="link-name">Announcements</span>
+            </a></li>
+
+            <li><a href="profile.html">
+                <i class="uil uil-user"></i>
+                <span class="link-name">Profile</span>
+            </a></li>
         </ul>
         <ul class="logout-mode">
-          <li><a href="#" id="logoutBtn"><i class="uil uil-signout"></i><span class="link-name">Logout</span></a></li>
-          <li class="mode">
-            <a href="#"><i class="uil uil-moon"></i><span class="link-name">Dark Mode</span></a>
-            <div class="mode-toggle"><span class="switch"></span></div>
-          </li>
+            <li><a href="#" id="logoutBtn">
+                <i class="uil uil-signout"></i>
+                <span class="link-name">Logout</span>
+            </a></li>
+            <li class="mode">
+                <a href="#">
+                    <i class="uil uil-moon"></i>
+                    <span class="link-name">Dark Mode</span>
+                </a>
+                <div class="mode-toggle">
+                    <span class="switch"></span>
+                </div>
+            </li>
         </ul>
-      </div>
-    </nav>
+    </div>
+</nav>
   
     <section class="dashboard">
       <div class="top">

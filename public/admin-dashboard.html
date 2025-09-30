@@ -316,21 +316,6 @@
             color: #2c3e50;
         }
 
-        .summary-card .trend {
-            font-size: 0.9rem;
-            margin-top: 5px;
-            display: flex;
-            align-items: center;
-        }
-
-        .trend.up {
-            color: #2ecc71;
-        }
-
-        .trend.down {
-            color: #e74c3c;
-        }
-
         /* Charts */
         .chart-row {
             display: grid;
@@ -1103,50 +1088,42 @@
                     <i class="uil uil-users-alt"></i>
                     <h3>Total Population</h3>
                     <div class="value" id="totalPopulation">0</div>
-                    <div class="trend" id="populationTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-check-circle"></i>
                     <h3>Registered Voters</h3>
                     <div class="value" id="registeredVoters">0</div>
-                    <div class="trend" id="votersTrend"></div>
                 </div>
                 
                 <div class="summary-card">
                     <i class="uil uil-file-shield-alt"></i>
                     <h3>Active Blotter Cases</h3>
                     <div class="value" id="blotterCases">0</div>
-                    <div class="trend" id="blotterTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-file-alt"></i>
                     <h3>Document Requests</h3>
                     <div class="value" id="documentRequests">0</div>
-                    <div class="trend" id="requestsTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-wheelchair"></i>
                     <h3>PWD</h3>
                     <div class="value" id="pwdCount">0</div>
-                    <div class="trend" id="pwdTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-user-arrows"></i>
                     <h3>Senior Citizens</h3>
                     <div class="value" id="seniorCitizens">0</div>
-                    <div class="trend" id="seniorTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-user-md"></i>
                     <h3>Solo Parent</h3>
                     <div class="value" id="soloParentCount">0</div>
-                    <div class="trend" id="soloTrend"></div>
                 </div>
                 <div class="summary-card">
                     <i class="uil uil-users-alt"></i>
                     <h3>4Ps Member</h3>
                     <div class="value" id="fourPsCount">0</div>
-                    <div class="trend" id="fourPsTrend"></div>
                 </div>
             </div>
 
@@ -1672,27 +1649,6 @@
             // Update from API data
             document.getElementById('documentRequests').textContent = documentRequests.length;
             document.getElementById('blotterCases').textContent = blotterCases.length;
-
-            // Calculate trends (placeholder - in a real app, you'd compare with previous period)
-            updateTrendIndicator('populationTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 20) + 1);
-            updateTrendIndicator('votersTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 15) + 1);
-            updateTrendIndicator('blotterTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 10) + 1);
-            updateTrendIndicator('requestsTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 25) + 1);
-            updateTrendIndicator('pwdTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 5) + 1);
-            updateTrendIndicator('seniorTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 8) + 1);
-            updateTrendIndicator('soloTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 7) + 1);
-            updateTrendIndicator('fourPsTrend', Math.random() > 0.5 ? 'up' : 'down', Math.floor(Math.random() * 12) + 1);
-        }
-
-        // Update trend indicator
-        function updateTrendIndicator(elementId, direction, percentage) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.className = `trend ${direction}`;
-                element.innerHTML = direction === 'up' 
-                    ? `<i class="uil uil-arrow-up"></i> ${percentage}% from last period` 
-                    : `<i class="uil uil-arrow-down"></i> ${percentage}% from last period`;
-            }
         }
 
         // Create charts based on resident data

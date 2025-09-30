@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
@@ -75,6 +76,221 @@ const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024,
     files: 2 // Allow up to 2 files (profile picture and ID photo)
+  }
+});
+
+// Login route with enhanced security features
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({
+        error: "Validation error",
+        message: "Email and password are required"
+      });
+    }
+
+    console.log(`Login attempt for: ${email}`);
+    
+    // Find user and include security fields
+    const user = await User.findOne({ email })
+      .select("+password +loginAttempts +lockUntil +lastFailedLogin");
+    
+    if (!user) {
+      console.log(`User not found for email: ${email}`);
+      return res.status(401).json({
+        error: "Authentication error",
+        message: "Invalid credentials"
+      });
+    }
+
+    // Check if account is locked
+    if (user.isLocked) {
+      const remainingTime = Math.ceil((user.lockUntil - Date.now()) / 1000 / 60);
+      return res.status(429).json({
+        error: "Account locked",
+        message: `Account is temporarily locked. Try again in ${remainingTime} minutes.`
+      });
+    }
+
+    // NEW: Check if user is approved
+    if (user.role === 'resident' && user.approvalStatus !== 'approved') {
+      if (user.approvalStatus === 'pending') {
+        return res.status(403).json({
+          error: "Account pending approval",
+          message: "Your account is pending administrator approval. Please wait for approval before logging in."
+        });
+      } else if (user.approvalStatus === 'rejected') {
+        return res.status(403).json({
+          error: "Account rejected",
+          message: user.rejectionReason || "Your account registration has been rejected. Please contact administration for more information."
+        });
+      }
+    }
+
+    if (user.isBanned) {
+      console.log(`Banned user attempted login: ${email}`);
+      return res.status(403).json({
+        error: "Account banned",
+        message: "Your account has been suspended"
+      });
+    }
+
+    console.log(`Comparing passwords for user: ${user.email}`);
+    const isMatch = await user.comparePassword(password);
+    console.log(`Password match result: ${isMatch}`);
+    
+    if (!isMatch) {
+      // Get updated user to check current login attempts
+      const updatedUser = await User.findOne({ email })
+        .select('+loginAttempts +lockUntil');
+      
+      let message = "Invalid email or password";
+      let warning = '';
+      
+      if (updatedUser && updatedUser.loginAttempts >= 3) {
+        const attemptsLeft = 5 - updatedUser.loginAttempts;
+        warning = attemptsLeft === 2 ? 'Warning: Only 2 attempts left!' : 
+                 attemptsLeft === 1 ? 'Warning: Only 1 attempt left!' : '';
+        
+        if (warning) {
+          message += ` ${warning}`;
+        }
+      }
+
+      return res.status(401).json({
+        error: "Authentication error",
+        message: message,
+        remainingAttempts: updatedUser ? Math.max(0, 5 - updatedUser.loginAttempts) : 5
+      });
+    }
+
+    // Set session data
+    req.session.userId = user._id;
+    req.session.userEmail = user.email;
+    req.session.role = user.role;
+
+    // Save session explicitly
+    req.session.save(err => {
+      if (err) {
+        console.error("Session save error:", err);
+        return res.status(500).json({
+          error: "Session error",
+          message: "Failed to save session"
+        });
+      }
+
+      return res.status(200).json({
+        message: "Logged in successfully",
+        user: {
+          id: user._id,
+          email: user.email,
+          fullName: user.fullName,
+          isBanned: user.isBanned,
+          profilePictureUrl: user.profilePicture.startsWith("http")
+            ? user.profilePicture
+            : `${req.protocol}://${req.get("host")}/uploads/${user.profilePicture}`,
+          role: user.role,
+          approvalStatus: user.approvalStatus // NEW: Include approval status in response
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    
+    // Handle specific security-related errors
+    if (error.message.includes('Account is temporarily locked') || 
+        error.message.includes('Account locked due to too many failed attempts')) {
+      return res.status(429).json({
+        error: "Account locked",
+        message: error.message
+      });
+    } else if (error.message.includes('Invalid password')) {
+      // Error already handled in the main logic
+      return res.status(401).json({
+        error: "Authentication error",
+        message: error.message
+      });
+    } else {
+      return res.status(500).json({
+        error: "Server error",
+        message: "Failed to login"
+      });
+    }
+  }
+});
+
+// Get login security status (for frontend)
+router.get("/login-status/:email", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.params.email })
+      .select("+loginAttempts +lockUntil +lastFailedLogin");
+
+    if (!user) {
+      return res.status(404).json({
+        error: "Not found",
+        message: "User not found"
+      });
+    }
+
+    const response = {
+      success: true,
+      loginAttempts: user.loginAttempts,
+      isLocked: user.isLocked,
+      remainingAttempts: user.remainingAttempts
+    };
+
+    if (user.lockUntil && user.isLocked) {
+      const remainingTime = Math.ceil((user.lockUntil - Date.now()) / 1000 / 60);
+      response.lockRemainingMinutes = remainingTime;
+      response.lockUntil = user.lockUntil;
+    }
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Login status error:", error);
+    res.status(500).json({
+      error: "Server error",
+      message: "Failed to get login status"
+    });
+  }
+});
+
+// Reset login attempts (admin only)
+router.post("/reset-login-attempts/:userId", async (req, res) => {
+  try {
+    if (!req.session.userId || req.session.role !== "admin") {
+      return res.status(403).json({
+        error: "Forbidden",
+        message: "Only admins can reset login attempts"
+      });
+    }
+
+    const user = await User.findById(req.params.userId)
+      .select("+loginAttempts +lockUntil +lastFailedLogin");
+
+    if (!user) {
+      return res.status(404).json({
+        error: "Not found",
+        message: "User not found"
+      });
+    }
+
+    user.loginAttempts = 0;
+    user.lockUntil = null;
+    user.lastFailedLogin = null;
+    await user.save();
+
+    res.status(200).json({
+      message: "Login attempts reset successfully"
+    });
+  } catch (error) {
+    console.error("Reset login attempts error:", error);
+    res.status(500).json({
+      error: "Server error",
+      message: "Failed to reset login attempts"
+    });
   }
 });
 
@@ -362,102 +578,6 @@ console.log("Generated fullName:", newUser.fullName); // Debug log
     return res.status(500).json({ 
       error: "Server error", 
       message: "Failed to register user" 
-    });
-  }
-});
-
-// User Login - Updated to check approval status
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    if (!email || !password) {
-      return res.status(400).json({
-        error: "Validation error",
-        message: "Email and password are required"
-      });
-    }
-
-    console.log(`Login attempt for: ${email}`);
-    const user = await User.findOne({ email }).select("+password");
-    
-    if (!user) {
-      console.log(`User not found for email: ${email}`);
-      return res.status(401).json({
-        error: "Authentication error",
-        message: "Invalid credentials"
-      });
-    }
-
-    // NEW: Check if user is approved
-    if (user.role === 'resident' && user.approvalStatus !== 'approved') {
-      if (user.approvalStatus === 'pending') {
-        return res.status(403).json({
-          error: "Account pending approval",
-          message: "Your account is pending administrator approval. Please wait for approval before logging in."
-        });
-      } else if (user.approvalStatus === 'rejected') {
-        return res.status(403).json({
-          error: "Account rejected",
-          message: user.rejectionReason || "Your account registration has been rejected. Please contact administration for more information."
-        });
-      }
-    }
-
-    if (user.isBanned) {
-      console.log(`Banned user attempted login: ${email}`);
-      return res.status(403).json({
-        error: "Account banned",
-        message: "Your account has been suspended"
-      });
-    }
-
-    console.log(`Comparing passwords for user: ${user.email}`);
-    const isMatch = await user.comparePassword(password);
-    console.log(`Password match result: ${isMatch}`);
-    
-    if (!isMatch) {
-      return res.status(401).json({
-        error: "Authentication error",
-        message: "Invalid email or password"
-      });
-    }
-
-    // Set session data
-    req.session.userId = user._id;
-    req.session.userEmail = user.email;
-    req.session.role = user.role;
-
-    // Save session explicitly
-    req.session.save(err => {
-      if (err) {
-        console.error("Session save error:", err);
-        return res.status(500).json({
-          error: "Session error",
-          message: "Failed to save session"
-        });
-      }
-
-      return res.status(200).json({
-        message: "Logged in successfully",
-        user: {
-          id: user._id,
-          email: user.email,
-          fullName: user.fullName,
-          isBanned: user.isBanned,
-          profilePictureUrl: user.profilePicture.startsWith("http")
-            ? user.profilePicture
-            : `${req.protocol}://${req.get("host")}/uploads/${user.profilePicture}`,
-          role: user.role,
-          approvalStatus: user.approvalStatus // NEW: Include approval status in response
-        }
-      });
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    return res.status(500).json({
-      error: "Server error",
-      message: "Failed to login"
     });
   }
 });

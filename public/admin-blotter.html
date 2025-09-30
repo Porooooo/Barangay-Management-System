@@ -115,6 +115,95 @@
             font-weight: 600;
         }
 
+        /* Statistics Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.active {
+            border-color: #5ECF89;
+            box-shadow: 0 4px 12px rgba(94, 207, 137, 0.3);
+        }
+
+        .stat-card.pending {
+            border-left: 4px solid #ffa500;
+        }
+
+        .stat-card.active-cases {
+            border-left: 4px solid #3498db;
+        }
+
+        .stat-card.closed {
+            border-left: 4px solid #27ae60;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Search and Filters */
+        .search-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            padding: 10px 20px;
+            background: #5ECF89;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: white;
+        }
+
+        .search-box button:hover {
+            background: #4db777;
+        }
+
         .table-controls {
             display: flex;
             justify-content: space-between;
@@ -125,18 +214,6 @@
         .entries-info {
             font-size: 14px;
             color: #666;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-        }
-
-        .search-box input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-left: 10px;
         }
 
         /* Blotter Table Styles */
@@ -240,6 +317,71 @@
             font-size: 0.7rem;
             margin-left: 0.5rem;
             display: inline-block;
+        }
+        
+        /* Table Header */
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h2 {
+            font-size: 1.3em;
+            color: #2c3e50;
+        }
+
+        .current-filter {
+            font-size: 0.9em;
+            color: #666;
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        /* Loading and Empty States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: #bdc3c7;
+        }
+
+        .initial-state {
+            text-align: center;
+            padding: 60px 40px;
+            color: #666;
+        }
+
+        .initial-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: #bdc3c7;
+        }
+
+        .initial-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .initial-state p {
+            font-size: 1em;
+            color: #6c757d;
         }
         
         /* Modal Styles */
@@ -380,28 +522,28 @@
             color: #721c24;
         }
         .closed-cases-control {
-    text-align: left; /* Align button to left */
-    margin-bottom: 20px;
-}
+            text-align: left;
+            margin-bottom: 20px;
+        }
 
-.show-closed-cases-btn {
-    background-color: #981219;
-    color: white;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    width: 120px; /* Fixed width to make it shorter */
-    height: 50px;
-    margin-left: 10px;
-    transition: all 0.3s;
-    text-align: center; /* Center text within button */
-}
+        .show-closed-cases-btn {
+            background-color: #981219;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            width: 120px;
+            height: 50px;
+            margin-left: 10px;
+            transition: all 0.3s;
+            text-align: center;
+        }
 
-.show-closed-cases-btn:hover {
-    background-color: #a75d64;
-}
+        .show-closed-cases-btn:hover {
+            background-color: #a75d64;
+        }
         .delete-btn {
             background-color: #dc3545;
             color: white;
@@ -536,10 +678,47 @@
         </div><br><br>
         
         <div class="dash-content">
-            <div class="blotter-tables">
-                <div class="blotter-table">
-                    <h2>Pending Reports</h2>
-                    <table id="pendingBlotters">
+            <div class="page-header">
+                <h2 class="page-title">Blotter Case Management</h2>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search by complainant, accused, complaint type, or location...">
+                    <button onclick="searchBlotters()"><i class="uil uil-search"></i> Search</button>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-container">
+                <div class="stat-card pending" onclick="filterByStatus('pending')">
+                    <div class="stat-number" id="pendingCount">0</div>
+                    <div class="stat-label">Pending Cases</div>
+                </div>
+                <div class="stat-card active-cases" onclick="filterByStatus('active')">
+                    <div class="stat-number" id="activeCount">0</div>
+                    <div class="stat-label">Active Cases</div>
+                </div>
+                <div class="stat-card closed" onclick="filterByStatus('closed')">
+                    <div class="stat-number" id="closedCount">0</div>
+                    <div class="stat-label">Closed Cases</div>
+                </div>
+            </div>
+
+            <!-- Blotter Table -->
+            <div class="blotter-table">
+                <div class="table-header">
+                    <h2 id="tableTitle">Select a status to view cases</h2>
+                    <div id="currentFilter" class="current-filter" style="display: none;"></div>
+                </div>
+                <div id="blotterTableContainer">
+                    <div id="initialState" class="initial-state">
+                        <i class="uil uil-file-shield-alt"></i>
+                        <h3>No Status Selected</h3>
+                        <p>Click on one of the status cards above to view cases</p>
+                    </div>
+                    <table style="display: none;">
                         <thead>
                             <tr>
                                 <th>Date Reported</th>
@@ -551,61 +730,17 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="7">Loading...</td>
-                            </tr>
+                        <tbody id="blotterTableBody">
+                            <!-- Blotter cases will be loaded here -->
                         </tbody>
                     </table>
-                </div>
-
-                <div class="blotter-table">
-                    <h2>Active Cases</h2>
-                    <table id="activeBlotters">
-                        <thead>
-                            <tr>
-                                <th>Date Reported</th>
-                                <th>Complainant</th>
-                                <th>Accused</th>
-                                <th>Complaint Type</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="7">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="closed-cases-control">
-                    <button id="showClosedCasesBtn" class="show-closed-cases-btn">Show Closed Cases</button>
-                </div>
-
-                <div id="closedCasesSection" style="display: none;">
-                    <div class="blotter-table">
-                        <h2>Dismissed Reports</h2>
-                        <table id="closedBlotters">
-                            <thead>
-                                <tr>
-                                    <th>Date Reported</th>
-                                    <th>Complainant</th>
-                                    <th>Accused</th>
-                                    <th>Complaint Type</th>
-                                    <th>Location</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="7">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div id="loadingIndicator" class="loading" style="display: none;">
+                        <i class="uil uil-spinner uil-spin"></i> Loading cases...
+                    </div>
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <i class="uil uil-file-shield-alt"></i>
+                        <h3>No Cases Found</h3>
+                        <p>There are no cases with the selected status.</p>
                     </div>
                 </div>
             </div>
@@ -732,6 +867,8 @@
         let accusedUserId = null;
         let isBanned = false;
         let allBlotters = [];
+        let currentStatus = null;
+        let currentSearchTerm = '';
 
         // Toggle sidebar on mobile
         function toggleMenu() {
@@ -742,26 +879,19 @@
         // Load blotter reports
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthStatus();
-            loadBlotterReports();
+            loadBlotterStats();
             
             // Set up event listeners
             document.getElementById('logoutBtn').addEventListener('click', logoutUser);
-            document.getElementById('showClosedCasesBtn').addEventListener('click', toggleClosedCases);
             setupDarkModeToggle();
-        });
-
-        function toggleClosedCases() {
-            const closedCasesSection = document.getElementById('closedCasesSection');
-            const showClosedCasesBtn = document.getElementById('showClosedCasesBtn');
             
-            if (closedCasesSection.style.display === 'none') {
-                closedCasesSection.style.display = 'block';
-                showClosedCasesBtn.textContent = 'Hide Closed Cases';
-            } else {
-                closedCasesSection.style.display = 'none';
-                showClosedCasesBtn.textContent = 'Show Closed Cases';
-            }
-        }
+            // Add enter key support for search
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchBlotters();
+                }
+            });
+        });
 
         function checkAuthStatus() {
             fetch('/api/admin/check-auth', {
@@ -786,8 +916,8 @@
             });
         }
 
-        // Load all blotter reports
-        function loadBlotterReports() {
+        // Load blotter statistics
+        function loadBlotterStats() {
             const token = localStorage.getItem('token');
             if (!token) {
                 window.location.href = '/admin-login.html';
@@ -807,7 +937,7 @@
             })
             .then(data => {
                 allBlotters = data;
-                populateBlotterTables(data);
+                updateBlotterStats(data);
             })
             .catch(error => {
                 console.error('Error loading blotter reports:', error);
@@ -815,104 +945,224 @@
             });
         }
 
-        function populateBlotterTables(blotters) {
-            const pendingTable = document.querySelector('#pendingBlotters tbody');
-            const activeTable = document.querySelector('#activeBlotters tbody');
-            const closedTable = document.querySelector('#closedBlotters tbody');
+        function updateBlotterStats(blotters) {
+            const pendingCount = blotters.filter(b => b.status === 'Pending').length;
+            const activeCount = blotters.filter(b => b.status === 'Under Investigation').length;
+            const closedCount = blotters.filter(b => 
+                b.status === 'Resolved' || 
+                b.status === 'Dismissed' || 
+                b.status === 'Escalated to PNP'
+            ).length;
             
-            // Clear existing rows
-            pendingTable.innerHTML = '';
-            activeTable.innerHTML = '';
-            closedTable.innerHTML = '';
-            
-            if (blotters.length === 0) {
-                pendingTable.innerHTML = '<tr><td colspan="7">No pending blotter reports found</td></tr>';
-                activeTable.innerHTML = '<tr><td colspan="7">No active blotter cases found</td></tr>';
-                closedTable.innerHTML = '<tr><td colspan="7">No closed blotter cases found</td></tr>';
-                return;
-            }
-            
-            blotters.forEach(blotter => {
-                const row = createBlotterRow(blotter);
-                
-                if (blotter.status === 'Pending') {
-                    pendingTable.appendChild(row);
-                } else if (blotter.status === 'Under Investigation') {
-                    activeTable.appendChild(row);
-                } else if (blotter.status === 'Resolved' || blotter.status === 'Dismissed' || blotter.status === 'Escalated to PNP') {
-                    closedTable.appendChild(row);
-                }
-            });
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('activeCount').textContent = activeCount;
+            document.getElementById('closedCount').textContent = closedCount;
         }
 
-        function createBlotterRow(blotter) {
-            const row = document.createElement('tr');
-            row.dataset.id = blotter._id;
+        // Filter by status
+        function filterByStatus(status) {
+            currentStatus = status;
             
-            row.innerHTML = `
-                <td>${new Date(blotter.dateReported).toLocaleDateString()}</td>
-                <td>${blotter.complainantName || 'Anonymous'}</td>
-                <td>${blotter.accused.name} ${blotter.isBanned ? '<span class="ban-notice">BANNED</span>' : ''}</td>
-                <td>${blotter.complaintType}</td>
-                <td>${blotter.location}</td>
-                <td><span class="status status-${blotter.status.toLowerCase().replace(' ', '-')}">${blotter.status}</span></td>
-                <td>
-                    <button class="action-btn view-btn" onclick="viewBlotter('${blotter._id}')">
-                        <i class="uil uil-eye"></i> View
-                    </button>
-                    ${blotter.status === 'Pending' || blotter.status === 'Under Investigation' ? 
-                        `<button class="action-btn call-btn" onclick="initiateCall('${blotter._id}', '${blotter.accused.contact || ''}')">
+            // Update active card - FIXED: Use data attributes instead of CSS classes
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Find the card that was clicked and add active class
+            const cards = document.querySelectorAll('.stat-card');
+            cards.forEach(card => {
+                if (card.classList.contains('pending') && status === 'pending') {
+                    card.classList.add('active');
+                } else if (card.classList.contains('active-cases') && status === 'active') {
+                    card.classList.add('active');
+                } else if (card.classList.contains('closed') && status === 'closed') {
+                    card.classList.add('active');
+                }
+            });
+            
+            // Update table title and filter display
+            const statusTitles = {
+                'pending': 'Pending Cases',
+                'active': 'Active Cases',
+                'closed': 'Closed Cases'
+            };
+            
+            const statusLabels = {
+                'pending': 'Pending Cases',
+                'active': 'Active Cases',
+                'closed': 'Closed Cases'
+            };
+            
+            document.getElementById('tableTitle').textContent = statusTitles[status];
+            document.getElementById('currentFilter').textContent = `Filter: ${statusLabels[status]}`;
+            document.getElementById('currentFilter').style.display = 'inline-block';
+            
+            // Load blotters for the selected status
+            loadBlottersByStatus(status, currentSearchTerm);
+        }
+
+        // Load blotters by status
+        function loadBlottersByStatus(status, searchTerm = '') {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const emptyState = document.getElementById('emptyState');
+            const initialState = document.getElementById('initialState');
+            const table = document.querySelector('table');
+            const tableBody = document.getElementById('blotterTableBody');
+
+            // Show loading, hide other states
+            loadingIndicator.style.display = 'block';
+            emptyState.style.display = 'none';
+            initialState.style.display = 'none';
+            table.style.display = 'none';
+            tableBody.innerHTML = '';
+
+            // Filter blotters based on status and search term
+            let filteredBlotters = allBlotters.filter(blotter => {
+                // Filter by status
+                let statusMatch = false;
+                if (status === 'pending') {
+                    statusMatch = blotter.status === 'Pending';
+                } else if (status === 'active') {
+                    statusMatch = blotter.status === 'Under Investigation';
+                } else if (status === 'closed') {
+                    statusMatch = blotter.status === 'Resolved' || 
+                                 blotter.status === 'Dismissed' || 
+                                 blotter.status === 'Escalated to PNP';
+                }
+                
+                // Filter by search term if provided
+                if (searchTerm && statusMatch) {
+                    const searchLower = searchTerm.toLowerCase();
+                    return (
+                        (blotter.complainantName && blotter.complainantName.toLowerCase().includes(searchLower)) ||
+                        (blotter.accused.name && blotter.accused.name.toLowerCase().includes(searchLower)) ||
+                        (blotter.complaintType && blotter.complaintType.toLowerCase().includes(searchLower)) ||
+                        (blotter.location && blotter.location.toLowerCase().includes(searchLower))
+                    );
+                }
+                
+                return statusMatch;
+            });
+
+            // Simulate API delay
+            setTimeout(() => {
+                displayBlotters(filteredBlotters, status);
+                loadingIndicator.style.display = 'none';
+            }, 500);
+        }
+
+        function displayBlotters(blotters, status) {
+            const table = document.querySelector('table');
+            const emptyState = document.getElementById('emptyState');
+            const tableBody = document.getElementById('blotterTableBody');
+
+            if (blotters.length === 0) {
+                table.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            table.style.display = 'table';
+
+            tableBody.innerHTML = blotters.map(blotter => {
+                const statusClass = `status-${blotter.status.toLowerCase().replace(' ', '-')}`;
+                
+                // Show appropriate action buttons based on status
+                let actionButtons = '';
+                
+                if (blotter.status === 'Pending' || blotter.status === 'Under Investigation') {
+                    actionButtons = `
+                        <button class="action-btn view-btn" onclick="viewBlotter('${blotter._id}')">
+                            <i class="uil uil-eye"></i> View
+                        </button>
+                        <button class="action-btn call-btn" onclick="initiateCall('${blotter._id}', '${blotter.accused.contact || ''}')">
                             <i class="uil uil-phone"></i> Call
-                        </button>` : ''}
-                    ${blotter.status === 'Dismissed' ? 
-                        `<button class="action-btn delete-btn" onclick="deleteDismissedReport('${blotter._id}')">
+                        </button>
+                    `;
+                } else if (blotter.status === 'Dismissed') {
+                    actionButtons = `
+                        <button class="action-btn view-btn" onclick="viewBlotter('${blotter._id}')">
+                            <i class="uil uil-eye"></i> View
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteDismissedReport('${blotter._id}')">
                             <i class="uil uil-trash-alt"></i> Delete
-                        </button>` : ''}
-                </td>
-            `;
-            
-            return row;
+                        </button>
+                    `;
+                } else {
+                    actionButtons = `
+                        <button class="action-btn view-btn" onclick="viewBlotter('${blotter._id}')">
+                            <i class="uil uil-eye"></i> View
+                        </button>
+                    `;
+                }
+
+                return `
+                <tr>
+                    <td>${new Date(blotter.dateReported).toLocaleDateString()}</td>
+                    <td>${blotter.complainantName || 'Anonymous'}</td>
+                    <td>${blotter.accused.name} ${blotter.isBanned ? '<span class="ban-notice">BANNED</span>' : ''}</td>
+                    <td>${blotter.complaintType}</td>
+                    <td>${blotter.location}</td>
+                    <td><span class="status ${statusClass}">${blotter.status}</span></td>
+                    <td>
+                        ${actionButtons}
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        // Search blotters
+        function searchBlotters() {
+            currentSearchTerm = document.getElementById('searchInput').value;
+            if (currentStatus) {
+                loadBlottersByStatus(currentStatus, currentSearchTerm);
+            }
         }
 
         function deleteDismissedReport(blotterId) {
-    if (!confirm('Are you sure you want to delete this dismissed report? This action cannot be undone.')) {
-        return;
-    }
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/admin-login.html';
-        return;
-    }
+            if (!confirm('Are you sure you want to delete this dismissed report? This action cannot be undone.')) {
+                return;
+            }
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
 
-    // Add console log to verify the ID being sent
-    console.log('Attempting to delete blotter with ID:', blotterId);
+            // Add console log to verify the ID being sent
+            console.log('Attempting to delete blotter with ID:', blotterId);
 
-    fetch(`/api/blotter/${blotterId}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            // Get more detailed error information
-            return response.json().then(err => {
-                throw new Error(err.message || 'Network response was not ok');
+            fetch(`/api/blotter/${blotterId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Get more detailed error information
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Network response was not ok');
+                    });
+                }
+                return response.json();
+            })
+            .then(() => {
+                alert('Dismissed report deleted successfully');
+                loadBlotterStats(); // Reload stats and refresh view
+                if (currentStatus) {
+                    loadBlottersByStatus(currentStatus, currentSearchTerm);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting dismissed report:', error);
+                alert(`Failed to delete dismissed report: ${error.message}`);
             });
         }
-        return response.json();
-    })
-    .then(() => {
-        alert('Dismissed report deleted successfully');
-        loadBlotterReports();
-    })
-    .catch(error => {
-        console.error('Error deleting dismissed report:', error);
-        alert(`Failed to delete dismissed report: ${error.message}`);
-    });
-}
 
         function viewBlotter(blotterId) {
             const token = localStorage.getItem('token');
@@ -1080,7 +1330,10 @@
                 
                 // Reload the blotter details
                 viewBlotter(blotterId);
-                loadBlotterReports(); // Refresh the table
+                loadBlotterStats(); // Refresh the stats and table
+                if (currentStatus) {
+                    loadBlottersByStatus(currentStatus, currentSearchTerm);
+                }
             })
             .catch(error => {
                 console.error('Error recording call attempt:', error);
@@ -1089,292 +1342,279 @@
         }
 
         function banUser() {
-    if (!accusedUserId) return;
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/admin-login.html';
-        return;
-    }
-
-    fetch(`/api/users/${accusedUserId}/ban`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(result => {
-        isBanned = true;
-        updateCallAttemptsDisplay();
-        loadBlotterReports(); // Refresh the table to show banned status
-        
-        // Automatically escalate to PNP
-        escalateToPNP();
-    })
-    .catch(error => {
-        console.error('Error banning user:', error);
-        alert('Failed to ban user');
-    });
-}
-
-function unbanUser() {
-    if (!accusedUserId) return;
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/admin-login.html';
-        return;
-    }
-
-    if (!confirm('Are you sure you want to lift the document request restriction for this user?')) {
-        return;
-    }
-
-    fetch(`/api/users/${accusedUserId}/unban`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(result => {
-        isBanned = false;
-        updateCallAttemptsDisplay();
-        loadBlotterReports(); // Refresh the table to remove banned status
-        alert('User restriction lifted successfully');
-    })
-    .catch(error => {
-        console.error('Error unbanning user:', error);
-        alert('Failed to lift restriction');
-    });
-}
-
-function escalateToPNP() {
-    if (!currentBlotterId) return;
-    
-    if (!confirm('Are you sure you want to escalate this case to PNP? This action cannot be undone.')) {
-        return;
-    }
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/admin-login.html';
-        return;
-    }
-
-    const resolutionDetails = document.getElementById('resolutionDetails').value;
-    
-    fetch(`/api/blotter/${currentBlotterId}/escalate`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            resolutionDetails,
-            status: 'Escalated to PNP'
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(updatedBlotter => {
-        alert('Case has been escalated to PNP');
-        closeModal();
-        loadBlotterReports();
-    })
-    .catch(error => {
-        console.error('Error escalating case:', error);
-        alert('Failed to escalate case');
-    });
-}
-
-function updateBlotterStatus(newStatus) {
-    if (!currentBlotterId) return;
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/admin-login.html';
-        return;
-    }
-
-    const resolutionDetails = document.getElementById('resolutionDetails').value;
-    
-    if ((newStatus === 'Resolved' || newStatus === 'Dismissed') && !resolutionDetails) {
-        alert('Please enter resolution details before marking as ' + newStatus.toLowerCase());
-        return;
-    }
-    
-    fetch(`/api/blotter/${currentBlotterId}/status`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            status: newStatus,
-            resolutionDetails
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(updatedBlotter => {
-        alert(`Case status updated to ${newStatus}`);
-        closeModal();
-        loadBlotterReports();
-    })
-    .catch(error => {
-        console.error('Error updating status:', error);
-        alert('Failed to update status');
-    });
-}
-
-function saveBlotterChanges() {
-    if (!currentBlotterId) return;
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/admin-login.html';
-        return;
-    }
-
-    const status = document.getElementById('blotterStatus').value;
-    const accusedContact = document.getElementById('accusedContact').value;
-    const resolutionDetails = document.getElementById('resolutionDetails').value;
-    
-    fetch(`/api/blotter/${currentBlotterId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            status,
-            accusedContact,
-            resolutionDetails
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(updatedBlotter => {
-        alert('Blotter changes saved successfully');
-        closeModal();
-        loadBlotterReports();
-    })
-    .catch(error => {
-        console.error('Error saving changes:', error);
-        alert('Failed to save changes');
-    });
-}
-
-function closeModal() {
-    document.getElementById('blotterModal').style.display = 'none';
-}
-
-// Search functionality
-function searchBlotters() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    
-    if (!searchTerm) {
-        populateBlotterTables(allBlotters);
-        return;
-    }
-    
-    const filteredBlotters = allBlotters.filter(blotter => {
-        return (
-            (blotter.complainantName && blotter.complainantName.toLowerCase().includes(searchTerm)) ||
-            (blotter.accused.name && blotter.accused.name.toLowerCase().includes(searchTerm)) ||
-            (blotter.complaintType && blotter.complaintType.toLowerCase().includes(searchTerm)) ||
-            (blotter.location && blotter.location.toLowerCase().includes(searchTerm)) ||
-            (blotter.status && blotter.status.toLowerCase().includes(searchTerm))
-        );
-    });
-    
-    populateBlotterTables(filteredBlotters);
-}
-
-// Logout functionality
-function logoutUser(e) {
-    if (e) e.preventDefault();
-    
-    if (confirm('Are you sure you want to logout?')) {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            window.location.href = '/login.html';
-            return;
-        }
-
-        fetch('/api/auth/logout', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
+            if (!accusedUserId) return;
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
             }
-        })
-        .then(() => {
-            localStorage.removeItem('token');
-            window.location.href = '/login.html';
-        })
-        .catch(error => {
-            console.error('Logout error:', error);
-            localStorage.removeItem('token');
-            window.location.href = '/login.html';
-        });
-    }
-}
 
-// Dark mode toggle
-function setupDarkModeToggle() {
-    const modeToggle = document.querySelector('.mode-toggle');
-    const body = document.body;
-    const darkMode = localStorage.getItem('darkMode');
-
-    if (darkMode === 'enabled') {
-        body.classList.add('dark-mode');
-        modeToggle.querySelector('.switch').classList.add('active');
-    }
-
-    modeToggle.addEventListener('click', function() {
-        body.classList.toggle('dark-mode');
-        const isDarkMode = body.classList.contains('dark-mode');
-        
-        if (isDarkMode) {
-            localStorage.setItem('darkMode', 'enabled');
-            modeToggle.querySelector('.switch').classList.add('active');
-        } else {
-            localStorage.setItem('darkMode', 'disabled');
-            modeToggle.querySelector('.switch').classList.remove('active');
+            fetch(`/api/users/${accusedUserId}/ban`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(result => {
+                isBanned = true;
+                updateCallAttemptsDisplay();
+                loadBlotterStats(); // Refresh the table to show banned status
+                
+                // Automatically escalate to PNP
+                escalateToPNP();
+            })
+            .catch(error => {
+                console.error('Error banning user:', error);
+                alert('Failed to ban user');
+            });
         }
-    });
-}
 
-// Close modal when clicking outside
-window.addEventListener('click', (event) => {
-    if (event.target === document.getElementById('blotterModal')) {
-        closeModal();
-    }
-});
-</script>
+        function unbanUser() {
+            if (!accusedUserId) return;
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
+
+            if (!confirm('Are you sure you want to lift the document request restriction for this user?')) {
+                return;
+            }
+
+            fetch(`/api/users/${accusedUserId}/unban`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(result => {
+                isBanned = false;
+                updateCallAttemptsDisplay();
+                loadBlotterStats(); // Refresh the table to remove banned status
+                alert('User restriction lifted successfully');
+            })
+            .catch(error => {
+                console.error('Error unbanning user:', error);
+                alert('Failed to lift restriction');
+            });
+        }
+
+        function escalateToPNP() {
+            if (!currentBlotterId) return;
+            
+            if (!confirm('Are you sure you want to escalate this case to PNP? This action cannot be undone.')) {
+                return;
+            }
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
+
+            const resolutionDetails = document.getElementById('resolutionDetails').value;
+            
+            fetch(`/api/blotter/${currentBlotterId}/escalate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    resolutionDetails,
+                    status: 'Escalated to PNP'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(updatedBlotter => {
+                alert('Case has been escalated to PNP');
+                closeModal();
+                loadBlotterStats();
+                if (currentStatus) {
+                    loadBlottersByStatus(currentStatus, currentSearchTerm);
+                }
+            })
+            .catch(error => {
+                console.error('Error escalating case:', error);
+                alert('Failed to escalate case');
+            });
+        }
+
+        function updateBlotterStatus(newStatus) {
+            if (!currentBlotterId) return;
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
+
+            const resolutionDetails = document.getElementById('resolutionDetails').value;
+            
+            if ((newStatus === 'Resolved' || newStatus === 'Dismissed') && !resolutionDetails) {
+                alert('Please enter resolution details before marking as ' + newStatus.toLowerCase());
+                return;
+            }
+            
+            fetch(`/api/blotter/${currentBlotterId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    resolutionDetails
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(updatedBlotter => {
+                alert(`Case status updated to ${newStatus}`);
+                closeModal();
+                loadBlotterStats();
+                if (currentStatus) {
+                    loadBlottersByStatus(currentStatus, currentSearchTerm);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+                alert('Failed to update status');
+            });
+        }
+
+        function saveBlotterChanges() {
+            if (!currentBlotterId) return;
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
+
+            const status = document.getElementById('blotterStatus').value;
+            const accusedContact = document.getElementById('accusedContact').value;
+            const resolutionDetails = document.getElementById('resolutionDetails').value;
+            
+            fetch(`/api/blotter/${currentBlotterId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status,
+                    accusedContact,
+                    resolutionDetails
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(updatedBlotter => {
+                alert('Blotter changes saved successfully');
+                closeModal();
+                loadBlotterStats();
+                if (currentStatus) {
+                    loadBlottersByStatus(currentStatus, currentSearchTerm);
+                }
+            })
+            .catch(error => {
+                console.error('Error saving changes:', error);
+                alert('Failed to save changes');
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('blotterModal').style.display = 'none';
+        }
+
+        // Logout functionality
+        function logoutUser(e) {
+            if (e) e.preventDefault();
+            
+            if (confirm('Are you sure you want to logout?')) {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(() => {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                });
+            }
+        }
+
+        // Dark mode toggle
+        function setupDarkModeToggle() {
+            const modeToggle = document.querySelector('.mode-toggle');
+            const body = document.body;
+            const darkMode = localStorage.getItem('darkMode');
+
+            if (darkMode === 'enabled') {
+                body.classList.add('dark-mode');
+                modeToggle.querySelector('.switch').classList.add('active');
+            }
+
+            modeToggle.addEventListener('click', function() {
+                body.classList.toggle('dark-mode');
+                const isDarkMode = body.classList.contains('dark-mode');
+                
+                if (isDarkMode) {
+                    localStorage.setItem('darkMode', 'enabled');
+                    modeToggle.querySelector('.switch').classList.add('active');
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                    modeToggle.querySelector('.switch').classList.remove('active');
+                }
+            });
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === document.getElementById('blotterModal')) {
+                closeModal();
+            }
+        });
+    </script>
 </body>
 </html>

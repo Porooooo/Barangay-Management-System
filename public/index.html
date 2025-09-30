@@ -46,7 +46,7 @@
       box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
       max-width: 600px;   /* smaller like login page */
       width: 90%;
-      height: 300px;      /* smaller like login page */
+      height: 350px;      /* increased height to accommodate security messages */
       margin: 30px auto;
       overflow: hidden;
       transition: all 0.3s ease;
@@ -129,8 +129,13 @@
       margin-top: 10px;
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       background-color: #e3d3a8;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
     }
 
     .login-link,
@@ -172,6 +177,41 @@
       margin-top: 5px;
       font-size: 13px;
       text-align: center;
+      display: none;
+    }
+
+    .warning-message {
+      color: #ff9800;
+      margin-top: 5px;
+      font-size: 13px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+
+    .lock-message {
+      color: #f44336;
+      margin-top: 5px;
+      font-size: 13px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+
+    .attempts-counter {
+      color: #666;
+      margin-top: 5px;
+      font-size: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .countdown {
+      color: #f44336;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
       display: none;
     }
 
@@ -266,7 +306,11 @@
             <span class="password-toggle" id="togglePassword">🙈</span>
           </div>
           <div id="errorMessage" class="error-message" style="display: none;"></div>
-          <button type="submit">Log In</button>
+          <div id="warningMessage" class="warning-message" style="display: none;"></div>
+          <div id="lockMessage" class="lock-message" style="display: none;"></div>
+          <div id="attemptsCounter" class="attempts-counter" style="display: none;"></div>
+          <div id="countdown" class="countdown" style="display: none;"></div>
+          <button type="submit" id="loginButton">Log In</button>
         </form>
         <div class="forgot-password">
           <a href="forgot-password.html">Forgot Password?</a>
@@ -290,6 +334,13 @@
       this.textContent = type === 'password' ? '🙈' : '🙉';
     });
 
+    // Security variables
+    let failedAttempts = 0;
+    const MAX_ATTEMPTS = 5;
+    const LOCKOUT_TIME = 3 * 60 * 1000; // 3 minutes in milliseconds
+    let lockUntil = null;
+    let countdownInterval = null;
+
     // Check for active session on page load
     document.addEventListener('DOMContentLoaded', async () => {
       try {
@@ -311,19 +362,105 @@
       } catch (error) {
         console.log('No active session');
       }
+
+      // Check if there's a stored lock time
+      const storedLock = localStorage.getItem('loginLockUntil');
+      if (storedLock && Date.now() < parseInt(storedLock)) {
+        lockUntil = parseInt(storedLock);
+        startCountdown();
+      }
     });
 
+    // Countdown timer function
+    function startCountdown() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      
+      countdownInterval = setInterval(() => {
+        const now = Date.now();
+        const remaining = lockUntil - now;
+        
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          document.getElementById('countdown').style.display = 'none';
+          document.getElementById('lockMessage').style.display = 'none';
+          document.getElementById('loginButton').disabled = false;
+          localStorage.removeItem('loginLockUntil');
+          return;
+        }
+        
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        document.getElementById('countdown').textContent = 
+          `Time remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('countdown').style.display = 'block';
+      }, 1000);
+    }
+
+    // Check login status before submitting
+    async function checkLoginStatus(email) {
+      try {
+        const response = await fetch(`/api/auth/login-status/${encodeURIComponent(email)}`, {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return data;
+        }
+        return null;
+      } catch (error) {
+        console.error('Error checking login status:', error);
+        return null;
+      }
+    }
+
+    // Handle login form submission
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
       event.preventDefault();
 
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const errorElement = document.getElementById('errorMessage');
+      const warningElement = document.getElementById('warningMessage');
+      const lockElement = document.getElementById('lockMessage');
+      const attemptsElement = document.getElementById('attemptsCounter');
+      const countdownElement = document.getElementById('countdown');
+      const loginButton = document.getElementById('loginButton');
 
+      // Clear previous messages
       errorElement.style.display = 'none';
-      errorElement.textContent = '';
+      warningElement.style.display = 'none';
+      lockElement.style.display = 'none';
+      attemptsElement.style.display = 'none';
+      countdownElement.style.display = 'none';
+
+      // Check if account is locked locally
+      if (lockUntil && Date.now() < lockUntil) {
+        const remainingTime = Math.ceil((lockUntil - Date.now()) / 1000 / 60);
+        lockElement.textContent = `Account is temporarily locked. Try again in ${remainingTime} minutes.`;
+        lockElement.style.display = 'block';
+        startCountdown();
+        return;
+      }
+
+      // Check server-side login status
+      const status = await checkLoginStatus(email);
+      if (status && status.isLocked) {
+        lockUntil = new Date(status.lockUntil).getTime();
+        localStorage.setItem('loginLockUntil', lockUntil.toString());
+        
+        const remainingTime = Math.ceil((lockUntil - Date.now()) / 1000 / 60);
+        lockElement.textContent = `Account is temporarily locked. Try again in ${remainingTime} minutes.`;
+        lockElement.style.display = 'block';
+        loginButton.disabled = true;
+        startCountdown();
+        return;
+      }
 
       try {
+        loginButton.disabled = true;
+        loginButton.textContent = 'Logging in...';
+
         const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: {
@@ -336,15 +473,63 @@
         const result = await response.json();
 
         if (!response.ok) {
+          // Handle different types of errors
+          if (response.status === 429) { // Too Many Requests
+            lockUntil = Date.now() + LOCKOUT_TIME;
+            localStorage.setItem('loginLockUntil', lockUntil.toString());
+            
+            lockElement.textContent = result.message;
+            lockElement.style.display = 'block';
+            loginButton.disabled = true;
+            startCountdown();
+          } else if (response.status === 401) {
+            failedAttempts++;
+            
+            // Show warning when 2 attempts left
+            const remainingAttempts = result.remainingAttempts || (MAX_ATTEMPTS - failedAttempts);
+            
+            if (remainingAttempts === 2) {
+              warningElement.textContent = '⚠️ Warning: Only 2 attempts left!';
+              warningElement.style.display = 'block';
+            } else if (remainingAttempts === 1) {
+              warningElement.textContent = '⚠️ Warning: Only 1 attempt left!';
+              warningElement.style.display = 'block';
+            }
+            
+            attemptsElement.textContent = `${remainingAttempts} attempt(s) remaining`;
+            attemptsElement.style.display = 'block';
+            errorElement.textContent = result.message;
+            errorElement.style.display = 'block';
+            
+            // Check if this should trigger a lockout
+            if (failedAttempts >= MAX_ATTEMPTS) {
+              lockUntil = Date.now() + LOCKOUT_TIME;
+              localStorage.setItem('loginLockUntil', lockUntil.toString());
+              
+              lockElement.textContent = 'Account locked due to too many failed attempts. Try again in 3 minutes.';
+              lockElement.style.display = 'block';
+              loginButton.disabled = true;
+              startCountdown();
+            }
+          } else {
+            errorElement.textContent = result.message || result.error || 'An error occurred during login. Please try again.';
+            errorElement.style.display = 'block';
+          }
           throw new Error(result.message || result.error || 'Login failed');
         }
 
-        // Store user data in localStorage
-        localStorage.setItem('userId', result.user._id);
+        // Login successful
+        localStorage.setItem('userId', result.user.id);
         localStorage.setItem('userEmail', result.user.email);
-        localStorage.setItem('userFullName', `${result.user.firstName} ${result.user.lastName}`);
+        localStorage.setItem('userFullName', result.user.fullName);
         localStorage.setItem('userRole', result.user.role);
-        
+
+        // Reset security variables
+        failedAttempts = 0;
+        lockUntil = null;
+        localStorage.removeItem('loginLockUntil');
+        if (countdownInterval) clearInterval(countdownInterval);
+
         // Redirect based on user role from backend
         if (result.user.role === 'admin') {
           window.location.href = 'admin-dashboard.html';
@@ -353,8 +538,31 @@
         }
       } catch (error) {
         console.error('Login error:', error);
-        errorElement.textContent = error.message || 'An error occurred during login. Please try again.';
-        errorElement.style.display = 'block';
+        // Error message already displayed above
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = 'Log In';
+      }
+    });
+
+    // Clear local lock if email changes
+    document.getElementById('email').addEventListener('input', function() {
+      const currentEmail = this.value.trim();
+      if (currentEmail) {
+        // Check if this email has different lock status
+        checkLoginStatus(currentEmail).then(status => {
+          if (status) {
+            if (!status.isLocked) {
+              lockUntil = null;
+              localStorage.removeItem('loginLockUntil');
+              if (countdownInterval) clearInterval(countdownInterval);
+              document.getElementById('countdown').style.display = 'none';
+              document.getElementById('lockMessage').style.display = 'none';
+              document.getElementById('loginButton').disabled = false;
+            }
+            failedAttempts = MAX_ATTEMPTS - status.remainingAttempts;
+          }
+        });
       }
     });
   </script>

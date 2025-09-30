@@ -36,18 +36,34 @@ const UserSchema = new mongoose.Schema({
     enum: ['Active', 'Inactive'],
     default: 'Active'
   },
-  // NEW: Approval status field
+  
+  // NEW: Login security fields
+  loginAttempts: {
+    type: Number,
+    default: 0,
+    select: false
+  },
+  lockUntil: {
+    type: Date,
+    default: null,
+    select: false
+  },
+  lastFailedLogin: {
+    type: Date,
+    default: null,
+    select: false
+  },
+  
+  // Approval status field
   approvalStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   },
-  // NEW: Rejection reason
   rejectionReason: {
     type: String,
     default: null
   },
-  // NEW: Approval/Rejection timestamps
   approvedAt: {
     type: Date,
     default: null
@@ -56,13 +72,13 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
-  // NEW: Approved/Rejected by admin
   approvedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     default: null
   },
-  // NEW: ID Verification fields
+  
+  // ID Verification fields
   idVerification: {
     idType: {
       type: String,
@@ -74,7 +90,7 @@ const UserSchema = new mongoose.Schema({
       default: null
     },
     idPhoto: {
-      type: String, // File path for the uploaded ID photo
+      type: String,
       default: null
     },
     submittedAt: {
@@ -319,19 +335,72 @@ UserSchema.pre('save', function(next) {
   next();
 });
 
-// Password comparison method
+// Password comparison method with login attempt tracking
 UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  // Check if account is locked
+  if (this.isLocked) {
+    const now = Date.now();
+    const lockTime = this.lockUntil.getTime();
+    
+    if (lockTime > now) {
+      const remainingTime = Math.ceil((lockTime - now) / 1000 / 60);
+      throw new Error(`Account is temporarily locked. Try again in ${remainingTime} minutes.`);
+    } else {
+      // Lock period has expired, reset attempts
+      this.loginAttempts = 0;
+      this.lockUntil = null;
+      this.lastFailedLogin = null;
+      await this.save();
+    }
+  }
+
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  
+  if (isMatch) {
+    // Reset login attempts on successful login
+    if (this.loginAttempts > 0 || this.lockUntil) {
+      this.loginAttempts = 0;
+      this.lockUntil = null;
+      this.lastFailedLogin = null;
+      await this.save();
+    }
+    return true;
+  } else {
+    // Increment failed login attempts
+    this.loginAttempts += 1;
+    this.lastFailedLogin = new Date();
+    
+    // Lock account after 5 failed attempts for 3 minutes
+    if (this.loginAttempts >= 5) {
+      this.lockUntil = new Date(Date.now() + 3 * 60 * 1000); // 3 minutes
+    }
+    
+    await this.save();
+    
+    const attemptsLeft = 5 - this.loginAttempts;
+    if (attemptsLeft > 0) {
+      throw new Error(`Invalid password. ${attemptsLeft} attempt(s) left.`);
+    } else {
+      throw new Error('Account locked due to too many failed attempts. Try again in 3 minutes.');
+    }
+  }
 };
+
+// Virtual for checking if account is locked
+UserSchema.virtual('isLocked').get(function() {
+  return !!(this.lockUntil && this.lockUntil > Date.now());
+});
+
+// Virtual for getting remaining login attempts
+UserSchema.virtual('remainingAttempts').get(function() {
+  return Math.max(0, 5 - this.loginAttempts);
+});
 
 // Create password reset token method
 UserSchema.methods.createPasswordResetToken = function() {
-  // Generate 6-digit OTP
   const otp = crypto.randomInt(100000, 999999).toString();
-  
-  // Set expiration (10 minutes from now)
   this.resetPasswordToken = otp;
-  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
   this.resetPasswordVerified = false;
   
   return otp;
