@@ -103,7 +103,7 @@ app.use(session({
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? 'barangay-management-system-1-xfkw.onrender.com' : undefined
+    domain: process.env.NODE_ENV === 'production' ? 'barangaytalipapa.site' : undefined
   },
   name: 'btms.sid',
   rolling: true
