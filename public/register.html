@@ -18,7 +18,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* new background gradient */
             background: linear-gradient(135deg, #d4eaf7 0%, #f3e0b6 100%);
             background-attachment: fixed;
             margin: 0;
@@ -29,9 +28,9 @@
             background-color: #ffffff;
             border-radius: 20px;
             box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
-            max-width: 600px;   /* smaller like login page */
+            max-width: 600px;
             width: 90%;
-            height: 300px;      /* smaller like login page */
+            height: 300px;
             overflow: hidden;
             transition: all 0.3s ease;
         }
@@ -213,21 +212,6 @@
             border-color: #ff0000 !important;
         }
 
-        /* Password input with toggle */
-        .password-input-container {
-            position: relative;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #666;
-            font-size: 16px;
-        }
-
         /* Modal heading adjustment */
         .modal-content h2 {
             font-size: 22px;
@@ -329,40 +313,6 @@
             color: white;
         }
 
-        /* Password requirements styles */
-        .password-requirements {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            font-size: 12px;
-        }
-
-        .password-requirements p {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .password-requirements ul {
-            list-style-type: none;
-            padding-left: 5px;
-            margin: 0;
-        }
-
-        .password-requirements li {
-            margin-bottom: 3px;
-            color: #888;
-        }
-
-        .password-requirements li.requirement-met {
-            color: #4CAF50;
-        }
-
-        .password-requirements li.requirement-not-met {
-            color: #888;
-        }
-
         /* Checkbox group for government programs */
         .checkbox-group {
             display: flex;
@@ -434,7 +384,7 @@
 
         .success-icon {
             font-size: 60px;
-            color: #ffa500; /* Changed to orange for pending status */
+            color: #ffa500;
             margin-bottom: 20px;
         }
 
@@ -523,6 +473,21 @@
             width: 32%;
         }
 
+        /* Email validation styles */
+        .email-validation {
+            font-size: 11px;
+            margin-top: 2px;
+            display: none;
+        }
+
+        .email-valid {
+            color: #28a745;
+        }
+
+        .email-invalid {
+            color: #dc3545;
+        }
+
         /* Add responsive styles for mobile devices */
         @media (max-width: 768px) {
             .container {
@@ -533,7 +498,7 @@
             }
 
             .right-section {
-                order: -1; /* Moves logo to top */
+                order: -1;
                 padding: 15px;
                 background: transparent;
                 text-align: center;
@@ -596,7 +561,7 @@
                 <h1>Register</h1>
                 <p>Click the button below to create an account.</p>
                 <button class="btn-signup" onclick="openModal()">Sign Up</button>
-                <p class="register-link">Already have an account? <a href="login.html">Login Here</a></p>
+                <p class="register-link">Already have an account? <a href="login">Login Here</a></p>
             </div>
         </div>
         <div class="right-section">
@@ -610,7 +575,7 @@
             <span class="close" onclick="closeModal()">&times;</span>
             <h2>Sign Up</h2>
             
-            <!-- Progress Bar - Updated to 5 steps -->
+            <!-- Progress Bar - Updated to 4 steps (removed password step) -->
             <div class="progress-bar">
                 <div class="progress-step active" id="step1">
                     <div class="step-number">1</div>
@@ -627,10 +592,6 @@
                 <div class="progress-step" id="step4">
                     <div class="step-number">4</div>
                     <div class="step-label">ID Verification</div>
-                </div>
-                <div class="progress-step" id="step5">
-                    <div class="step-number">5</div>
-                    <div class="step-label">Account Setup</div>
                 </div>
             </div>
             
@@ -700,7 +661,8 @@
                     <div class="form-columns">
                         <div class="form-column">
                             <label for="email" class="required-field">Email Address</label>
-                            <input type="email" id="email" name="email" placeholder="Email Address" required>
+                            <input type="email" id="email" name="email" placeholder="Email Address" required oninput="checkEmailAvailability()">
+                            <div id="emailValidation" class="email-validation"></div>
                             
                             <label for="contactNumber" class="required-field">Contact Number</label>
                             <input type="text" id="contactNumber" name="contactNumber" placeholder="Contact Number" required>
@@ -789,8 +751,8 @@
                         </div>
                     </div>
                     
-                    <div class="form-section-title">Educational Attainment</div>
-                    <select id="educationalAttainment" name="educationalAttainment" class="full-width">
+                    <div class="form-section-title">Educational Attainment <span class="required-badge">*</span></div>
+                    <select id="educationalAttainment" name="educationalAttainment" class="full-width" required>
                         <option value="" disabled selected>Select Educational Attainment</option>
                         <option value="Elementary Graduate">Elementary Graduate</option>
                         <option value="High School Graduate">High School Graduate</option>
@@ -806,7 +768,7 @@
                     </div>
                 </div>
 
-                <!-- NEW PAGE: ID Verification -->
+                <!-- Page 4: ID Verification -->
                 <div class="form-page" id="page4">
                     <div class="form-section-title">Identity Verification</div>
                     
@@ -859,39 +821,12 @@
                         </div>
                     </div>
                     
-                    <div class="form-navigation">
-                        <button type="button" class="btn-prev" onclick="prevPage(4)">Previous</button>
-                        <button type="button" class="btn-next" onclick="nextPage(4)">Next</button>
-                    </div>
-                </div>
-                
-                <!-- Page 5: Account Setup (renamed from page4) -->
-                <div class="form-page" id="page5">
-                    <div class="form-section-title">Account Setup</div>
+                    <div class="form-section-title">Account Information</div>
                     <div class="form-columns">
                         <div class="form-column">
-                            <label for="password" class="required-field">Create Password</label>
-                            <div class="password-input-container">
-                                <input type="password" id="password" name="password" placeholder="Create Password" required oninput="checkPasswordRequirements()">
-                                <span class="password-toggle" onclick="togglePasswordVisibility('password')">🙈</span>
-                            </div>
-                            
-                            <label for="confirmPassword" class="required-field">Confirm Password</label>
-                            <div class="password-input-container">
-                                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
-                                <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">🙈</span>
-                            </div>
-                            <div class="error-message" id="password-error">Passwords do not match</div>
-                        </div>
-                        <div class="form-column">
-                            <div class="password-requirements">
-                                <p>Password must contain:</p>
-                                <ul>
-                                    <li id="req-length">At least 8 characters</li>
-                                    <li id="req-uppercase">At least one uppercase letter</li>
-                                    <li id="req-special">At least one special character</li>
-                                </ul>
-                            </div>
+                            <p style="text-align: left; font-size: 14px; color: #666; margin-bottom: 15px;">
+                                <strong>Note:</strong> You don't need to create a password. After admin approval, a temporary password will be sent to your email/mobile number. You can change it later in your account settings.
+                            </p>
                         </div>
                     </div>
                     
@@ -901,7 +836,7 @@
                     </div>
                     
                     <div class="form-navigation">
-                        <button type="button" class="btn-prev" onclick="prevPage(5)">Previous</button>
+                        <button type="button" class="btn-prev" onclick="prevPage(4)">Previous</button>
                         <button type="submit" id="submit-btn">Submit Registration</button>
                     </div>
                 </div>
@@ -916,15 +851,17 @@
                 <i class="fas fa-clock"></i>
             </div>
             <h2>Registration Submitted!</h2>
-            <p>Your account has been created successfully and is pending administrator approval. You will be able to login once your account is approved.</p>
+            <p>Your account has been created successfully and is pending administrator approval.</p>
             <p style="font-size: 14px; color: #666; margin-top: 10px;">
-                Your ID verification is under review. You will receive an email notification once your account is approved.
+                Once approved, you will receive a temporary password via email/SMS to access your account.
             </p>
             <button onclick="redirectToLogin()">Return to Login</button>
         </div>
     </div>
 
     <script>
+        let emailCheckTimeout;
+
         // Open Modal
         function openModal() {
             document.getElementById('registerModal').style.display = 'flex';
@@ -947,12 +884,12 @@
             // Show the selected page
             document.getElementById('page' + pageNumber).classList.add('active');
             
-            // Update progress bar for 5 steps
+            // Update progress bar for 4 steps
             document.querySelectorAll('.progress-step').forEach(step => {
                 step.classList.remove('active', 'completed');
             });
             
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 4; i++) {
                 const step = document.getElementById('step' + i);
                 if (i < pageNumber) {
                     step.classList.add('completed');
@@ -988,11 +925,19 @@
                 }
             });
             
-            // Special validation for email format
+            // Special validation for email format and availability
             if (pageNumber === 2) {
                 const email = document.getElementById('email');
+                const emailValidation = document.getElementById('emailValidation');
+                
                 if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
                     email.classList.add('input-error');
+                    emailValidation.textContent = 'Please enter a valid email address';
+                    emailValidation.className = 'email-validation email-invalid';
+                    emailValidation.style.display = 'block';
+                    isValid = false;
+                } else if (emailValidation.classList.contains('email-invalid')) {
+                    // If email is already taken, don't proceed
                     isValid = false;
                 }
                 
@@ -1038,7 +983,48 @@
             return isValid;
         }
 
-        // NEW: ID Photo preview function
+        // NEW: Email availability check
+        async function checkEmailAvailability() {
+            const email = document.getElementById('email').value;
+            const emailValidation = document.getElementById('emailValidation');
+            
+            // Clear previous timeout
+            if (emailCheckTimeout) {
+                clearTimeout(emailCheckTimeout);
+            }
+            
+            // Validate email format first
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                emailValidation.style.display = 'none';
+                return;
+            }
+            
+            // Debounce the API call
+            emailCheckTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        if (result.exists) {
+                            emailValidation.textContent = 'This email is already registered';
+                            emailValidation.className = 'email-validation email-invalid';
+                            emailValidation.style.display = 'block';
+                            document.getElementById('email').classList.add('input-error');
+                        } else {
+                            emailValidation.textContent = 'Email is available';
+                            emailValidation.className = 'email-validation email-valid';
+                            emailValidation.style.display = 'block';
+                            document.getElementById('email').classList.remove('input-error');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking email:', error);
+                }
+            }, 500);
+        }
+
+        // ID Photo preview function
         function previewIDPhoto(event) {
             const input = event.target;
             const preview = document.getElementById('idPhotoPreview');
@@ -1075,78 +1061,6 @@
             }
         }
 
-        // Toggle password visibility
-        function togglePasswordVisibility(fieldId) {
-            const passwordField = document.getElementById(fieldId);
-            const toggleIcon = passwordField.nextElementSibling;
-            
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                toggleIcon.textContent = '🙉';
-            } else {
-                passwordField.type = 'password';
-                toggleIcon.textContent = '🙈';
-            }
-        }
-
-        // Check password requirements
-        function checkPasswordRequirements() {
-            const password = document.getElementById('password').value;
-            
-            // Check length requirement
-            const lengthReq = document.getElementById('req-length');
-            if (password.length >= 8) {
-                lengthReq.classList.add('requirement-met');
-                lengthReq.classList.remove('requirement-not-met');
-            } else {
-                lengthReq.classList.add('requirement-not-met');
-                lengthReq.classList.remove('requirement-met');
-            }
-            
-            // Check uppercase requirement
-            const uppercaseReq = document.getElementById('req-uppercase');
-            if (/[A-Z]/.test(password)) {
-                uppercaseReq.classList.add('requirement-met');
-                uppercaseReq.classList.remove('requirement-not-met');
-            } else {
-                uppercaseReq.classList.add('requirement-not-met');
-                uppercaseReq.classList.remove('requirement-met');
-            }
-            
-            // Check special character requirement
-            const specialReq = document.getElementById('req-special');
-            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-                specialReq.classList.add('requirement-met');
-                specialReq.classList.remove('requirement-not-met');
-            } else {
-                specialReq.classList.add('requirement-not-met');
-                specialReq.classList.remove('requirement-met');
-            }
-            
-            // Also validate password match
-            validatePassword();
-        }
-
-        // Validate password match
-        function validatePassword() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const errorElement = document.getElementById('password-error');
-            const submitBtn = document.getElementById('submit-btn');
-            
-            if (password !== confirmPassword && confirmPassword !== '') {
-                errorElement.style.display = 'block';
-                document.getElementById('confirmPassword').classList.add('input-error');
-                submitBtn.disabled = true;
-                return false;
-            } else {
-                errorElement.style.display = 'none';
-                document.getElementById('confirmPassword').classList.remove('input-error');
-                submitBtn.disabled = false;
-                return true;
-            }
-        }
-
         // Show success modal
         function showSuccessModal() {
             closeModal(); // Close the registration modal
@@ -1155,120 +1069,91 @@
 
         // Redirect to login page
         function redirectToLogin() {
-            window.location.href = 'login.html';
+            window.location.href = 'login';
         }
 
-// Handle form submission - FIXED VERSION
-document.getElementById('registerForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
+        // Handle form submission - UPDATED FOR NO PASSWORD
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
 
-    // Validate all pages before submission
-    for (let i = 1; i <= 5; i++) {
-        if (!validatePage(i)) {
-            showPage(i); // Show the first page with errors
-            return;
-        }
-    }
-    
-    // Validate passwords match
-    if (!validatePassword()) {
-        return;
-    }
+            // Validate all pages before submission
+            for (let i = 1; i <= 4; i++) {
+                if (!validatePage(i)) {
+                    showPage(i); // Show the first page with errors
+                    return;
+                }
+            }
 
-    // Check password requirements are met
-    const password = document.getElementById('password').value;
-    if (password.length < 8 || !/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-        alert('Please ensure your password meets all requirements.');
-        return;
-    }
+            const formData = new FormData();
+            
+            // Personal Information
+            formData.append('lastName', document.getElementById('lastName').value);
+            formData.append('firstName', document.getElementById('firstName').value);
+            formData.append('middleName', document.getElementById('middleName').value);
+            formData.append('suffix', document.getElementById('suffix').value);
+            formData.append('birthdate', document.getElementById('birthdate').value);
+            formData.append('gender', document.getElementById('gender').value);
+            formData.append('civilStatus', document.getElementById('civilStatus').value);
+            formData.append('occupation', document.getElementById('occupation').value);
+            
+            // Contact Information
+            formData.append('email', document.getElementById('email').value);
+            formData.append('contactNumber', document.getElementById('contactNumber').value);
+            formData.append('alternateContactNumber', document.getElementById('alternateContactNumber').value);
+            
+            // Profile Picture
+            const profilePictureFile = document.getElementById('profilePicture').files[0];
+            if (profilePictureFile) {
+                formData.append('profilePicture', profilePictureFile);
+            }
+            
+            // Government Programs
+            formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
+            formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
+            formData.append('pwdMember', document.getElementById('pwdMember').checked);
+            formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
+            formData.append('soloParent', document.getElementById('soloParent').checked);
+            
+            // Address Information
+            formData.append('houseNumber', document.getElementById('houseNumber').value);
+            formData.append('street', document.getElementById('street').value);
+            formData.append('barangay', document.getElementById('barangay').value);
+            formData.append('homeownerStatus', document.getElementById('homeownerStatus').value);
+            formData.append('yearsResiding', document.getElementById('yearsResiding').value);
+            formData.append('monthlyIncome', document.getElementById('monthlyIncome').value);
+            formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
+            
+            // ID Verification Data
+            formData.append('idType', document.getElementById('idType').value);
+            formData.append('idNumber', document.getElementById('idNumber').value);
+            
+            const idPhotoFile = document.getElementById('idPhoto').files[0];
+            if (idPhotoFile) {
+                formData.append('idPhoto', idPhotoFile);
+            }
 
-    const formData = new FormData();
-    
-    // Personal Information - FIXED field names
-    formData.append('lastName', document.getElementById('lastName').value);
-    formData.append('firstName', document.getElementById('firstName').value);
-    formData.append('middleName', document.getElementById('middleName').value);
-    formData.append('suffix', document.getElementById('suffix').value);
-    formData.append('birthdate', document.getElementById('birthdate').value);
-    formData.append('gender', document.getElementById('gender').value);
-    formData.append('civilStatus', document.getElementById('civilStatus').value);
-    formData.append('occupation', document.getElementById('occupation').value);
-    
-    // Contact Information - FIXED field names
-    formData.append('email', document.getElementById('email').value);
-    formData.append('contactNumber', document.getElementById('contactNumber').value);
-    formData.append('alternateContactNumber', document.getElementById('alternateContactNumber').value);
-    
-    // Profile Picture
-    const profilePictureFile = document.getElementById('profilePicture').files[0];
-    if (profilePictureFile) {
-        formData.append('profilePicture', profilePictureFile);
-    }
-    
-    // Government Programs - FIXED: Convert checkboxes to proper boolean values
-    formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
-    formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
-    formData.append('pwdMember', document.getElementById('pwdMember').checked);
-    formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
-    formData.append('soloParent', document.getElementById('soloParent').checked);
-    
-    // Address Information - FIXED field names
-    formData.append('houseNumber', document.getElementById('houseNumber').value);
-    formData.append('street', document.getElementById('street').value);
-    formData.append('barangay', document.getElementById('barangay').value);
-    formData.append('homeownerStatus', document.getElementById('homeownerStatus').value);
-    formData.append('yearsResiding', document.getElementById('yearsResiding').value);
-    formData.append('monthlyIncome', document.getElementById('monthlyIncome').value);
-    formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
-    
-    // ID Verification Data
-    formData.append('idType', document.getElementById('idType').value);
-    formData.append('idNumber', document.getElementById('idNumber').value);
-    
-    const idPhotoFile = document.getElementById('idPhoto').files[0];
-    if (idPhotoFile) {
-        formData.append('idPhoto', idPhotoFile);
-    }
-    
-    // Account Setup
-    formData.append('password', document.getElementById('password').value);
-    formData.append('confirmPassword', document.getElementById('confirmPassword').value);
+            console.log("Submitting form data...");
 
-    console.log("Submitting form data..."); // Debug log
+            try {       
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
 
-    // Log form data for debugging
-    for (let [key, value] of formData.entries()) {
-        if (key !== 'profilePicture' && key !== 'idPhoto') {
-            console.log(`${key}: ${value}`);
-        } else {
-            console.log(`${key}: [File]`);
-        }
-    }
-
-    try {       
-        const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
+                const result = await response.json();
+                console.log("Registration response:", result);
+                
+                if (response.ok) {
+                    showSuccessModal();
+                } else {
+                    alert(result.message || result.error || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while registering.');
+            }
         });
-
-        const result = await response.json();
-        console.log("Registration response:", result); // Debug log
-        
-        if (response.ok) {
-            // Show success modal instead of alert
-            showSuccessModal();
-        } else {
-            alert(result.message || result.error || 'Registration failed');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while registering.');
-    }
-});
-
-        // Add event listeners for password validation
-        document.getElementById('confirmPassword').addEventListener('input', validatePassword);
     </script>
 </body>
 </html>

@@ -251,7 +251,8 @@
           <div id="countdown" class="countdown" style="display: none;"></div>
           <button type="submit" id="loginButton">Log In</button>
         </form>
-        <p class="login-link">Don't have an account? <a href="register.html">Sign Up Here</a></p>
+        <p class="login-link">Don't have an account? <a href="/register">Sign Up Here</a></p>
+        <p class="login-link"><a href="/forgot-password">Forgot Password?</a></p>
       </div>
     </div>
 
@@ -289,10 +290,10 @@
           if (data.isAuthenticated) {
             switch (data.user.role) {
               case 'admin':
-                window.location.href = 'admin-dashboard.html';
+                window.location.href = '/admin-dashboard';
                 break;
               default:
-                window.location.href = 'residentdashboard.html';
+                window.location.href = '/residentdashboard';
             }
           }
         }
@@ -470,10 +471,10 @@
         // Redirect based on role
         switch (result.user.role) {
           case 'admin':
-            window.location.href = 'admin-dashboard.html';
+            window.location.href = '/admin-dashboard';
             break;
           default:
-            window.location.href = 'residentdashboard.html';
+            window.location.href = '/residentdashboard';
         }
       } catch (error) {
         console.error('Login error:', error);

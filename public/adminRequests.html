@@ -6,378 +6,374 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>Document Requests</title>
+    <title>Announcements</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+        }
         
-        /* Sidebar */
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #333;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .sidebar .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-        }
-        .sidebar a {
-            padding: 15px;
-            text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            text-align: center;
-            transition: 0.3s;
-        }
-        .sidebar a:hover { background-color: #5ECF89; }
-        
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; overflow-x: hidden; }
         /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
+        .dashboard {
+            position: relative;
+            left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            transition: all 0.5s ease;
         }
-        
+
+        nav.close ~ .dashboard {
+            left: 78px;
+            width: calc(100% - 78px);
+        }
+
         .top {
             display: flex;
-            justify-content: space-between;            
+            justify-content: space-between;
             align-items: center;
             padding: 15px 30px;
-            background-color: #fff; 
+            background-color: #fff;
             box-shadow: 0 1px 5px rgba(0,0,0,0.1);
         }
-        
+
         .sidebar-toggle {
             font-size: 24px;
             color: #333;
             cursor: pointer;
         }
-        
+
         .dash-content {
             padding: 20px;
-            padding-top: 15px;
         }
-        
-        .overview {
-            margin-top: -20px;
+
+        /* Facebook-style posts */
+        .announcements-list {
+            max-width: 800px;
+            margin: 0 auto;
         }
-        
-        /* Filter Controls */
-        .filter-controls {
-            display: flex;
-            gap: 15px;
-            margin-top: -20px;
+
+        .post {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            flex-wrap: wrap;
+            padding: 16px;
         }
-        
-        .filter-group {
+
+        .post-header {
             display: flex;
             align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            border: 2px solid #e0e0e0;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-weight: 600;
+            margin: 0;
+            color: #050505;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #65676B;
+            margin: 0;
+        }
+
+        .post-content {
+            margin-bottom: 12px;
+        }
+
+        .post-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #050505;
+        }
+
+        .post-text {
+            color: #050505;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .post-footer {
+            border-top: 1px solid #E4E6EB;
+            padding-top: 12px;
+        }
+
+        .post-actions {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .post-action-btn {
+            background: none;
+            border: none;
+            color: #65676B;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .post-action-btn:hover {
+            background-color: #f0f2f5;
+        }
+
+        .comments-section {
+            margin-top: 12px;
+        }
+
+        .comment-form {
+            display: flex;
             gap: 8px;
+            margin-bottom: 12px;
         }
-        
-        .filter-group label {
-            font-weight: 500;
-        }
-        
-        .filter-group select,
-        .filter-group input {
+
+        .comment-input {
+            flex: 1;
             padding: 8px 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        
-        .filter-group button {
-            padding: 8px 16px;
-            background-color: #5ECF89;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        /* Blotter Table Styles */
-        .blotter-tables {
-            display: flex;
-            flex-direction: column;
-            margin-top: -10px;
-            gap: 2rem;
-        }
-        .blotter-table {
-            background: #fff;
-            padding: 1.2rem;
-            width: 100%;
-            border-radius: 2rem;
-            box-shadow: 0 2rem 3rem rgba(132, 139, 200, 0.18);
-            transition: all 300ms ease;
-        }
-        .blotter-table:hover {
-            box-shadow: none;
-        }
-        .blotter-table h2 {
-            margin-bottom: 1rem;
-            color: #333;
-            font-size: 1.5rem;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+            border-radius: 20px;
             font-size: 14px;
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #e0e0e0;
-        }
-        th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: #333;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        .action-btn {
-            padding: 5px 10px;
-            margin-right: 5px;
+
+        .comment-submit {
+            background-color: #5ECF89;
+            color: white;
             border: none;
-            border-radius: 3px;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
+        }
+
+        .comments-list {
+            margin-top: 12px;
+        }
+
+        .comment {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
+            border: 2px solid #e0e0e0;
+        }
+
+        .comment-user {
+            font-weight: 600;
+            font-size: 14px;
+            color: #050505;
+        }
+
+        .comment-time {
             font-size: 12px;
-            transition: all 0.3s;
+            color: #65676B;
+            margin-left: 8px;
         }
-        .view-btn {
-            background-color: #17a2b8;
+
+        .comment-text {
+            font-size: 14px;
+            color: #050505;
+            margin-left: 40px;
+        }
+
+        .comment-reply {
+            font-size: 12px;
+            color: #65676B;
+            margin-left: 40px;
+            cursor: pointer;
+        }
+
+        .comment-count-badge {
+            background-color: #5ECF89;
             color: white;
-        }
-        .view-btn:hover {
-            background-color: #115a65;
-        }
-        .call-btn {
-            background-color: #28a745;
-            color: white;
-        }
-        .call-btn:hover {
-            background-color: #175625;
-        }
-        .status {
-            padding: 0.4rem 0.8rem;
-            border-radius: 2rem;
-            font-size: 0.8rem;
-            font-weight: 500;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 11px;
+            margin-left: 5px;
+            min-width: 18px;
+            text-align: center;
             display: inline-block;
         }
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .status-approved {
-            background: #d4edda;
-            color: #155724;
-        }
-        .status-rejected {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .status-ready-to-claim {
-            background: #cce5ff;
-            color: #004085;
-        }
-        .status-claimed {
-            background: #e2e3e5;
-            color: #383d41;
-        }
-        
-        /* Button Styles */
-        .action-button {
-            padding: 6px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 5px;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-        .approve-btn {
-            background-color: #28a745;
-            color: white;
-        }
-        .approve-btn:hover {
-            background-color: #218838;
-        }
-        .reject-btn {
-            background-color: #dc3545;
-            color: white;
-        }
-        .reject-btn:hover {
-            background-color: #c82333;
-        }
-        .ready-btn {
-            background-color: #17a2b8;
-            color: white;
-        }
-        .ready-btn:hover {
-            background-color: #138496;
-        }
-        .archive-btn {
-            background-color: #6c757d;
-            color: white;
-        }
-        .archive-btn:hover {
-            background-color: #5a6268;
-        }
-        
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background-color: #5ECF89;
-            color: white;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 1000;
-            display: none;
-            animation: slideIn 0.5s forwards;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        .notification.hide {
-            animation: slideOut 0.5s forwards;
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        
-        /* Archive controls */
-        .archive-controls {
+
+        .reply-form {
+            margin-left: 40px;
+            margin-top: 8px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: -5px;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+            gap: 8px;
         }
-        .archive-toggle {
-            display: flex;
-            gap: 10px;
-        }
-        .archive-toggle button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .active-archive {
-            background-color: #5ECF89;
-            color: white;
-        }
-        .inactive-archive {
-            background-color: #e9ecef;
-            color: #495057;
-        }
-        
-        /* Cleanup button styling */
-        .cleanup-btn {
-            background-color: #dc3545;
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .cleanup-btn:hover {
-            background-color: #c82333;
-        }
-        
-        /* Error message styling */
-        .error-message {
-            text-align: center;
-            color: red;
-            padding: 20px;
-            font-weight: 500;
-        }
-        
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 500px;
-            width: 90%;
-        }
-        .modal-content h2 {
-            margin-bottom: 15px;
-        }
-        .modal-content textarea {
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
+
+        .reply-input {
+            flex: 1;
+            padding: 8px 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            min-height: 100px;
+            border-radius: 20px;
+            font-size: 14px;
         }
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        .modal-buttons button {
-            padding: 8px 16px;
+
+        .reply-submit {
+            background-color: #5ECF89;
+            color: white;
             border: none;
-            border-radius: 4px;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
         }
-        .modal-cancel {
-            background: #ccc;
+
+        .target-badge {
+            background-color: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            display: inline-block;
+            margin-bottom: 5px;
         }
-        .modal-submit {
-            background: #dc3545;
+
+        .no-announcements {
+            text-align: center;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 8px;
+            color: #65676B;
+        }
+
+        /* Admin comment styling */
+        .admin-comment {
+            background-color: #f0f8ff;
+            border-left: 3px solid #5ECF89;
+            padding: 8px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .admin-reply {
+            background-color: #f0f8ff;
+            border-left: 3px solid #5ECF89;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .admin-user {
+            color: #5ECF89;
+            font-weight: bold;
+        }
+
+        /* Resident user styling */
+        .resident-user {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .resident-comment {
+            background-color: #f8f9fa;
+            border-left: 3px solid #6c757d;
+        }
+
+        .resident-reply {
+            background-color: #f8f9fa;
+            border-left: 3px solid #6c757d;
+        }
+
+        /* View Image Button */
+        .view-image-btn {
+            background-color: #5ECF89;
             color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-image-btn:hover {
+            background-color: #4db777;
+        }
+
+        .image-section {
+            margin: 10px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                width: 78px;
+            }
+            
+            nav.close {
+                width: 0;
+            }
+            
+            .dashboard {
+                left: 78px;
+                width: calc(100% - 78px);
+            }
+            
+            nav.close ~ .dashboard {
+                left: 0;
+                width: 100%;
+            }
+            
+            .logo_name, .link-name {
+                display: none;
+            }
+            
+            .nav-links li a {
+                justify-content: center;
+            }
+            
+            .nav-links li a i {
+                margin-right: 0;
+            }
         }
     </style>
-    
-    <!-- Load socket.io client -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
     <nav>
@@ -385,42 +381,47 @@
             <div class="logo-image">
                 <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
-            <span class="logo_name">Admin Panel</span>
+            <span class="logo_name">Brgy. Talipapa</span>
         </div>
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="admin-dashboard.html" class="active">
+                <li><a href="residentdashboard.html">
                     <i class="uil uil-estate"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
-                <li><a href="manage-residents.html">
-                    <i class="uil uil-users-alt"></i>
-                    <span class="link-name">Manage Residents</span>
-                </a></li>
-                <li><a href="adminRequests.html">
+
+                <li><a href="requests.html">
                     <i class="uil uil-file-alt"></i>
-                    <span class="link-name">Document Requests</span>
+                    <span class="link-name">Request Document</span>
                 </a></li>
-                <li><a href="admin-blotter.html">
-                    <i class="uil uil-file-shield-alt"></i>
-                    <span class="link-name">Blotter Reports</span>
+
+                <li><a href="blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Blotter</span>
                 </a></li>
-                <li><a href="adminAnnounce.html">
-                    <i class="uil uil-megaphone"></i>
-                    <span class="link-name">Announcement</span>
+
+                <li><a href="residentRequests.html">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Your Requests</span>
                 </a></li>
-                <li><a href="admin-approvals.html">
-                    <i class="uil uil-user-check"></i>
-                    <span class="link-name">Approval</span>
+
+                <li><a href="resident-blotter.html">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Your Blotter</span>
                 </a></li>
-                <li><a href="emergency.html">
+
+                <li><a href="announcement.html">
                     <i class="uil uil-bell"></i>
-                    <span class="link-name">Emergency Alerts</span>
+                    <span class="link-name">Announcements</span>
                 </a></li>
-                
+
+                <li><a href="profile.html">
+                    <i class="uil uil-user"></i>
+                    <span class="link-name">Profile</span>
+                </a></li>
             </ul>
             <ul class="logout-mode">
-                <li><a href="index.html">
+                <li><a href="#" id="logoutBtn">
                     <i class="uil uil-signout"></i>
                     <span class="link-name">Logout</span>
                 </a></li>
@@ -433,7 +434,6 @@
                         <span class="switch"></span>
                     </div>
                 </li>
-                
             </ul>
         </div>
     </nav>
@@ -442,469 +442,463 @@
         <div class="top">
             <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
             <div class="header">
-                <h1><i class="uil uil-file-alt"></i>Document Requests</h1>
+                <h1><i class="uil uil-megaphone"></i> Barangay Announcements</h1>
             </div>
-        </div>
+        </div><br><br>
 
         <div class="dash-content">
-            <div class="overview">
-                <div class="title">
-                </div>
-                
-                <!-- Archive Toggle -->
-                <div class="archive-controls">
-                    <div class="archive-toggle">
-                        <button id="activeRequestsBtn" class="active-archive">Active Requests</button>
-                        <button id="archivedRequestsBtn" class="inactive-archive">Archive</button>
-                    </div>
-                    <div>
-                        <button id="cleanupArchive" class="cleanup-btn">Clean Up Archive</button>
-                    </div>
-                </div>
-                
-                <!-- Filter Controls -->
-                <div class="filter-controls">
-                    <div class="filter-group">
-                        <label for="searchInput">Search:</label>
-                        <input type="text" id="searchInput" placeholder="Search by name or address">
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="statusFilter">Status:</label>
-                        <select id="statusFilter">
-                            <option value="">All Statuses</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Rejected">Rejected</option>
-                            <option value="Ready to Claim">Ready to Claim</option>
-                            <option value="Claimed">Claimed</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="documentTypeFilter">Document Type:</label>
-                        <select id="documentTypeFilter">
-                            <option value="">All Types</option>
-                            <option value="Barangay Clearance">Barangay Clearance</option>
-                            <option value="Business Permit">Business Permit</option>
-                            <option value="Certificate of Residency">Certificate of Residency</option>
-                            <option value="Certificate of Indigency">Certificate of Indigency</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="startDate">From:</label>
-                        <input type="date" id="startDate">
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label for="endDate">To:</label>
-                        <input type="date" id="endDate">
-                    </div>
-                    
-                    <button id="applyFilters" class="filter-button">Apply Filters</button>
-                    <button id="resetFilters" class="filter-button">Reset</button>
-                </div>
-                
-                <div class="blotter-tables">
-                    <div class="blotter-table">
-                        <table id="requestsTable">
-                            <thead>
-                                <tr>
-                                    <th>Full Name</th>
-                                    <th>Address</th>
-                                    <th>Document Type</th>
-                                    <th>Purpose</th>
-                                    <th>Date Requested</th>
-                                    <th>Status</th>
-                                    <th class="actions-column">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Data will be dynamically inserted here -->
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="announcements-list" id="announcementsList">
+                <div class="no-announcements">
+                    <p>Loading announcements...</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Rejection Reason Modal -->
-    <div id="rejectModal" class="modal">
-        <div class="modal-content">
-            <h2>Reject Request</h2>
-            <p>Please provide a reason for rejection:</p>
-            <textarea id="rejectionReason" placeholder="Enter the reason for rejecting this request..."></textarea>
-            <div class="modal-buttons">
-                <button class="modal-cancel" onclick="document.getElementById('rejectModal').style.display = 'none'">Cancel</button>
-                <button class="modal-submit" onclick="submitRejection()">Submit Rejection</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Real-time Notification -->
-    <div id="notification" class="notification"></div>
-
     <script>
-        const socket = io();
+        let currentUser = null;
     
-        const requestsTable = document.getElementById('requestsTable');
-        const searchInput = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter');
-        const documentTypeFilter = document.getElementById('documentTypeFilter');
-        const startDate = document.getElementById('startDate');
-        const endDate = document.getElementById('endDate');
-        const applyFilters = document.getElementById('applyFilters');
-        const resetFilters = document.getElementById('resetFilters');
-        const notification = document.getElementById('notification');
-        const activeRequestsBtn = document.getElementById('activeRequestsBtn');
-        const archivedRequestsBtn = document.getElementById('archivedRequestsBtn');
-        const cleanupArchive = document.getElementById('cleanupArchive');
-        const logoutBtn = document.getElementById('logoutBtn');
-    
-        let currentFilters = {
-            search: '',
-            status: '',
-            documentType: '',
-            startDate: '',
-            endDate: '',
-            archive: false
-        };
-
-        let currentRejectRequestId = null;
-    
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAuthStatus();
-            setupEventListeners();
-            setupWebSocketListeners();
-            // Initialize with active requests
-            currentFilters.archive = false;
-            updateArchiveUI();
-            fetchRequests();
-        });
-
-        function checkAuthStatus() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/admin-login.html';
-                return;
+        // Add authFetch function for consistent authentication
+        async function authFetch(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+            if (response.status === 401) {
+                window.location.href = "index.html";
+                return null;
             }
+            return response;
         }
     
-        function setupEventListeners() {
-            applyFilters.addEventListener('click', applyFiltersHandler);
-            resetFilters.addEventListener('click', resetFiltersHandler);
-            searchInput.addEventListener('input', debounce(applyFiltersHandler, 300));
-    
-            activeRequestsBtn.addEventListener('click', () => {
-                currentFilters.archive = false;
-                updateArchiveUI();
-                fetchRequests();
-            });
-    
-            archivedRequestsBtn.addEventListener('click', () => {
-                currentFilters.archive = true;
-                updateArchiveUI();
-                fetchRequests();
-            });
-    
-            cleanupArchive.addEventListener('click', cleanupArchiveHandler);
-        }
-    
-        function updateArchiveUI() {
-            const isArchive = currentFilters.archive;
-            activeRequestsBtn.classList.toggle('active-archive', !isArchive);
-            activeRequestsBtn.classList.toggle('inactive-archive', isArchive);
-            archivedRequestsBtn.classList.toggle('active-archive', isArchive);
-            archivedRequestsBtn.classList.toggle('inactive-archive', !isArchive);
-            toggleActionsColumn(isArchive);
-        }
-    
-        function toggleActionsColumn(hide) {
-            const actionsColumns = document.querySelectorAll('.actions-column, td:nth-child(7)');
-            actionsColumns.forEach(col => {
-                col.style.display = hide ? 'none' : '';
-            });
-        }
-    
-        async function cleanupArchiveHandler() {
-            if (!confirm('WARNING: This will permanently delete ALL archived requests. Continue?')) {
-                return;
-            }
-    
+        // Fetch current user profile with proper error handling
+        async function fetchCurrentUser() {
             try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/admin-login.html';
-                    return;
+                const response = await authFetch('/api/auth/profile');
+                
+                if (!response) return null;
+                
+                if (response.ok) {
+                    currentUser = await response.json();
+                    return currentUser;
                 }
-
-                const response = await fetch('/api/requests/cleanup', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-    
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to clean up archive');
-                }
-    
-                const result = await response.json();
-                showNotification(`Successfully deleted ${result.deletedCount} archived requests`);
-                if (currentFilters.archive) fetchRequests();
             } catch (error) {
-                console.error('Cleanup error:', error);
-                showNotification(`Error: ${error.message}`);
+                console.error('Error fetching user profile:', error);
             }
+            return null;
         }
     
-        function debounce(func, timeout = 300) {
-            let timer;
-            return (...args) => {
-                clearTimeout(timer);
-                timer = setTimeout(() => { func.apply(this, args); }, timeout);
-            };
-        }
-    
-        function setupWebSocketListeners() {
-            socket.on('request-update', (data) => {
-                let message = '';
-                switch (data.type) {
-                    case 'created':
-                        message = `New request from ${data.request.fullName}`;
-                        break;
-                    case 'updated':
-                        message = `Request from ${data.request.fullName} was ${data.request.status}`;
-                        break;
-                    case 'deleted':
-                        message = `Cleaned up ${data.count} archived requests`;
-                        break;
-                }
-                showNotification(message);
-                if (!currentFilters.archive) fetchRequests();
-            });
-        }
-    
-        function showNotification(message) {
-            notification.textContent = message;
-            notification.style.display = 'block';
-    
-            setTimeout(() => {
-                notification.classList.add('hide');
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                    notification.classList.remove('hide');
-                }, 500);
-            }, 3000);
-        }
-    
-        function applyFiltersHandler() {
-            currentFilters = {
-                ...currentFilters,
-                search: searchInput.value.trim(),
-                status: statusFilter.value,
-                documentType: documentTypeFilter.value,
-                startDate: startDate.value,
-                endDate: endDate.value
-            };
-            fetchRequests();
-        }
-    
-        function resetFiltersHandler() {
-            searchInput.value = '';
-            statusFilter.value = '';
-            documentTypeFilter.value = '';
-            startDate.value = '';
-            endDate.value = '';
-            currentFilters = {
-                ...currentFilters,
-                search: '',
-                status: '',
-                documentType: '',
-                startDate: '',
-                endDate: ''
-            };
-            fetchRequests();
-        }
-    
-        async function fetchRequests() {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/admin-login.html';
-                    return;
-                }
-
-                const queryParams = new URLSearchParams();
-    
-                if (currentFilters.search) queryParams.append('search', currentFilters.search);
-                if (currentFilters.status) queryParams.append('status', currentFilters.status);
-                if (currentFilters.documentType) queryParams.append('documentType', currentFilters.documentType);
-                if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
-                if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
-                queryParams.append('archive', currentFilters.archive);
-    
-                const response = await fetch(`/api/requests?${queryParams.toString()}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-    
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Error: ${response.status}`);
-                }
-    
-                const requests = await response.json();
-                renderRequests(requests);
-            } catch (error) {
-                console.error('Fetch error:', error);
-                showErrorInTable(error.message);
-            }
-        }
-    
-        function renderRequests(requests) {
-            const tbody = requestsTable.querySelector('tbody');
-            tbody.innerHTML = '';
-    
-            if (requests.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="error-message">
-                            No ${currentFilters.archive ? 'archived' : 'active'} requests found
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-    
-            requests.forEach(request => {
-                const row = document.createElement('tr');
-                row.setAttribute('data-id', request.id);
-    
-                const statusClass = `status-${request.status.toLowerCase().replace(/\s+/g, '-')}`;
-                const showApproveReject = !currentFilters.archive && request.status === 'Pending';
-                const showReadyToClaim = !currentFilters.archive && request.status === 'Approved';
-    
-                row.innerHTML = `
-                    <td>${request.fullName || 'N/A'}</td>
-                    <td>${request.address || 'N/A'}</td>
-                    <td>${request.documentType || 'N/A'}</td>
-                    <td>${request.purpose || 'N/A'}</td>
-                    <td class="date-cell">
-                        <div>${request.formattedDate || 'N/A'}</div>
-                        <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
-                    </td>
-                    <td><span class="status ${statusClass}">${request.status || 'Pending'}</span></td>
-                    <td class="actions-column">
-                        ${showApproveReject ? `
-                            <button class="action-button approve-btn" data-id="${request.id}">Approve</button>
-                            <button class="action-button reject-btn" data-id="${request.id}">Reject</button>
-                        ` : ''}
-                        ${showReadyToClaim ? `
-                            <button class="action-button ready-btn" data-id="${request.id}">Ready to Claim</button>
-                        ` : ''}
-                    </td>
-                `;
-    
-                tbody.appendChild(row);
-            });
-    
-            document.querySelectorAll('.approve-btn, .reject-btn, .ready-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const requestId = e.target.getAttribute('data-id');
-                    if (e.target.classList.contains('approve-btn')) {
-                        handleRequestAction(requestId, 'approve');
-                    } else if (e.target.classList.contains('reject-btn')) {
-                        handleRequestAction(requestId, 'reject');
-                    } else if (e.target.classList.contains('ready-btn')) {
-                        handleRequestAction(requestId, 'ready');
-                    }
-                });
-            });
-        }
-    
-        function handleRequestAction(requestId, action) {
-            if (action === 'reject') {
-                currentRejectRequestId = requestId;
-                document.getElementById('rejectModal').style.display = 'flex';
-                document.getElementById('rejectionReason').value = '';
-                return;
-            }
+        // Get user profile picture URL
+        function getUserProfilePicture(userData) {
+            if (!userData) return '/images/default-profile.png';
             
-            if (!confirm(`Are you sure you want to ${action} this request?`)) return;
-            performRequestAction(requestId, action);
-        }
-
-        function submitRejection() {
-            const reason = document.getElementById('rejectionReason').value.trim();
-            if (!reason) {
-                alert('Please provide a rejection reason');
-                return;
+            if (userData.profilePicture) {
+                if (userData.profilePicture.startsWith('http') || userData.profilePicture.startsWith('/')) {
+                    return userData.profilePicture;
+                } else {
+                    return '/uploads/' + userData.profilePicture;
+                }
             }
+            return '/images/default-profile.png';
+        }
+    
+        // Calculate total comments (including replies)
+        function calculateTotalComments(comments) {
+            if (!comments || !Array.isArray(comments)) return 0;
             
-            document.getElementById('rejectModal').style.display = 'none';
-            performRequestAction(currentRejectRequestId, 'reject', reason);
+            let total = comments.length;
+            comments.forEach(comment => {
+                if (comment.replies && Array.isArray(comment.replies)) {
+                    total += comment.replies.length;
+                }
+            });
+            
+            return total;
         }
     
-        async function performRequestAction(requestId, action, rejectionReason = '') {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = '/admin-login.html';
-                    return;
-                }
-
-                const url = `/api/requests/${requestId}/${action}`;
-                const options = {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                };
-
-                if (action === 'reject') {
-                    options.body = JSON.stringify({ rejectionReason });
-                }
-
-                const response = await fetch(url, options);
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Failed to ${action}`);
-                }
-
-                showNotification(`Request ${action === 'ready' ? 'marked as ready to claim' : action + 'd'} successfully`);
-                fetchRequests();
-            } catch (error) {
-                console.error(`${action} error:`, error);
-                showNotification(`Error: ${error.message}`);
-            }
+        // Format comment count text
+        function formatCommentCount(count) {
+            if (count === 0) return '';
+            if (count === 1) return '1 comment';
+            return `${count} comments`;
         }
     
-        function showErrorInTable(message) {
-            const tbody = requestsTable.querySelector('tbody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="error-message">
-                        ${message}
-                    </td>
-                </tr>
-            `;
-        }
-    
+        // Toggle sidebar
         function toggleMenu() {
-            const sidebar = document.querySelector(".sidebar");
-            const mainContent = document.querySelector(".main-content");
-            sidebar.classList.toggle("active");
-            mainContent.classList.toggle("active");
+            const sidebar = document.querySelector("nav");
+            sidebar.classList.toggle("close");
         }
+    
+        // Load announcements from server
+        async function loadAnnouncements() {
+            try {
+                await fetchCurrentUser(); // Ensure user data is loaded first
+                
+                const response = await authFetch('/api/announcements');
+                
+                if (!response) return;
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load announcements');
+                }
+                
+                const announcements = await response.json();
+                displayAnnouncements(announcements);
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                document.getElementById('announcementsList').innerHTML = `
+                    <div class="post">
+                        <p>Error loading announcements. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+    
+        // Display announcements in Facebook-style posts
+        function displayAnnouncements(announcements) {
+            const container = document.getElementById('announcementsList');
+            
+            if (!announcements || announcements.length === 0) {
+                container.innerHTML = `
+                    <div class="post">
+                        <p>No announcements available at this time.</p>
+                    </div>
+                `;
+                return;
+            }
+    
+            container.innerHTML = announcements.map(announcement => {
+                const createdAt = new Date(announcement.createdAt);
+                const eventTime = announcement.eventDateTime ? new Date(announcement.eventDateTime) : null;
+                
+                return `
+                <div class="post" id="post-${announcement._id}">
+                    <div class="post-header">
+                        <img src="/images/barangay-bg.png" alt="Admin" class="post-avatar">
+                        <div class="post-user-info">
+                            <h3 class="post-username">Barangay Admin</h3>
+                            <p class="post-time">${createdAt.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <h4 class="post-title">${announcement.title}</h4>
+                        <p class="post-text">${announcement.content}</p>
+                        
+                        <!-- Image section with view button -->
+                        ${announcement.imageUrl ? `
+                            <div class="image-section">
+                                <button class="view-image-btn" onclick="toggleImage('${announcement._id}')">
+                                    <i class="uil uil-image"></i> View Image
+                                </button>
+                                <img src="${announcement.imageUrl}" class="post-image" id="image-${announcement._id}" alt="Announcement Image" style="display: none;">
+                            </div>
+                        ` : ''}
+                        
+                        ${eventTime ? `<p><strong>Event Time:</strong> ${eventTime.toLocaleString()}</p>` : ''}
+                        <div>
+                            ${announcement.targetGroups?.map(group => `
+                                <span class="target-badge">${group}</span>
+                            `).join('')}
+                            ${announcement.targetOccupation ? `<span class="target-badge">Occupation: ${announcement.targetOccupation}</span>` : ''}
+                            ${announcement.targetEducation ? `<span class="target-badge">Education: ${announcement.targetEducation}</span>` : ''}
+                            ${announcement.targetCivilStatus ? `<span class="target-badge">Civil Status: ${announcement.targetCivilStatus}</span>` : ''}
+                            ${announcement.targetIncome ? `<span class="target-badge">Income: ${announcement.targetIncome}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="post-footer">
+                        <!-- Comment count will be inserted here by loadComments function -->
+                        <div id="comment-count-${announcement._id}" class="comment-count"></div>
+                    </div>
+                    
+                    <!-- Comments Section -->
+                    <div class="comments-section" id="comments-${announcement._id}" style="display: none;">
+                        <div class="comment-form">
+                            <input type="text" class="comment-input" id="comment-input-${announcement._id}" placeholder="Write a comment...">
+                            <button class="comment-submit" onclick="postComment('${announcement._id}')">Comment</button>
+                        </div>
+                        <div class="comments-list" id="comments-list-${announcement._id}">
+                            <!-- Comments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+    
+            // Load comments for each announcement
+            announcements.forEach(announcement => {
+                loadComments(announcement._id);
+            });
+        }
+    
+        // Toggle comments section
+        function toggleComments(announcementId) {
+            const commentsSection = document.getElementById(`comments-${announcementId}`);
+            if (commentsSection.style.display === 'block') {
+                commentsSection.style.display = 'none';
+            } else {
+                commentsSection.style.display = 'block';
+                // Ensure comments are loaded when section is opened
+                loadComments(announcementId);
+            }
+        }
+    
+        // Load comments for an announcement
+        async function loadComments(announcementId) {
+            try {
+                const response = await authFetch(`/api/announcements/${announcementId}/comments`);
+                
+                if (!response) return;
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load comments');
+                }
+                
+                const comments = await response.json();
+                
+                // Update comment count
+                updateCommentCount(announcementId, comments);
+                
+                // Display comments
+                displayComments(announcementId, comments);
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                document.getElementById(`comments-list-${announcementId}`).innerHTML = `
+                    <div class="no-comments">
+                        <p>Error loading comments. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+    
+        // Update comment count display
+        function updateCommentCount(announcementId, comments) {
+            const commentCountElement = document.getElementById(`comment-count-${announcementId}`);
+            const totalComments = calculateTotalComments(comments);
+            const commentCountText = formatCommentCount(totalComments);
+            
+            if (commentCountText) {
+                commentCountElement.innerHTML = `
+                    <button class="post-action-btn" onclick="toggleComments('${announcementId}')">
+                        <i class="uil uil-comment"></i> ${commentCountText}
+                    </button>
+                `;
+                commentCountElement.style.display = 'block';
+            } else {
+                commentCountElement.innerHTML = `
+                    <button class="post-action-btn" onclick="toggleComments('${announcementId}')">
+                        <i class="uil uil-comment"></i> Comment
+                    </button>
+                `;
+                commentCountElement.style.display = 'block';
+            }
+        }
+    
+        // Display comments with actual user profiles
+        function displayComments(announcementId, comments) {
+            const container = document.getElementById(`comments-list-${announcementId}`);
+            
+            if (!comments || comments.length === 0) {
+                container.innerHTML = `
+                    <div class="no-comments">
+                        <p>No comments yet. Be the first to comment!</p>
+                    </div>
+                `;
+                return;
+            }
+    
+            container.innerHTML = comments.map(comment => {
+                const commentTime = new Date(comment.createdAt);
+                const isAdminComment = comment.userName === 'Barangay Admin';
+                
+                // Use actual profile picture from comment data or fallback to current user's picture
+                let profilePicture = '/images/default-profile.png';
+                
+                if (comment.userProfilePicture) {
+                    // Use the profile picture from the comment data (if provided by server)
+                    profilePicture = comment.userProfilePicture.startsWith('http') || comment.userProfilePicture.startsWith('/') 
+                        ? comment.userProfilePicture 
+                        : '/uploads/' + comment.userProfilePicture;
+                } else if (currentUser && comment.userId === currentUser._id) {
+                    // Fallback: if it's the current user's comment, use their profile picture
+                    profilePicture = getUserProfilePicture(currentUser);
+                }
+                
+                return `
+                <div class="comment ${isAdminComment ? 'admin-comment' : ''}" id="comment-${comment._id}">
+                    <div class="comment-header">
+                        <img src="${profilePicture}" alt="${comment.userName}" class="comment-avatar" 
+                             onerror="this.src='/images/default-profile.png'">
+                        <span class="comment-user ${isAdminComment ? 'admin-user' : ''}">${comment.userName}</span>
+                        <span class="comment-time">${commentTime.toLocaleString()}</span>
+                    </div>
+                    <p class="comment-text">${comment.text}</p>
+                    
+                    ${comment.replies && comment.replies.length > 0 ? `
+                        <div class="replies">
+                            ${comment.replies.map(reply => {
+                                const replyTime = new Date(reply.createdAt);
+                                const isAdminReply = reply.userName === 'Barangay Admin';
+                                
+                                let replyProfilePicture = '/images/default-profile.png';
+                                if (reply.userProfilePicture) {
+                                    replyProfilePicture = reply.userProfilePicture.startsWith('http') || reply.userProfilePicture.startsWith('/') 
+                                        ? reply.userProfilePicture 
+                                        : '/uploads/' + reply.userProfilePicture;
+                                } else if (currentUser && reply.userId === currentUser._id) {
+                                    replyProfilePicture = getUserProfilePicture(currentUser);
+                                }
+                                
+                                return `
+                                <div class="comment reply ${isAdminReply ? 'admin-reply' : ''}">
+                                    <div class="comment-header">
+                                        <img src="${replyProfilePicture}" alt="${reply.userName}" class="comment-avatar"
+                                             onerror="this.src='/images/default-profile.png'">
+                                        <span class="comment-user ${isAdminReply ? 'admin-user' : ''}">${reply.userName}</span>
+                                        <span class="comment-time">${replyTime.toLocaleString()}</span>
+                                    </div>
+                                    <p class="comment-text">${reply.text}</p>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <p class="comment-reply" onclick="toggleReplyForm('${announcementId}', '${comment._id}')">
+                        <i class="uil uil-corner-up-right"></i> Reply
+                    </p>
+                    <div class="reply-form" id="reply-form-${announcementId}-${comment._id}" style="display: none;">
+                        <input type="text" class="reply-input" id="reply-input-${announcementId}-${comment._id}" placeholder="Write a reply...">
+                        <button class="reply-submit" onclick="postReply('${announcementId}', '${comment._id}')">Reply</button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+    
+        // Toggle image visibility
+        function toggleImage(announcementId) {
+            const image = document.getElementById(`image-${announcementId}`);
+            const button = document.querySelector(`#image-${announcementId}`).previousElementSibling;
+            
+            if (image.style.display === 'none') {
+                image.style.display = 'block';
+                button.innerHTML = '<i class="uil uil-times"></i> Hide Image';
+            } else {
+                image.style.display = 'none';
+                button.innerHTML = '<i class="uil uil-image"></i> View Image';
+            }
+        }
+    
+        // Toggle reply form
+        function toggleReplyForm(announcementId, commentId) {
+            const replyForm = document.getElementById(`reply-form-${announcementId}-${commentId}`);
+            if (replyForm.style.display === 'block') {
+                replyForm.style.display = 'none';
+            } else {
+                // Hide any other open reply forms
+                document.querySelectorAll('.reply-form').forEach(form => {
+                    form.style.display = 'none';
+                });
+                replyForm.style.display = 'flex';
+            }
+        }
+    
+        // Post a comment
+        async function postComment(announcementId) {
+            const commentInput = document.getElementById(`comment-input-${announcementId}`);
+            const text = commentInput.value.trim();
+            
+            if (!text) {
+                alert('Please enter a comment');
+                return;
+            }
+            
+            try {
+                const response = await authFetch(`/api/announcements/${announcementId}/comments`, {
+                    method: 'POST',
+                    body: JSON.stringify({ text })
+                });
+                
+                if (!response) return;
+                
+                if (!response.ok) {
+                    throw new Error('Failed to post comment');
+                }
+                
+                const newComment = await response.json();
+                commentInput.value = '';
+                loadComments(announcementId); // Reload comments
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                alert('Failed to post comment. Please try again.');
+            }
+        }
+    
+        // Post a reply
+        async function postReply(announcementId, commentId) {
+            const replyInput = document.getElementById(`reply-input-${announcementId}-${commentId}`);
+            const text = replyInput.value.trim();
+            
+            if (!text) {
+                alert('Please enter a reply');
+                return;
+            }
+            
+            try {
+                const response = await authFetch(`/api/announcements/${announcementId}/comments/${commentId}/replies`, {
+                    method: 'POST',
+                    body: JSON.stringify({ text })
+                });
+                
+                if (!response) return;
+                
+                if (!response.ok) {
+                    throw new Error('Failed to post reply');
+                }
+                
+                const newReply = await response.json();
+                replyInput.value = '';
+                document.getElementById(`reply-form-${announcementId}-${commentId}`).style.display = 'none';
+                loadComments(announcementId); // Reload comments
+            } catch (error) {
+                console.error('Error posting reply:', error);
+                alert('Failed to post reply. Please try again.');
+            }
+        }
+    
+        // Add logout functionality
+        async function logout() {
+            try {
+                const response = await authFetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+                
+                if (response && response.ok) {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+    
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load announcements when page loads
+            loadAnnouncements();
+            
+            // Add logout event listener
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    logout();
+                });
+            }
+        });
     </script>
 </body>
 </html>

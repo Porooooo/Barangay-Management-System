@@ -74,7 +74,7 @@
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    window.location.href = 'admin-login.html';
+                    window.location.href = 'admin-login';
                     return;
                 }
 
@@ -86,11 +86,11 @@
                 
                 const data = await response.json();
                 if (!data.isAuthenticated || !data.user || data.user.role !== 'admin') {
-                    window.location.href = 'admin-login.html';
+                    window.location.href = 'admin-login';
                 }
             } catch (error) {
                 console.error('Auth check failed:', error);
-                window.location.href = 'admin-login.html';
+                window.location.href = 'admin-login';
             }
         });
     </script>
@@ -117,7 +117,7 @@
                 </select>
                 <div class="input-group">
                     <input type="password" id="password" placeholder="Password" required>
-                    <span class="password-toggle" id="togglePassword">👁️</span>
+                    <span class="password-toggle" id="togglePassword">🙈</span>
                 </div>
                 <button type="submit" id="submitBtn">Register</button>
                 <div id="loadingIndicator" class="loading">Processing...</div>
@@ -131,7 +131,7 @@
             const passwordInput = document.getElementById('password');
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+            this.textContent = type === 'password' ? '🙈' : '🙉';
         });
 
         // Handle form submission
@@ -156,7 +156,7 @@
                 const token = localStorage.getItem('token');
                 if (!token) {
                     alert('Please log in as admin first');
-                    window.location.href = 'admin-login.html';
+                    window.location.href = 'admin-login';
                     return;
                 }
 
@@ -172,7 +172,7 @@
                 const result = await response.json();
                 if (response.ok) {
                     alert(result.message);
-                    window.location.href = 'admin-dashboard.html';
+                    window.location.href = 'admin-dashboard';
                 } else {
                     alert(result.error || result.message || 'Registration failed');
                 }

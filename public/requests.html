@@ -221,64 +221,53 @@
     <nav>
         <div class="logo-name">
             <div class="logo-image">
-                <img src="images/barangay-bg.png" alt="Barangay Logo">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
             <span class="logo_name">Brgy. Talipapa</span>
         </div>
-        
         <div class="menu-items">
             <ul class="nav-links">
-                <li>
-                    <a href="residentdashboard.html">
-                        <i class="uil uil-estate"></i>
-                        <span class="link-name">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="requests.html" class="active">
-                        <i class="uil uil-file-alt"></i>
-                        <span class="link-name">Request Document</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="blotter.html">
-                        <i class="uil uil-shield-exclamation"></i>
-                        <span class="link-name">Blotter</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="residentRequests.html">
-                        <i class="uil uil-file-alt"></i>
-                        <span class="link-name">Your Requests</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="resident-blotter.html">
-                        <i class="uil uil-shield-exclamation"></i>
-                        <span class="link-name">Your Blotter</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="announcement.html">
-                        <i class="uil uil-bell"></i>
-                        <span class="link-name">Announcements</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="profile.html">
-                        <i class="uil uil-user"></i>
-                        <span class="link-name">Profile</span>
-                    </a>
-                </li>
-            </ul>
+                <li><a href="/residentdashboard">
+                    <i class="uil uil-estate"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
             
+                <li><a href="/requests">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Request Document</span>
+                </a></li>
+            
+                <li><a href="/blotter">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Blotter</span>
+                </a></li>
+            
+                <li><a href="/residentRequests">
+                    <i class="uil uil-file-alt"></i>
+                    <span class="link-name">Your Requests</span>
+                </a></li>
+            
+                <li><a href="/resident-blotter">
+                    <i class="uil uil-shield-exclamation"></i>
+                    <span class="link-name">Your Blotter</span>
+                </a></li>
+            
+                <li><a href="/announcement">
+                    <i class="uil uil-bell"></i>
+                    <span class="link-name">Announcements</span>
+                </a></li>
+            
+                <li><a href="/profile">
+                    <i class="uil uil-user"></i>
+                    <span class="link-name">Profile</span>
+                </a></li>
+            </ul>
+            </ul>
             <ul class="logout-mode">
-                <li>
-                    <a href="#" id="logoutBtn">
-                        <i class="uil uil-signout"></i>
-                        <span class="link-name">Logout</span>
-                    </a>
-                </li>
+                <li><a href="#" id="logoutBtn">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name">Logout</span>
+                </a></li>
                 <li class="mode">
                     <a href="#">
                         <i class="uil uil-moon"></i>
@@ -418,7 +407,7 @@
                 
                 if (data.user?.isBanned) {
                     alert('Your account has been disabled. You cannot submit document requests.');
-                    window.location.href = '/residentdashboard.html';
+                    window.location.href = '/residentdashboard';
                     return false;
                 }
                 
@@ -443,7 +432,7 @@
                 return await response.json();
             } catch (error) {
                 console.error('Error fetching profile:', error);
-                window.location.href = '/login.html';
+                window.location.href = '/login';
                 return null;
             }
         }
@@ -456,7 +445,7 @@
                 
                 if (user.isBanned) {
                     alert('Your account has been disabled. You cannot submit document requests.');
-                    window.location.href = '/residentdashboard.html';
+                    window.location.href = '/residentdashboard';
                 }
             }
         }
@@ -471,7 +460,7 @@
         function closeModalAndRedirect() {
             const modal = document.getElementById('successModal');
             modal.style.display = 'none';
-            window.location.href = 'residentdashboard.html';
+            window.location.href = 'residentdashboard';
         }
     
         // Handle form submission
@@ -575,7 +564,7 @@
                 });
                 
                 if (response.ok) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                 } else {
                     alert('Failed to logout. Please try again.');
                 }

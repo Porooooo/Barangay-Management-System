@@ -181,7 +181,7 @@ router.post("/login", async (req, res) => {
         fullName: user.fullName,
         role: user.role
       },
-      redirect: "/admin-dashboard.html"
+      redirect: "/admin-dashboard"
     });
   } catch (error) {
     console.error("Admin login error:", error);

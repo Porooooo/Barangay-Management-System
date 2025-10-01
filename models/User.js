@@ -38,28 +38,35 @@ const UserSchema = new mongoose.Schema({
   },
   
   // NEW: Login security fields
-  loginAttempts: {
-    type: Number,
-    default: 0,
-    select: false
-  },
-  lockUntil: {
-    type: Date,
-    default: null,
-    select: false
-  },
-  lastFailedLogin: {
-    type: Date,
-    default: null,
-    select: false
-  },
-  
-  // Approval status field
-  approvalStatus: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending'
-  },
+loginAttempts: {
+  type: Number,
+  default: 0,
+  select: false
+},
+lockUntil: {
+  type: Date,
+  default: null,
+  select: false
+},
+lastFailedLogin: {
+  type: Date,
+  default: null,
+  select: false
+},
+
+// Force password change field
+forcePasswordChange: {
+  type: Boolean,
+  default: false
+},
+
+// Approval status field
+approvalStatus: {
+  type: String,
+  enum: ['pending', 'approved', 'rejected'],
+  default: 'pending'
+},
+
   rejectionReason: {
     type: String,
     default: null
@@ -283,6 +290,7 @@ const UserSchema = new mongoose.Schema({
     default: false,
     select: false
   },
+  
 
   // Timestamps
   createdAt: {
@@ -438,5 +446,7 @@ UserSchema.virtual('isApproved').get(function() {
 UserSchema.virtual('isPending').get(function() {
   return this.approvalStatus === 'pending';
 });
+
+
 
 module.exports = mongoose.model('User', UserSchema);

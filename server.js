@@ -139,7 +139,6 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // 🛣️ Routes
-// Routes
 const authRoutes = require("./routes/authRoutes");
 const residentRoutes = require("./routes/residentRoutes");
 const blotterRoutes = require("./routes/blotterRoutes");
@@ -158,8 +157,7 @@ app.use("/api/announcements", announceRoutes);
 app.use("/api/emergency", emergencyRoutes);
 app.use("/api/approvals", approvalRoutes);
 
-
-// 🔐 Protected HTML Routes
+// 🔐 Protected HTML Routes (Clean URLs)
 const setSecurityHeaders = (req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -167,21 +165,106 @@ const setSecurityHeaders = (req, res, next) => {
   next();
 };
 
-app.get("/admin-dashboard.html", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+// ==================== ADMIN ROUTES ====================
+app.get("/admin-dashboard", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin-dashboard.html"));
 });
 
-app.get("/admin-blotter.html", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+app.get("/admin-blotter", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin-blotter.html"));
 });
 
-app.get("/residentdashboard.html", setSecurityHeaders, authMiddleware, (req, res) => {
+app.get("/admin-approvals", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin-approvals.html"));
+});
+
+app.get("/adminAnnounce", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "adminAnnounce.html"));
+});
+
+app.get("/adminRequests", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "adminRequests.html"));
+});
+
+app.get("/manage-residents", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "manage-residents.html"));
+});
+
+app.get("/view-resident", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "view-resident.html"));
+});
+
+app.get("/emergency", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "emergency.html"));
+});
+
+// ==================== RESIDENT ROUTES ====================
+app.get("/residentdashboard", setSecurityHeaders, authMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "residentdashboard.html"));
 });
 
-// 📍 Home
+app.get("/requests", setSecurityHeaders, authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "requests.html"));
+});
+
+app.get("/residentRequests", setSecurityHeaders, authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "residentRequests.html"));
+});
+
+app.get("/blotter", setSecurityHeaders, authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "blotter.html"));
+});
+
+app.get("/resident-blotter", setSecurityHeaders, authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "resident-blotter.html"));
+});
+
+app.get("/announcement", setSecurityHeaders, authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "announcement.html"));
+});
+
+app.get("/profile", setSecurityHeaders, authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "profile.html"));
+});
+
+app.get("/emergency", setSecurityHeaders, authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "emergency.html"));
+});
+
+// ==================== AUTH ROUTES (Public) ====================
+app.get("/login", setSecurityHeaders, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+app.get("/register", setSecurityHeaders, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "register.html"));
+});
+
+app.get("/forgot-password", setSecurityHeaders, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "forgot-password.html"));
+});
+
+app.get("/admin-login", setSecurityHeaders, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin-login.html"));
+});
+
+app.get("/admin-register", setSecurityHeaders, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin-register.html"));
+});
+
+// ==================== PUBLIC ROUTES ====================
 app.get("/", setSecurityHeaders, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/manifest", setSecurityHeaders, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "manifest.json"));
+});
+
+// ==================== REDIRECT OLD .HTML URLs ====================
+app.get("/*.html", (req, res) => {
+  const cleanPath = req.path.replace('.html', '');
+  res.redirect(301, cleanPath);
 });
 
 // 🩺 Health Check

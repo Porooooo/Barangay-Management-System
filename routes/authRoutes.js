@@ -79,6 +79,33 @@ const upload = multer({
   }
 });
 
+// Check email availability route
+router.get("/check-email", async (req, res) => {
+    try {
+        const { email } = req.query;
+        
+        if (!email) {
+            return res.status(400).json({
+                error: "Validation error",
+                message: "Email is required"
+            });
+        }
+
+        const user = await User.findOne({ email });
+        
+        return res.status(200).json({
+            exists: !!user,
+            email: email
+        });
+    } catch (error) {
+        console.error("Email check error:", error);
+        return res.status(500).json({
+            error: "Server error",
+            message: "Failed to check email availability"
+        });
+    }
+});
+
 // Login route with enhanced security features
 router.post("/login", async (req, res) => {
   try {
@@ -373,7 +400,7 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-// Register User - UPDATED TO PROPERLY HANDLE ALL FIELDS
+// Register User - MODIFIED TO GENERATE TEMPORARY PASSWORD
 router.post("/register", upload.fields([
   { name: "profilePicture", maxCount: 1 },
   { name: "idPhoto", maxCount: 1 }
@@ -385,14 +412,14 @@ router.post("/register", upload.fields([
     const profilePictureFile = files?.profilePicture?.[0];
     const idPhotoFile = files?.idPhoto?.[0];
 
-    console.log("Received registration data:", formData); // Debug log
+    console.log("Received registration data:", formData);
 
     // Validate required fields including ID verification
     const requiredFields = [
       'lastName', 'firstName', 'birthdate', 'gender',
       'email', 'contactNumber', 'houseNumber', 'street',
-      'barangay', 'password', 'confirmPassword',
-      'idType', 'idNumber' // ID verification fields
+      'barangay', 'educationalAttainment', // Removed password fields
+      'idType', 'idNumber'
     ];
     
     const missingFields = requiredFields.filter(field => !formData[field]);
@@ -416,16 +443,6 @@ router.post("/register", upload.fields([
       });
     }
 
-    // Validate password match
-    if (formData.password !== formData.confirmPassword) {
-      if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
-      if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
-      return res.status(400).json({
-        error: "Validation error",
-        message: "Passwords do not match"
-      });
-    }
-
     // Check for existing user
     const existingUser = await User.findOne({ email: formData.email });
     if (existingUser) {
@@ -437,6 +454,19 @@ router.post("/register", upload.fields([
       });
     }
 
+    // Generate temporary password (8 characters with numbers and letters)
+    const generateTemporaryPassword = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let password = '';
+      for (let i = 0; i < 8; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
+    };
+
+    const temporaryPassword = generateTemporaryPassword();
+    console.log("Generated temporary password for", formData.email, ":", temporaryPassword);
+
     // Create address string
     const address = `${formData.houseNumber} ${formData.street}, ${formData.barangay}`;
 
@@ -447,70 +477,72 @@ router.post("/register", upload.fields([
     const seniorCitizen = formData.seniorCitizen === 'true' || formData.seniorCitizen === true;
     const soloParent = formData.soloParent === 'true' || formData.soloParent === true;
 
-    // Create new user with ALL fields - FIXED fullName generation
-const newUser = new User({
-  // Personal Information
-  firstName: formData.firstName,
-  lastName: formData.lastName,
-  middleName: formData.middleName || null,
-  suffix: formData.suffix || null,
-  // EXPLICITLY SET fullName to ensure it's not undefined
-  fullName: `${formData.firstName} ${formData.middleName ? formData.middleName + ' ' : ''}${formData.lastName}${formData.suffix ? ' ' + formData.suffix : ''}`.trim(),
-  birthdate: new Date(formData.birthdate),
-  gender: formData.gender,
-  civilStatus: formData.civilStatus || null,
-  occupation: formData.occupation || null,
-  
-  // Contact Information
-  email: formData.email,
-  contactNumber: formData.contactNumber,
-  alternateContact: formData.alternateContactNumber || null,
-  profilePicture: profilePictureFile ? profilePictureFile.filename : "default-profile.png",
-  
-  // Address Information
-  address: address,
-  houseNumber: formData.houseNumber,
-  street: formData.street,
-  barangay: formData.barangay,
-  homeowner: formData.homeownerStatus || null,
-  yearsResiding: formData.yearsResiding || null,
-  monthlyIncome: formData.monthlyIncome || null,
-  
-  // Additional Information
-  educationalAttainment: formData.educationalAttainment || null,
-  
-  // Government Programs
-  registeredVoter: registeredVoter,
-  fourPsMember: fourPsMember,
-  pwdMember: pwdMember,
-  seniorCitizen: seniorCitizen,
-  soloParent: soloParent,
-  
-  // Account Information
-  password: formData.password,
-  role: "resident",
-  approvalStatus: "pending",
-  
-  // ID Verification
-  idVerification: {
-    idType: formData.idType,
-    idNumber: formData.idNumber,
-    idPhoto: idPhotoFile ? idPhotoFile.filename : null,
-    submittedAt: new Date()
-  }
-});
+    // Create new user with temporary password
+    const newUser = new User({
+      // Personal Information
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      middleName: formData.middleName || null,
+      suffix: formData.suffix || null,
+      fullName: `${formData.firstName} ${formData.middleName ? formData.middleName + ' ' : ''}${formData.lastName}${formData.suffix ? ' ' + formData.suffix : ''}`.trim(),
+      birthdate: new Date(formData.birthdate),
+      gender: formData.gender,
+      civilStatus: formData.civilStatus || null,
+      occupation: formData.occupation || null,
+      
+      // Contact Information
+      email: formData.email,
+      contactNumber: formData.contactNumber,
+      alternateContact: formData.alternateContactNumber || null,
+      profilePicture: profilePictureFile ? profilePictureFile.filename : "default-profile.png",
+      
+      // Address Information
+      address: address,
+      houseNumber: formData.houseNumber,
+      street: formData.street,
+      barangay: formData.barangay,
+      homeowner: formData.homeownerStatus || null,
+      yearsResiding: formData.yearsResiding || null,
+      monthlyIncome: formData.monthlyIncome || null,
+      
+      // Additional Information
+      educationalAttainment: formData.educationalAttainment || null,
+      
+      // Government Programs
+      registeredVoter: registeredVoter,
+      fourPsMember: fourPsMember,
+      pwdMember: pwdMember,
+      seniorCitizen: seniorCitizen,
+      soloParent: soloParent,
+      
+      // Account Information - Use temporary password
+      password: temporaryPassword, // This will be hashed by the pre-save hook
+      role: "resident",
+      approvalStatus: "pending",
+      
+      // ID Verification
+      idVerification: {
+        idType: formData.idType,
+        idNumber: formData.idNumber,
+        idPhoto: idPhotoFile ? idPhotoFile.filename : null,
+        submittedAt: new Date()
+      },
+      
+      // Mark that this user needs to change password on first login
+      forcePasswordChange: true
+    });
 
-console.log("Generated fullName:", newUser.fullName); // Debug log
-
-    // Let the pre-save hook generate the fullName
     await newUser.save();
 
-    console.log("User created successfully:", {
+    console.log("User created successfully with temporary password:", {
       id: newUser._id,
       email: newUser.email,
       fullName: newUser.fullName,
       approvalStatus: newUser.approvalStatus
     });
+
+    // TODO: Send temporary password via email/SMS
+    // You'll need to implement this based on your email/SMS service
 
     // Set session data
     req.session.userId = newUser._id;
@@ -1069,6 +1101,70 @@ router.post("/reset-password", async (req, res) => {
         return res.status(500).json({
             error: "Server error",
             message: "Failed to reset password. Please try again later."
+        });
+    }
+});
+
+// Change Password Route
+router.post("/change-password", async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({
+                error: "Unauthorized",
+                message: "Please log in to change password"
+            });
+        }
+
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                error: "Validation error",
+                message: "Current password and new password are required"
+            });
+        }
+
+        // Validate new password requirements
+        if (newPassword.length < 8 || 
+            !/[A-Z]/.test(newPassword) || 
+            !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)) {
+            return res.status(400).json({
+                error: "Validation error",
+                message: "Password must be at least 8 characters long, contain one uppercase letter and one special character"
+            });
+        }
+
+        const user = await User.findById(req.session.userId).select('+password');
+        if (!user) {
+            return res.status(404).json({
+                error: "Not found",
+                message: "User not found"
+            });
+        }
+
+        // Verify current password
+        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isCurrentPasswordValid) {
+            return res.status(400).json({
+                error: "Validation error",
+                message: "Current password is incorrect"
+            });
+        }
+
+        // Update password
+        user.password = newPassword;
+        user.forcePasswordChange = false; // Reset force password change flag
+        await user.save();
+
+        return res.status(200).json({
+            message: "Password changed successfully"
+        });
+
+    } catch (error) {
+        console.error("Change password error:", error);
+        return res.status(500).json({
+            error: "Server error",
+            message: "Failed to change password"
         });
     }
 });

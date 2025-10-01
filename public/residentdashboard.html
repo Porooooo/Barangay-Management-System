@@ -411,40 +411,41 @@ body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x
     </div>
     <div class="menu-items">
         <ul class="nav-links">
-            <li><a href="residentdashboard.html">
+            <li><a href="/residentdashboard">
                 <i class="uil uil-estate"></i>
                 <span class="link-name">Dashboard</span>
             </a></li>
-
-            <li><a href="requests.html">
+        
+            <li><a href="/requests">
                 <i class="uil uil-file-alt"></i>
                 <span class="link-name">Request Document</span>
             </a></li>
-
-            <li><a href="blotter.html">
+        
+            <li><a href="/blotter">
                 <i class="uil uil-shield-exclamation"></i>
                 <span class="link-name">Blotter</span>
             </a></li>
-
-            <li><a href="residentRequests.html">
+        
+            <li><a href="/residentRequests">
                 <i class="uil uil-file-alt"></i>
                 <span class="link-name">Your Requests</span>
             </a></li>
-
-            <li><a href="resident-blotter.html">
+        
+            <li><a href="/resident-blotter">
                 <i class="uil uil-shield-exclamation"></i>
                 <span class="link-name">Your Blotter</span>
             </a></li>
-
-            <li><a href="announcement.html">
+        
+            <li><a href="/announcement">
                 <i class="uil uil-bell"></i>
                 <span class="link-name">Announcements</span>
             </a></li>
-
-            <li><a href="profile.html">
+        
+            <li><a href="/profile">
                 <i class="uil uil-user"></i>
                 <span class="link-name">Profile</span>
             </a></li>
+        </ul>
         </ul>
         <ul class="logout-mode">
             <li><a href="#" id="logoutBtn">
@@ -546,7 +547,7 @@ body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x
           }
         });
         if (response.status === 401) {
-          window.location.href = "index.html";
+          window.location.href = "/";
           return null;
         }
         return response;
@@ -672,7 +673,7 @@ body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x
   
           if (response && response.ok) {
             localStorage.removeItem('userEmail');
-            window.location.href = 'index.html';
+            window.location.href = '/';
           }
         } catch (error) {
           console.error('Logout error:', error);
@@ -767,7 +768,7 @@ body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x
           })
           .then(data => {
             if (!data || !data.isAuthenticated) {
-              window.location.href = 'index.html';
+              window.location.href = '/';
             } else {
               localStorage.setItem('userId', data.user.id);
               fetchResidentData();
@@ -775,7 +776,7 @@ body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x
           })
           .catch(error => {
             console.error('Auth check error:', error);
-            window.location.href = 'index.html';
+            window.location.href = '/';
           });
   
         document.getElementById('logoutBtn').addEventListener('click', function (e) {

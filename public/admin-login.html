@@ -206,7 +206,7 @@
           </div>
           <button type="submit" id="loginButton">Login</button>
         </form>
-        <p class="login-link">Return to <a href="login.html">User Login</a></p>
+        <p class="login-link">Return to <a href="login">User Login</a></p>
       </div>
     </div>
     <div class="right-section">
@@ -253,7 +253,7 @@
           localStorage.setItem('user', JSON.stringify(result.user));
 
           // no alert on success, just redirect
-          window.location.href = result.redirect || 'admin-dashboard.html';
+          window.location.href = result.redirect || 'admin-dashboard';
         } else {
           alert(result.error || result.message || "Login failed.");
           loginButton.disabled = false;

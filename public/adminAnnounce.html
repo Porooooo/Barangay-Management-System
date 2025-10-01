@@ -663,38 +663,39 @@
         </div>
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="admin-dashboard.html" class="active">
+                <li><a href="/admin-dashboard" class="active">
                     <i class="uil uil-estate"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
-                <li><a href="manage-residents.html">
+                <li><a href="/manage-residents">
                     <i class="uil uil-users-alt"></i>
                     <span class="link-name">Manage Residents</span>
                 </a></li>
-                <li><a href="adminRequests.html">
+                <li><a href="/adminRequests">
                     <i class="uil uil-file-alt"></i>
                     <span class="link-name">Document Requests</span>
                 </a></li>
-                <li><a href="admin-blotter.html">
+                <li><a href="/admin-blotter">
                     <i class="uil uil-file-shield-alt"></i>
                     <span class="link-name">Blotter Reports</span>
                 </a></li>
-                <li><a href="adminAnnounce.html">
+                <li><a href="/adminAnnounce">
                     <i class="uil uil-megaphone"></i>
                     <span class="link-name">Announcement</span>
                 </a></li>
-                <li><a href="admin-approvals.html">
+                <li><a href="/admin-approvals">
                     <i class="uil uil-user-check"></i>
                     <span class="link-name">Approval</span>
                 </a></li>
-                <li><a href="emergency.html">
+                <li><a href="/emergency">
                     <i class="uil uil-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
+            </ul>
                 
             </ul>
             <ul class="logout-mode">
-                <li><a href="index.html">
+                <li><a href="/">
                     <i class="uil uil-signout"></i>
                     <span class="link-name">Logout</span>
                 </a></li>
@@ -894,7 +895,7 @@
                 }
             });
             if (response.status === 401) {
-                window.location.href = "index.html";
+                window.location.href = "/";
                 return null;
             }
             return response;
@@ -1493,7 +1494,7 @@
                 });
                 
                 if (response && response.ok) {
-                    window.location.href = 'index.html';
+                    window.location.href = '/';
                 }
             } catch (error) {
                 console.error('Logout error:', error);
