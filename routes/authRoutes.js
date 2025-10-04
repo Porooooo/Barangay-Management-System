@@ -400,32 +400,28 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-// Register User - MODIFIED TO GENERATE TEMPORARY PASSWORD
+//Update the register route
 router.post("/register", upload.fields([
-  { name: "profilePicture", maxCount: 1 },
-  { name: "idPhoto", maxCount: 1 }
+  { name: "profilePicture", maxCount: 1 }
 ]), async (req, res) => {
   try {
     const formData = req.body;
     const files = req.files;
 
     const profilePictureFile = files?.profilePicture?.[0];
-    const idPhotoFile = files?.idPhoto?.[0];
 
     console.log("Received registration data:", formData);
 
-    // Validate required fields including ID verification
+    // Validate required fields (REMOVED ID VERIFICATION FIELDS)
     const requiredFields = [
       'lastName', 'firstName', 'birthdate', 'gender',
       'email', 'contactNumber', 'houseNumber', 'street',
-      'barangay', 'educationalAttainment', // Removed password fields
-      'idType', 'idNumber'
+      'barangay', 'educationalAttainment'
     ];
     
     const missingFields = requiredFields.filter(field => !formData[field]);
     if (missingFields.length > 0) {
       if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
-      if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
       return res.status(400).json({
         error: "Validation error",
         message: `Missing required fields: ${missingFields.join(', ')}`
@@ -436,7 +432,6 @@ router.post("/register", upload.fields([
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
-      if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
       return res.status(400).json({
         error: "Validation error",
         message: "Invalid email format"
@@ -447,7 +442,6 @@ router.post("/register", upload.fields([
     const existingUser = await User.findOne({ email: formData.email });
     if (existingUser) {
       if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
-      if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
       return res.status(400).json({
         error: "Duplicate email",
         message: "Email already registered"
@@ -477,7 +471,7 @@ router.post("/register", upload.fields([
     const seniorCitizen = formData.seniorCitizen === 'true' || formData.seniorCitizen === true;
     const soloParent = formData.soloParent === 'true' || formData.soloParent === true;
 
-    // Create new user with temporary password
+    // Create new user with temporary password (REMOVED ID VERIFICATION FIELDS)
     const newUser = new User({
       // Personal Information
       firstName: formData.firstName,
@@ -516,17 +510,9 @@ router.post("/register", upload.fields([
       soloParent: soloParent,
       
       // Account Information - Use temporary password
-      password: temporaryPassword, // This will be hashed by the pre-save hook
+      password: temporaryPassword,
       role: "resident",
       approvalStatus: "pending",
-      
-      // ID Verification
-      idVerification: {
-        idType: formData.idType,
-        idNumber: formData.idNumber,
-        idPhoto: idPhotoFile ? idPhotoFile.filename : null,
-        submittedAt: new Date()
-      },
       
       // Mark that this user needs to change password on first login
       forcePasswordChange: true
@@ -541,9 +527,6 @@ router.post("/register", upload.fields([
       approvalStatus: newUser.approvalStatus
     });
 
-    // TODO: Send temporary password via email/SMS
-    // You'll need to implement this based on your email/SMS service
-
     // Set session data
     req.session.userId = newUser._id;
     req.session.userEmail = newUser.email;
@@ -554,7 +537,6 @@ router.post("/register", upload.fields([
       if (err) {
         console.error("Session save error:", err);
         if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
-        if (idPhotoFile) fs.unlinkSync(idPhotoFile.path);
         return res.status(500).json({
           error: "Session error",
           message: "Failed to save session"

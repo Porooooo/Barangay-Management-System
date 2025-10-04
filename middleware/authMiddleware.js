@@ -83,7 +83,7 @@ const handleAuthError = (req, res, statusCode, message) => {
     if (statusCode === 401 || statusCode === 403) {
       // Store the original URL for redirect after login
       req.session.returnTo = req.originalUrl;
-      return res.redirect('/login.html');
+      return res.redirect('/login');
     } else {
       // For server errors, redirect to error page or show error
       return res.status(statusCode).send(message);

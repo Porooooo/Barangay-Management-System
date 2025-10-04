@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login</title>
+  <title>Login - Barangay Talipapa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #0d4f8b;
+      --secondary: #e6a919;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --success: #28a745;
+    }
+    
     * {
       margin: 0;
       padding: 0;
@@ -14,251 +24,622 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #d4eaf7 0%, #f3e0b6 100%);
+      background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
       background-attachment: fixed;
       margin: 0;
+      padding: 20px;
     }
 
     .container {
-      display: flex;
-      background-color: #ffffff;
-      border-radius: 20px;
-      box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
-      max-width: 600px;
-      width: 90%;
-      height: 300px;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
+    display: flex;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0px 8px 25px rgba(13, 79, 139, 0.15);
+    max-width: 700px;
+    width: 95%;
+    min-height: 420px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
 
-    .right-section {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
-      background-color: #f3e0b6;
-    }
+.left-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
 
-    .right-section img {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      object-fit: cover;
-      transition: all 0.3s ease;
-    }
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+    z-index: 1;
+}
 
+.logo-container img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 12px;
+}
+
+.logo-text h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.logo-text p {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.welcome-text {
+    text-align: center;
+    margin-top: 20px;
+    z-index: 1;
+    max-width: 300px;
+}
+
+.welcome-text h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.welcome-text p {
+    font-size: 13px;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+.right-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background-color: #ffffff;
+}
+
+.form-container {
+    max-width: 320px;
+    width: 100%;
+}
+
+h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    margin-bottom: 20px;
+    color: #666;
+    text-align: center;
+    font-size: 14px;
+}
+
+.input-group {
+    position: relative;
+    margin: 18px 0;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+form input {
+    width: 100%;
+    padding: 12px 40px 12px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s;
+    background-color: #f9f9f9;
+    font-family: 'Poppins', sans-serif;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 70%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 16px;
+    transition: color 0.3s;
+    background: none;
+    border: none;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+}
+
+.login-button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+    box-shadow: 0 3px 8px rgba(13, 79, 139, 0.3);
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 500;
+    font-size: 13px;
+    transition: color 0.3s;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .container {
+        max-width: 95%;
+        min-height: auto;
+    }
+    
     .left-section {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 25px;
-      background-color: #ffffff;
-      border-radius: 20px 0 0 20px;
-      transition: all 0.3s ease;
+        padding: 20px 15px;
     }
-
-    .form-container {
-      max-width: 260px;
-      width: 100%;
+    
+    .logo-container img {
+        width: 80px;
+        height: 80px;
     }
-
+    
+    .logo-text h2 {
+        font-size: 20px;
+    }
+    
+    .welcome-text h3 {
+        font-size: 16px;
+    }
+    
+    .right-section {
+        padding: 25px 15px;
+    }
+    
     h1 {
-      font-size: 24px;
-      font-weight: 800;
-      color: #000000;
-      text-align: center;
-      margin-bottom: 8px;
+        font-size: 24px;
     }
+}
 
-    p {
-      margin-bottom: 15px;
-      color: #666;
-      text-align: center;
-      font-size: 14px;
+@media (max-width: 480px) {
+    .container {
+        border-radius: 12px;
+        min-height: auto;
     }
-
+    
+    .left-section {
+        padding: 15px 12px;
+    }
+    
+    .logo-container img {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .logo-text h2 {
+        font-size: 18px;
+    }
+    
+    .welcome-text {
+        margin-top: 15px;
+    }
+    
+    .welcome-text h3 {
+        font-size: 15px;
+    }
+    
+    .welcome-text p {
+        font-size: 12px;
+    }
+    
+    .right-section {
+        padding: 20px 12px;
+    }
+    
+    .form-container {
+        max-width: 100%;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    .form-subtitle {
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+    
     .input-group {
-      position: relative;
-      margin: 8px 0;
+        margin: 15px 0;
     }
-
+    
     form input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 14px;
+        padding: 10px 35px 10px 10px;
+        font-size: 13px;
     }
-
-    .password-toggle {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #666;
-      font-size: 14px;
+    
+    .login-button {
+        padding: 12px;
+        font-size: 14px;
     }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #f3e0b6;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s ease;
-      margin-top: 10px;
+    
+    .form-links {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
     }
-
-    button:hover:not(:disabled) {
-      background-color: #e3d3a8;
-    }
-
-    button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-    }
+}
 
     a {
       text-decoration: none;
-      color: #007bff;
+      color: var(--primary);
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.3s;
     }
 
     a:hover {
+      color: #1c6ea4;
       text-decoration: underline;
     }
 
-    .login-link {
-      margin-top: 12px;
-      text-align: center;
-      color: #666;
-      font-size: 13px;
-    }
-
     .error-message {
-      color: red;
+      color: #e74c3c;
       margin-top: 5px;
-      font-size: 13px;
+      font-size: 14px;
       text-align: center;
+      padding: 10px;
+      background-color: #ffeaea;
+      border-radius: 5px;
+      border-left: 3px solid #e74c3c;
     }
 
     .warning-message {
-      color: #ff9800;
+      color: #e67e22;
       margin-top: 5px;
-      font-size: 13px;
+      font-size: 14px;
       text-align: center;
       font-weight: 500;
+      padding: 10px;
+      background-color: #fff4e6;
+      border-radius: 5px;
+      border-left: 3px solid #e67e22;
     }
 
     .lock-message {
-      color: #f44336;
+      color: #e74c3c;
       margin-top: 5px;
-      font-size: 13px;
+      font-size: 14px;
       text-align: center;
       font-weight: 500;
+      padding: 10px;
+      background-color: #ffeaea;
+      border-radius: 5px;
+      border-left: 3px solid #e74c3c;
     }
 
     .attempts-counter {
       color: #666;
       margin-top: 5px;
-      font-size: 12px;
+      font-size: 13px;
       text-align: center;
     }
 
     /* Countdown timer */
     .countdown {
-      color: #f44336;
+      color: #e74c3c;
       font-weight: bold;
       margin-top: 10px;
       text-align: center;
       font-size: 14px;
+      padding: 10px;
+      background-color: #ffeaea;
+      border-radius: 5px;
     }
 
     /* Responsive Styles */
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
       .container {
-        flex-direction: column;
-        height: auto;
         max-width: 90%;
-        margin: 20px;
+        height: auto;
+        flex-direction: column;
       }
-
-      .right-section {
-        order: -1;
-        padding: 15px;
-        background: transparent;
-        text-align: center;
-      }
-
-      .right-section img {
-        width: 140px;
-        height: 140px;
-      }
-
+      
       .left-section {
-        padding: 20px;
-        border-radius: 0;
-        text-align: center;
-        width: 100%;
+        padding: 30px 20px;
+        order: -1;
       }
-
+      
+      .logo-container img {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .logo-text h2 {
+        font-size: 24px;
+      }
+      
+      .welcome-text h3 {
+        font-size: 22px;
+      }
+      
+      .right-section {
+        padding: 30px 20px;
+      }
+      
       .form-container {
-        width: 100%;
         max-width: 100%;
       }
-
-      form input, 
-      button {
-        width: 100%;
-        font-size: 13px;
-        padding: 9px;
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
       }
-
+      
+      .container {
+        max-width: 100%;
+        border-radius: 15px;
+      }
+      
+      .left-section {
+        padding: 25px 15px;
+      }
+      
+      .left-section::before {
+        display: none;
+      }
+      
+      .logo-container img {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .logo-text h2 {
+        font-size: 22px;
+      }
+      
+      .logo-text p {
+        font-size: 14px;
+      }
+      
+      .welcome-text {
+        margin-top: 20px;
+      }
+      
+      .welcome-text h3 {
+        font-size: 20px;
+      }
+      
+      .welcome-text p {
+        font-size: 14px;
+      }
+      
+      .right-section {
+        padding: 25px 15px;
+      }
+      
+      h1 {
+        font-size: 28px;
+      }
+      
+      .form-subtitle {
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      
+      .input-group {
+        margin: 20px 0;
+      }
+      
+      .input-group label {
+        font-size: 14px;
+      }
+      
+      form input {
+        padding: 12px 40px 12px 12px;
+        font-size: 14px;
+      }
+      
+      .password-toggle {
+        font-size: 16px;
+        right: 12px;
+      }
+      
+      .login-button {
+        padding: 14px;
+        font-size: 15px;
+      }
+      
+      .form-links {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .container {
+        border-radius: 10px;
+      }
+      
+      .left-section {
+        padding: 20px 15px;
+      }
+      
+      .logo-container img {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .logo-text h2 {
+        font-size: 20px;
+      }
+      
+      .logo-text p {
+        font-size: 13px;
+      }
+      
+      .welcome-text h3 {
+        font-size: 18px;
+      }
+      
+      .welcome-text p {
+        font-size: 13px;
+      }
+      
+      .right-section {
+        padding: 20px 15px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      .form-subtitle {
+        font-size: 13px;
+      }
+      
+      form input {
+        padding: 10px 35px 10px 10px;
+        font-size: 14px;
+      }
+      
+      .password-toggle {
+        right: 10px;
+      }
+      
+      .login-button {
+        padding: 12px;
+        font-size: 14px;
+      }
+      
+      a {
+        font-size: 13px;
+      }
+      
+      .error-message,
+      .warning-message,
+      .lock-message,
+      .countdown {
+        font-size: 13px;
+        padding: 8px;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .logo-container img {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .logo-text h2 {
+        font-size: 18px;
+      }
+      
       h1 {
         font-size: 22px;
       }
-
-      p, .login-link {
-        font-size: 12px;
+      
+      form input {
+        padding: 8px 30px 8px 8px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Left section: Login form -->
+    <!-- Left section: Branding -->
     <div class="left-section">
+      <div class="logo-container">
+        <img src="images/barangay-bg.png" alt="Barangay Talipapa Logo" />
+        <div class="logo-text">
+          <h2>Barangay Talipapa</h2>
+          <p>Cabanatuan City</p>
+        </div>
+      </div>
+      <div class="welcome-text">
+        <h3>Welcome Back!</h3>
+      </div>
+    </div>
+
+    <!-- Right section: Login form -->
+    <div class="right-section">
       <div class="form-container">
         <h1>Login</h1>
         <form id="loginForm">
-          <input type="email" id="email" name="email" placeholder="Email" required />
           <div class="input-group">
-            <input type="password" id="password" name="password" placeholder="Password" required />
-            <span class="password-toggle" id="togglePassword">🙈</span>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required />
           </div>
+          
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required />
+            <button type="button" class="password-toggle" id="togglePassword">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          
           <div id="errorMessage" class="error-message" style="display: none;"></div>
           <div id="warningMessage" class="warning-message" style="display: none;"></div>
           <div id="lockMessage" class="lock-message" style="display: none;"></div>
           <div id="attemptsCounter" class="attempts-counter" style="display: none;"></div>
           <div id="countdown" class="countdown" style="display: none;"></div>
-          <button type="submit" id="loginButton">Log In</button>
+          
+          <button type="submit" class="login-button" id="loginButton">Log In</button>
+          
+          <div class="form-links">
+            <a href="/register">Don't have an account? Sign Up</a>
+            <a href="/forgot-password">Forgot Password?</a>
+          </div>
         </form>
-        <p class="login-link">Don't have an account? <a href="/register">Sign Up Here</a></p>
-        <p class="login-link"><a href="/forgot-password">Forgot Password?</a></p>
       </div>
-    </div>
-
-    <!-- Right section: image -->
-    <div class="right-section">
-      <img src="images/barangay-bg.png" alt="Logo" />
     </div>
   </div>
 
@@ -266,9 +647,17 @@
     // Password toggle functionality
     document.getElementById('togglePassword').addEventListener('click', function() {
       const passwordInput = document.getElementById('password');
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      this.textContent = type === 'password' ? '🙈' : '🙉';
+      const icon = this.querySelector('i');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
     });
 
     // Security variables

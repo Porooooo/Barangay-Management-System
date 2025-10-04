@@ -4,788 +4,1312 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>Resident Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Resident Dashboard - Barangay Talipapa</title>
     <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0d4f8b;
+            --secondary: #e6a919;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #e74c3c;
+            --warning: #ffa000;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
+            background-attachment: fixed;
+            color: #333;
+            overflow-x: hidden;
+        }
 
-/* Emergency Response Notification - Top Center Position */
-.emergency-response-notification {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #5ECF89;
-    color: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    max-width: 80%;
-    width: 400px;
-    animation: slideDown 0.3s forwards;
-}
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            z-index: 100;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            border-radius: 0 20px 20px 0;
+        }
 
-.emergency-response-content {
+        .logo-name {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-image img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo_name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            padding: 15px 0;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-links i {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .link-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .top {
     display: flex;
+    justify-content: flex-end; /* push content to the right */
     align-items: center;
-    gap: 10px;
-}
-
-.emergency-response-content i {
-    font-size: 24px;
-}
-
-.emergency-response-content h4 {
-    margin: 0 0 5px 0;
-    font-size: 16px;
-}
-
-.emergency-response-content p {
-    margin: 0;
-    font-size: 14px;
-}
-
-@keyframes slideDown {
-    from { transform: translate(-50%, -100%); opacity: 0; }
-    to { transform: translate(-50%, 0); opacity: 1; }
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; transform: translate(-50%, 0); }
-    to { opacity: 0; transform: translate(-50%, -100%); }
-}
-
-
-/* Main Content */
-.main-content {
-    margin-left: 250px;
-    padding: 20px;
-}
-
-.top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-}
-
-/* Profile Section */
-.profile-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 20px;
-    margin-top: 20px;
-}
-
-.profile-section img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.profile-section span {
-    display: block;
-    text-align: center;
-    margin-top: 5px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-/* Dashboard Content */
-.dash-content {
-    margin-top: 20px;
-}
-
-.overview {
-    display: flex;
-    flex-direction: column;
-}
-
-.boxes {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    gap: 20px;
-}
-
-.box {
-    background-color: #f0f0f0;
-    padding: 20px;
-    border-radius: 5px;
-    flex: 1;
-    min-width: 0;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.box i {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-.box .text {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 5px;
-}
-
-.box .number {
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.box1 { background-color: #e3f2fd; color: #1976d2; }
-.box2 { background-color: #e8f5e9; color: #388e3c; }
-.box3 { background-color: #fff3e0; color: #ffa000; }
-
-/* Status Badges */
-.status {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-}
-
-.status-pending { background-color: #fff3cd; color: #856404; }
-.status-under-investigation { background-color: #d1ecf1; color: #0c5460; }
-.status-resolved { background-color: #d4edda; color: #155724; }
-.status-dismissed { background-color: #f8d7da; color: #721c24; }
-
-/* Emergency Button */
-.emergency-button-container {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    z-index: 1000;
-}
-
-.emergency-button {
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 15px 25px;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(255, 68, 68, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-}
-
-.emergency-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(255, 68, 68, 0.4);
-}
-
-/* Modal (shared) */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1001;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
+    background-color: white;
+    padding: 15px 20px;
     border-radius: 10px;
-    width: 80%;
-    max-width: 500px;
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: black;
-}
-
-.modal-content textarea {
-    width: 100%;
-    height: 150px;
-    margin: 15px 0;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    resize: none;
-}
-
-.modal-content button {
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.modal-content button:hover {
-    background-color: #e53935;
-}
-
-/* Logout Modal (smaller) */
-#logoutModal .modal-content {
-    max-width: 350px;
-    text-align: center;
-}
-
-#logoutModal .modal-content h3 {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
-    font-size: 18px;
 }
 
-#logoutModal .modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
+        .sidebar-toggle {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--primary);
+            display: none;
+        }
 
-#logoutModal .modal-actions button {
-    flex: 1;
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: none;
-}
-
-#logoutModal .confirm {
-    background-color: #ff4444;
-    color: #fff;
-}
-
-#logoutModal .cancel {
-    background-color: #ddd;
-    color: #333;
-}
-
-/* Recent Activity Table */
-.activity-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.activity-table th, .activity-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.activity-table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.activity-table tbody tr:hover {
-    background-color: #f5f5f5;
-}
-
-.view-button {
-    background-color: #007bff;
-    color: white;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.view-button:hover {
-    background-color: #0056b3;
-}
-
-/* Title Styling */
-.title {
+        /* Header Right Section */
+        .header-right {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    gap: 15px;
+    margin-left: auto; /* pushes it all the way right */
 }
 
-.title i {
-    margin-right: 10px;
-    font-size: 20px;
-}
 
-.title .text {
-    font-size: 18px;
-    font-weight: 600;
-}
+        /* Notification Icon */
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+            color: var(--dark);
+            font-size: 22px;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
+        }
 
-/* Responsive Design */
+        .notification-icon:hover {
+            background-color: #f0f0f0;
+            color: var(--primary);
+            transform: scale(1.1);
+        }
 
-/* Tablet */
-@media (max-width: 1024px) {
-  .boxes { flex-wrap: wrap; gap: 15px; }
-  .box { flex: 1 1 45%; min-width: 200px; }
-}
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .sidebar { left: -250px; width: 250px; position: fixed; height: 100%; transition: left 0.3s ease; z-index: 1000; }
-  .sidebar.active { left: 0; }
-  .main-content { margin-left: 0; padding: 10px; }
-  .sidebar-toggle { display: block; font-size: 28px; cursor: pointer; margin-right: auto; }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+            }
+        }
 
-  .boxes { flex-direction: column; align-items: stretch; gap: 15px; }
-  .box { width: 100%; }
+        /* Profile Dropdown */
+        .profile-container {
+            position: relative;
+        }
 
-  .emergency-button-container { bottom: 15px; right: 15px; }
-  .emergency-response-notification { width: 90%; top: 10px; max-width: 350px; }
+        .profile-picture {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-  .profile-section { margin-right: 10px; margin-top: 0; }
+        .profile-picture:hover {
+            transform: scale(1.05);
+            border-color: var(--secondary);
+        }
 
-  /* Emergency button only icon */
-  .emergency-button {
-    padding: 12px;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    justify-content: center;
-    gap: 0;
-  }
-  .emergency-button span { display: none; }
-  .emergency-button i { margin: 0; font-size: 20px; }
-}
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 180px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
 
-/* Small mobile screens */
-@media (max-width: 576px) {
-  .sidebar a { font-size: 14px; padding: 10px; }
-  .profile-section img { width: 35px; height: 35px; }
-  .profile-section span { font-size: 12px; }
-  .box .text { font-size: 14px; }
-  .box .number { font-size: 14px; }
-  .modal-content { width: 95%; margin: 30% auto; }
+        .profile-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(5px);
+            animation: dropdownFadeIn 0.3s ease-out;
+        }
 
-  .emergency-button { width: 45px; height: 45px; padding: 10px; }
-  .emergency-button i { font-size: 18px; }
-}
+        @keyframes dropdownFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(5px);
+            }
+        }
 
-/* Extra tiny screens */
-@media (max-width: 400px) {
-  .box .text, .box .number { font-size: 12px; }
-  .emergency-button { width: 40px; height: 40px; padding: 8px; }
-  .emergency-button i { font-size: 16px; }
-}
+        .profile-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-dropdown a:last-child {
+            border-bottom: none;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #f8f9fa;
+            color: var(--primary);
+            padding-left: 20px;
+        }
+
+        .profile-dropdown i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        /* Dashboard Content */
+        .dash-content {
+            margin-top: 10px;
+        }
+
+        .title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .title i {
+            font-size: 24px;
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        .title .text {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .boxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .box {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .box i {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .box .text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .box .number {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .box1 { 
+            border-top-color: var(--primary); 
+        }
+        .box1 i { color: var(--primary); }
+        .box1 .number { color: var(--primary); }
+
+        .box2 { 
+            border-top-color: var(--success); 
+        }
+        .box2 i { color: var(--success); }
+        .box2 .number { color: var(--success); }
+
+        .box3 { 
+            border-top-color: var(--warning); 
+        }
+        .box3 i { color: var(--warning); }
+        .box3 .number { color: var(--warning); }
+
+        /* Recent Activity */
+        .activity-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        .activity-section .title {
+            margin-bottom: 15px;
+        }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .activity-table th, .activity-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .activity-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-under-investigation { background-color: #d1ecf1; color: #0c5460; }
+        .status-resolved { background-color: #d4edda; color: #155724; }
+        .status-dismissed { background-color: #f8d7da; color: #721c24; }
+
+        .view-button {
+            background-color: var(--primary);
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .view-button:hover {
+            background-color: #1c6ea4;
+            transform: translateY(-2px);
+        }
+
+        /* Emergency Button */
+        .emergency-button-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+        }
+
+        .emergency-button {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .emergency-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        }
+
+        /* Emergency Response Notification */
+        .emergency-response-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #5ECF89;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 80%;
+            width: 400px;
+            animation: slideDown 0.3s forwards;
+        }
+
+        .emergency-response-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .emergency-response-content i {
+            font-size: 24px;
+        }
+
+        .emergency-response-content h4 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .emergency-response-content p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translate(-50%, 0); }
+            to { opacity: 0; transform: translate(-50%, -100%); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: black;
+            transform: scale(1.1);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 150px;
+            margin: 15px 0;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            resize: none;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .modal-content textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(13, 79, 139, 0.2);
+        }
+
+        .modal-content button {
+            background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .modal-content button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(13, 79, 139, 0.3);
+        }
+
+        /* Logout Modal */
+        #logoutModal .modal-content {
+            max-width: 350px;
+            text-align: center;
+        }
+
+        #logoutModal .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        #logoutModal .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #logoutModal .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        #logoutModal .confirm {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: #fff;
+        }
+
+        #logoutModal .cancel {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        #logoutModal .confirm:hover, #logoutModal .cancel:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .boxes {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -100%;
+                width: 280px;
+                border-radius: 0 20px 20px 0;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .top {
+                padding: 12px 15px;
+            }
+            
+            .boxes {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .box {
+                padding: 20px;
+            }
+            
+            .emergency-button-container {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .emergency-response-notification {
+                width: 90%;
+                top: 15px;
+                max-width: 350px;
+            }
+            
+            /* Emergency button only icon on mobile */
+            .emergency-button {
+                padding: 12px;
+                border-radius: 50%;
+                width: 55px;
+                height: 55px;
+                justify-content: center;
+                gap: 0;
+            }
+            .emergency-button span { 
+                display: none; 
+            }
+            .emergency-button i { 
+                margin: 0; 
+                font-size: 22px; 
+            }
+            
+            .activity-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .top {
+                padding: 10px 12px;
+            }
+            
+            .profile-picture {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .notification-icon {
+                font-size: 20px;
+            }
+            
+            .title .text {
+                font-size: 18px;
+            }
+            
+            .box {
+                padding: 15px;
+            }
+            
+            .box i {
+                font-size: 28px;
+            }
+            
+            .box .text {
+                font-size: 14px;
+            }
+            
+            .box .number {
+                font-size: 18px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 20% auto;
+                padding: 20px;
+            }
+            
+            .emergency-button {
+                width: 50px;
+                height: 50px;
+                padding: 10px;
+            }
+            
+            .emergency-button i {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .box .text, .box .number {
+                font-size: 13px;
+            }
+            
+            .emergency-button {
+                width: 45px;
+                height: 45px;
+                padding: 8px;
+            }
+            
+            .emergency-button i {
+                font-size: 18px;
+            }
+            
+            .activity-section {
+                padding: 15px;
+            }
+            
+            .activity-table th, .activity-table td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .header-right {
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-  <nav>
-    <div class="logo-name">
-        <div class="logo-image">
-            <img src="images/barangay-bg.png" alt="BTMS Logo">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Brgy. Talipapa</span>
         </div>
-        <span class="logo_name">Brgy. Talipapa</span>
-    </div>
-    <div class="menu-items">
-        <ul class="nav-links">
-            <li><a href="/residentdashboard">
-                <i class="uil uil-estate"></i>
-                <span class="link-name">Dashboard</span>
-            </a></li>
-        
-            <li><a href="/requests">
-                <i class="uil uil-file-alt"></i>
-                <span class="link-name">Request Document</span>
-            </a></li>
-        
-            <li><a href="/blotter">
-                <i class="uil uil-shield-exclamation"></i>
-                <span class="link-name">Blotter</span>
-            </a></li>
-        
-            <li><a href="/residentRequests">
-                <i class="uil uil-file-alt"></i>
-                <span class="link-name">Your Requests</span>
-            </a></li>
-        
-            <li><a href="/resident-blotter">
-                <i class="uil uil-shield-exclamation"></i>
-                <span class="link-name">Your Blotter</span>
-            </a></li>
-        
-            <li><a href="/announcement">
-                <i class="uil uil-bell"></i>
-                <span class="link-name">Announcements</span>
-            </a></li>
-        
-            <li><a href="/profile">
-                <i class="uil uil-user"></i>
-                <span class="link-name">Profile</span>
-            </a></li>
-        </ul>
-        </ul>
-        <ul class="logout-mode">
-            <li><a href="#" id="logoutBtn">
-                <i class="uil uil-signout"></i>
-                <span class="link-name">Logout</span>
-            </a></li>
-            <li class="mode">
-                <a href="#">
-                    <i class="uil uil-moon"></i>
-                    <span class="link-name">Dark Mode</span>
-                </a>
-                <div class="mode-toggle">
-                    <span class="switch"></span>
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="/residentdashboard" class="active">
+                    <i class="fas fa-home"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+            
+                <li><a href="/requests">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="link-name">Request Document</span>
+                </a></li>
+            
+                <li><a href="/blotter">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="link-name">Blotter</span>
+                </a></li>
+            
+                <li><a href="/residentRequests">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="link-name">Your Requests</span>
+                </a></li>
+            
+                <li><a href="/resident-blotter">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="link-name">Your Blotter</span>
+                </a></li>
+            
+                <li><a href="/announcement">
+                    <i class="fas fa-bell"></i>
+                    <span class="link-name">Announcements</span>
+                </a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <section class="main-content">
+        <div class="top">
+            <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <div class="header-right">
+                <div class="notification-icon" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
                 </div>
-            </li>
-        </ul>
-    </div>
-</nav>
-  
-    <section class="dashboard">
-      <div class="top">
-        <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
-        <div class="profile-section">
-          <a href="profile.html">
-            <img id="profilePicture" src="" alt="Profile Picture" />
-          </a>
-          <span id="userName"></span>
+                <div class="profile-container">
+                    <img id="profilePicture" class="profile-picture" src="" alt="Profile Picture" onclick="toggleProfileDropdown()" />
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="/profile">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-  
-      <div class="dash-content">
-        <div class="overview">
-          <div class="title">
-            <i class="uil uil-dashboard"></i>
-            <span class="text">Resident Dashboard</span>
-          </div>
-          <div class="boxes">
-            <div class="box box1" onclick="location.href='residentRequests.html'">
-              <i class="uil uil-file-alt"></i>
-              <span class="text">My Requests</span>
-              <span class="number" id="pendingRequests">0 Pending</span>
+    
+        <div class="dash-content">
+            <div class="overview">
+                <div class="title">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="text">Resident Dashboard</span>
+                </div>
+                <div class="boxes">
+                    <div class="box box1" onclick="location.href='/residentRequests'">
+                        <i class="fas fa-file-alt"></i>
+                        <span class="text"></span>
+                        <span class="number" id="pendingRequests">0</span>
+                    </div>
+                    <div class="box box2" onclick="location.href='/announcement'">
+                        <i class="fas fa-bell"></i>
+                        <span class="text"></span>
+                        <span class="number" id="newAnnouncements">0</span>
+                    </div>
+                    <div class="box box3" onclick="location.href='/resident-blotter'">
+                        <i class="fas fa-shield-alt"></i>
+                        <span class="text"></span>
+                        <span class="number" id="blotterCases">0</span>
+                    </div>
+                </div>
             </div>
-            <div class="box box2" onclick="location.href='announcement.html'">
-              <i class="uil uil-bell"></i>
-              <span class="text">New Announcements</span>
-              <span class="number" id="newAnnouncements">0</span>
+            
+            <!-- Recent Activity Section -->
+            <div class="activity-section">
+                <div class="title">
+                    <i class="fas fa-clock"></i>
+                    <span class="text">Recent Activity</span>
+                </div>
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentActivity">
+                        <!-- Activity data will be populated by JavaScript -->
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px;">No recent activity</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="box box3" onclick="location.href='resident-blotter.html'">
-              <i class="uil uil-shield-exclamation"></i>
-              <span class="text">Active Blotter Cases</span>
-              <span class="number" id="blotterCases">0</span>
-            </div>
-          </div>
         </div>
-      </div>
     </section>
   
     <!-- Emergency Button -->
     <div class="emergency-button-container">
-      <button class="emergency-button" onclick="openEmergencyModal()">
-        <i class="uil uil-bell"></i> <span>Emergency</span>
-      </button>
+        <button class="emergency-button" onclick="openEmergencyModal()">
+            <i class="fas fa-bell"></i> <span>Emergency</span>
+        </button>
     </div>
   
     <!-- Emergency Modal -->
     <div id="emergencyModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeEmergencyModal()">&times;</span>
-        <h2>Send Emergency Alert</h2>
-        <textarea id="emergencyMessage" placeholder="Describe your emergency..."></textarea>
-        <button onclick="sendEmergencyAlert()">Send Alert</button>
-      </div>
+        <div class="modal-content">
+            <span class="close" onclick="closeEmergencyModal()">&times;</span>
+            <h2>Send Emergency Alert</h2>
+            <textarea id="emergencyMessage" placeholder="Describe your emergency..."></textarea>
+            <button onclick="sendEmergencyAlert()">Send Alert</button>
+        </div>
     </div>
 
     <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeLogoutModal()">&times;</span>
-        <h3>Are you sure you want to logout?</h3>
-        <div class="modal-actions">
-          <button class="confirm" onclick="confirmLogout()">Yes</button>
-          <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
+        <div class="modal-content">
+            <span class="close" onclick="closeLogoutModal()">&times;</span>
+            <h3>Are you sure you want to logout?</h3>
+            <div class="modal-actions">
+                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
+            </div>
         </div>
-      </div>
     </div>
   
-    <script src="script.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
-  
-      async function authFetch(url, options = {}) {
-        const response = await fetch(url, {
-          ...options,
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-          }
-        });
-        if (response.status === 401) {
-          window.location.href = "/";
-          return null;
+        // Toggle sidebar on mobile
+        function toggleMenu() {
+            document.querySelector('.sidebar').classList.toggle('active');
         }
-        return response;
-      }
-  
-      async function fetchResidentData() {
-        try {
-          const [profileResponse, requestsResponse, announcementsResponse, blotterResponse] = await Promise.all([
-            authFetch('/api/auth/profile'),
-            authFetch('/api/requests/user'),
-            authFetch('/api/announcements/user'),
-            authFetch('/api/blotter/user')
-          ]);
-  
-          if (!profileResponse || !requestsResponse || !announcementsResponse || !blotterResponse) {
-            return;
-          }
 
-          if (!profileResponse.ok) console.error('Profile fetch failed');
-          if (!requestsResponse.ok) console.error('Requests fetch failed');
-          if (!announcementsResponse.ok) console.error('Announcements fetch failed');
-          if (!blotterResponse.ok) console.error('Blotter fetch failed');
+        // Toggle profile dropdown
+        function toggleProfileDropdown() {
+            document.getElementById('profileDropdown').classList.toggle('active');
+        }
 
-          const profileData = profileResponse.ok ? await profileResponse.json() : null;
-          const requests = requestsResponse.ok ? await requestsResponse.json() : [];
-          const announcements = announcementsResponse.ok ? await announcementsResponse.json() : [];
-          let blotterCases = [];
+        // Toggle notifications (placeholder for future feature)
+        function toggleNotifications() {
+            alert('Notification feature will be implemented soon!');
+            // This will be implemented when you add the notification system
+        }
 
-          if (blotterResponse.ok) {
-              try {
-                  blotterCases = await blotterResponse.json();
-                  if (!Array.isArray(blotterCases)) {
-                      console.error('Blotter data is not an array:', blotterCases);
-                      blotterCases = [];
-                  }
-              } catch (e) {
-                  console.error('Error parsing blotter response:', e);
-                  blotterCases = [];
-              }
-          }
-  
-          if (profileData) {
-            const profilePic = document.getElementById('profilePicture');
-            if (profileData.profilePicture) {
-              if (profileData.profilePicture.startsWith('http') || profileData.profilePicture.startsWith('/')) {
-                profilePic.src = profileData.profilePicture;
-              } else {
-                profilePic.src = '/uploads/' + profileData.profilePicture;
-              }
-            } else {
-              profilePic.src = 'images/profile.jpg';
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profileContainer = document.querySelector('.profile-container');
+            const profileDropdown = document.getElementById('profileDropdown');
+            
+            if (!profileContainer.contains(event.target)) {
+                profileDropdown.classList.remove('active');
             }
-            document.getElementById('userName').textContent = profileData.fullName || 'User';
-          }
-  
-          const pendingRequests = requests.filter(r => r.status === "Pending").length;
-          document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
-  
-          const recentAnnouncements = announcements.filter(a =>
-            new Date(a.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-          );
-          const unviewedAnnouncements = recentAnnouncements.filter(a =>
-            !viewedAnnouncements.includes(a._id)
-          );
-          document.getElementById('newAnnouncements').textContent = unviewedAnnouncements.length;
-  
-          const activeBlotterCases = Array.isArray(blotterCases) ? 
-              blotterCases.filter(b => 
-                  b.status === "Pending" || b.status === "Under Investigation"
-              ).length : 0;
-              
-          document.getElementById('blotterCases').textContent = activeBlotterCases;
-  
-        } catch (error) {
-          console.error('Fetch error:', error);
-          document.getElementById('blotterCases').textContent = '0';
-        }
-      }
-  
-      function openEmergencyModal() {
-        document.getElementById('emergencyModal').style.display = 'block';
-      }
-  
-      function closeEmergencyModal() {
-        document.getElementById('emergencyModal').style.display = 'none';
-      }
-  
-      async function sendEmergencyAlert() {
-        const message = document.getElementById('emergencyMessage').value.trim();
-        if (!message) {
-          alert('Please enter your emergency message');
-          return;
-        }
-  
-        try {
-          const userEmail = localStorage.getItem('userEmail');
-          const response = await authFetch('/api/emergency/send', {
-            method: 'POST',
-            body: JSON.stringify({ email: userEmail, message })
-          });
-  
-          if (!response) return;
-  
-          const data = await response.json();
-          if (response.ok) {
-            alert('Emergency alert sent successfully!');
-            closeEmergencyModal();
-            document.getElementById('emergencyMessage').value = '';
-          } else {
-            throw new Error(data.error || 'Failed to send emergency alert');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Failed to send emergency alert: ' + error.message);
-        }
-      }
-  
-      async function logout() {
-        try {
-          const response = await authFetch('/api/auth/logout', {
-            method: 'POST'
-          });
-  
-          if (response && response.ok) {
-            localStorage.removeItem('userEmail');
-            window.location.href = '/';
-          }
-        } catch (error) {
-          console.error('Logout error:', error);
-        }
-      }
+        });
 
-      function openLogoutModal() {
-        document.getElementById('logoutModal').style.display = 'block';
-      }
+        let allActivities = [];
 
-      function closeLogoutModal() {
-        document.getElementById('logoutModal').style.display = 'none';
-      }
+        let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
+  
+        async function authFetch(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+            if (response.status === 401) {
+                window.location.href = "/";
+                return null;
+            }
+            return response;
+        }
+  
+        async function fetchResidentData() {
+            try {
+                const [profileResponse, requestsResponse, announcementsResponse, blotterResponse] = await Promise.all([
+                    authFetch('/api/auth/profile'),
+                    authFetch('/api/requests/user'),
+                    authFetch('/api/announcements/user'),
+                    authFetch('/api/blotter/user')
+                ]);
+  
+                if (!profileResponse || !requestsResponse || !announcementsResponse || !blotterResponse) {
+                    return;
+                }
 
-      function confirmLogout() {
-        closeLogoutModal();
-        logout();
-      }
-  
-      const socket = io({ withCredentials: true });
-  
-      if (Notification.permission !== "granted") {
-        Notification.requestPermission();
-      }
-  
-      socket.on('request-updated', (request) => {
-        if (request.userId === localStorage.getItem('userId')) {
-          showNotification(`Your request status updated to ${request.status}`);
-          fetchResidentData();
-        }
-      });
-  
-      socket.on('new_announcement', (announcement) => {
-        showNotification(`New announcement: ${announcement.title}`);
-        fetchResidentData();
-      });
-  
-      socket.on('emergencyResponse', (response) => {
-        if (response.residentId === localStorage.getItem('userId')) {
-          showEmergencyResponseNotification(response.message);
-        }
-      });
-  
-      socket.on('blotter-updated', (blotter) => {
-        if (blotter.complainant === localStorage.getItem('userId')) {
-          showNotification(`Your blotter report status updated to ${blotter.status}`);
-          fetchResidentData();
-        }
-      });
-  
-      function showNotification(message) {
-        if (Notification.permission === "granted") {
-          new Notification("BTMS Notification", { body: message });
-        } else {
-          alert(message);
-        }
-      }
+                if (!profileResponse.ok) console.error('Profile fetch failed');
+                if (!requestsResponse.ok) console.error('Requests fetch failed');
+                if (!announcementsResponse.ok) console.error('Announcements fetch failed');
+                if (!blotterResponse.ok) console.error('Blotter fetch failed');
 
-      function showEmergencyResponseNotification(message) {
-        if (Notification.permission === "granted") {
-            new Notification("Emergency Response", { 
-                body: `Admin response: ${message}` 
+                const profileData = profileResponse.ok ? await profileResponse.json() : null;
+                const requests = requestsResponse.ok ? await requestsResponse.json() : [];
+                const announcements = announcementsResponse.ok ? await announcementsResponse.json() : [];
+                let blotterCases = [];
+
+                if (blotterResponse.ok) {
+                    try {
+                        blotterCases = await blotterResponse.json();
+                        if (!Array.isArray(blotterCases)) {
+                            console.error('Blotter data is not an array:', blotterCases);
+                            blotterCases = [];
+                        }
+                    } catch (e) {
+                        console.error('Error parsing blotter response:', e);
+                        blotterCases = [];
+                    }
+                }
+  
+                if (profileData) {
+                    const profilePic = document.getElementById('profilePicture');
+                    if (profileData.profilePicture) {
+                        if (profileData.profilePicture.startsWith('http') || profileData.profilePicture.startsWith('/')) {
+                            profilePic.src = profileData.profilePicture;
+                        } else {
+                            profilePic.src = '/uploads/' + profileData.profilePicture;
+                        }
+                    } else {
+                        profilePic.src = 'images/profile.jpg';
+                    }
+                }
+  
+                const pendingRequests = requests.filter(r => r.status === "Pending").length;
+                document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
+  
+                const recentAnnouncements = announcements.filter(a =>
+                    new Date(a.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+                );
+                const unviewedAnnouncements = recentAnnouncements.filter(a =>
+                    !viewedAnnouncements.includes(a._id)
+                );
+                document.getElementById('newAnnouncements').textContent = `${unviewedAnnouncements.length} Announcement${unviewedAnnouncements.length !== 1 ? 's' : ''}`;
+  
+                const activeBlotterCases = Array.isArray(blotterCases) ? 
+                    blotterCases.filter(b => 
+                        b.status === "Pending" || b.status === "Under Investigation"
+                    ).length : 0;
+                    
+                document.getElementById('blotterCases').textContent = `${activeBlotterCases} Blotter Case${activeBlotterCases !== 1 ? 's' : ''}`;
+                
+                // Update recent activity (show only 3 most recent)
+                updateRecentActivity(requests, blotterCases);
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('blotterCases').textContent = '0 Blotter Cases';
+            }
+        }
+        
+        function updateRecentActivity(requests, blotterCases) {
+            const activityTable = document.getElementById('recentActivity');
+            if (!activityTable) return;
+            
+            // Combine activities
+            allActivities = [];
+            
+            // Add requests
+            requests.forEach(request => {
+                allActivities.push({
+                    type: 'Request',
+                    description: `Request for ${request.documentType || 'Document'}`,
+                    date: new Date(request.createdAt || request.date).toLocaleDateString(),
+                    status: request.status,
+                    id: request._id
+                });
+            });
+            
+            // Add blotter cases
+            if (Array.isArray(blotterCases)) {
+                blotterCases.forEach(blotter => {
+                    allActivities.push({
+                        type: 'Blotter',
+                        description: `Blotter Case: ${blotter.incidentType || 'Incident Report'}`,
+                        date: new Date(blotter.createdAt || blotter.date).toLocaleDateString(),
+                        status: blotter.status,
+                        id: blotter._id
+                    });
+                });
+            }
+            
+            // Sort by date (newest first) and take only 3
+            allActivities.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const displayActivities = allActivities.slice(0, 3);
+            
+            // Clear table
+            activityTable.innerHTML = '';
+            
+            if (displayActivities.length === 0) {
+                activityTable.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No recent activity</td></tr>';
+                return;
+            }
+            
+            // Add activities to table
+            displayActivities.forEach(activity => {
+                const row = document.createElement('tr');
+                
+                // Status badge
+                let statusClass = 'status-pending';
+                if (activity.status === 'Under Investigation') statusClass = 'status-under-investigation';
+                else if (activity.status === 'Resolved') statusClass = 'status-resolved';
+                else if (activity.status === 'Dismissed') statusClass = 'status-dismissed';
+                
+                row.innerHTML = `
+                    <td>${activity.type}</td>
+                    <td>${activity.description}</td>
+                    <td>${activity.date}</td>
+                    <td><span class="status ${statusClass}">${activity.status}</span></td>
+                    <td>
+                        <button class="view-button" onclick="viewActivity('${activity.type}', '${activity.id}')">
+                            View
+                        </button>
+                    </td>
+                `;
+                
+                activityTable.appendChild(row);
             });
         }
         
-        const notification = document.createElement('div');
-        notification.className = 'emergency-response-notification';
-        notification.innerHTML = `
-            <div class="emergency-response-content">
-                <i class="uil uil-bell"></i>
-                <div>
-                    <h4>Emergency Response</h4>
-                    <p>${message}</p>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'fadeOut 0.5s forwards';
-            setTimeout(() => {
-                notification.remove();
-            }, 500);
-        }, 10000);
-      }
-  
-      document.addEventListener('DOMContentLoaded', function () {
-        authFetch('/api/auth/check-auth')
-          .then(response => {
-            if (!response) return;
-            return response.json();
-          })
-          .then(data => {
-            if (!data || !data.isAuthenticated) {
-              window.location.href = '/';
-            } else {
-              localStorage.setItem('userId', data.user.id);
-              fetchResidentData();
+        function viewActivity(type, id) {
+            if (type === 'Request') {
+                window.location.href = `/residentRequests#${id}`;
+            } else if (type === 'Blotter') {
+                window.location.href = `/resident-blotter#${id}`;
             }
-          })
-          .catch(error => {
-            console.error('Auth check error:', error);
-            window.location.href = '/';
-          });
+        }
   
-        document.getElementById('logoutBtn').addEventListener('click', function (e) {
-          e.preventDefault();
-          openLogoutModal();
+        function openEmergencyModal() {
+            document.getElementById('emergencyModal').style.display = 'block';
+        }
+  
+        function closeEmergencyModal() {
+            document.getElementById('emergencyModal').style.display = 'none';
+        }
+  
+        async function sendEmergencyAlert() {
+            const message = document.getElementById('emergencyMessage').value.trim();
+            if (!message) {
+                alert('Please enter your emergency message');
+                return;
+            }
+  
+            try {
+                const userEmail = localStorage.getItem('userEmail');
+                const response = await authFetch('/api/emergency/send', {
+                    method: 'POST',
+                    body: JSON.stringify({ email: userEmail, message })
+                });
+  
+                if (!response) return;
+  
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Emergency alert sent successfully!');
+                    closeEmergencyModal();
+                    document.getElementById('emergencyMessage').value = '';
+                } else {
+                    throw new Error(data.error || 'Failed to send emergency alert');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send emergency alert: ' + error.message);
+            }
+        }
+  
+        async function logout() {
+            try {
+                const response = await authFetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+  
+                if (response && response.ok) {
+                    localStorage.removeItem('userEmail');
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function openLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'block';
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            closeLogoutModal();
+            logout();
+        }
+  
+        const socket = io({ withCredentials: true });
+  
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+  
+        socket.on('request-updated', (request) => {
+            if (request.userId === localStorage.getItem('userId')) {
+                showNotification(`Your request status updated to ${request.status}`);
+                fetchResidentData();
+            }
         });
-      });
   
-      setInterval(fetchResidentData, 30000);
+        socket.on('new_announcement', (announcement) => {
+            showNotification(`New announcement: ${announcement.title}`);
+            fetchResidentData();
+        });
+  
+        socket.on('emergencyResponse', (response) => {
+            if (response.residentId === localStorage.getItem('userId')) {
+                showEmergencyResponseNotification(response.message);
+            }
+        });
+  
+        socket.on('blotter-updated', (blotter) => {
+            if (blotter.complainant === localStorage.getItem('userId')) {
+                showNotification(`Your blotter report status updated to ${blotter.status}`);
+                fetchResidentData();
+            }
+        });
+  
+        function showNotification(message) {
+            if (Notification.permission === "granted") {
+                new Notification("BTMS Notification", { body: message });
+            } else {
+                alert(message);
+            }
+        }
+
+        function showEmergencyResponseNotification(message) {
+            if (Notification.permission === "granted") {
+                new Notification("Emergency Response", { 
+                    body: `Admin response: ${message}` 
+                });
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = 'emergency-response-notification';
+            notification.innerHTML = `
+                <div class="emergency-response-content">
+                    <i class="fas fa-bell"></i>
+                    <div>
+                        <h4>Emergency Response</h4>
+                        <p>${message}</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.5s forwards';
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 10000);
+        }
+  
+        document.addEventListener('DOMContentLoaded', function () {
+            authFetch('/api/auth/check-auth')
+                .then(response => {
+                    if (!response) return;
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data || !data.isAuthenticated) {
+                        window.location.href = '/';
+                    } else {
+                        localStorage.setItem('userId', data.user.id);
+                        fetchResidentData();
+                    }
+                })
+                .catch(error => {
+                    console.error('Auth check error:', error);
+                    window.location.href = '/';
+                });
+  
+            document.getElementById('logoutBtn').addEventListener('click', function (e) {
+                e.preventDefault();
+                openLogoutModal();
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                const emergencyModal = document.getElementById('emergencyModal');
+                const logoutModal = document.getElementById('logoutModal');
+                
+                if (event.target === emergencyModal) {
+                    closeEmergencyModal();
+                }
+                if (event.target === logoutModal) {
+                    closeLogoutModal();
+                }
+            });
+        });
+  
+        setInterval(fetchResidentData, 30000);
     </script>
 </body>
 </html>

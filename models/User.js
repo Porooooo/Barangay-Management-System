@@ -85,26 +85,7 @@ approvalStatus: {
     default: null
   },
   
-  // ID Verification fields
-  idVerification: {
-    idType: {
-      type: String,
-      enum: ['National ID', 'Driver License', 'Passport', 'Voter ID', 'Barangay ID', 'Other'],
-      default: null
-    },
-    idNumber: {
-      type: String,
-      default: null
-    },
-    idPhoto: {
-      type: String,
-      default: null
-    },
-    submittedAt: {
-      type: Date,
-      default: null
-    }
-  },
+
 
   // Admin Specific Fields
   adminSpecificFields: {

@@ -1,190 +1,558 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Register</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Register - Barangay Talipapa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #0d4f8b;
+      --secondary: #e6a919;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --success: #28a745;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        /* Main Content */
-        .main-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 120px 50px;
-            height: 100vh;
-        }
-        .modal-content {
-            background: white;
-            padding: 20px;
-            width: 50%;
-            max-width: 600px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-        }
-        .modal-content input,
-        .modal-content select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .input-group {
-            position: relative;
-        }
-        .password-toggle {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #666;
-        }
-        .modal-content button {
-            width: 100%;
-            padding: 10px;
-            background-color: #efcd84;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            color: white;
-        }
-        .modal-content button:hover {
-            background-color: #e3d3a8;
-        }
-        .loading {
-            display: none;
-            margin-top: 10px;
-            color: #333;
-        }
-    </style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
+      background-attachment: fixed;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0px 8px 25px rgba(13, 79, 139, 0.15);
+      max-width: 800px;
+      width: 95%;
+      min-height: 500px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .left-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+      z-index: 1;
+    }
+
+    .logo-container img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      margin-bottom: 12px;
+    }
+
+    .logo-text h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .logo-text p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .welcome-text {
+      text-align: center;
+      margin-top: 20px;
+      z-index: 1;
+      max-width: 300px;
+    }
+
+    .welcome-text h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .welcome-text p {
+      font-size: 13px;
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+
+    .right-section {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      background-color: #ffffff;
+    }
+
+    .form-container {
+      max-width: 320px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+      margin-bottom: 20px;
+      color: #666;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .input-group {
+      position: relative;
+      margin: 15px 0;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    form input, form select {
+      width: 100%;
+      padding: 12px 12px 12px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.3s;
+      background-color: #f9f9f9;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    form select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 12px;
+      padding-right: 35px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 70%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+      font-size: 16px;
+      transition: color 0.3s;
+      background: none;
+      border: none;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 25px;
+      height: 25px;
+    }
+
+    .register-button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+      box-shadow: 0 3px 8px rgba(13, 79, 139, 0.3);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .register-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(13, 79, 139, 0.4);
+    }
+
+    .register-button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .form-links {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    a {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 500;
+      font-size: 13px;
+      transition: color 0.3s;
+    }
+
+    a:hover {
+      color: #1c6ea4;
+      text-decoration: underline;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      margin-top: 5px;
+      font-size: 14px;
+      text-align: center;
+      padding: 10px;
+      background-color: #ffeaea;
+      border-radius: 5px;
+      border-left: 3px solid #e74c3c;
+    }
+
+    .success-message {
+      color: var(--success);
+      margin-top: 5px;
+      font-size: 14px;
+      text-align: center;
+      padding: 10px;
+      background-color: #e8f5e8;
+      border-radius: 5px;
+      border-left: 3px solid var(--success);
+    }
+
+    .loading {
+      display: none;
+      margin-top: 10px;
+      color: #333;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 768px) {
+      .container {
+        max-width: 95%;
+        min-height: auto;
+      }
+      
+      .left-section {
+        padding: 20px 15px;
+      }
+      
+      .logo-container img {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .logo-text h2 {
+        font-size: 20px;
+      }
+      
+      .welcome-text h3 {
+        font-size: 16px;
+      }
+      
+      .right-section {
+        padding: 25px 15px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        border-radius: 12px;
+        min-height: auto;
+      }
+      
+      .left-section {
+        padding: 15px 12px;
+      }
+      
+      .logo-container img {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .logo-text h2 {
+        font-size: 18px;
+      }
+      
+      .welcome-text {
+        margin-top: 15px;
+      }
+      
+      .welcome-text h3 {
+        font-size: 15px;
+      }
+      
+      .welcome-text p {
+        font-size: 12px;
+      }
+      
+      .right-section {
+        padding: 20px 12px;
+      }
+      
+      .form-container {
+        max-width: 100%;
+      }
+      
+      h1 {
+        font-size: 22px;
+      }
+      
+      .form-subtitle {
+        font-size: 13px;
+        margin-bottom: 15px;
+      }
+      
+      .input-group {
+        margin: 12px 0;
+      }
+      
+      form input, form select {
+        padding: 10px 35px 10px 10px;
+        font-size: 13px;
+      }
+      
+      .register-button {
+        padding: 12px;
+        font-size: 14px;
+      }
+      
+      .form-links {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Check if user is logged in as admin -->
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    window.location.href = 'admin-login';
-                    return;
-                }
-
-                const response = await fetch('/api/admin/check-auth', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                const data = await response.json();
-                if (!data.isAuthenticated || !data.user || data.user.role !== 'admin') {
-                    window.location.href = 'admin-login';
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                window.location.href = 'admin-login';
-            }
-        });
-    </script>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="modal-content">
-            <h2>Admin Register</h2>
-            <form id="adminRegisterForm">
-                <input type="text" id="fullName" placeholder="Full Name" required>
-                <input type="email" id="email" placeholder="Email" required>
-                <select id="position" required>
-                    <option value="" disabled selected>Select Position</option>
-                    <option value="Brgy. Captain">Brgy. Captain</option>
-                    <option value="Secretary">Secretary</option>
-                    <option value="Treasurer">Treasurer</option>
-                    <option value="Councilor">Councilor</option>
-                </select>
-                <select id="department" required>
-                    <option value="" disabled selected>Select Department</option>
-                    <option value="Office of the Barangay Captain">Office of the Barangay Captain</option>
-                    <option value="Barangay Secretary Office">Barangay Secretary Office</option>
-                    <option value="Barangay Treasurer Office">Barangay Treasurer Office</option>
-                </select>
-                <div class="input-group">
-                    <input type="password" id="password" placeholder="Password" required>
-                    <span class="password-toggle" id="togglePassword">🙈</span>
-                </div>
-                <button type="submit" id="submitBtn">Register</button>
-                <div id="loadingIndicator" class="loading">Processing...</div>
-            </form>
+  <div class="container">
+    <!-- Left section: Branding -->
+    <div class="left-section">
+      <div class="logo-container">
+        <img src="images/barangay-bg.png" alt="Barangay Talipapa Logo" />
+        <div class="logo-text">
+          <h2>Barangay Talipapa</h2>
+          <p>Cabanatuan City</p>
         </div>
+      </div>
+      <div class="welcome-text">
+        <h3>Admin Registration</h3>
+        <p>Register new administrative personnel for Barangay Talipapa management system</p>
+      </div>
     </div>
 
-    <script>
-        // Password toggle functionality
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.textContent = type === 'password' ? '🙈' : '🙉';
+    <!-- Right section: Admin Register form -->
+    <div class="right-section">
+      <div class="form-container">
+        <h1>Admin Register</h1>
+        <p class="form-subtitle">Create a new admin account</p>
+        <form id="adminRegisterForm">
+          <div class="input-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" placeholder="Enter full name" required>
+          </div>
+
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="Enter email address" required>
+          </div>
+
+          <div class="input-group">
+            <label for="position">Position</label>
+            <select id="position" required>
+              <option value="" disabled selected>Select Position</option>
+              <option value="Brgy. Captain">Brgy. Captain</option>
+              <option value="Secretary">Secretary</option>
+              <option value="Treasurer">Treasurer</option>
+              <option value="Councilor">Councilor</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="department">Department</label>
+            <select id="department" required>
+              <option value="" disabled selected>Select Department</option>
+              <option value="Office of the Barangay Captain">Office of the Barangay Captain</option>
+              <option value="Barangay Secretary Office">Barangay Secretary Office</option>
+              <option value="Barangay Treasurer Office">Barangay Treasurer Office</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter password" required>
+            <button type="button" class="password-toggle" id="togglePassword">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          
+          <div id="errorMessage" class="error-message" style="display: none;"></div>
+          <div id="successMessage" class="success-message" style="display: none;"></div>
+          
+          <button type="submit" class="register-button" id="submitBtn">Register Admin</button>
+          <div id="loadingIndicator" class="loading">Processing...</div>
+          
+          <div class="form-links">
+            <a href="/admin-dashboard">Back to Dashboard</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check if user is logged in as admin
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = 'admin-login';
+          return;
+        }
+
+        const response = await fetch('/api/admin/check-auth', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        if (!data.isAuthenticated || !data.user || data.user.role !== 'admin') {
+          window.location.href = 'admin-login';
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        window.location.href = 'admin-login';
+      }
+    });
+
+    // Password toggle functionality
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      const passwordInput = document.getElementById('password');
+      const icon = this.querySelector('i');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    });
+
+    // Handle form submission
+    document.getElementById('adminRegisterForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      
+      // Disable submit button and show loading indicator
+      const submitBtn = document.getElementById('submitBtn');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const errorElement = document.getElementById('errorMessage');
+      const successElement = document.getElementById('successMessage');
+      
+      submitBtn.disabled = true;
+      loadingIndicator.style.display = 'block';
+      errorElement.style.display = 'none';
+      successElement.style.display = 'none';
+
+      const adminData = {
+        fullName: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        position: document.getElementById('position').value,
+        department: document.getElementById('department').value,
+        password: document.getElementById('password').value
+      };
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          errorElement.textContent = 'Please log in as admin first';
+          errorElement.style.display = 'block';
+          window.location.href = 'admin-login';
+          return;
+        }
+
+        const response = await fetch('/api/admin/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(adminData)
         });
 
-        // Handle form submission
-        document.getElementById('adminRegisterForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            // Disable submit button and show loading indicator
-            const submitBtn = document.getElementById('submitBtn');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            submitBtn.disabled = true;
-            loadingIndicator.style.display = 'block';
-
-            const adminData = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                position: document.getElementById('position').value,
-                department: document.getElementById('department').value,
-                password: document.getElementById('password').value
-            };
-
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('Please log in as admin first');
-                    window.location.href = 'admin-login';
-                    return;
-                }
-
-                const response = await fetch('/api/admin/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(adminData)
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message);
-                    window.location.href = 'admin-dashboard';
-                } else {
-                    alert(result.error || result.message || 'Registration failed');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while registering.');
-            } finally {
-                // Re-enable submit button and hide loading indicator
-                submitBtn.disabled = false;
-                loadingIndicator.style.display = 'none';
-            }
-        });
-    </script>
+        const result = await response.json();
+        if (response.ok) {
+          successElement.textContent = result.message || 'Admin registered successfully!';
+          successElement.style.display = 'block';
+          
+          // Clear form
+          document.getElementById('adminRegisterForm').reset();
+          
+          // Redirect after short delay
+          setTimeout(() => {
+            window.location.href = 'admin-dashboard';
+          }, 2000);
+        } else {
+          errorElement.textContent = result.error || result.message || 'Registration failed';
+          errorElement.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        errorElement.textContent = 'An error occurred while registering.';
+        errorElement.style.display = 'block';
+      } finally {
+        // Re-enable submit button and hide loading indicator
+        submitBtn.disabled = false;
+        loadingIndicator.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
