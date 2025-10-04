@@ -3,569 +3,736 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Register - Barangay Talipapa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { 
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+          --primary: #0d4f8b;
+          --secondary: #e6a919;
+          --light: #f8f9fa;
+          --dark: #343a40;
+          --success: #28a745;
         }
-
+        
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+    
         body {
-            font-family: 'Poppins', sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #d4eaf7 0%, #f3e0b6 100%);
-            background-attachment: fixed;
-            margin: 0;
+          font-family: 'Poppins', sans-serif;
+          min-height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
+          background-attachment: fixed;
+          margin: 0;
+          padding: 20px;
         }
-
+    
         .container {
-            display: flex;
-            background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            width: 90%;
-            height: 300px;
-            overflow: hidden;
-            transition: all 0.3s ease;
+          display: flex;
+          background-color: #ffffff;
+          border-radius: 15px;
+          box-shadow: 0px 8px 25px rgba(13, 79, 139, 0.15);
+          max-width: 700px;
+          width: 95%;
+          min-height: 420px;
+          overflow: hidden;
+          transition: all 0.3s ease;
         }
-
-        .right-section {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            background-color: #f3e0b6;
-        }
-
-        .right-section img {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            object-fit: cover;
-            transition: all 0.3s ease;
-        }
-
+    
         .left-section {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 25px;
-            background-color: #ffffff;
-            border-radius: 20px 0 0 20px;
-            transition: all 0.3s ease;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 30px;
+          background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+          color: white;
+          position: relative;
+          overflow: hidden;
         }
-
+    
+        .left-section::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          right: -50%;
+          width: 100%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        }
+    
+        .logo-container {
+          text-align: center;
+          margin-bottom: 20px;
+          z-index: 1;
+        }
+    
+        .logo-container img {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 3px solid rgba(255, 255, 255, 0.3);
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+          margin-bottom: 12px;
+        }
+    
+        .logo-text {
+          text-align: center;
+        }
+    
+        .logo-text h2 {
+          font-size: 22px;
+          font-weight: 700;
+          margin-bottom: 5px;
+        }
+    
+        .logo-text p {
+          font-size: 14px;
+          opacity: 0.9;
+        }
+    
+        .welcome-text {
+          text-align: center;
+          margin-top: 20px;
+          z-index: 1;
+          max-width: 300px;
+        }
+    
+        .welcome-text h3 {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 10px;
+        }
+    
+        .welcome-text p {
+          font-size: 13px;
+          opacity: 0.9;
+          line-height: 1.5;
+        }
+    
+        .right-section {
+          flex: 1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 30px;
+          background-color: #ffffff;
+        }
+    
         .form-container {
-            max-width: 260px;
-            width: 100%;
-            text-align: center;
+          max-width: 320px;
+          width: 100%;
         }
-
+    
         h1 {
-            font-size: 24px;
-            font-weight: 800;
-            color: #000000;
-            text-align: center;
-            margin-bottom: 8px;
+          font-size: 26px;
+          font-weight: 700;
+          color: var(--primary);
+          text-align: center;
+          margin-bottom: 8px;
         }
-
-        p {
-            margin-bottom: 15px;
-            color: #666;
-            text-align: center;
-            font-size: 14px;
+    
+        .form-subtitle {
+          margin-bottom: 20px;
+          color: #666;
+          text-align: center;
+          font-size: 14px;
         }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #f3e0b6;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s ease;
-            margin-top: 10px;
+    
+        .register-button {
+          width: 100%;
+          padding: 14px;
+          background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 15px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          margin-top: 8px;
+          box-shadow: 0 3px 8px rgba(13, 79, 139, 0.3);
+          font-family: 'Poppins', sans-serif;
         }
-
-        button:hover {
-            background-color: #e3d3a8;
+    
+        .register-button:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(13, 79, 139, 0.4);
         }
-
+    
+        .register-button:active {
+          transform: translateY(0);
+        }
+    
+        .register-button:disabled {
+          background: #cccccc;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+    
+        .form-links {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 20px;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+    
         a {
-            text-decoration: none;
-            color: #007bff;
+          text-decoration: none;
+          color: var(--primary);
+          font-weight: 500;
+          font-size: 13px;
+          transition: color 0.3s;
         }
-
+    
         a:hover {
-            text-decoration: underline;
+          color: #1c6ea4;
+          text-decoration: underline;
         }
-
-        .register-link {
-            margin-top: 12px;
-            text-align: center;
-            color: #666;
-            font-size: 13px;
-        }
-
-        /* Modal Styles */
+    
+        /* Modal Styles - Smaller Size */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            overflow-y: auto;
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          overflow-y: auto;
+          padding: 15px;
         }
-
+    
         .modal-content {
-            background: white;
-            padding: 20px;
-            width: 90%;
-            max-width: 700px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-            margin: 20px 0;
+          background: white;
+          padding: 20px;
+          width: 95%;
+          max-width: 600px;
+          border-radius: 12px;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+          position: relative;
+          margin: 15px 0;
+          max-height: 85vh;
+          overflow-y: auto;
         }
-
+    
         .close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 20px;
-            cursor: pointer;
-            color: #666;
+          position: absolute;
+          top: 12px;
+          right: 15px;
+          font-size: 22px;
+          cursor: pointer;
+          color: #666;
+          z-index: 10;
         }
-
+    
         .form-columns {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 12px;
         }
-
+    
         .form-column {
-            width: 48%;
+          width: 48%;
         }
-
+    
         .modal-content input,
         .modal-content select {
-            width: 100%;
-            padding: 8px;
-            margin: 6px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 12px;
+          width: 100%;
+          padding: 10px;
+          margin: 6px 0;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          font-size: 13px;
+          font-family: 'Poppins', sans-serif;
+          transition: all 0.3s;
         }
-
+    
+        .modal-content input:focus,
+        .modal-content select:focus {
+          outline: none;
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px rgba(13, 79, 139, 0.1);
+        }
+    
         .modal-content button {
-            padding: 8px;
-            background-color: #f3e0b6;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.85em;
-            margin-top: 8px;
+          padding: 10px;
+          background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          margin-top: 6px;
         }
-
+    
         .modal-content button:hover {
-            background-color: #e3d3a8;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(13, 79, 139, 0.3);
         }
-
+    
         /* Full width elements */
         .full-width {
-            width: 100%;
+          width: 100%;
         }
-
+    
         .file-upload-label {
-            display: block;
-            text-align: left;
-            margin-bottom: 4px;
-            font-size: 12px;
-            color: #666;
+          display: block;
+          text-align: left;
+          margin-bottom: 4px;
+          font-size: 13px;
+          color: #333;
+          font-weight: 500;
         }
-
+    
         .error-message {
-            color: #ff0000;
-            font-size: 11px;
-            text-align: left;
-            margin-top: -8px;
-            margin-bottom: 8px;
-            display: none;
+          color: #e74c3c;
+          font-size: 11px;
+          text-align: left;
+          margin-top: 2px;
+          display: none;
         }
-
+    
         .input-error {
-            border-color: #ff0000 !important;
+          border-color: #e74c3c !important;
         }
-
+    
         /* Modal heading adjustment */
         .modal-content h2 {
-            font-size: 22px;
-            margin-bottom: 15px;
+          font-size: 22px;
+          margin-bottom: 15px;
+          color: var(--primary);
+          text-align: center;
         }
         
         /* Multi-page form styles */
         .form-page {
-            display: none;
+          display: none;
         }
         
         .form-page.active {
-            display: block;
+          display: block;
         }
         
         .form-section-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 15px 0 8px;
-            text-align: left;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
+          font-size: 14px;
+          font-weight: 600;
+          margin: 12px 0 8px;
+          text-align: left;
+          color: #333;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 4px;
         }
         
         .form-navigation {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 20px;
+          display: flex;
+          justify-content: space-between;
+          gap: 8px;
+          margin-top: 20px;
         }
-
+    
         .form-navigation button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background-color: #f3e0b6;
-            transition: background 0.3s ease;
+          flex: 1;
+          padding: 10px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+          color: white;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          font-size: 13px;
         }
-
+    
         .form-navigation button:hover {
-            background-color: #e3d3a8;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(13, 79, 139, 0.3);
         }
         
         #submit-btn {
-            width: 100%;
+          width: 100%;
         }
         
         .progress-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 20px;
+          position: relative;
         }
         
         .progress-step {
-            flex: 1;
-            text-align: center;
-            position: relative;
+          flex: 1;
+          text-align: center;
+          position: relative;
+          z-index: 2;
         }
         
         .progress-step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            right: -50%;
-            height: 2px;
-            background-color: #ddd;
-            z-index: 1;
+          content: '';
+          position: absolute;
+          top: 12px;
+          left: 50%;
+          right: -50%;
+          height: 2px;
+          background-color: #ddd;
+          z-index: 1;
         }
         
         .step-number {
-            width: 30px;
-            height: 30px;
-            background-color: #ddd;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 5px;
-            position: relative;
-            z-index: 2;
+          width: 25px;
+          height: 25px;
+          background-color: #ddd;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 4px;
+          position: relative;
+          z-index: 2;
+          font-size: 12px;
+          font-weight: 600;
         }
         
         .step-label {
-            font-size: 12px;
-            color: #666;
+          font-size: 11px;
+          color: #666;
         }
         
         .progress-step.active .step-number {
-            background-color: #f3e0b6;
-            color: #000;
+          background-color: var(--primary);
+          color: white;
         }
         
         .progress-step.completed .step-number {
-            background-color: #4CAF50;
-            color: white;
+          background-color: var(--success);
+          color: white;
         }
-
+    
         /* Checkbox group for government programs */
         .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 10px 0;
+          display: flex;
+          flex-wrap: wrap;
+          margin: 8px 0;
         }
-
+    
         .checkbox-item {
-            width: 50%;
-            margin: 5px 0;
-            display: flex;
-            align-items: center;
+          width: 50%;
+          margin: 3px 0;
+          display: flex;
+          align-items: center;
         }
-
+    
         .checkbox-item input {
-            width: auto;
-            margin-right: 8px;
+          width: auto;
+          margin-right: 6px;
         }
-
+    
         .checkbox-item label {
-            font-size: 12px;
-            color: #666;
+          font-size: 12px;
+          color: #666;
         }
-
+    
         /* Required field indicator */
         .required-field::after {
-            content: " *";
-            color: red;
+          content: " *";
+          color: #e74c3c;
         }
-
+    
         /* Form labels */
         label {
-            display: block;
-            text-align: left;
-            margin-bottom: 4px;
-            font-size: 12px;
-            color: #666;
+          display: block;
+          text-align: left;
+          margin-bottom: 4px;
+          font-size: 13px;
+          color: #333;
+          font-weight: 500;
         }
-
-        /* Adjusting some spacing for better layout */
-        .form-column {
-            margin-bottom: 10px;
-        }
-
-        /* Success Modal Styles */
-        .success-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .success-modal-content {
-            background: white;
-            padding: 30px;
-            width: 90%;
-            max-width: 400px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-        }
-
-        .success-icon {
-            font-size: 60px;
-            color: #ffa500;
-            margin-bottom: 20px;
-        }
-
-        .success-modal h2 {
-            font-size: 24px;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .success-modal p {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 25px;
-        }
-
-        .success-modal button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .success-modal button:hover {
-            background-color: #45a049;
-        }   
-
-        /* New styles for ID verification */
-        .id-verification-section {
-            margin: 15px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #007bff;
-        }
-
-        .id-verification-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .id-verification-note {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-            font-style: italic;
-        }
-
-        .id-preview {
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .id-preview-img {
-            max-width: 200px;
-            max-height: 150px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .file-requirements {
-            font-size: 11px;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .required-badge {
-            color: red;
-            margin-left: 3px;
-        }
-
-        /* Adjust form columns for new fields */
-        .form-columns-3 {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .form-column-3 {
-            width: 32%;
-        }
-
+    
         /* Email validation styles */
         .email-validation {
-            font-size: 11px;
-            margin-top: 2px;
-            display: none;
+          font-size: 11px;
+          margin-top: 2px;
+          display: none;
         }
-
+    
         .email-valid {
-            color: #28a745;
+          color: var(--success);
         }
-
+    
         .email-invalid {
-            color: #dc3545;
+          color: #e74c3c;
         }
-
-        /* Add responsive styles for mobile devices */
+    
+        /* Name validation styles */
+        .name-validation {
+          font-size: 11px;
+          margin-top: 2px;
+          display: none;
+        }
+    
+        .name-valid {
+          color: var(--success);
+        }
+    
+        .name-invalid {
+          color: #e74c3c;
+        }
+    
+        /* Phone number validation styles */
+        .phone-validation {
+          font-size: 11px;
+          margin-top: 2px;
+          display: none;
+        }
+    
+        .phone-valid {
+          color: var(--success);
+        }
+    
+        .phone-invalid {
+          color: #e74c3c;
+        }
+    
+        /* Success Modal Styles */
+        .success-modal {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+    
+        .success-modal-content {
+          background: white;
+          padding: 25px;
+          width: 90%;
+          max-width: 380px;
+          border-radius: 12px;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+          text-align: center;
+          position: relative;
+        }
+    
+        .success-icon {
+          font-size: 50px;
+          color: var(--secondary);
+          margin-bottom: 15px;
+        }
+    
+        .success-modal h2 {
+          font-size: 22px;
+          margin-bottom: 12px;
+          color: #333;
+        }
+    
+        .success-modal p {
+          font-size: 14px;
+          color: #666;
+          margin-bottom: 20px;
+          line-height: 1.4;
+        }
+    
+        .success-modal button {
+          padding: 10px 20px;
+          background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+        }
+    
+        .success-modal button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(13, 79, 139, 0.3);
+        }
+    
+        /* Responsive Styles */
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                height: auto;
-                max-width: 90%;
-                margin: 20px;
-            }
-
-            .right-section {
-                order: -1;
-                padding: 15px;
-                background: transparent;
-                text-align: center;
-            }
-
-            .right-section img {
-                width: 140px;
-                height: 140px;
-            }
-
-            .left-section {
-                padding: 20px;
-                border-radius: 0;
-                text-align: center;
-                width: 100%;
-            }
-
-            .form-container {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            button {
-                width: 100%;
-                font-size: 13px;
-                padding: 9px;
-            }
-
-            h1 {
-                font-size: 22px;
-            }
-
-            p, .register-link {
-                font-size: 12px;
-            }
-
-            /* Adjust modal for mobile */
-            .modal-content {
-                width: 95%;
-                max-width: 100%;
-                margin: 10px;
-            }
-
-            .form-column-3 {
-                width: 100%;
-            }
-
-            .form-columns-3 {
-                gap: 5px;
-            }
+          .container {
+            max-width: 95%;
+            min-height: auto;
+            flex-direction: column;
+          }
+          
+          .left-section {
+            padding: 20px 15px;
+            order: -1;
+          }
+          
+          .logo-container img {
+            width: 80px;
+            height: 80px;
+          }
+          
+          .logo-text h2 {
+            font-size: 20px;
+          }
+          
+          .welcome-text h3 {
+            font-size: 16px;
+          }
+          
+          .right-section {
+            padding: 25px 15px;
+          }
+          
+          h1 {
+            font-size: 24px;
+          }
+    
+          .modal-content {
+            width: 95%;
+            max-width: 100%;
+            margin: 10px;
+            padding: 15px;
+          }
+    
+          .form-column {
+            width: 100%;
+          }
+    
+          .form-columns {
+            gap: 8px;
+          }
+          
+          .modal-content h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          body {
+            padding: 10px;
+          }
+          
+          .container {
+            border-radius: 10px;
+            min-height: auto;
+          }
+          
+          .left-section {
+            padding: 15px 12px;
+          }
+          
+          .logo-container img {
+            width: 70px;
+            height: 70px;
+          }
+          
+          .logo-text h2 {
+            font-size: 18px;
+          }
+          
+          .welcome-text {
+            margin-top: 15px;
+          }
+          
+          .welcome-text h3 {
+            font-size: 15px;
+          }
+          
+          .welcome-text p {
+            font-size: 12px;
+          }
+          
+          .right-section {
+            padding: 20px 12px;
+          }
+          
+          .form-container {
+            max-width: 100%;
+          }
+          
+          h1 {
+            font-size: 22px;
+          }
+          
+          .form-subtitle {
+            font-size: 13px;
+            margin-bottom: 15px;
+          }
+          
+          .form-links {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+          }
+          
+          .modal-content {
+            padding: 12px;
+            border-radius: 10px;
+          }
+          
+          .modal-content input,
+          .modal-content select {
+            padding: 8px;
+            font-size: 12px;
+          }
+          
+          .form-section-title {
+            font-size: 13px;
+            margin: 10px 0 6px;
+          }
+          
+          .progress-bar {
+            margin-bottom: 15px;
+          }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <!-- Main Content -->
     <div class="container">
+        <!-- Left section: Branding -->
         <div class="left-section">
-            <div class="form-container">
-                <h1>Register</h1>
-                <p>Click the button below to create an account.</p>
-                <button class="btn-signup" onclick="openModal()">Sign Up</button>
-                <p class="register-link">Already have an account? <a href="login">Login Here</a></p>
+            <div class="logo-container">
+                <img src="images/barangay-bg.png" alt="Barangay Talipapa Logo">
+                <div class="logo-text">
+                    <h2>Barangay Talipapa</h2>
+                    <p>Cabanatuan City</p>
+                </div>
+            </div>
+            <div class="welcome-text">
+                <h3>Join Our Community</h3>
             </div>
         </div>
+
+        <!-- Right section: Registration form -->
         <div class="right-section">
-            <img src="images/barangay-bg.png" alt="Logo">
+            <div class="form-container">
+                <h1>Register</h1>
+                <p class="form-subtitle">Click the button below to create an account</p>
+                <button class="register-button" onclick="openModal()">Sign Up</button>
+                <div class="form-links">
+                    <a href="login">Already have an account? Login Here</a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -573,9 +740,9 @@
     <div class="modal" id="registerModal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Sign Up</h2>
+            <h2>Create Account</h2>
             
-            <!-- Progress Bar - Updated to 4 steps (removed password step) -->
+            <!-- Progress Bar - 3 steps -->
             <div class="progress-bar">
                 <div class="progress-step active" id="step1">
                     <div class="step-number">1</div>
@@ -589,10 +756,6 @@
                     <div class="step-number">3</div>
                     <div class="step-label">Address</div>
                 </div>
-                <div class="progress-step" id="step4">
-                    <div class="step-number">4</div>
-                    <div class="step-label">ID Verification</div>
-                </div>
             </div>
             
             <form id="registerForm" enctype="multipart/form-data">
@@ -602,13 +765,16 @@
                     <div class="form-columns">
                         <div class="form-column">
                             <label for="lastName" class="required-field">Last Name</label>
-                            <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+                            <input type="text" id="lastName" name="lastName" placeholder="Last Name" required oninput="validateName(this)">
+                            <div id="lastNameValidation" class="name-validation"></div>
                             
                             <label for="firstName" class="required-field">First Name</label>
-                            <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                            <input type="text" id="firstName" name="firstName" placeholder="First Name" required oninput="validateName(this)">
+                            <div id="firstNameValidation" class="name-validation"></div>
                             
                             <label for="middleName">Middle Name</label>
-                            <input type="text" id="middleName" name="middleName" placeholder="Middle Name">
+                            <input type="text" id="middleName" name="middleName" placeholder="Middle Name" oninput="validateName(this)">
+                            <div id="middleNameValidation" class="name-validation"></div>
                             
                             <label for="suffix">Suffix</label>
                             <input type="text" id="suffix" name="suffix" placeholder="Jr, Sr, etc">
@@ -622,7 +788,6 @@
                                 <option value="" disabled selected>Select Gender</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
-                                <option value="Other">Other</option>
                             </select>
                             
                             <label for="civilStatus" class="required-field">Civil Status</label>
@@ -665,14 +830,19 @@
                             <div id="emailValidation" class="email-validation"></div>
                             
                             <label for="contactNumber" class="required-field">Contact Number</label>
-                            <input type="text" id="contactNumber" name="contactNumber" placeholder="Contact Number" required>
+                            <input type="text" id="contactNumber" name="contactNumber" placeholder="09XXXXXXXXX" required 
+                                   maxlength="11" oninput="validatePhoneNumber()">
+                            <div id="contactNumberValidation" class="phone-validation">Must be 11 digits starting with 09</div>
                             
                             <label for="alternateContactNumber">Alternate Contact Number</label>
-                            <input type="text" id="alternateContactNumber" name="alternateContactNumber" placeholder="Alternate Contact Number">
+                            <input type="text" id="alternateContactNumber" name="alternateContactNumber" 
+                                   placeholder="09XXXXXXXXX" maxlength="11" oninput="validateAlternatePhoneNumber()">
+                            <div id="alternateContactNumberValidation" class="phone-validation">Must be 11 digits starting with 09</div>
                         </div>
                         <div class="form-column">
                             <label for="profilePicture" class="required-field file-upload-label">Profile Photo</label>
-                            <input type="file" id="profilePicture" name="profilePicture" accept="image/png, image/jpeg" required>
+                            <input type="file" id="profilePicture" name="profilePicture" accept="image/png, image/jpeg" required onchange="validateProfilePicture()">
+                            <div id="profilePictureValidation" class="error-message">Please upload a valid image (PNG, JPG, JPEG, max 2MB)</div>
                             
                             <div class="form-section-title" style="margin-top: 15px;">Government Program Participation</div>
                             <div class="checkbox-group">
@@ -751,7 +921,7 @@
                         </div>
                     </div>
                     
-                    <div class="form-section-title">Educational Attainment <span class="required-badge">*</span></div>
+                    <div class="form-section-title">Educational Attainment <span class="required-field"></span></div>
                     <select id="educationalAttainment" name="educationalAttainment" class="full-width" required>
                         <option value="" disabled selected>Select Educational Attainment</option>
                         <option value="Elementary Graduate">Elementary Graduate</option>
@@ -762,81 +932,13 @@
                         <option value="None">None</option>
                     </select>
                     
-                    <div class="form-navigation">
-                        <button type="button" class="btn-prev" onclick="prevPage(3)">Previous</button>
-                        <button type="button" class="btn-next" onclick="nextPage(3)">Next</button>
-                    </div>
-                </div>
-
-                <!-- Page 4: ID Verification -->
-                <div class="form-page" id="page4">
-                    <div class="form-section-title">Identity Verification</div>
-                    
-                    <div class="id-verification-section">
-                        <div class="id-verification-title">
-                            Government-Issued ID Verification
-                            <span class="required-badge">*</span>
-                        </div>
-                        <div class="id-verification-note">
-                            Please submit a clear photo of your valid government-issued ID for verification purposes. This helps us ensure the security and authenticity of our community.
-                        </div>
-                        
-                        <div class="form-columns-3">
-                            <div class="form-column-3">
-                                <label for="idType" class="required-field">ID Type</label>
-                                <select id="idType" name="idType" required>
-                                    <option value="" disabled selected>Select ID Type</option>
-                                    <option value="National ID">National ID</option>
-                                    <option value="Driver License">Driver's License</option>
-                                    <option value="Passport">Passport</option>
-                                    <option value="Voter ID">Voter's ID</option>
-                                    <option value="Barangay ID">Barangay ID</option>
-                                    <option value="Other">Other Government ID</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-column-3">
-                                <label for="idNumber" class="required-field">ID Number</label>
-                                <input type="text" id="idNumber" name="idNumber" placeholder="Enter ID Number" required>
-                            </div>
-                            
-                            <div class="form-column-3">
-                                <label for="idPhoto" class="required-field file-upload-label">Upload ID Photo</label>
-                                <input type="file" id="idPhoto" name="idPhoto" accept="image/png, image/jpeg, image/jpg" required onchange="previewIDPhoto(event)">
-                                <div class="file-requirements">
-                                    Max file size: 2MB | Accepted formats: JPG, JPEG, PNG
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="id-preview">
-                            <img id="idPhotoPreview" class="id-preview-img" alt="ID Preview">
-                        </div>
-                        
-                        <div class="checkbox-item full-width" style="margin-top: 15px;">
-                            <input type="checkbox" id="agreeIdVerification" required>
-                            <label for="agreeIdVerification">
-                                I certify that the ID submitted is valid, current, and belongs to me. I understand that providing false identification may result in account termination.
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-section-title">Account Information</div>
-                    <div class="form-columns">
-                        <div class="form-column">
-                            <p style="text-align: left; font-size: 14px; color: #666; margin-bottom: 15px;">
-                                <strong>Note:</strong> You don't need to create a password. After admin approval, a temporary password will be sent to your email/mobile number. You can change it later in your account settings.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="checkbox-item full-width">
+                    <div class="checkbox-item full-width" style="margin-top: 20px;">
                         <input type="checkbox" id="agreeTerms" required>
                         <label for="agreeTerms">I certify that the information provided is true and correct.</label>
                     </div>
                     
                     <div class="form-navigation">
-                        <button type="button" class="btn-prev" onclick="prevPage(4)">Previous</button>
+                        <button type="button" class="btn-prev" onclick="prevPage(3)">Previous</button>
                         <button type="submit" id="submit-btn">Submit Registration</button>
                     </div>
                 </div>
@@ -860,6 +962,9 @@
     </div>
 
     <script>
+        // KEEP ALL YOUR ORIGINAL JAVASCRIPT FUNCTIONS HERE
+        // They will work exactly the same with the new styling
+        
         let emailCheckTimeout;
 
         // Open Modal
@@ -884,12 +989,12 @@
             // Show the selected page
             document.getElementById('page' + pageNumber).classList.add('active');
             
-            // Update progress bar for 4 steps
+            // Update progress bar for 3 steps
             document.querySelectorAll('.progress-step').forEach(step => {
                 step.classList.remove('active', 'completed');
             });
             
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 3; i++) {
                 const step = document.getElementById('step' + i);
                 if (i < pageNumber) {
                     step.classList.add('completed');
@@ -925,7 +1030,22 @@
                 }
             });
             
-            // Special validation for email format and availability
+            // Special validation for page 1
+            if (pageNumber === 1) {
+                // Validate names
+                const firstName = document.getElementById('firstName');
+                const lastName = document.getElementById('lastName');
+                
+                if (firstName.value && !isValidNameFormat(firstName.value)) {
+                    isValid = false;
+                }
+                
+                if (lastName.value && !isValidNameFormat(lastName.value)) {
+                    isValid = false;
+                }
+            }
+            
+            // Special validation for page 2
             if (pageNumber === 2) {
                 const email = document.getElementById('email');
                 const emailValidation = document.getElementById('emailValidation');
@@ -941,38 +1061,14 @@
                     isValid = false;
                 }
                 
-                // Validate profile picture file type and size
-                const profilePicture = document.getElementById('profilePicture');
-                if (profilePicture.files.length > 0) {
-                    const file = profilePicture.files[0];
-                    const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-                    const maxSize = 2 * 1024 * 1024; // 2MB
-                    
-                    if (!validTypes.includes(file.type)) {
-                        alert('Please upload a valid image file (PNG, JPG, JPEG).');
-                        isValid = false;
-                    } else if (file.size > maxSize) {
-                        alert('Image file size must be less than 2MB.');
-                        isValid = false;
-                    }
+                // Validate phone numbers
+                if (!validatePhoneNumber()) {
+                    isValid = false;
                 }
-            }
-            
-            // Special validation for ID verification page
-            if (pageNumber === 4) {
-                const idPhoto = document.getElementById('idPhoto');
-                if (idPhoto.files.length > 0) {
-                    const file = idPhoto.files[0];
-                    const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-                    const maxSize = 2 * 1024 * 1024; // 2MB
-                    
-                    if (!validTypes.includes(file.type)) {
-                        alert('Please upload a valid ID image file (PNG, JPG, JPEG).');
-                        isValid = false;
-                    } else if (file.size > maxSize) {
-                        alert('ID image file size must be less than 2MB.');
-                        isValid = false;
-                    }
+                
+                // Validate profile picture file type and size
+                if (!validateProfilePicture()) {
+                    isValid = false;
                 }
             }
             
@@ -983,7 +1079,149 @@
             return isValid;
         }
 
-        // NEW: Email availability check
+        // Name validation to prevent all caps
+        function validateName(input) {
+            const value = input.value;
+            const fieldId = input.id;
+            const validationElement = document.getElementById(fieldId + 'Validation');
+            
+            if (!value) {
+                validationElement.style.display = 'none';
+                input.classList.remove('input-error');
+                return true;
+            }
+            
+            // Check if name is in all caps
+            if (value === value.toUpperCase()) {
+                validationElement.textContent = 'Please use proper capitalization (not all uppercase)';
+                validationElement.className = 'name-validation name-invalid';
+                validationElement.style.display = 'block';
+                input.classList.add('input-error');
+                return false;
+            }
+            
+            // Check if name contains only letters, spaces, hyphens, and apostrophes
+            if (!/^[A-Za-z\s\-']+$/.test(value)) {
+                validationElement.textContent = 'Name can only contain letters, spaces, hyphens, and apostrophes';
+                validationElement.className = 'name-validation name-invalid';
+                validationElement.style.display = 'block';
+                input.classList.add('input-error');
+                return false;
+            }
+            
+            // Check if name starts with a capital letter
+            if (!/^[A-Z]/.test(value)) {
+                validationElement.textContent = 'Name should start with a capital letter';
+                validationElement.className = 'name-validation name-invalid';
+                validationElement.style.display = 'block';
+                input.classList.add('input-error');
+                return false;
+            }
+            
+            validationElement.style.display = 'none';
+            input.classList.remove('input-error');
+            return true;
+        }
+        
+        function isValidNameFormat(name) {
+            return name && 
+                   name !== name.toUpperCase() && 
+                   /^[A-Za-z\s\-']+$/.test(name) && 
+                   /^[A-Z]/.test(name);
+        }
+
+        // Phone number validation - 11 digits starting with 09
+        function validatePhoneNumber() {
+            const phoneInput = document.getElementById('contactNumber');
+            const validationElement = document.getElementById('contactNumberValidation');
+            
+            if (!phoneInput.value) {
+                validationElement.style.display = 'none';
+                phoneInput.classList.remove('input-error');
+                return true;
+            }
+            
+            // Phone number validation: exactly 11 digits starting with 09
+            const phonePattern = /^09\d{9}$/;
+            const isValid = phonePattern.test(phoneInput.value.replace(/\s/g, ''));
+            
+            if (!isValid) {
+                validationElement.textContent = 'Enter a valid phone number';
+                validationElement.className = 'phone-validation phone-invalid';
+                validationElement.style.display = 'block';
+                phoneInput.classList.add('input-error');
+                return false;
+            } else {
+                validationElement.textContent = '';
+                validationElement.className = 'phone-validation phone-valid';
+                validationElement.style.display = 'block';
+                phoneInput.classList.remove('input-error');
+                return true;
+            }
+        }
+        
+        function validateAlternatePhoneNumber() {
+            const phoneInput = document.getElementById('alternateContactNumber');
+            const validationElement = document.getElementById('alternateContactNumberValidation');
+            
+            if (!phoneInput.value) {
+                validationElement.style.display = 'none';
+                phoneInput.classList.remove('input-error');
+                return true;
+            }
+            
+            // Phone number validation: exactly 11 digits starting with 09
+            const phonePattern = /^09\d{9}$/;
+            const isValid = phonePattern.test(phoneInput.value.replace(/\s/g, ''));
+            
+            if (!isValid) {
+                validationElement.textContent = 'Enter a valid phone number';
+                validationElement.className = 'phone-validation phone-invalid';
+                validationElement.style.display = 'block';
+                phoneInput.classList.add('input-error');
+                return false;
+            } else {
+                validationElement.textContent = '';
+                validationElement.className = 'phone-validation phone-valid';
+                validationElement.style.display = 'block';
+                phoneInput.classList.remove('input-error');
+                return true;
+            }
+        }
+
+        // Profile picture validation
+        function validateProfilePicture() {
+            const profilePicture = document.getElementById('profilePicture');
+            const validationElement = document.getElementById('profilePictureValidation');
+            
+            if (!profilePicture.files.length) {
+                validationElement.style.display = 'none';
+                profilePicture.classList.remove('input-error');
+                return true;
+            }
+            
+            const file = profilePicture.files[0];
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            
+            if (!validTypes.includes(file.type)) {
+                validationElement.textContent = 'Please upload a valid image file (PNG, JPG, JPEG).';
+                validationElement.style.display = 'block';
+                profilePicture.classList.add('input-error');
+                return false;
+            } else if (file.size > maxSize) {
+                validationElement.textContent = 'Image file size must be less than 2MB.';
+                validationElement.style.display = 'block';
+                profilePicture.classList.add('input-error');
+                return false;
+            } else {
+                validationElement.style.display = 'none';
+                profilePicture.classList.remove('input-error');
+                return true;
+            }
+        }
+
+        // Email availability check
         async function checkEmailAvailability() {
             const email = document.getElementById('email').value;
             const emailValidation = document.getElementById('emailValidation');
@@ -1024,43 +1262,6 @@
             }, 500);
         }
 
-        // ID Photo preview function
-        function previewIDPhoto(event) {
-            const input = event.target;
-            const preview = document.getElementById('idPhotoPreview');
-            
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                const maxSize = 2 * 1024 * 1024; // 2MB
-                const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-                
-                // Validate file type
-                if (!validTypes.includes(file.type)) {
-                    alert('Please upload a valid image file (PNG, JPG, JPEG).');
-                    input.value = '';
-                    preview.style.display = 'none';
-                    return;
-                }
-                
-                // Validate file size
-                if (file.size > maxSize) {
-                    alert('Image file size must be less than 2MB.');
-                    input.value = '';
-                    preview.style.display = 'none';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                preview.style.display = 'none';
-            }
-        }
-
         // Show success modal
         function showSuccessModal() {
             closeModal(); // Close the registration modal
@@ -1072,87 +1273,78 @@
             window.location.href = 'login';
         }
 
-        // Handle form submission - UPDATED FOR NO PASSWORD
+        // Handle form submission 
         document.getElementById('registerForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+          event.preventDefault();
 
-            // Validate all pages before submission
-            for (let i = 1; i <= 4; i++) {
-                if (!validatePage(i)) {
-                    showPage(i); // Show the first page with errors
-                    return;
-                }
+          // Validate all pages before submission
+          for (let i = 1; i <= 3; i++) {
+            if (!validatePage(i)) {
+              showPage(i); // Show the first page with errors
+              return;
             }
+          }
 
-            const formData = new FormData();
+          const formData = new FormData();
+          
+          // Personal Information
+          formData.append('lastName', document.getElementById('lastName').value);
+          formData.append('firstName', document.getElementById('firstName').value);
+          formData.append('middleName', document.getElementById('middleName').value);
+          formData.append('suffix', document.getElementById('suffix').value);
+          formData.append('birthdate', document.getElementById('birthdate').value);
+          formData.append('gender', document.getElementById('gender').value);
+          formData.append('civilStatus', document.getElementById('civilStatus').value);
+          formData.append('occupation', document.getElementById('occupation').value);
+          
+          // Contact Information
+          formData.append('email', document.getElementById('email').value);
+          formData.append('contactNumber', document.getElementById('contactNumber').value);
+          formData.append('alternateContactNumber', document.getElementById('alternateContactNumber').value);
+          
+          // Profile Picture
+          const profilePictureFile = document.getElementById('profilePicture').files[0];
+          if (profilePictureFile) {
+            formData.append('profilePicture', profilePictureFile);
+          }
+          
+          // Government Programs
+          formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
+          formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
+          formData.append('pwdMember', document.getElementById('pwdMember').checked);
+          formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
+          formData.append('soloParent', document.getElementById('soloParent').checked);
+          
+          // Address Information
+          formData.append('houseNumber', document.getElementById('houseNumber').value);
+          formData.append('street', document.getElementById('street').value);
+          formData.append('barangay', document.getElementById('barangay').value);
+          formData.append('homeownerStatus', document.getElementById('homeownerStatus').value);
+          formData.append('yearsResiding', document.getElementById('yearsResiding').value);
+          formData.append('monthlyIncome', document.getElementById('monthlyIncome').value);
+          formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
+
+          console.log("Submitting form data...");
+
+          try {       
+            const response = await fetch('/api/auth/register', {
+              method: 'POST',
+              body: formData,
+              credentials: 'include'
+            });
+
+            const result = await response.json();
+            console.log("Registration response:", result);
             
-            // Personal Information
-            formData.append('lastName', document.getElementById('lastName').value);
-            formData.append('firstName', document.getElementById('firstName').value);
-            formData.append('middleName', document.getElementById('middleName').value);
-            formData.append('suffix', document.getElementById('suffix').value);
-            formData.append('birthdate', document.getElementById('birthdate').value);
-            formData.append('gender', document.getElementById('gender').value);
-            formData.append('civilStatus', document.getElementById('civilStatus').value);
-            formData.append('occupation', document.getElementById('occupation').value);
-            
-            // Contact Information
-            formData.append('email', document.getElementById('email').value);
-            formData.append('contactNumber', document.getElementById('contactNumber').value);
-            formData.append('alternateContactNumber', document.getElementById('alternateContactNumber').value);
-            
-            // Profile Picture
-            const profilePictureFile = document.getElementById('profilePicture').files[0];
-            if (profilePictureFile) {
-                formData.append('profilePicture', profilePictureFile);
+            if (response.ok) {
+              showSuccessModal();
+            } else {
+              alert(result.message || result.error || 'Registration failed');
             }
-            
-            // Government Programs
-            formData.append('registeredVoter', document.getElementById('registeredVoter').checked);
-            formData.append('fourPsMember', document.getElementById('fourPsMember').checked);
-            formData.append('pwdMember', document.getElementById('pwdMember').checked);
-            formData.append('seniorCitizen', document.getElementById('seniorCitizen').checked);
-            formData.append('soloParent', document.getElementById('soloParent').checked);
-            
-            // Address Information
-            formData.append('houseNumber', document.getElementById('houseNumber').value);
-            formData.append('street', document.getElementById('street').value);
-            formData.append('barangay', document.getElementById('barangay').value);
-            formData.append('homeownerStatus', document.getElementById('homeownerStatus').value);
-            formData.append('yearsResiding', document.getElementById('yearsResiding').value);
-            formData.append('monthlyIncome', document.getElementById('monthlyIncome').value);
-            formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
-            
-            // ID Verification Data
-            formData.append('idType', document.getElementById('idType').value);
-            formData.append('idNumber', document.getElementById('idNumber').value);
-            
-            const idPhotoFile = document.getElementById('idPhoto').files[0];
-            if (idPhotoFile) {
-                formData.append('idPhoto', idPhotoFile);
-            }
-
-            console.log("Submitting form data...");
-
-            try {       
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-
-                const result = await response.json();
-                console.log("Registration response:", result);
-                
-                if (response.ok) {
-                    showSuccessModal();
-                } else {
-                    alert(result.message || result.error || 'Registration failed');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while registering.');
-            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while registering.');
+          }
         });
     </script>
 </body>
