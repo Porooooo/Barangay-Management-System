@@ -4,6 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Brgy. Talipapa Management System</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0d4f8b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="BTMS">
+  <meta name="description" content="Barangay Talipapa Management System - Empowering officials and residents through digital transformation">
+
+  <!-- Icons for iOS -->
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
+  <!-- Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -34,6 +48,86 @@
       scroll-behavior: smooth;
     }
 
+    /* PWA Installation Button Styles */
+    .install-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0d4f8b;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .install-btn.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .install-btn:hover {
+      background: #0a3d6c;
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+
+    /* Mobile-first improvements */
+    @media (max-width: 768px) {
+      /* Better touch targets */
+      button, .btn, a {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      /* Prevent zoom on input focus */
+      input, select, textarea {
+        font-size: 16px;
+      }
+      
+      /* Full-height app when installed */
+      .standalone body {
+        height: 100vh;
+        overflow: hidden;
+      }
+      
+      /* Hide browser UI elements when standalone */
+      .standalone .main-content {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      /* Adjust install button for mobile */
+      .install-btn {
+        bottom: 80px;
+        padding: 15px 25px;
+        font-size: 16px;
+      }
+    }
+
+    /* Safe area support for notches */
+    @supports(padding: max(0px)) {
+      body {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+      }
+    }
+
+    /* Rest of your existing CSS styles remain exactly the same */
     /* Header Styles */
     .top-header {
       background-color: var(--primary);
@@ -800,6 +894,11 @@
 </head>
 <body>
 
+  <!-- PWA Install Button -->
+  <button id="installBtn" class="install-btn">
+    <i class="fas fa-mobile-alt"></i> Install App
+  </button>
+
   <!-- Top Header -->
   <div class="top-header">
     <div class="top-header-container">
@@ -898,36 +997,34 @@
     </div>
   </section>
 
-  <!-- About Section -->
-  <section class="about" id="about">
-    <div class="about-container">
-      <div class="about-image">
-        <img src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Barangay Talipapa">
-      </div>
-      <div class="about-content">
-        <h2>About Barangay Talipapa</h2>
-        <p>Barangay Talipapa is a vibrant community in Cabanatuan City dedicated to providing efficient public service and fostering community development.</p>
-        <p>Our computerized record system empowers officials to better manage barangay activities while providing residents with convenient access to services and documents.</p>
-        
-        <div class="stats">
-          <div class="stat-item">
-            <span class="stat-number">5,000+</span>
-            <span class="stat-label">Registered Residents</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">25+</span>
-            <span class="stat-label">Years of Service</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">15</span>
-            <span class="stat-label">Puroks</span>
-          </div>
+ <!-- About Section -->
+<section class="about" id="about">
+  <div class="about-container">
+    <div class="about-image">
+      <img src="https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr4zGbl69cgv-Tr0YPQYmiJVnZZ9tgGbnEzum_m38fiA-AjAhYBshifsN2ZjoQtzt834tJOEs9iIxLmdwKfujWPQ07SuIlT80GjYqRid4Ra0ezsyCfXL3_nUf-2Fwi1eHIBOG3d=w408-h306-k-no" alt="Barangay Talipapa">
+    </div>
+    <div class="about-content">
+      <h2>About Barangay Talipapa</h2>
+      <p>Barangay Talipapa is a vibrant community in Cabanatuan City dedicated to providing efficient public service and fostering community development.</p>
+      <p>Our computerized record system empowers officials to better manage barangay activities while providing residents with convenient access to services and documents.</p>
+      
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-number">5,000+</span>
+          <span class="stat-label">Registered Residents</span>
         </div>
+        <div class="stat-item">
+          <span class="stat-number">25+</span>
+          <span class="stat-label">Years of Service</span>
         </div>
+        <div class="stat-item">
+          <span class="stat-number">15</span>
+          <span class="stat-label">Puroks</span>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
   <!-- Announcements Section -->
   <section class="announcements" id="announcements">
@@ -1074,6 +1171,63 @@
   </footer>
 
   <script>
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('SW registered: ', registration);
+          })
+          .catch(function(registrationError) {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+
+    // Detect when app is launched from home screen
+    window.addEventListener('load', function() {
+      if (window.navigator.standalone === true) {
+        // App launched from home screen
+        document.body.classList.add('standalone');
+      }
+    });
+
+    // PWA Installation Prompt
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      deferredPrompt = e;
+      
+      // Show install button
+      installBtn.classList.add('show');
+      
+      // Auto-hide after 15 seconds
+      setTimeout(() => {
+        if (installBtn.parentNode) {
+          installBtn.classList.remove('show');
+        }
+      }, 15000);
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        deferredPrompt = null;
+        installBtn.classList.remove('show');
+      }
+    });
+
+    window.addEventListener('appinstalled', (evt) => {
+      console.log('App was successfully installed');
+      installBtn.classList.remove('show');
+    });
+
     // Mobile Menu Toggle
     document.addEventListener('DOMContentLoaded', function() {
       const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
