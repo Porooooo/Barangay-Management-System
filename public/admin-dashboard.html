@@ -4,89 +4,238 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <title>BTMS Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Admin Dashboard - Barangay Talipapa</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0d4f8b;
+            --secondary: #e6a919;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #e74c3c;
+            --warning: #ffa000;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
+            background-attachment: fixed;
+            color: #333;
+            overflow-x: hidden;
+        }
 
-        /* Sidebar */
+        /* Sidebar Styles */
         .sidebar {
-            height: 100%;
-            width: 250px;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #333;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
+            color: #F8FAFC;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
-        .sidebar .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-        }
+
         .sidebar a {
-            padding: 15px;
+            display: flex;
+            align-items: center;
+            color: #E2E8F0;
+            padding: 12px 18px;
+            margin: 6px 12px;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            position: relative;
             text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            text-align: center;
-            transition: 0.3s;
         }
-        .sidebar a:hover { background-color: #5ECF89; }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover i {
+            color: #60A5FA;
+            transform: translateX(4px);
+            text-shadow: 0 0 10px #60A5FA;
+        }
+
+        .greeting-section {
+            padding: 20px 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .greeting {
+            font-size: 16px;
+            color: #E2E8F0;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .current-date {
+            font-size: 14px;
+            color: #94A3B8;
+            margin-bottom: 3px;
+        }
+
+        .current-time {
+            font-size: 14px;
+            color: #94A3B8;
+            font-weight: 500;
+        }
+
+        .logo-name {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-image img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo_name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            padding: 15px 0;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-links i {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .link-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-section {
+            padding: 15px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
         /* Main Content */
-        .dashboard {
-            position: relative;
-            left: 250px;
-            width: calc(100% - 250px);
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
             min-height: 100vh;
-            background-color: #f5f5f5;
-            transition: all 0.5s ease;
-        }
-
-        nav.close ~ .dashboard {
-            left: 78px;
-            width: calc(100% - 78px);
+            transition: all 0.3s ease;
         }
 
         .top {
-            position: relative;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background-color: #fff;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
         }
 
         .sidebar-toggle {
             font-size: 24px;
-            color: #333;
             cursor: pointer;
+            color: var(--primary);
+            display: none;
         }
 
-        .top h1 {
-            margin: 0 auto;
+        /* Header Right Section */
+        .header-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        /* Changing Text Styles */
+        .changing-text-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 45px;
+        }
+
+        .changing-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
             text-align: center;
+            animation: fadeInOut 5s ease-in-out infinite;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
+        @keyframes fadeInOut {
+            0%, 100% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            10%, 90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard Content */
         .dash-content {
-            padding: 20px;
+            margin-top: 10px;
         }
 
         /* Filter Controls */
@@ -94,7 +243,7 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
             display: flex;
             flex-wrap: wrap;
@@ -114,7 +263,7 @@
             font-size: 14px;
         }
 
-        .filter-group select {
+        .filter-group select, .filter-group input {
             padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -123,7 +272,7 @@
 
         .filter-btn {
             padding: 8px 15px;
-            background-color: #5ECF89;
+            background-color: var(--primary);
             color: white;
             border: none;
             border-radius: 5px;
@@ -137,7 +286,204 @@
         }
 
         .filter-btn:hover {
-            background-color: #4bb777;
+            background-color: #1c6ea4;
+        }
+
+        /* Summary Cards */
+        .boxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .box {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .box i {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .box .text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .box .number {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .box1 { 
+            border-top-color: var(--primary); 
+        }
+        .box1 i { color: var(--primary); }
+        .box1 .number { color: var(--primary); }
+
+        .box2 { 
+            border-top-color: var(--success); 
+        }
+        .box2 i { color: var(--success); }
+        .box2 .number { color: var(--success); }
+
+        .box3 { 
+            border-top-color: var(--warning); 
+        }
+        .box3 i { color: var(--warning); }
+        .box3 .number { color: var(--warning); }
+
+        .box4 { 
+            border-top-color: #9b59b6; 
+        }
+        .box4 i { color: #9b59b6; }
+        .box4 .number { color: #9b59b6; }
+
+        .box5 { 
+            border-top-color: #e74c3c; 
+        }
+        .box5 i { color: #e74c3c; }
+        .box5 .number { color: #e74c3c; }
+
+        .box6 { 
+            border-top-color: #3498db; 
+        }
+        .box6 i { color: #3498db; }
+        .box6 .number { color: #3498db; }
+
+        .box7 { 
+            border-top-color: #f39c12; 
+        }
+        .box7 i { color: #f39c12; }
+        .box7 .number { color: #f39c12; }
+
+        .box8 { 
+            border-top-color: #1abc9c; 
+        }
+        .box8 i { color: #1abc9c; }
+        .box8 .number { color: #1abc9c; }
+
+        /* Charts */
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            height: 350px;
+            position: relative;
+        }
+
+        .chart-container h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .chart-options {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-option-btn {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .chart-option-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Recent Activity */
+        .activity-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        .activity-section .title {
+            margin-bottom: 15px;
+        }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .activity-table th, .activity-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .activity-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-under-investigation { background-color: #d1ecf1; color: #0c5460; }
+        .status-resolved { background-color: #d4edda; color: #155724; }
+        .status-dismissed { background-color: #f8d7da; color: #721c24; }
+
+        .view-button {
+            background-color: var(--primary);
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .view-button:hover {
+            background-color: #1c6ea4;
+            transform: translateY(-2px);
         }
 
         /* Emergency Notification */
@@ -264,6 +610,7 @@
             justify-content: center;
             align-items: center;
             font-weight: bold;
+            border: 2px solid #ff4444;
         }
 
         @keyframes shake {
@@ -274,140 +621,12 @@
             100% { transform: rotate(0deg); }
         }
 
-        /* Summary Cards */
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .summary-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            position: relative;
-            border-left: 4px solid #5ECF89;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .summary-card i {
-            font-size: 2rem;
-            color: #5ECF89;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .summary-card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .summary-card .value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        /* Charts */
-        .chart-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .chart-container {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-            height: 350px;
-            position: relative;
-        }
-
-        .chart-container h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-
-        .chart-options {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .chart-option-btn {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .chart-option-btn.active {
-            background: #5ECF89;
-            color: white;
-            border-color: #5ECF89;
-        }
-
-        /* Recent Activity */
-        .activity-container {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .activity-item {
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            align-items: center;
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #f3e0b6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: #333;
-        }
-
-        .activity-details {
-            flex: 1;
-        }
-
-        .activity-time {
-            font-size: 0.8rem;
-            color: #888;
-        }
-
         /* Report Card Button */
         .report-card-btn {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background-color: #5ECF89;
+            background-color: var(--primary);
             color: white;
             width: 60px;
             height: 60px;
@@ -424,7 +643,7 @@
 
         .report-card-btn:hover {
             transform: scale(1.1);
-            background-color: #4bb777;
+            background-color: #1c6ea4;
         }
 
         /* Modal Overlay */
@@ -490,14 +709,14 @@
         }
         
         .report-header h2 {
-            color: #2c3e50;
+            color: var(--dark);
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
         .report-header h2 i {
-            color: #5ECF89;
+            color: var(--primary);
         }
         
         .export-buttons {
@@ -518,12 +737,12 @@
         }
         
         .btn-primary {
-            background-color: #5ECF89;
+            background-color: var(--primary);
             color: white;
         }
         
         .btn-primary:hover {
-            background-color: #4bb777;
+            background-color: #1c6ea4;
         }
         
         .btn-secondary {
@@ -599,7 +818,7 @@
         
         .report-chart-container h3 {
             margin-bottom: 15px;
-            color: #2c3e50;
+            color: var(--dark);
             text-align: center;
         }
         
@@ -614,7 +833,7 @@
         
         .data-table h3 {
             margin-bottom: 15px;
-            color: #2c3e50;
+            color: var(--dark);
         }
         
         table {
@@ -646,7 +865,7 @@
         
         .pagination button {
             padding:  8px 15px;
-            background-color: #5ECF89;
+            background-color: var(--primary);
             color: white;
             border: none;
             border-radius: 5px;
@@ -664,65 +883,163 @@
             color: #7f8c8d;
         }
 
+        /* Logout Modal */
+        #logoutModal .modal-content {
+            max-width: 350px;
+            text-align: center;
+        }
+
+        #logoutModal .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        #logoutModal .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #logoutModal .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        #logoutModal .confirm {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: #fff;
+        }
+
+        #logoutModal .cancel {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        #logoutModal .confirm:hover, #logoutModal .cancel:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: black;
+            transform: scale(1.1);
+        }
+
         /* Responsive Design */
         @media (max-width: 1024px) {
-            .summary-cards {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 15px;
+            .boxes {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-charts-section {
+                grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 768px) {
-            nav {
-                width: 78px;
+            .sidebar {
+                left: -100%;
+                width: 280px;
+                border-radius: 0 20px 20px 0;
             }
             
-            nav.close {
-                width: 0;
-            }
-            
-            .dashboard {
-                left: 78px;
-                width: calc(100% - 78px);
-            }
-            
-            nav.close ~ .dashboard {
+            .sidebar.active {
                 left: 0;
-                width: 100%;
             }
             
-            .logo_name, .link-name {
-                display: none;
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
             }
             
-            .nav-links li a {
-                justify-content: center;
+            .sidebar-toggle {
+                display: block;
             }
             
-            .nav-links li a i {
-                margin-right: 0;
+            .top {
+                padding: 12px 15px;
             }
-
-            .chart-row {
+            
+            .boxes {
                 grid-template-columns: 1fr;
-            }
-
-            .summary-card i {
-                font-size: 1.5rem;
-            }
-
-            .report-charts-section {
-                grid-template-columns: 1fr;
+                gap: 15px;
             }
             
-            .report-chart-container {
-                height: 300px;
+            .box {
+                padding: 20px;
             }
             
-            .report-summary-cards {
-                grid-template-columns: 1fr 1fr;
+            .report-card-btn {
+                bottom: 20px;
+                right: 20px;
             }
-
+            
+            .emergency-notification {
+                width: 90%;
+                top: 15px;
+                max-width: 350px;
+            }
+            
+            .chart-container {
+                height: auto;
+                min-height: 300px;
+            }
+            
             .report-modal {
                 width: 98%;
                 height: 95vh;
@@ -740,22 +1057,44 @@
             .filter-group {
                 width: 100%;
             }
+            
+            .activity-table {
+                display: block;
+                overflow-x: auto;
+            }
         }
 
         @media (max-width: 576px) {
-            .summary-cards {
-                grid-template-columns: 1fr 1fr;
+            .main-content {
+                padding: 10px;
             }
-
-            .summary-card .value {
-                font-size: 1.5rem;
+            
+            .top {
+                padding: 10px 12px;
             }
-
-            .chart-container {
-                height: auto;
-                min-height: 300px;
+            
+            .box {
+                padding: 15px;
             }
-
+            
+            .box i {
+                font-size: 28px;
+            }
+            
+            .box .text {
+                font-size: 14px;
+            }
+            
+            .box .number {
+                font-size: 18px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 20% auto;
+                padding: 20px;
+            }
+            
             .report-summary-cards {
                 grid-template-columns: 1fr;
             }
@@ -780,13 +1119,81 @@
                 min-width: 100%;
             }
         }
+
+        @media (max-width: 400px) {
+            .box .text, .box .number {
+                font-size: 13px;
+            }
+            
+            .activity-section {
+                padding: 15px;
+            }
+            
+            .activity-table th, .activity-table td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo-name">
+            <div class="logo-image">
+                <img src="images/barangay-bg.png" alt="BTMS Logo">
+            </div>
+            <span class="logo_name">Admin Panel</span>
+        </div>
+        
+        <div class="menu-items">
+            <ul class="nav-links">
+                <li><a href="/admin-dashboard" class="active">
+                    <i class="fas fa-home"></i>
+                    <span class="link-name">Dashboard</span>
+                </a></li>
+                <li><a href="/manage-residents">
+                    <i class="fas fa-users"></i>
+                    <span class="link-name">Manage Residents</span>
+                </a></li>
+                <li><a href="/adminRequests">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="link-name">Document Requests</span>
+                </a></li>
+                <li><a href="/admin-blotter">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="link-name">Blotter Reports</span>
+                </a></li>
+                <li><a href="/adminAnnounce">
+                    <i class="fas fa-bell"></i>
+                    <span class="link-name">Announcement</span>
+                </a></li>
+                <li><a href="/admin-approvals">
+                    <i class="fas fa-user-check"></i>
+                    <span class="link-name">Approval</span>
+                </a></li>
+                <li><a href="/emergency">
+                    <i class="fas fa-bell"></i>
+                    <span class="link-name">Emergency Alerts</span>
+                </a></li>
+            </ul>
+            
+            <!-- Logout Section -->
+            <div class="logout-section">
+                <a href="#" id="sidebarLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-name">Logout</span>
+                </a>
+            </div>
+        </div>
+        
+       
+    </nav>
+
     <!-- Emergency Notification -->
     <div id="emergencyNotification" class="emergency-notification">
         <div class="emergency-content">
-            <i class="uil uil-bell emergency-icon"></i>
+            <i class="fas fa-bell emergency-icon"></i>
             <div class="emergency-text">
                 <h3>EMERGENCY ALERT</h3>
                 <p id="emergencyMessage"></p>
@@ -799,31 +1206,189 @@
     </div>
 
     <!-- Emergency Emblem (Top Right Corner) -->
-    <div class="emergency-emblem" title="Emergency Alerts" onclick="window.location.href='emergency.html'">
-        <i class="uil uil-bell"></i>
+    <div class="emergency-emblem" title="Emergency Alerts" onclick="window.location.href='/emergency'">
+        <i class="fas fa-bell"></i>
         <span class="alert-count" id="emergencyAlertCount">0</span>
     </div>
 
     <!-- Report Card Button -->
     <div class="report-card-btn" title="Generate Report Card" onclick="toggleReportCard()">
-        <i class="uil uil-chart-bar"></i>
+        <i class="fas fa-chart-bar"></i>
     </div>
+
+    <!-- Main Content -->
+    <section class="main-content">
+        <div class="top">
+            <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <div class="header-right">
+                <div class="changing-text-container">
+                    <span class="changing-text" id="changingText">Admin Dashboard</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="dash-content">
+            <!-- Time Filter Controls -->
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="timeFilter">Time Period</label>
+                    <select id="timeFilter">
+                        <option value="all">All Time</option>
+                        <option value="year">This Year</option>
+                        <option value="month">This Month</option>
+                        <option value="week">This Week</option>
+                        <option value="today">Today</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="yearFilter">Specific Year</label>
+                    <select id="yearFilter">
+                        <option value="">Select Year</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="monthFilter">Specific Month</label>
+                    <select id="monthFilter">
+                        <option value="">Select Month</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dayFilter">Specific Day</label>
+                    <input type="date" id="dayFilter">
+                </div>
+                <button class="filter-btn" id="applyTimeFilter">
+                    <i class="fas fa-filter"></i> Apply Filter
+                </button>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="boxes">
+                <div class="box box1" onclick="location.href='/manage-residents'">
+                    <i class="fas fa-users"></i>
+                    <span class="text">Total Population</span>
+                    <span class="number" id="totalPopulation">0</span>
+                </div>
+                <div class="box box2" onclick="location.href='/manage-residents'">
+                    <i class="fas fa-check-circle"></i>
+                    <span class="text">Registered Voters</span>
+                    <span class="number" id="registeredVoters">0</span>
+                </div>
+                <div class="box box3" onclick="location.href='/admin-blotter'">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="text">Active Blotter Cases</span>
+                    <span class="number" id="blotterCases">0</span>
+                </div>
+                <div class="box box4" onclick="location.href='/adminRequests'">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="text">Document Requests</span>
+                    <span class="number" id="documentRequests">0</span>
+                </div>
+                <div class="box box5" onclick="location.href='/manage-residents'">
+                    <i class="fas fa-wheelchair"></i>
+                    <span class="text">PWD</span>
+                    <span class="number" id="pwdCount">0</span>
+                </div>
+                <div class="box box6" onclick="location.href='/manage-residents'">
+                    <i class="fas fa-user-arrows"></i>
+                    <span class="text">Senior Citizens</span>
+                    <span class="number" id="seniorCitizens">0</span>
+                </div>
+                <div class="box box7" onclick="location.href='/manage-residents'">
+                    <i class="fas fa-user-md"></i>
+                    <span class="text">Solo Parent</span>
+                    <span class="number" id="soloParentCount">0</span>
+                </div>
+                <div class="box box8" onclick="location.href='/manage-residents'">
+                    <i class="fas fa-users-alt"></i>
+                    <span class="text">4Ps Member</span>
+                    <span class="number" id="fourPsCount">0</span>
+                </div>
+            </div>
+
+            <!-- Charts Row 1 -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <h3>Age Distribution</h3>
+                    <canvas id="ageChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Gender Distribution</h3>
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <h3>Civil Status</h3>
+                    <canvas id="civilStatusChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Government Program Participation</h3>
+                    <canvas id="programChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Charts Row 3 - Time Series -->
+            <div class="chart-row">
+                <div class="chart-container">
+                    <h3>Registration Trends</h3>
+                    <canvas id="registrationTrendChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Monthly Activity</h3>
+                    <canvas id="monthlyActivityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <div class="title">
+                    <i class="fas fa-clock"></i>
+                    <span class="text">Recent Activity</span>
+                </div>
+                <div id="recentActivity">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="activity-details">
+                            Loading recent activity...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Modal Overlay -->
     <div id="reportModalOverlay" class="modal-overlay">
         <div class="report-modal">
             <div class="modal-close" onclick="closeReportModal()">
-                <i class="uil uil-times"></i>
+                <i class="fas fa-times"></i>
             </div>
             <div class="modal-content">
                 <div class="report-header">
-                    <h2><i class="uil uil-chart-bar"></i> Resident Report Card</h2>
+                    <h2><i class="fas fa-chart-bar"></i> Resident Report Card</h2>
                     <div class="export-buttons">
                         <button class="btn btn-primary" id="exportPDF">
-                            <i class="uil uil-file-export"></i> Export PDF
+                            <i class="fas fa-file-export"></i> Export PDF
                         </button>
                         <button class="btn btn-secondary" id="exportDOCS">
-                            <i class="uil uil-file-alt"></i> Export DOCS
+                            <i class="fas fa-file-alt"></i> Export DOCS
                         </button>
                     </div>
                 </div>
@@ -890,39 +1455,36 @@
                     </div>
                     <div class="apply-filters">
                         <button class="btn btn-primary" id="applyFilters">
-                            <i class="uil uil-filter"></i> Apply Filters
+                            <i class="fas fa-filter"></i> Apply Filters
                         </button>
                     </div>
                 </div>
                 
                 <div class="report-summary-cards">
-                    <div class="summary-card">
-                        <i class="uil uil-users-alt"></i>
-                        <h3>Total Population</h3>
-                        <div class="value" id="reportTotalPopulation">0</div>
+                    <div class="box box1">
+                        <i class="fas fa-users"></i>
+                        <span class="text">Total Population</span>
+                        <span class="number" id="reportTotalPopulation">0</span>
                     </div>
-                    <div class="summary-card">
-                        <i class="uil uil-user-check"></i>
-                        <h3>Active Residents</h3>
-                        <div class="value" id="reportActiveResidents">0</div>
+                    <div class="box box2">
+                        <i class="fas fa-user-check"></i>
+                        <span class="text">Active Residents</span>
+                        <span class="number" id="reportActiveResidents">0</span>
                     </div>
-                    <div class="summary-card">
-                        <i class="uil uil-user-minus"></i>
-                        <h3>Inactive Residents</h3>
-                        <div class="value" id="reportInactiveResidents">0</div>
+                    <div class="box box3">
+                        <i class="fas fa-user-minus"></i>
+                        <span class="text">Inactive Residents</span>
+                        <span class="number" id="reportInactiveResidents">0</span>
                     </div>
-            
                 </div>
                 
                 <div class="report-charts-section">
                     <div class="report-chart-container">
                         <h3>Age Distribution</h3>
-
                         <canvas id="reportAgeChart"></canvas>
                     </div>
                     <div class="report-chart-container">
                         <h3>Gender Distribution</h3>
-                        
                         <canvas id="reportGenderChart"></canvas>
                     </div>
                 </div>
@@ -930,12 +1492,10 @@
                 <div class="report-charts-section">
                     <div class="report-chart-container">
                         <h3>Civil Status</h3>
-                       
                         <canvas id="reportCivilStatusChart"></canvas>
                     </div>
                     <div class="report-chart-container">
                         <h3>Government Program Participation</h3>
-                        
                         <canvas id="reportProgramChart"></canvas>
                     </div>
                 </div>
@@ -971,225 +1531,22 @@
         </div>
     </div>
 
-    <nav>
-        <div class="logo-name">
-            <div class="logo-image">
-                <img src="images/barangay-bg.png" alt="BTMS Logo">
-            </div>
-            <span class="logo_name">Admin Panel</span>
-        </div>
-        <div class="menu-items">
-            <ul class="nav-links">
-                <li><a href="/admin-dashboard" class="active">
-                    <i class="uil uil-estate"></i>
-                    <span class="link-name">Dashboard</span>
-                </a></li>
-                <li><a href="/manage-residents">
-                    <i class="uil uil-users-alt"></i>
-                    <span class="link-name">Manage Residents</span>
-                </a></li>
-                <li><a href="/adminRequests">
-                    <i class="uil uil-file-alt"></i>
-                    <span class="link-name">Document Requests</span>
-                </a></li>
-                <li><a href="/admin-blotter">
-                    <i class="uil uil-file-shield-alt"></i>
-                    <span class="link-name">Blotter Reports</span>
-                </a></li>
-                <li><a href="/adminAnnounce">
-                    <i class="uil uil-megaphone"></i>
-                    <span class="link-name">Announcement</span>
-                </a></li>
-                <li><a href="/admin-approvals">
-                    <i class="uil uil-user-check"></i>
-                    <span class="link-name">Approval</span>
-                </a></li>
-                <li><a href="/emergency">
-                    <i class="uil uil-bell"></i>
-                    <span class="link-name">Emergency Alerts</span>
-                </a></li>
-            </ul>
-                
-            </ul>
-            <ul class="logout-mode">
-                <li><a href="/">
-                    <i class="uil uil-signout"></i>
-                    <span class="link-name">Logout</span>
-                </a></li>
-                <li class="mode">
-                    <a href="#">
-                        <i class="uil uil-moon"></i>
-                        <span class="link-name">Dark Mode</span>
-                    </a>
-                    <div class="mode-toggle">
-                        <span class="switch"></span>
-                    </div>
-                </li>
-                
-            </ul>
-        </div>
-    </nav>
-    
-    <section class="dashboard">
-        <div class="top">
-            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i> 
-            <h1><i class="uil uil-chart-bar"></i> Resident Statistics</h1>
-        </div><br><br>
-
-        <div class="dash-content">
-            <!-- Time Filter Controls -->
-            <div class="filter-controls">
-                <div class="filter-group">
-                    <label for="timeFilter">Time Period</label>
-                    <select id="timeFilter">
-                        <option value="all">All Time</option>
-                        <option value="year">This Year</option>
-                        <option value="month">This Month</option>
-                        <option value="week">This Week</option>
-                        <option value="today">Today</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="yearFilter">Specific Year</label>
-                    <select id="yearFilter">
-                        <option value="">Select Year</option>
-                        <!-- Will be populated by JavaScript -->
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="monthFilter">Specific Month</label>
-                    <select id="monthFilter">
-                        <option value="">Select Month</option>
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="dayFilter">Specific Day</label>
-                    <input type="date" id="dayFilter">
-                </div>
-                <button class="filter-btn" id="applyTimeFilter">
-                    <i class="uil uil-filter"></i> Apply Filter
-                </button>
-            </div>
-
-            <!-- Summary Cards -->
-            <div class="summary-cards">
-                <div class="summary-card">
-                    <i class="uil uil-users-alt"></i>
-                    <h3>Total Population</h3>
-                    <div class="value" id="totalPopulation">0</div>
-                </div>
-                <div class="summary-card">
-                    <i class="uil uil-check-circle"></i>
-                    <h3>Registered Voters</h3>
-                    <div class="value" id="registeredVoters">0</div>
-                </div>
-                
-                <div class="summary-card">
-                    <i class="uil uil-file-shield-alt"></i>
-                    <h3>Active Blotter Cases</h3>
-                    <div class="value" id="blotterCases">0</div>
-                </div>
-                <div class="summary-card">
-                    <i class="uil uil-file-alt"></i>
-                    <h3>Document Requests</h3>
-                    <div class="value" id="documentRequests">0</div>
-                </div>
-                <div class="summary-card">
-                    <i class="uil uil-wheelchair"></i>
-                    <h3>PWD</h3>
-                    <div class="value" id="pwdCount">0</div>
-                </div>
-                <div class="summary-card">
-                    <i class="uil uil-user-arrows"></i>
-                    <h3>Senior Citizens</h3>
-                    <div class="value" id="seniorCitizens">0</div>
-                </div>
-                <div class="summary-card">
-                    <i class="uil uil-user-md"></i>
-                    <h3>Solo Parent</h3>
-                    <div class="value" id="soloParentCount">0</div>
-                </div>
-                <div class="summary-card">
-                    <i class="uil uil-users-alt"></i>
-                    <h3>4Ps Member</h3>
-                    <div class="value" id="fourPsCount">0</div>
-                </div>
-            </div>
-
-            <!-- Charts Row 1 -->
-            <div class="chart-row">
-                <div class="chart-container">
-                    <h3>Age Distribution</h3>
-                    
-                    <canvas id="ageChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>Gender Distribution</h3>
-                    
-                    <canvas id="genderChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Charts Row 2 -->
-            <div class="chart-row">
-                <div class="chart-container">
-                    <h3>Civil Status</h3>
-                    
-                    <canvas id="civilStatusChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>Government Program Participation</h3>
-                   
-                    <canvas id="programChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Charts Row 3 - Time Series -->
-            <div class="chart-row">
-                <div class="chart-container">
-                    <h3>Registration Trends</h3>
-                   
-                    <canvas id="registrationTrendChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>Monthly Activity</h3>
-                    
-                    <canvas id="monthlyActivityChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="activity-container">
-                <h3>Recent Activity</h3>
-                <div id="recentActivity">
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="uil uil-info-circle"></i>
-                        </div>
-                        <div class="activity-details">
-                            Loading recent activity...
-                        </div>
-                    </div>
-                </div>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLogoutModal()">&times;</span>
+            <h3>Are you sure you want to logout?</h3>
+            <div class="modal-actions">
+                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
             </div>
         </div>
-    </section>
-
-    <script src="script.js"></script>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script>
         // Initialize socket connection
         const socket = io();
@@ -1217,14 +1574,75 @@
         // Chart instances
         const chartInstances = {};
 
+        // Changing text effect
+        const changingTexts = [
+            "Admin Dashboard",
+            "Barangay Management",
+            "Resident Statistics",
+            "System Overview",
+            "Welcome Administrator"
+        ];
+
+        let currentTextIndex = 0;
+
+        function updateChangingText() {
+            const changingTextElement = document.getElementById('changingText');
+            changingTextElement.style.opacity = '0';
+            changingTextElement.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % changingTexts.length;
+                changingTextElement.textContent = changingTexts[currentTextIndex];
+                changingTextElement.style.opacity = '1';
+                changingTextElement.style.transform = 'translateY(0)';
+            }, 500);
+        }
+
         // Toggle sidebar
         function toggleMenu() {
-            const sidebar = document.querySelector(".sidebar");
-            const mainContent = document.querySelector(".main-content");
-            sidebar.classList.toggle("active");
-            mainContent.classList.toggle("active");
-        } 
-        
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Update greeting and time
+        function updateGreetingAndTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            // Set greeting based on time of day
+            let greeting;
+            if (hours < 12) {
+                greeting = "Good Morning";
+            } else if (hours < 18) {
+                greeting = "Good Afternoon";
+            } else {
+                greeting = "Good Evening";
+            }
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            const dateString = now.toLocaleDateString('en-US', options);
+            
+            // Format time with AM/PM
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const formattedHours = hours % 12 || 12;
+            const timeString = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+            
+            // Update DOM elements
+            const greetingText = document.getElementById('greetingText');
+            const currentDate = document.getElementById('currentDate');
+            const currentTime = document.getElementById('currentTime');
+            
+            if (greetingText) greetingText.textContent = greeting;
+            if (currentDate) currentDate.textContent = dateString;
+            if (currentTime) currentTime.textContent = timeString;
+        }
+
+        // Update time every second
+        setInterval(updateGreetingAndTime, 1000);
+        updateGreetingAndTime(); // Initial call
+
         // Toggle report card modal
         function toggleReportCard() {
             const modalOverlay = document.getElementById('reportModalOverlay');
@@ -1252,39 +1670,21 @@
                 closeReportModal();
             }
         });
-        
-        // Add this script to check admin privileges before showing the register link
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    document.getElementById('adminRegisterLink').style.display = 'none';
-                    return;
-                }
 
-                const response = await fetch('/api/admin/check-auth', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+        // Function to update emergency alert count - FIXED VERSION
+        async function updateEmergencyAlertCount() {
+            try {
+                const response = await fetch('/api/emergency?status=pending');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch emergency alerts');
+                }
                 
                 const data = await response.json();
-                if (!data.isAuthenticated || !data.user || data.user.role !== 'admin') {
-                    document.getElementById('adminRegisterLink').style.display = 'none';
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                document.getElementById('adminRegisterLink').style.display = 'none';
-            }
-        });
-        
-        // Function to update emergency alert count
-        function updateEmergencyAlertCount() {
-            fetch('/api/emergency?status=pending')
-                .then(response => response.json())
-                .then(alerts => {
-                    const count = alerts.length;
-                    document.getElementById('emergencyAlertCount').textContent = count;
+                const count = data.alerts ? data.alerts.length : 0;
+                const alertCountElement = document.getElementById('emergencyAlertCount');
+                
+                if (alertCountElement) {
+                    alertCountElement.textContent = count;
                     
                     // Make the bell shake if there are new alerts
                     if (count > 0) {
@@ -1294,8 +1694,15 @@
                             emblem.style.animation = '';
                         }, 500);
                     }
-                })
-                .catch(error => console.error('Error:', error));
+                }
+            } catch (error) {
+                console.error('Error updating emergency alert count:', error);
+                // Set count to 0 on error
+                const alertCountElement = document.getElementById('emergencyAlertCount');
+                if (alertCountElement) {
+                    alertCountElement.textContent = '0';
+                }
+            }
         }
 
         // Show emergency notification
@@ -1355,6 +1762,7 @@
                 }
 
                 hideEmergencyNotification();
+                updateEmergencyAlertCount(); // Update count after acknowledging
             } catch (error) {
                 console.error('Acknowledge error:', error);
                 showNotification(`Error: ${error.message}`);
@@ -1383,6 +1791,7 @@
                 }
 
                 hideEmergencyNotification();
+                updateEmergencyAlertCount(); // Update count after resolving
             } catch (error) {
                 console.error('Resolve error:', error);
                 showNotification(`Error: ${error.message}`);
@@ -1427,13 +1836,117 @@
             updateEmergencyAlertCount();
         });
 
+        // Add this to the existing JavaScript in admin-dashboard.html
+
+// Function to handle emergency escalation notifications
+socket.on('emergencyEscalated', (alert) => {
+    console.log('Emergency alert escalated:', alert);
+    
+    // Show a special notification for escalated alerts
+    showEscalatedEmergencyNotification(alert);
+    
+    // Update emergency alert count
+    updateEmergencyAlertCount();
+});
+
+// Function to show escalated emergency notification
+function showEscalatedEmergencyNotification(alert) {
+    // Create a special notification for escalated alerts
+    const escalatedNotification = document.createElement('div');
+    escalatedNotification.className = 'emergency-notification escalated';
+    escalatedNotification.innerHTML = `
+        <div class="emergency-content">
+            <i class="fas fa-exclamation-triangle emergency-icon" style="color: #ff4444;"></i>
+            <div class="emergency-text">
+                <h3>🚨 ESCALATED EMERGENCY ALERT</h3>
+                <p><strong>${alert.residentName}:</strong> ${alert.message}</p>
+                <p style="font-size: 12px; color: #ff4444; margin: 5px 0;">
+                    <i class="fas fa-clock"></i> This alert was not acknowledged after 1 minute and has been escalated to admin email/SMS.
+                </p>
+                <div class="emergency-buttons">
+                    <button class="emergency-btn acknowledge-btn" onclick="acknowledgeEscalatedAlert('${alert._id}')">Respond Now</button>
+                    <button class="emergency-btn resolve-btn" onclick="resolveAlert('${alert._id}')">Resolve</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add special styles for escalated alerts
+    escalatedNotification.style.backgroundColor = '#fff3f3';
+    escalatedNotification.style.borderLeft = '5px solid #ff4444';
+    escalatedNotification.style.animation = 'pulse 2s infinite';
+    
+    document.body.appendChild(escalatedNotification);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+        if (escalatedNotification.parentNode) {
+            escalatedNotification.remove();
+        }
+    }, 10000);
+}
+
+// Function to acknowledge escalated alerts
+async function acknowledgeEscalatedAlert(alertId) {
+    try {
+        const adminMessage = prompt("This is an escalated emergency alert! Please enter your response:");
+        if (!adminMessage) return;
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/admin-login';
+            return;
+        }
+
+        const response = await fetch(`/api/emergency/${alertId}/respond`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ adminMessage })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to acknowledge escalated alert');
+        }
+
+        // Remove the escalated notification
+        const notifications = document.querySelectorAll('.emergency-notification.escalated');
+        notifications.forEach(notification => {
+            if (notification.querySelector(`button[onclick*="${alertId}"]`)) {
+                notification.remove();
+            }
+        });
+        
+        updateEmergencyAlertCount();
+        
+        showNotification('Escalated emergency alert acknowledged successfully!');
+    } catch (error) {
+        console.error('Acknowledge escalated alert error:', error);
+        showNotification(`Error: ${error.message}`);
+    }
+}
+
+// Add this CSS for the escalated notification animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
+    }
+    
+    .emergency-notification.escalated {
+        animation: pulse 2s infinite, slideIn 0.5s forwards;
+    }
+`;
+document.head.appendChild(style);
+
         // Request notification permission
         if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
-
-        // Initial count update
-        updateEmergencyAlertCount();
 
         // Function to calculate age from birthdate
         function calculateAge(birthdate) {
@@ -1614,7 +2127,7 @@
                 document.getElementById('recentActivity').innerHTML = `
                     <div class="activity-item">
                         <div class="activity-icon">
-                            <i class="uil uil-exclamation-triangle"></i>
+                            <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="activity-details">
                             Error loading data. Please try again later.
@@ -1625,17 +2138,16 @@
             }
         }
 
-        // Update summary cards with resident data
+        // Update summary cards with resident data - FIXED SENIOR CITIZENS COUNT
         function updateSummaryCards(residents, documentRequests, blotterCases) {
             // Calculate statistics (excluding admin users)
             const totalPopulation = residents.length;
             const registeredVoters = residents.filter(r => r.registeredVoter === true).length;
             const pwd = residents.filter(r => r.pwdMember === true).length;
-            const seniorCitizens = residents.filter(r => {
-                if (!r.birthdate) return false;
-                const age = calculateAge(r.birthdate);
-                return age >= 60;
-            }).length;
+            
+            // FIX: Use the seniorCitizen boolean field instead of calculating from birthdate
+            const seniorCitizens = residents.filter(r => r.seniorCitizen === true).length;
+            
             const soloParent = residents.filter(r => r.soloParent === true).length;
             const fourPsMember = residents.filter(r => r.fourPsMember === true).length;
 
@@ -1677,7 +2189,7 @@
                 datasets: [{
                     label: 'Number of Residents',
                     data: Object.values(ageGroups),
-                    backgroundColor: '#5ECF89',
+                    backgroundColor: '#0d4f8b',
                     borderWidth: 0
                 }]
             }, {
@@ -1706,7 +2218,7 @@
                 labels: Object.keys(genderCounts),
                 datasets: [{
                     data: Object.values(genderCounts),
-                    backgroundColor: ['#2c3e50', '#5ECF89', '#3498db'],
+                    backgroundColor: ['#2c3e50', '#0d4f8b', '#3498db'],
                     borderWidth: 0
                 }]
             }, {
@@ -1737,7 +2249,7 @@
                 labels: Object.keys(civilStatusCounts),
                 datasets: [{
                     data: Object.values(civilStatusCounts),
-                    backgroundColor: ['#2c3e50', '#5ECF89', '#3498db', '#e74c3c', '#f39c12'],
+                    backgroundColor: ['#2c3e50', '#0d4f8b', '#3498db', '#e74c3c', '#f39c12'],
                     borderWidth: 0
                 }]
             }, {
@@ -1755,11 +2267,7 @@
                 'Registered Voter': residents.filter(r => r.registeredVoter === true).length,
                 '4Ps Member': residents.filter(r => r.fourPsMember === true).length,
                 'PWD Member': residents.filter(r => r.pwdMember === true).length,
-                'Senior Citizen': residents.filter(r => {
-                    if (!r.birthdate) return false;
-                    const age = calculateAge(r.birthdate);
-                    return age >= 60;
-                }).length,
+                'Senior Citizen': residents.filter(r => r.seniorCitizen === true).length, // FIXED: Use boolean field
                 'Solo Parent': residents.filter(r => r.soloParent === true).length
             };
 
@@ -1773,7 +2281,7 @@
                         '#e74c3c', // Red for 4Ps Member
                         '#f39c12', // Orange for PWD Member
                         '#2c3e50', // Dark blue for Senior Citizen
-                        '#5ECF89'  // Green for Solo Parent
+                        '#0d4f8b'  // Primary blue for Solo Parent
                     ],
                     borderWidth: 0
                 }]
@@ -1808,8 +2316,8 @@
                 datasets: [{
                     label: 'Registrations',
                     data: Object.values(monthlyRegistrations),
-                    borderColor: '#5ECF89',
-                    backgroundColor: 'rgba(94, 207, 137, 0.1)',
+                    borderColor: '#0d4f8b',
+                    backgroundColor: 'rgba(13, 79, 139, 0.1)',
                     fill: true,
                     tension: 0.4
                 }]
@@ -1831,7 +2339,7 @@
                     {
                         label: 'Registrations',
                         data: monthlyData.registrations,
-                        backgroundColor: '#5ECF89'
+                        backgroundColor: '#0d4f8b'
                     },
                     {
                         label: 'Document Requests',
@@ -1931,7 +2439,7 @@
                 activityContainer.innerHTML = `
                     <div class="activity-item">
                         <div class="activity-icon">
-                            <i class="uil uil-info-circle"></i>
+                            <i class="fas fa-info-circle"></i>
                         </div>
                         <div class="activity-details">
                             No recent activity found
@@ -1948,7 +2456,7 @@
                 activityItem.className = 'activity-item';
                 activityItem.innerHTML = `
                     <div class="activity-icon">
-                        <i class="uil uil-user-plus"></i>
+                        <i class="fas fa-user-plus"></i>
                     </div>
                     <div class="activity-details">
                         <strong>${resident.fullName}</strong> registered as resident
@@ -1963,6 +2471,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             populateYearDropdown();
             fetchResidentData();
+            
+            // Initialize changing text
+            setInterval(updateChangingText, 5000);
             
             // Add event listeners for chart type buttons
             document.querySelectorAll('.chart-option-btn').forEach(button => {
@@ -1996,6 +2507,15 @@
                 
                 fetchResidentData();
             });
+
+            // Setup sidebar logout
+            setupSidebarLogout();
+
+            // Initialize emergency alert count
+            updateEmergencyAlertCount();
+            
+            // Set up periodic refresh of emergency alert count
+            setInterval(updateEmergencyAlertCount, 30000); // Refresh every 30 seconds
         });
 
         // Report Card Functions
@@ -2004,14 +2524,8 @@
             const programs = [];
             if (resident.registeredVoter) programs.push('Voter');
             if (resident.fourPsMember) programs.push('4Ps');
-            if (resident.registeredVoter) programs.push('Voter');
-            if (resident.fourPsMember) programs.push('4Ps');
             if (resident.pwdMember) programs.push('PWD');
-            
-            // Check if senior citizen based on age
-            const age = calculateAge(resident.birthdate);
-            if (age >= 60) programs.push('Senior');
-            
+            if (resident.seniorCitizen) programs.push('Senior'); // FIXED: Use boolean field
             if (resident.soloParent) programs.push('Solo Parent');
             
             return programs.join(', ') || 'None';
@@ -2101,10 +2615,7 @@
                     if (programFilter === 'registeredVoter' && !resident.registeredVoter) return false;
                     if (programFilter === 'fourPsMember' && !resident.fourPsMember) return false;
                     if (programFilter === 'pwdMember' && !resident.pwdMember) return false;
-                    if (programFilter === 'seniorCitizen') {
-                        const age = calculateAge(resident.birthdate);
-                        if (age < 60) return false;
-                    }
+                    if (programFilter === 'seniorCitizen' && !resident.seniorCitizen) return false; // FIXED: Use boolean field
                     if (programFilter === 'soloParent' && !resident.soloParent) return false;
                 }
                 
@@ -2166,7 +2677,7 @@
                         data: Object.keys(ageGroups)
                             .filter(key => key !== 'Unknown')
                             .map(key => ageGroups[key]),
-                        backgroundColor: '#5ECF89'
+                        backgroundColor: '#0d4f8b'
                     }]
                 },
                 options: {
@@ -2238,10 +2749,7 @@
                 'Registered Voter': residents.filter(r => r.registeredVoter).length,
                 '4Ps Member': residents.filter(r => r.fourPsMember).length,
                 'PWD Member': residents.filter(r => r.pwdMember).length,
-                'Senior Citizen': residents.filter(r => {
-                    const age = calculateAge(r.birthdate);
-                    return age >= 60;
-                }).length,
+                'Senior Citizen': residents.filter(r => r.seniorCitizen).length, // FIXED: Use boolean field
                 'Solo Parent': residents.filter(r => r.soloParent).length
             };
             
@@ -2316,84 +2824,84 @@
         }
         
         // Function to export to PDF with barangay logo and prepared by section
-function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-    // Use an absolute path to the logo - adjust based on your project structure
-    const logo = new Image();
-    logo.src = '/images/barangay-bg.png'; // Absolute path from public folder
-    
-    // Add error handling
-    logo.onerror = function() {
-        console.error('Failed to load logo image');
-        generatePDFWithoutLogo(doc); // Fallback function
-    };
+            // Use an absolute path to the logo - adjust based on your project structure
+            const logo = new Image();
+            logo.src = '/images/barangay-bg.png'; // Absolute path from public folder
+            
+            // Add error handling
+            logo.onerror = function() {
+                console.error('Failed to load logo image');
+                generatePDFWithoutLogo(doc); // Fallback function
+            };
 
-    logo.onload = function () {
-        // Add barangay logo (top left)
-        doc.addImage(logo, 'PNG', 15, 10, 25, 25);
+            logo.onload = function () {
+                // Add barangay logo (top left)
+                doc.addImage(logo, 'PNG', 15, 10, 25, 25);
 
-        // Add title at Y=65
-        doc.setFontSize(20);
-        doc.setTextColor(0, 0, 0);
-        doc.text('RESIDENT REPORT CARD', 105, 55, { align: 'center' });
+                // Add title at Y=65
+                doc.setFontSize(20);
+                doc.setTextColor(0, 0, 0);
+                doc.text('RESIDENT REPORT CARD', 105, 55, { align: 'center' });
 
-        // Add date below the title
-        doc.setFontSize(12);
-        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 65, { align: 'center' }); // Increased Y position from 55 to 75
+                // Add date below the title
+                doc.setFontSize(12);
+                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 65, { align: 'center' }); // Increased Y position from 55 to 75
 
-        // Add resident table heading
-        doc.setFontSize(16);
-        doc.text('Resident Details', 15, 80); // Increased Y position from 0 to 90
+                // Add resident table heading
+                doc.setFontSize(16);
+                doc.text('Resident Details', 15, 80); // Increased Y position from 0 to 90
 
-        // Prepare table data
-        const tableData = filteredResidents.map(resident => {
-            const age = calculateAge(resident.birthdate);
-            const programs = getProgramParticipation(resident);
+                // Prepare table data
+                const tableData = filteredResidents.map(resident => {
+                    const age = calculateAge(resident.birthdate);
+                    const programs = getProgramParticipation(resident);
 
-            return [
-                resident.fullName || 'N/A',
-                age !== null ? age.toString() : 'N/A',
-                resident.gender || 'N/A',
-                resident.civilStatus || 'N/A',
-                resident.status || 'N/A',
-                programs
-            ];
-        });
+                    return [
+                        resident.fullName || 'N/A',
+                        age !== null ? age.toString() : 'N/A',
+                        resident.gender || 'N/A',
+                        resident.civilStatus || 'N/A',
+                        resident.status || 'N/A',
+                        programs
+                    ];
+                });
 
-        // Add table - starting below the heading
-        doc.autoTable({
-            head: [['Name', 'Age', 'Gender', 'Civil Status', 'Status', 'Programs']],
-            body: tableData,
-            startY: 85, // Increased from 65 to 95 to position below the heading
-            theme: 'grid',
-            headStyles: {
-                fillColor: [94, 207, 137],
-                textColor: 255,
-                fontStyle: 'bold'
-            },
-            styles: {
-                fontSize: 10,
-                cellPadding: 3
-            },
-            margin: { left: 15, right: 15 }
-        });
+                // Add table - starting below the heading
+                doc.autoTable({
+                    head: [['Name', 'Age', 'Gender', 'Civil Status', 'Status', 'Programs']],
+                    body: tableData,
+                    startY: 85, // Increased from 65 to 95 to position below the heading
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [13, 79, 139],
+                        textColor: 255,
+                        fontStyle: 'bold'
+                    },
+                    styles: {
+                        fontSize: 10,
+                        cellPadding: 3
+                    },
+                    margin: { left: 15, right: 15 }
+                });
 
-        // Get the final Y position after the table
-        const finalY = doc.lastAutoTable.finalY + 20;
+                // Get the final Y position after the table
+                const finalY = doc.lastAutoTable.finalY + 20;
 
-        // Add "Prepared by" section at the bottom left
-        doc.setFontSize(12);
-        doc.text('Prepared by:', 15, finalY);
-        doc.text('_________________________', 15, finalY + 10);
-        doc.setFontSize(10);
-        doc.text('Barangay Secretary', 15, finalY + 20);
+                // Add "Prepared by" section at the bottom left
+                doc.setFontSize(12);
+                doc.text('Prepared by:', 15, finalY);
+                doc.text('_________________________', 15, finalY + 10);
+                doc.setFontSize(10);
+                doc.text('Barangay Secretary', 15, finalY + 20);
 
-        // Save the PDF
-        doc.save('resident-report-card.pdf');
-    };
-}
+                // Save the PDF
+                doc.save('resident-report-card.pdf');
+            };
+        }
         
         // Function to export to DOCS (simulated with text file)
         function exportToDOCS() {
@@ -2499,6 +3007,103 @@ function exportToPDF() {
                 });
             });
         });
+
+        // Logout functionality
+        async function logout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+
+                if (response && response.ok) {
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userId');
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function openLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'block';
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            closeLogoutModal();
+            logout();
+        }
+
+        // Sidebar logout functionality
+        function setupSidebarLogout() {
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+            if (sidebarLogoutBtn) {
+                sidebarLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openLogoutModal();
+                });
+            }
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const logoutModal = document.getElementById('logoutModal');
+            
+            if (event.target === logoutModal) {
+                closeLogoutModal();
+            }
+        });
+
+        // Set up logout button
+        document.getElementById('logoutBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            openLogoutModal();
+        });
+
+        // Helper function for notifications
+        function showNotification(message) {
+            // Simple notification implementation
+            alert(message);
+        }
+
+        // Function to check for unacknowledged alerts and send email after 1 minute
+function setupEmergencyEmailNotification() {
+    setInterval(async () => {
+        try {
+            const response = await fetch('/api/emergency?status=pending');
+            if (!response.ok) return;
+            
+            const data = await response.json();
+            const pendingAlerts = data.alerts || [];
+            
+            const now = new Date();
+            pendingAlerts.forEach(alert => {
+                const alertTime = new Date(alert.createdAt);
+                const timeDiff = now - alertTime;
+                const oneMinute = 60000; // 1 minute in milliseconds
+                
+                // If alert is older than 1 minute and no email sent yet
+                if (timeDiff > oneMinute && !alert.emailSent) {
+                    console.log(`Alert ${alert._id} is unacknowledged for over 1 minute`);
+                    // The email sending is handled by the backend, but we can trigger a reminder
+                    showNotification(`Emergency alert from ${alert.residentName} requires immediate attention!`);
+                }
+            });
+        } catch (error) {
+            console.error('Error checking emergency alerts:', error);
+        }
+    }, 30000); // Check every 30 seconds
+}
+
+// Call this function when the dashboard loads
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    setupEmergencyEmailNotification();
+});
     </script>
 </body>
 </html>

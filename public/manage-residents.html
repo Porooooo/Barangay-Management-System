@@ -4,92 +4,177 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>Manage Residents</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Manage Residents - Barangay Talipapa</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0d4f8b;
+            --secondary: #e6a919;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #e74c3c;
+            --warning: #ffa000;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+        
         * { 
             margin: 0; 
             padding: 0; 
             box-sizing: border-box; 
-            font-family: 'Poppins', sans-serif; 
         }
         
         body { 
             font-family: 'Poppins', sans-serif; 
-            background-color: #ffffff; 
-            overflow-x: hidden; 
+            background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
+            background-attachment: fixed;
+            color: #333;
+            overflow-x: hidden;
         }
 
-        /* Sidebar */
+        /* Sidebar Styles */
         .sidebar {
-            height: 100%;
-            width: 250px;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #333;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
+            color: #F8FAFC;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
-        .sidebar .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-        }
+
         .sidebar a {
-            padding: 15px;
+            display: flex;
+            align-items: center;
+            color: #E2E8F0;
+            padding: 12px 18px;
+            margin: 6px 12px;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            position: relative;
             text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            text-align: center;
-            transition: 0.3s;
         }
-        .sidebar a:hover { background-color: #5ECF89; }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover i {
+            color: #60A5FA;
+            transform: translateX(4px);
+            text-shadow: 0 0 10px #60A5FA;
+        }
+
+        .logo-name {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-image img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo_name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            padding: 15px 0;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-links i {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .link-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-section {
+            padding: 15px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
         /* Main Content */
-        .dashboard {
-            position: relative;
-            left: 250px;
-            width: calc(100% - 250px);
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
             min-height: 100vh;
-            background-color: #f5f5f5;
-            transition: all 0.5s ease;
-        }
-
-        nav.close ~ .dashboard {
-            left: 78px;
-            width: calc(100% - 78px);
+            transition: all 0.3s ease;
         }
 
         .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background-color: #fff;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
         }
 
         .sidebar-toggle {
             font-size: 24px;
-            color: #333;
             cursor: pointer;
+            color: var(--primary);
+            display: none;
         }
 
+        /* Dashboard Content */
         .dash-content {
-            padding: 20px;
+            margin-top: 10px;
         }
 
         .page-header {
@@ -105,21 +190,16 @@
             color: #333;
         }
 
-        .welcome-message {
-            font-size: 16px;
-            color: #666;
-        }
-
-        .welcome-message strong {
-            color: #333;
-            font-weight: 600;
-        }
-
         .table-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
             align-items: center;
-            margin-bottom: 15px;
         }
 
         .entries-info {
@@ -135,8 +215,9 @@
         .search-box input {
             padding: 8px 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 5px;
             margin-left: 10px;
+            background-color: white;
         }
 
         table {
@@ -144,12 +225,16 @@
             border-collapse: collapse;
             margin-top: 10px;
             font-size: 14px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         th, td {
             padding: 12px;
             text-align: left;
-            border: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         th {
@@ -171,7 +256,7 @@
             font-weight: 500;
         }
 
-        .status-inactive {
+        .status-banned {
             color: #dc3545;
             font-weight: 500;
         }
@@ -208,6 +293,10 @@
             margin-top: 15px;
             font-size: 14px;
             color: #666;
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .pagination {
@@ -220,32 +309,118 @@
             border: 1px solid #ddd;
             background: white;
             cursor: pointer;
+            border-radius: 4px;
         }
 
         .pagination button.active {
-            background: #007bff;
+            background: var(--primary);
             color: white;
-            border-color: #007bff;
+            border-color: var(--primary);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: black;
+            transform: scale(1.1);
+        }
+
+        /* Logout Modal */
+        #logoutModal .modal-content {
+            max-width: 350px;
+            text-align: center;
+        }
+
+        #logoutModal .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        #logoutModal .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #logoutModal .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        #logoutModal .confirm {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: #fff;
+        }
+
+        #logoutModal .cancel {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        #logoutModal .confirm:hover, #logoutModal .cancel:hover {
+            transform: translateY(-2px);
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            nav {
-                width: 200px;
-            }
-            .dashboard {
-                left: 200px;
-                width: calc(100% - 200px);
-            }
-            
+        @media (max-width: 1024px) {
             .table-controls {
                 flex-direction: column;
                 align-items: flex-start;
             }
             
             .search-box {
-                margin-top: 10px;
                 width: 100%;
+                margin-top: 10px;
             }
             
             .search-box input {
@@ -254,16 +429,28 @@
             }
         }
 
-        @media (max-width: 576px) {
-            nav {
-                width: 100%;
-                height: auto;
-                position: relative;
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -100%;
+                width: 280px;
+                border-radius: 0 20px 20px 0;
             }
             
-            .dashboard {
+            .sidebar.active {
                 left: 0;
-                width: 100%;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .top {
+                padding: 12px 15px;
             }
             
             .table-footer {
@@ -271,79 +458,96 @@
                 gap: 10px;
             }
         }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .top {
+                padding: 10px 12px;
+            }
+            
+            .table-controls {
+                padding: 15px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
-    <nav>
+    <!-- Sidebar -->
+    <nav class="sidebar">
         <div class="logo-name">
             <div class="logo-image">
                 <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
             <span class="logo_name">Admin Panel</span>
         </div>
+        
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="/admin-dashboard" class="active">
-                    <i class="uil uil-estate"></i>
+                <li><a href="/admin-dashboard">
+                    <i class="fas fa-home"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
-                <li><a href="/manage-residents">
-                    <i class="uil uil-users-alt"></i>
+                <li><a href="/manage-residents" class="active">
+                    <i class="fas fa-users"></i>
                     <span class="link-name">Manage Residents</span>
                 </a></li>
                 <li><a href="/adminRequests">
-                    <i class="uil uil-file-alt"></i>
+                    <i class="fas fa-file-alt"></i>
                     <span class="link-name">Document Requests</span>
                 </a></li>
                 <li><a href="/admin-blotter">
-                    <i class="uil uil-file-shield-alt"></i>
+                    <i class="fas fa-shield-alt"></i>
                     <span class="link-name">Blotter Reports</span>
                 </a></li>
                 <li><a href="/adminAnnounce">
-                    <i class="uil uil-megaphone"></i>
+                    <i class="fas fa-bell"></i>
                     <span class="link-name">Announcement</span>
                 </a></li>
                 <li><a href="/admin-approvals">
-                    <i class="uil uil-user-check"></i>
+                    <i class="fas fa-user-check"></i>
                     <span class="link-name">Approval</span>
                 </a></li>
                 <li><a href="/emergency">
-                    <i class="uil uil-bell"></i>
+                    <i class="fas fa-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
             </ul>
-                
-            </ul>
-            <ul class="logout-mode">
-                <li><a href="/">
-                    <i class="uil uil-signout"></i>
+            
+            <!-- Logout Section -->
+            <div class="logout-section">
+                <a href="#" id="sidebarLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
                     <span class="link-name">Logout</span>
-                </a></li>
-                <li class="mode">
-                    <a href="#">
-                        <i class="uil uil-moon"></i>
-                        <span class="link-name">Dark Mode</span>
-                    </a>
-                    <div class="mode-toggle">
-                        <span class="switch"></span>
-                    </div>
-                </li>
-                
-            </ul>
+                </a>
+            </div>
         </div>
     </nav>
-    <section class="dashboard">
+
+    <!-- Main Content -->
+    <section class="main-content">
         <div class="top">
-            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
             <div class="header">
-                <h1><i class="uil uil-users-alt"></i> Manage Residents</h1>
+                <h1><i class="fas fa-users"></i> Residents Lists</h1>
             </div>
-        </div><br><br>
+        </div>
 
         <div class="dash-content">
             <div class="page-header">
                 <div>
-                    <h2 class="page-title">Resident List</h2>
                 </div>
             </div>
 
@@ -393,19 +597,29 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLogoutModal()">&times;</span>
+            <h3>Are you sure you want to logout?</h3>
+            <div class="modal-actions">
+                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // Toggle sidebar
         function toggleMenu() {
-            const nav = document.querySelector("nav");
-            nav.classList.toggle("close");
+            document.querySelector('.sidebar').classList.toggle('active');
         }
-    
+
         let currentPage = 1;
         let entriesPerPage = 10;
         let totalPages = 1;
         let allResidents = [];
-    
+
         const residentsTableBody = document.getElementById('residentsTableBody');
         const entriesPerPageSelect = document.getElementById('entriesPerPage');
         const searchInput = document.getElementById('searchInput');
@@ -413,7 +627,7 @@
         const nextBtn = document.getElementById('nextBtn');
         const pageNumbersDiv = document.getElementById('pageNumbers');
         const entriesInfoDiv = document.getElementById('entriesInfo');
-    
+
         async function fetchResidents() {
             try {
                 const response = await fetch('/api/residents', {
@@ -423,13 +637,13 @@
                         'Content-Type': 'application/json'
                     }
                 });
-    
+
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
                     throw new Error(`Unexpected response: ${text}`);
                 }
-    
+
                 const data = await response.json();
                 allResidents = (data.residents || data).filter(user => user.role === 'resident');
                 updateTable();
@@ -438,7 +652,7 @@
                 residentsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Error loading data. Please try again.</td></tr>';
             }
         }
-    
+
         function filterResidents() {
             const searchTerm = searchInput.value.toLowerCase();
             return allResidents.filter(resident =>
@@ -448,13 +662,13 @@
                 (resident.isBanned ? 'banned' : 'active').includes(searchTerm)
             );
         }
-    
+
         function updateTable() {
             const filteredResidents = filterResidents();
             const startIndex = (currentPage - 1) * entriesPerPage;
             const endIndex = startIndex + entriesPerPage;
             const paginatedResidents = filteredResidents.slice(startIndex, endIndex);
-    
+
             residentsTableBody.innerHTML = paginatedResidents.length > 0 ?
                 paginatedResidents.map((resident, index) => `
                     <tr>
@@ -474,14 +688,14 @@
                     </tr>
                 `).join('') :
                 '<tr><td colspan="7" style="text-align: center;">No residents found</td></tr>';
-    
+
             totalPages = Math.ceil(filteredResidents.length / entriesPerPage);
             updatePagination();
-    
+
             const startEntry = filteredResidents.length > 0 ? startIndex + 1 : 0;
             const endEntry = Math.min(startIndex + entriesPerPage, filteredResidents.length);
             entriesInfoDiv.textContent = `Showing ${startEntry} to ${endEntry} of ${filteredResidents.length} entries`;
-    
+
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', () => viewResident(btn.dataset.id));
             });
@@ -489,11 +703,11 @@
                 btn.addEventListener('click', () => toggleResidentStatus(btn.dataset.id, btn));
             });
         }
-    
+
         function updatePagination() {
             prevBtn.disabled = currentPage === 1;
             nextBtn.disabled = currentPage === totalPages || totalPages === 0;
-    
+
             pageNumbersDiv.innerHTML = '';
             for (let i = 1; i <= totalPages; i++) {
                 const pageBtn = document.createElement('button');
@@ -506,17 +720,17 @@
                 pageNumbersDiv.appendChild(pageBtn);
             }
         }
-    
+
         function viewResident(id) {
-            window.location.href = `view-resident.html?id=${id}`;
+            window.location.href = `view-resident?id=${id}`;
         }
-    
+
         async function toggleResidentStatus(id, button) {
             const currentStatus = button.textContent.trim();
             const banAction = currentStatus === 'Disable';
-    
+
             if (!confirm(`Are you sure you want to ${currentStatus.toLowerCase()} this resident?`)) return;
-    
+
             try {
                 const response = await fetch(`/api/auth/${id}/${banAction ? 'ban' : 'unban'}`, {
                     method: 'POST',
@@ -525,13 +739,13 @@
                         'Content-Type': 'application/json'
                     }
                 });
-    
+
                 const contentType = response.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
                     throw new Error(`Unexpected response: ${text}`);
                 }
-    
+
                 const result = await response.json();
                 if (response.ok) {
                     alert(result.message || 'Resident status updated successfully');
@@ -544,33 +758,88 @@
                 alert('Error: ' + error.message);
             }
         }
-    
+
+        // Logout functionality
+        async function logout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+
+                if (response && response.ok) {
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userId');
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function openLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'block';
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            closeLogoutModal();
+            logout();
+        }
+
+        // Sidebar logout functionality
+        function setupSidebarLogout() {
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+            if (sidebarLogoutBtn) {
+                sidebarLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openLogoutModal();
+                });
+            }
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const logoutModal = document.getElementById('logoutModal');
+            
+            if (event.target === logoutModal) {
+                closeLogoutModal();
+            }
+        });
+
+        // Event listeners
         entriesPerPageSelect.addEventListener('change', () => {
             entriesPerPage = parseInt(entriesPerPageSelect.value);
             currentPage = 1;
             updateTable();
         });
-    
+
         searchInput.addEventListener('input', () => {
             currentPage = 1;
             updateTable();
         });
-    
+
         prevBtn.addEventListener('click', () => {
             if (currentPage > 1) {
                 currentPage--;
                 updateTable();
             }
         });
-    
+
         nextBtn.addEventListener('click', () => {
             if (currentPage < totalPages) {
                 currentPage++;
                 updateTable();
             }
         });
-    
-        document.addEventListener('DOMContentLoaded', fetchResidents);
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchResidents();
+            setupSidebarLogout();
+        });
     </script>
 </body>
 </html>

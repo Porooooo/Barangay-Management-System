@@ -4,80 +4,177 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>User Approvals - Barangay Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>User Approvals - Barangay Talipapa</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #f5f5f5; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0d4f8b;
+            --secondary: #e6a919;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #e74c3c;
+            --warning: #ffa000;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
+            background-attachment: fixed;
+            color: #333;
+            overflow-x: hidden;
+        }
 
-        /* Sidebar */
+        /* Sidebar Styles */
         .sidebar {
-            height: 100%;
-            width: 250px;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #333;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .sidebar .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-        }
-        .sidebar a {
-            padding: 15px;
-            text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            text-align: center;
-            transition: 0.3s;
-        }
-        .sidebar a:hover { background-color: #5ECF89; }
-        
-        /* Main Content */
-        .dashboard {
-            position: relative;
-            left: 250px;
-            width: calc(100% - 250px);
-            min-height: 100vh;
-            background-color: #f5f5f5;
-            transition: all 0.5s ease;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
+            color: #F8FAFC;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
 
-        nav.close ~ .dashboard {
-            left: 78px;
-            width: calc(100% - 78px);
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #E2E8F0;
+            padding: 12px 18px;
+            margin: 6px 12px;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            position: relative;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover i {
+            color: #60A5FA;
+            transform: translateX(4px);
+            text-shadow: 0 0 10px #60A5FA;
+        }
+
+        .logo-name {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-image img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo_name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            padding: 15px 0;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-links i {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .link-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-section {
+            padding: 15px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
         }
 
         .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background-color: #fff;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
         }
 
         .sidebar-toggle {
             font-size: 24px;
-            color: #333;
             cursor: pointer;
+            color: var(--primary);
+            display: none;
         }
 
+        /* Dashboard Content */
         .dash-content {
-            padding: 20px;
+            margin-top: 10px;
         }
 
         .page-header {
@@ -103,35 +200,35 @@
 
         .stat-card {
             background: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
+            border-top: 4px solid transparent;
         }
 
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .stat-card.active {
-            border-color: #5ECF89;
-            box-shadow: 0 4px 12px rgba(94, 207, 137, 0.3);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(13, 79, 139, 0.3);
         }
 
         .stat-card.pending {
-            border-left: 4px solid #ffa500;
+            border-top-color: var(--warning);
         }
 
         .stat-card.approved {
-            border-left: 4px solid #27ae60;
+            border-top-color: var(--success);
         }
 
         .stat-card.rejected {
-            border-left: 4px solid #e74c3c;
+            border-top-color: var(--danger);
         }
 
         .stat-number {
@@ -145,12 +242,12 @@
             font-size: 0.9em;
         }
 
-        /* Search and Filters */
+        /* Search Section */
         .search-section {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
         }
 
@@ -170,32 +267,31 @@
 
         .search-box button {
             padding: 10px 20px;
-            background: #5ECF89;
+            background: var(--primary);
             border: none;
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
             color: white;
+            font-weight: 500;
         }
 
         .search-box button:hover {
-            background: #4db777;
+            background: #1c6ea4;
         }
 
-        /* Users Table - UPDATED TO MATCH BLOTTER STYLE */
-        .users-table {
-            background: #fff;
-            padding: 1.8rem;
-            border-radius: 2rem;
-            box-shadow: 0 2rem 3rem rgba(132, 139, 200, 0.18);
-            transition: all 300ms ease;
-        }
-        .users-table:hover {
-            box-shadow: none;
+        /* Table Container */
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow-x: auto;
         }
 
         .table-header {
-            padding: 20px;
+            padding-bottom: 20px;
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
@@ -204,7 +300,7 @@
 
         .table-header h2 {
             font-size: 1.3em;
-            color: #2c3e50;
+            color: var(--dark);
         }
 
         .current-filter {
@@ -222,19 +318,23 @@
             margin-top: 10px;
             font-size: 14px;
         }
+
         th, td {
             padding: 12px;
             text-align: left;
-            border: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
         }
+
         th {
             background-color: #f8f9fa;
             font-weight: 600;
             color: #333;
         }
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         tr:hover {
             background-color: #f1f1f1;
         }
@@ -262,7 +362,7 @@
             color: #666;
         }
 
-        /* Action Buttons - UPDATED TO MATCH BLOTTER STYLE */
+        /* Action Buttons */
         .action-btn {
             padding: 5px 10px;
             margin-right: 5px;
@@ -272,29 +372,35 @@
             font-size: 12px;
             transition: all 0.3s;
         }
+
         .view-btn {
             background-color: #17a2b8;
             color: white;
         }
+
         .view-btn:hover {
             background-color: #115a65;
         }
+
         .approve-btn {
-            background-color: #28a745;
+            background-color: var(--success);
             color: white;
         }
+
         .approve-btn:hover {
             background-color: #175625;
         }
+
         .reject-btn {
-            background-color: #dc3545;
+            background-color: var(--danger);
             color: white;
         }
+
         .reject-btn:hover {
             background-color: #6a1c23;
         }
 
-        /* Status Badges - UPDATED TO MATCH BLOTTER STYLE */
+        /* Status Badges */
         .status {
             padding: 0.4rem 0.8rem;
             border-radius: 2rem;
@@ -302,14 +408,17 @@
             font-weight: 500;
             display: inline-block;
         }
+
         .status-pending {
             background: #fff3cd;
             color: #856404;
         }
+
         .status-approved {
             background: #d4edda;
             color: #155724;
         }
+
         .status-rejected {
             background: #f8d7da;
             color: #721c24;
@@ -373,12 +482,13 @@
 
         .modal-content {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 10px;
             max-width: 500px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .modal-header {
@@ -389,13 +499,20 @@
         }
 
         .modal-header h2 {
-            color: #2c3e50;
+            color: var(--dark);
+            font-size: 20px;
         }
 
         .close {
             font-size: 24px;
             cursor: pointer;
             color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--dark);
+            transform: scale(1.1);
         }
 
         .user-detail-item {
@@ -425,6 +542,11 @@
         .modal-actions .btn {
             flex: 1;
             padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
         }
 
         .rejection-reason {
@@ -457,7 +579,7 @@
         }
 
         .rejection-option.selected {
-            border-color: #5ECF89;
+            border-color: var(--primary);
             background: #f0f9f4;
         }
 
@@ -488,132 +610,227 @@
         }
 
         .notification.success {
-            background: #27ae60;
+            background: var(--success);
         }
 
         .notification.error {
-            background: #e74c3c;
+            background: var(--danger);
         }
 
         .notification.warning {
-            background: #f39c12;
+            background: var(--warning);
         }
 
         .notification.info {
-            background: #3498db;
+            background: var(--primary);
+        }
+
+        /* Logout Modal */
+        #logoutModal .modal-content {
+            max-width: 350px;
+            text-align: center;
+        }
+
+        #logoutModal .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        #logoutModal .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #logoutModal .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        #logoutModal .confirm {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: #fff;
+        }
+
+        #logoutModal .cancel {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        #logoutModal .confirm:hover, #logoutModal .cancel:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .stats-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         @media (max-width: 768px) {
-            .dashboard {
-                left: 0;
-                width: 100%;
+            .sidebar {
+                left: -100%;
+                width: 280px;
+                border-radius: 0 20px 20px 0;
             }
             
-            nav.close ~ .dashboard {
+            .sidebar.active {
                 left: 0;
-                width: 100%;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .top {
+                padding: 12px 15px;
             }
             
             .stats-container {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
-
-            .action-buttons {
-                flex-direction: column;
+            
+            .table-container {
+                padding: 15px;
             }
-
-            th, td {
-                padding: 8px;
-                font-size: 0.9em;
-            }
-
+            
             .modal-content {
                 width: 95%;
-                margin: 10px;
+                padding: 15px;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .modal-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .top {
+                padding: 10px 12px;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-box button {
+                width: 100%;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .action-btn {
+                width: 100%;
+                margin-right: 0;
             }
         }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <nav>
+    <nav class="sidebar">
         <div class="logo-name">
             <div class="logo-image">
                 <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
             <span class="logo_name">Admin Panel</span>
         </div>
+        
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="/admin-dashboard" class="active">
-                    <i class="uil uil-estate"></i>
+                <li><a href="/admin-dashboard">
+                    <i class="fas fa-home"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
                 <li><a href="/manage-residents">
-                    <i class="uil uil-users-alt"></i>
+                    <i class="fas fa-users"></i>
                     <span class="link-name">Manage Residents</span>
                 </a></li>
                 <li><a href="/adminRequests">
-                    <i class="uil uil-file-alt"></i>
+                    <i class="fas fa-file-alt"></i>
                     <span class="link-name">Document Requests</span>
                 </a></li>
                 <li><a href="/admin-blotter">
-                    <i class="uil uil-file-shield-alt"></i>
+                    <i class="fas fa-shield-alt"></i>
                     <span class="link-name">Blotter Reports</span>
                 </a></li>
                 <li><a href="/adminAnnounce">
-                    <i class="uil uil-megaphone"></i>
+                    <i class="fas fa-bell"></i>
                     <span class="link-name">Announcement</span>
                 </a></li>
-                <li><a href="/admin-approvals">
-                    <i class="uil uil-user-check"></i>
+                <li><a href="/admin-approvals" class="active">
+                    <i class="fas fa-user-check"></i>
                     <span class="link-name">Approval</span>
                 </a></li>
                 <li><a href="/emergency">
-                    <i class="uil uil-bell"></i>
+                    <i class="fas fa-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
             </ul>
-                
-            </ul>
-            <ul class="logout-mode">
-                <li><a href="/">
-                    <i class="uil uil-signout"></i>
+            
+            <!-- Logout Section -->
+            <div class="logout-section">
+                <a href="#" id="sidebarLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
                     <span class="link-name">Logout</span>
-                </a></li>
-                <li class="mode">
-                    <a href="#">
-                        <i class="uil uil-moon"></i>
-                        <span class="link-name">Dark Mode</span>
-                    </a>
-                    <div class="mode-toggle">
-                        <span class="switch"></span>
-                    </div>
-                </li>
-                
-            </ul>
+                </a>
+            </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <section class="dashboard">
+    <section class="main-content">
         <div class="top">
-            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
             <div class="header">
-                <h1><i class="uil uil-user-check"></i> User Approval Management</h1>
+                <h1><i class="fas fa-user-check"></i> User Approval Management</h1>
             </div>
-        </div><br><br>
+        </div>
 
         <div class="dash-content">
             <div class="page-header">
-                <h2 class="page-title">User Registration Requests</h2>
             </div>
 
             <!-- Search Section -->
             <div class="search-section">
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="Search by name, email, or contact number...">
-                    <button onclick="searchUsers()"><i class="uil uil-search"></i> Search</button>
+                    <button onclick="searchUsers()"><i class="fas fa-search"></i> Search</button>
                 </div>
             </div>
 
@@ -633,15 +850,15 @@
                 </div>
             </div>
 
-            <!-- Users Table - UPDATED STYLING -->
-            <div class="users-table">
+            <!-- Users Table -->
+            <div class="table-container">
                 <div class="table-header">
                     <h2 id="tableTitle">Select a status to view users</h2>
                     <div id="currentFilter" class="current-filter" style="display: none;"></div>
                 </div>
                 <div id="usersTableContainer">
                     <div id="initialState" class="initial-state">
-                        <i class="uil uil-users-alt"></i>
+                        <i class="fas fa-users"></i>
                         <h3>No Status Selected</h3>
                         <p>Click on one of the status cards above to view users</p>
                     </div>
@@ -660,10 +877,10 @@
                         </tbody>
                     </table>
                     <div id="loadingIndicator" class="loading" style="display: none;">
-                        <i class="uil uil-spinner uil-spin"></i> Loading users...
+                        <i class="fas fa-spinner fa-spin"></i> Loading users...
                     </div>
                     <div id="emptyState" class="empty-state" style="display: none;">
-                        <i class="uil uil-users-alt"></i>
+                        <i class="fas fa-users"></i>
                         <h3>No Users Found</h3>
                         <p>There are no users with the selected status.</p>
                     </div>
@@ -704,7 +921,7 @@
                         Cancel
                     </button>
                     <button class="btn approve-btn" onclick="confirmApproval()">
-                        <i class="uil uil-check"></i> Confirm Approval
+                        <i class="fas fa-check"></i> Confirm Approval
                     </button>
                 </div>
             </div>
@@ -751,9 +968,21 @@
                         Cancel
                     </button>
                     <button class="btn reject-btn" onclick="confirmRejection()">
-                        <i class="uil uil-times"></i> Confirm Rejection
+                        <i class="fas fa-times"></i> Confirm Rejection
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLogoutModal()">&times;</span>
+            <h3>Are you sure you want to logout?</h3>
+            <div class="modal-actions">
+                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -761,7 +990,6 @@
     <!-- Notification Area -->
     <div id="notificationArea"></div>
 
-    <script src="script.js"></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/index.min.js"></script>
 
@@ -773,8 +1001,7 @@
 
         // Toggle sidebar
         function toggleMenu() {
-            const sidebar = document.querySelector("nav");
-            sidebar.classList.toggle("close");
+            document.querySelector('.sidebar').classList.toggle('active');
         }
 
         // Check admin authentication
@@ -916,7 +1143,7 @@
             }   
         }
 
-        // Display users in table - UPDATED WITH NEW STYLING
+        // Display users in table
         function displayUsers(users, status) {
             const table = document.querySelector('table');
             const emptyState = document.getElementById('emptyState');
@@ -947,28 +1174,28 @@
                 if (status === 'pending') {
                     actionButtons = `
                         <button class="action-btn view-btn" onclick="viewUserDetails('${user._id}')">
-                            <i class="uil uil-eye"></i> View
+                            <i class="fas fa-eye"></i> View
                         </button>
                         <button class="action-btn approve-btn" onclick="showApprovalConfirmation('${user._id}')">
-                            <i class="uil uil-check"></i> Approve
+                            <i class="fas fa-check"></i> Approve
                         </button>
                         <button class="action-btn reject-btn" onclick="showRejectionModal('${user._id}')">
-                            <i class="uil uil-times"></i> Reject
+                            <i class="fas fa-times"></i> Reject
                         </button>
                     `;
                 } else if (status === 'rejected') {
                     actionButtons = `
                         <button class="action-btn view-btn" onclick="viewUserDetails('${user._id}')">
-                            <i class="uil uil-eye"></i> View
+                            <i class="fas fa-eye"></i> View
                         </button>
                         <button class="action-btn approve-btn" onclick="showApprovalConfirmation('${user._id}')">
-                            <i class="uil uil-check"></i> Approve
+                            <i class="fas fa-check"></i> Approve
                         </button>
                     `;
                 } else {
                     actionButtons = `
                         <button class="action-btn view-btn" onclick="viewUserDetails('${user._id}')">
-                            <i class="uil uil-eye"></i> View
+                            <i class="fas fa-eye"></i> View
                         </button>
                     `;
                 }
@@ -1053,16 +1280,16 @@
             if (user.approvalStatus === 'pending') {
                 actionButtons = `
                     <button class="action-btn approve-btn" onclick="showApprovalConfirmation('${user._id}')">
-                        <i class="uil uil-check"></i> Approve
+                        <i class="fas fa-check"></i> Approve
                     </button>
                     <button class="action-btn reject-btn" onclick="showRejectionModal('${user._id}')">
-                        <i class="uil uil-times"></i> Reject
+                        <i class="fas fa-times"></i> Reject
                     </button>
                 `;
             } else if (user.approvalStatus === 'rejected') {
                 actionButtons = `
                     <button class="action-btn approve-btn" onclick="showApprovalConfirmation('${user._id}')">
-                        <i class="uil uil-check"></i> Approve User
+                        <i class="fas fa-check"></i> Approve User
                     </button>
                 `;
             }
@@ -1295,10 +1522,10 @@
             notification.id = notificationId;
             notification.className = `notification ${type}`;
             notification.innerHTML = `
-                <i class="uil ${getNotificationIcon(type)}"></i>
+                <i class="fas ${getNotificationIcon(type)}"></i>
                 <span>${message}</span>
                 <button onclick="closeNotification('${notificationId}')" style="background: none; border: none; color: white; cursor: pointer; margin-left: auto;">
-                    <i class="uil uil-times"></i>
+                    <i class="fas fa-times"></i>
                 </button>
             `;
             
@@ -1331,17 +1558,67 @@
         // Get notification icon based on type
         function getNotificationIcon(type) {
             switch(type) {
-                case 'success': return 'uil-check-circle';
-                case 'error': return 'uil-times-circle';
-                case 'warning': return 'uil-exclamation-triangle';
-                default: return 'uil-info-circle';
+                case 'success': return 'fa-check-circle';
+                case 'error': return 'fa-times-circle';
+                case 'warning': return 'fa-exclamation-triangle';
+                default: return 'fa-info-circle';
             }
         }
+
+        // Logout functionality
+        async function logout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+
+                if (response && response.ok) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function openLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'block';
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            closeLogoutModal();
+            logout();
+        }
+
+        // Setup logout functionality
+        function setupLogout() {
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+            if (sidebarLogoutBtn) {
+                sidebarLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openLogoutModal();
+                });
+            }
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const logoutModal = document.getElementById('logoutModal');
+            
+            if (event.target === logoutModal) {
+                closeLogoutModal();
+            }
+        });
 
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             checkAdminAuth();
             loadApprovalStats();
+            setupLogout();
 
             // Add enter key support for search
             document.getElementById('searchInput').addEventListener('keypress', function(e) {

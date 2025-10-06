@@ -9,6 +9,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const fs = require('fs');
 const rateLimit = require('express-rate-limit');
+const nodemailer = require('nodemailer');
 
 const { startCleanupSchedule } = require('./middleware/announcementCleanup');
 const { authMiddleware, adminMiddleware } = require('./middleware/authMiddleware');
@@ -44,6 +45,26 @@ mongoose.connect(process.env.MONGO_URI, {
 .catch(err => {
   console.error("❌ MongoDB Atlas Connection Error:", err);
   process.exit(1);
+});
+
+// 📧 Email Transporter Configuration - FIXED: createTransport (not createTransporter)
+const emailTransporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE === 'true',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+// Verify email configuration
+emailTransporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Email configuration error:', error);
+  } else {
+    console.log('✅ Email server is ready to send messages');
+  }
 });
 
 // 📁 Ensure uploads directory
@@ -125,8 +146,9 @@ app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ⚡ Make Socket Available to Routes
+// ⚡ Make Socket and Email Transporter Available to Routes
 app.set('io', io);
+app.set('emailTransporter', emailTransporter);
 
 // 🔐 Rate Limit
 const limiter = rateLimit({
@@ -337,4 +359,5 @@ process.on('SIGTERM', gracefulShutdown);
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 Access via: ${process.env.FRONTEND_URL || `http://localhost:${PORT}`}`);
+  console.log(`📧 Email system: ${process.env.EMAIL_USER ? 'Configured' : 'Not configured'}`);
 });

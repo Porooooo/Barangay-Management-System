@@ -36,6 +36,20 @@ const checkNotBanned = async (req, res, next) => {
     }
 };
 
+// Helper function to get user profile picture URL
+const getUserProfilePicture = (user) => {
+    if (!user) return '/images/default-profile.png';
+    
+    if (user.profilePicture) {
+        if (user.profilePicture.startsWith('http') || user.profilePicture.startsWith('/')) {
+            return user.profilePicture;
+        } else {
+            return '/uploads/' + user.profilePicture;
+        }
+    }
+    return '/images/default-profile.png';
+};
+
 // Create a new document request
 router.post("/", verifySession, checkNotBanned, async (req, res) => {
     try {
@@ -136,8 +150,9 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
             ];
         }
 
-        // Fetch requests
+        // Fetch requests with user data populated
         const requests = await Request.find(query)
+            .populate('userId', 'fullName profilePicture') // Populate user data
             .sort({ createdAt: -1 })
             .lean();
 
@@ -145,6 +160,16 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
         const formattedRequests = requests.map(request => {
             const createdAt = new Date(request.createdAt);
             const updatedAt = new Date(request.updatedAt);
+            
+            // Get user data if populated
+            const userProfile = request.userId ? {
+                profilePicture: getUserProfilePicture(request.userId),
+                fullName: request.userId.fullName || request.fullName || 'Unknown User'
+            } : {
+                profilePicture: '/images/default-profile.png',
+                fullName: request.fullName || 'Unknown User'
+            };
+
             return {
                 ...request,
                 id: request._id.toString(),
@@ -153,7 +178,8 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
                     : request.documentTypes || 'N/A',
                 formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
                 formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-                updatedAt: isValid(updatedAt) ? updatedAt : new Date()
+                updatedAt: isValid(updatedAt) ? updatedAt : new Date(),
+                userProfile: userProfile
             };
         });
 
@@ -173,10 +199,23 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
         const requests = await Request.find({ 
             userId: req.session.userId,
             status: { $ne: "Claimed" }
-        }).sort({ createdAt: -1 }).lean();
+        })
+        .populate('userId', 'fullName profilePicture')
+        .sort({ createdAt: -1 })
+        .lean();
 
         const formattedRequests = requests.map(request => {
             const createdAt = new Date(request.createdAt);
+            
+            // Get user data if populated
+            const userProfile = request.userId ? {
+                profilePicture: getUserProfilePicture(request.userId),
+                fullName: request.userId.fullName || request.fullName || 'Unknown User'
+            } : {
+                profilePicture: '/images/default-profile.png',
+                fullName: request.fullName || 'Unknown User'
+            };
+
             return {
                 ...request,
                 id: request._id.toString(),
@@ -184,7 +223,8 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
                     ? request.documentTypes.join(', ') 
                     : request.documentTypes || 'N/A',
                 formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-                formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
+                formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
+                userProfile: userProfile
             };
         });
 
@@ -208,7 +248,7 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
                 updatedAt: new Date()
             },
             { new: true }
-        );
+        ).populate('userId', 'fullName profilePicture');
 
         if (!request) {
             return res.status(404).json({ 
@@ -218,6 +258,16 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
         }
 
         const createdAt = new Date(request.createdAt);
+        
+        // Get user data if populated
+        const userProfile = request.userId ? {
+            profilePicture: getUserProfilePicture(request.userId),
+            fullName: request.userId.fullName || request.fullName || 'Unknown User'
+        } : {
+            profilePicture: '/images/default-profile.png',
+            fullName: request.fullName || 'Unknown User'
+        };
+
         const formattedRequest = {
             ...request.toObject(),
             id: request._id.toString(),
@@ -225,7 +275,8 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
             formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
+            userProfile: userProfile
         };
 
         req.app.get('io').emit('request-update', {
@@ -266,7 +317,7 @@ router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
                 updatedAt: new Date()
             },
             { new: true }
-        );
+        ).populate('userId', 'fullName profilePicture');
 
         if (!request) {
             return res.status(404).json({ 
@@ -276,6 +327,16 @@ router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
         }
 
         const createdAt = new Date(request.createdAt);
+        
+        // Get user data if populated
+        const userProfile = request.userId ? {
+            profilePicture: getUserProfilePicture(request.userId),
+            fullName: request.userId.fullName || request.fullName || 'Unknown User'
+        } : {
+            profilePicture: '/images/default-profile.png',
+            fullName: request.fullName || 'Unknown User'
+        };
+
         const formattedRequest = {
             ...request.toObject(),
             id: request._id.toString(),
@@ -283,7 +344,8 @@ router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
             formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
+            userProfile: userProfile
         };
 
         req.app.get('io').emit('request-update', {
@@ -314,7 +376,7 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
                 updatedAt: new Date()
             },
             { new: true }
-        );
+        ).populate('userId', 'fullName profilePicture');
 
         if (!request) {
             return res.status(404).json({ 
@@ -324,6 +386,16 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
         }
 
         const createdAt = new Date(request.createdAt);
+        
+        // Get user data if populated
+        const userProfile = request.userId ? {
+            profilePicture: getUserProfilePicture(request.userId),
+            fullName: request.userId.fullName || request.fullName || 'Unknown User'
+        } : {
+            profilePicture: '/images/default-profile.png',
+            fullName: request.fullName || 'Unknown User'
+        };
+
         const formattedRequest = {
             ...request.toObject(),
             id: request._id.toString(),
@@ -331,7 +403,8 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
             formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
+            userProfile: userProfile
         };
 
         req.app.get('io').emit('request-update', {
@@ -362,7 +435,7 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
                 updatedAt: new Date()
             },
             { new: true }
-        );
+        ).populate('userId', 'fullName profilePicture');
 
         if (!request) {
             return res.status(404).json({ 
@@ -381,6 +454,16 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
         }
 
         const createdAt = new Date(request.createdAt);
+        
+        // Get user data if populated
+        const userProfile = request.userId ? {
+            profilePicture: getUserProfilePicture(request.userId),
+            fullName: request.userId.fullName || request.fullName || 'Unknown User'
+        } : {
+            profilePicture: '/images/default-profile.png',
+            fullName: request.fullName || 'Unknown User'
+        };
+
         const formattedRequest = {
             ...request.toObject(),
             id: request._id.toString(),
@@ -388,7 +471,8 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
             formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
+            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
+            userProfile: userProfile
         };
 
         req.app.get('io').emit('request-update', {
@@ -482,6 +566,93 @@ router.post("/cleanup", verifySession, checkNotBanned, async (req, res) => {
         res.status(500).json({ 
             error: "Server error",
             message: "Failed to clean up archived requests. Please try again later."
+        });
+    }
+});
+
+// Bulk actions for requests
+router.post("/bulk-action", verifySession, checkNotBanned, async (req, res) => {
+    try {
+        const { requestIds, action, rejectionReason } = req.body;
+
+        if (!requestIds || !Array.isArray(requestIds) || requestIds.length === 0) {
+            return res.status(400).json({ 
+                error: "Validation error", 
+                message: "Request IDs are required" 
+            });
+        }
+
+        if (!['approve', 'reject', 'ready'].includes(action)) {
+            return res.status(400).json({ 
+                error: "Validation error", 
+                message: "Invalid action" 
+            });
+        }
+
+        let updateData = {};
+        switch (action) {
+            case 'approve':
+                updateData.status = 'Approved';
+                break;
+            case 'reject':
+                updateData.status = 'Rejected';
+                if (rejectionReason) {
+                    updateData.rejectionReason = rejectionReason;
+                }
+                break;
+            case 'ready':
+                updateData.status = 'Ready to Claim';
+                break;
+        }
+
+        updateData.updatedAt = new Date();
+
+        const result = await Request.updateMany(
+            { _id: { $in: requestIds } },
+            updateData
+        );
+
+        // Emit updates for each request
+        const updatedRequests = await Request.find({ _id: { $in: requestIds } })
+            .populate('userId', 'fullName profilePicture')
+            .lean();
+
+        updatedRequests.forEach(request => {
+            const createdAt = new Date(request.createdAt);
+            const userProfile = request.userId ? {
+                profilePicture: getUserProfilePicture(request.userId),
+                fullName: request.userId.fullName || request.fullName || 'Unknown User'
+            } : {
+                profilePicture: '/images/default-profile.png',
+                fullName: request.fullName || 'Unknown User'
+            };
+
+            const formattedRequest = {
+                ...request,
+                id: request._id.toString(),
+                documentType: Array.isArray(request.documentTypes) 
+                    ? request.documentTypes.join(', ') 
+                    : request.documentTypes || 'N/A',
+                formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
+                formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
+                userProfile: userProfile
+            };
+
+            req.app.get('io').emit('request-update', {
+                type: 'updated',
+                request: formattedRequest
+            });
+        });
+
+        res.status(200).json({
+            message: `Successfully ${action}ed ${result.modifiedCount} request(s)`,
+            processedCount: result.modifiedCount
+        });
+    } catch (error) {
+        console.error("Error performing bulk action:", error);
+        res.status(500).json({ 
+            error: "Server error",
+            message: "Failed to perform bulk action. Please try again later."
         });
     }
 });

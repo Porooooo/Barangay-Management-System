@@ -4,901 +4,1624 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>Announcements</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Document Requests - Barangay Talipapa</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0d4f8b;
+            --secondary: #e6a919;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #e74c3c;
+            --warning: #ffa000;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+        
         * { 
             margin: 0; 
             padding: 0; 
             box-sizing: border-box; 
-            font-family: 'Poppins', sans-serif; 
         }
         
-        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; overflow-x: hidden; }
-        /* Main Content */
-        .dashboard {
-            position: relative;
-            left: 250px;
-            width: calc(100% - 250px);
-            min-height: 100vh;
-            background-color: #f0f2f5;
-            transition: all 0.5s ease;
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
+            background-attachment: fixed;
+            color: #333;
+            overflow-x: hidden;
         }
 
-        nav.close ~ .dashboard {
-            left: 78px;
-            width: calc(100% - 78px);
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
+            color: #F8FAFC;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #E2E8F0;
+            padding: 12px 18px;
+            margin: 6px 12px;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            position: relative;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover i {
+            color: #60A5FA;
+            transform: translateX(4px);
+            text-shadow: 0 0 10px #60A5FA;
+        }
+
+        .logo-name {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-image img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo_name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            padding: 15px 0;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-links i {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .link-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-section {
+            padding: 15px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
         }
 
         .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background-color: #fff;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
         }
 
         .sidebar-toggle {
             font-size: 24px;
-            color: #333;
             cursor: pointer;
+            color: var(--primary);
+            display: none;
         }
 
+        /* Dashboard Content */
         .dash-content {
-            padding: 20px;
+            margin-top: 10px;
         }
 
-        /* Facebook-style posts */
-        .announcements-list {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .post {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            padding: 16px;
         }
 
-        .post-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .post-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
-            border: 2px solid #e0e0e0;
-        }
-
-        .post-user-info {
-            flex: 1;
-        }
-
-        .post-username {
+        .page-title {
+            font-size: 24px;
             font-weight: 600;
-            margin: 0;
-            color: #050505;
-        }
-
-        .post-time {
-            font-size: 12px;
-            color: #65676B;
-            margin: 0;
-        }
-
-        .post-content {
-            margin-bottom: 12px;
-        }
-
-        .post-title {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: #050505;
-        }
-
-        .post-text {
-            color: #050505;
-            line-height: 1.4;
-            margin-bottom: 12px;
-        }
-
-        .post-image {
-            width: 100%;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .post-footer {
-            border-top: 1px solid #E4E6EB;
-            padding-top: 12px;
-        }
-
-        .post-actions {
-            display: flex;
-            margin-bottom: 8px;
-        }
-
-        .post-action-btn {
-            background: none;
-            border: none;
-            color: #65676B;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .post-action-btn:hover {
-            background-color: #f0f2f5;
-        }
-
-        .comments-section {
-            margin-top: 12px;
-        }
-
-        .comment-form {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .comment-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-
-        .comment-submit {
-            background-color: #5ECF89;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        .comments-list {
-            margin-top: 12px;
-        }
-
-        .comment {
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f2f5;
-        }
-
-        .comment:last-child {
-            border-bottom: none;
-        }
-
-        .comment-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .comment-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 8px;
-            object-fit: cover;
-            border: 2px solid #e0e0e0;
-        }
-
-        .comment-user {
-            font-weight: 600;
-            font-size: 14px;
-            color: #050505;
-        }
-
-        .comment-time {
-            font-size: 12px;
-            color: #65676B;
-            margin-left: 8px;
-        }
-
-        .comment-text {
-            font-size: 14px;
-            color: #050505;
-            margin-left: 40px;
-        }
-
-        .comment-reply {
-            font-size: 12px;
-            color: #65676B;
-            margin-left: 40px;
-            cursor: pointer;
-        }
-
-        .comment-count-badge {
-            background-color: #5ECF89;
-            color: white;
-            border-radius: 10px;
-            padding: 2px 6px;
-            font-size: 11px;
-            margin-left: 5px;
-            min-width: 18px;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .reply-form {
-            margin-left: 40px;
-            margin-top: 8px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .reply-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-
-        .reply-submit {
-            background-color: #5ECF89;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        .target-badge {
-            background-color: #e9ecef;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-right: 5px;
-            display: inline-block;
-            margin-bottom: 5px;
-        }
-
-        .no-announcements {
-            text-align: center;
-            padding: 40px;
-            background-color: #fff;
-            border-radius: 8px;
-            color: #65676B;
-        }
-
-        /* Admin comment styling */
-        .admin-comment {
-            background-color: #f0f8ff;
-            border-left: 3px solid #5ECF89;
-            padding: 8px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .admin-reply {
-            background-color: #f0f8ff;
-            border-left: 3px solid #5ECF89;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .admin-user {
-            color: #5ECF89;
-            font-weight: bold;
-        }
-
-        /* Resident user styling */
-        .resident-user {
             color: #333;
-            font-weight: 600;
         }
 
-        .resident-comment {
-            background-color: #f8f9fa;
-            border-left: 3px solid #6c757d;
+        /* Archive controls */
+        .archive-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        .resident-reply {
-            background-color: #f8f9fa;
-            border-left: 3px solid #6c757d;
+        .archive-toggle {
+            display: flex;
+            gap: 10px;
         }
 
-        /* View Image Button */
-        .view-image-btn {
-            background-color: #5ECF89;
+        .archive-toggle button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .active-archive {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .inactive-archive {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .cleanup-btn {
+            background-color: var(--danger);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .cleanup-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        .filter-button {
+            padding: 8px 15px;
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 8px 16px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
-            margin-bottom: 10px;
+            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 5px;
+            transition: all 0.3s;
+            margin-top: 20px;
         }
 
-        .view-image-btn:hover {
-            background-color: #4db777;
+        .filter-button:hover {
+            background-color: #1c6ea4;
         }
 
-        .image-section {
+        /* Selected Request Actions */
+        .selected-request-actions {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selected-request-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-profile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .selected-request-details h3 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        .selected-request-details p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .selected-request-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .bulk-action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .bulk-approve {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .bulk-reject {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .bulk-ready {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .bulk-action-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        tr.selected {
+            background-color: #e6f7ff;
+            border-left: 4px solid var(--primary);
+        }
+
+        .checkbox-cell {
+            text-align: center;
+            width: 40px;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .user-profile-cell {
+            width: 50px;
+        }
+
+        .user-profile-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        .status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-ready-to-claim {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-claimed {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* Button Styles */
+        .action-button {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .approve-btn {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .approve-btn:hover {
+            background-color: #218838;
+        }
+
+        .reject-btn {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .reject-btn:hover {
+            background-color: #c82333;
+        }
+
+        .ready-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .ready-btn:hover {
+            background-color: #138496;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: var(--success);
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.hide {
+            animation: slideOut 0.5s forwards;
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Error message styling */
+        .error-message {
+            text-align: center;
+            color: var(--danger);
+            padding: 20px;
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .modal-content textarea {
+            width: 100%;
             margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .modal-cancel {
+            background: #ccc;
+            color: #333;
+        }
+
+        .modal-cancel:hover {
+            background: #b3b3b3;
+        }
+
+        .modal-submit {
+            background: var(--danger);
+            color: white;
+        }
+
+        .modal-submit:hover {
+            background: #c82333;
+        }
+
+        /* Logout Modal */
+        #logoutModal .modal-content {
+            max-width: 350px;
+            text-align: center;
+        }
+
+        #logoutModal .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        #logoutModal .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #logoutModal .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        #logoutModal .confirm {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: #fff;
+        }
+
+        #logoutModal .cancel {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        #logoutModal .confirm:hover, #logoutModal .cancel:hover {
+            transform: translateY(-2px);
         }
 
         /* Responsive Design */
+        @media (max-width: 1024px) {
+            .filter-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+
+            .selected-request-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .selected-request-buttons, .bulk-actions {
+                width: 100%;
+                justify-content: flex-start;
+                margin-top: 10px;
+            }
+        }
+
         @media (max-width: 768px) {
-            nav {
-                width: 78px;
+            .sidebar {
+                left: -100%;
+                width: 280px;
+                border-radius: 0 20px 20px 0;
             }
             
-            nav.close {
-                width: 0;
-            }
-            
-            .dashboard {
-                left: 78px;
-                width: calc(100% - 78px);
-            }
-            
-            nav.close ~ .dashboard {
+            .sidebar.active {
                 left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .top {
+                padding: 12px 15px;
+            }
+            
+            .archive-controls {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .filter-controls {
+                padding: 15px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .selected-request-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .top {
+                padding: 10px 12px;
+            }
+            
+            .table-container {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .archive-toggle {
+                flex-direction: column;
                 width: 100%;
             }
             
-            .logo_name, .link-name {
-                display: none;
+            .archive-toggle button {
+                width: 100%;
             }
-            
-            .nav-links li a {
-                justify-content: center;
+
+            .selected-request-buttons, .bulk-actions {
+                flex-direction: column;
             }
-            
-            .nav-links li a i {
-                margin-right: 0;
+
+            .selected-request-buttons button, .bulk-actions button {
+                width: 100%;
             }
         }
     </style>
+    
+    <!-- Load socket.io client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body>
-    <nav>
+    <!-- Sidebar -->
+    <nav class="sidebar">
         <div class="logo-name">
             <div class="logo-image">
                 <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
-            <span class="logo_name">Brgy. Talipapa</span>
+            <span class="logo_name">Admin Panel</span>
         </div>
+        
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="residentdashboard.html">
-                    <i class="uil uil-estate"></i>
+                <li><a href="/admin-dashboard">
+                    <i class="fas fa-home"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
-
-                <li><a href="requests.html">
-                    <i class="uil uil-file-alt"></i>
-                    <span class="link-name">Request Document</span>
+                <li><a href="/manage-residents">
+                    <i class="fas fa-users"></i>
+                    <span class="link-name">Manage Residents</span>
                 </a></li>
-
-                <li><a href="blotter.html">
-                    <i class="uil uil-shield-exclamation"></i>
-                    <span class="link-name">Blotter</span>
+                <li><a href="/adminRequests" class="active">
+                    <i class="fas fa-file-alt"></i>
+                    <span class="link-name">Document Requests</span>
                 </a></li>
-
-                <li><a href="residentRequests.html">
-                    <i class="uil uil-file-alt"></i>
-                    <span class="link-name">Your Requests</span>
+                <li><a href="/admin-blotter">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="link-name">Blotter Reports</span>
                 </a></li>
-
-                <li><a href="resident-blotter.html">
-                    <i class="uil uil-shield-exclamation"></i>
-                    <span class="link-name">Your Blotter</span>
+                <li><a href="/adminAnnounce">
+                    <i class="fas fa-bell"></i>
+                    <span class="link-name">Announcement</span>
                 </a></li>
-
-                <li><a href="announcement.html">
-                    <i class="uil uil-bell"></i>
-                    <span class="link-name">Announcements</span>
+                <li><a href="/admin-approvals">
+                    <i class="fas fa-user-check"></i>
+                    <span class="link-name">Approval</span>
                 </a></li>
-
-                <li><a href="profile.html">
-                    <i class="uil uil-user"></i>
-                    <span class="link-name">Profile</span>
+                <li><a href="/emergency">
+                    <i class="fas fa-bell"></i>
+                    <span class="link-name">Emergency Alerts</span>
                 </a></li>
             </ul>
-            <ul class="logout-mode">
-                <li><a href="#" id="logoutBtn">
-                    <i class="uil uil-signout"></i>
+            
+            <!-- Logout Section -->
+            <div class="logout-section">
+                <a href="#" id="sidebarLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
                     <span class="link-name">Logout</span>
-                </a></li>
-                <li class="mode">
-                    <a href="#">
-                        <i class="uil uil-moon"></i>
-                        <span class="link-name">Dark Mode</span>
-                    </a>
-                    <div class="mode-toggle">
-                        <span class="switch"></span>
-                    </div>
-                </li>
-            </ul>
+                </a>
+            </div>
         </div>
     </nav>
 
-    <section class="dashboard">
+    <!-- Main Content -->
+    <section class="main-content">
         <div class="top">
-            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
             <div class="header">
-                <h1><i class="uil uil-megaphone"></i> Barangay Announcements</h1>
+                <h1><i class="fas fa-file-alt"></i> Document Requests</h1>
             </div>
-        </div><br><br>
+        </div>
 
         <div class="dash-content">
-            <div class="announcements-list" id="announcementsList">
-                <div class="no-announcements">
-                    <p>Loading announcements...</p>
+            <div class="page-header">
+                <div>
                 </div>
+            </div>
+            
+            <!-- Archive Toggle -->
+            <div class="archive-controls">
+                <div class="archive-toggle">
+                    <button id="activeRequestsBtn" class="active-archive">Active Requests</button>
+                    <button id="archivedRequestsBtn" class="inactive-archive">Archive</button>
+                </div>
+                <div>
+                    <button id="cleanupArchive" class="cleanup-btn">Clean Up Archive</button>
+                </div>
+            </div>
+            
+            <!-- Filter Controls -->
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="searchInput">Search:</label>
+                    <input type="text" id="searchInput" placeholder="Search by name or address">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="statusFilter">Status:</label>
+                    <select id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Ready to Claim">Ready to Claim</option>
+                        <option value="Claimed">Claimed</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="documentTypeFilter">Document Type:</label>
+                    <select id="documentTypeFilter">
+                        <option value="">All Types</option>
+                        <option value="Barangay Clearance">Barangay Clearance</option>
+                        <option value="Business Permit">Business Permit</option>
+                        <option value="Certificate of Residency">Certificate of Residency</option>
+                        <option value="Certificate of Indigency">Certificate of Indigency</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="startDate">From:</label>
+                    <input type="date" id="startDate">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="endDate">To:</label>
+                    <input type="date" id="endDate">
+                </div>
+                
+                <button id="applyFilters" class="filter-button">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <button id="resetFilters" class="filter-button">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+            
+            <!-- Selected Request Actions -->
+            <div class="selected-request-actions" id="selectedRequestActions">
+                <div class="selected-request-info">
+                    <img src="/images/default-profile.png" alt="User Profile" class="user-profile" id="selectedUserProfile">
+                    <div class="selected-request-details">
+                        <h3 id="selectedUserName">Selected Requests (<span id="selectedCount">0</span>)</h3>
+                        <p id="selectedRequestDetails">Select requests to perform bulk actions</p>
+                    </div>
+                </div>
+                <div class="selected-request-buttons">
+                    <button class="action-button approve-btn" id="selectedApproveBtn">Approve</button>
+                    <button class="action-button reject-btn" id="selectedRejectBtn">Reject</button>
+                    <button class="action-button ready-btn" id="selectedReadyBtn">Ready to Claim</button>
+                </div>
+                <div class="bulk-actions">
+                    <button class="bulk-action-btn bulk-approve" id="bulkApproveBtn">
+                        <i class="fas fa-check"></i> Approve All
+                    </button>
+                    <button class="bulk-action-btn bulk-reject" id="bulkRejectBtn">
+                        <i class="fas fa-times"></i> Reject All
+                    </button>
+                    <button class="bulk-action-btn bulk-ready" id="bulkReadyBtn">
+                        <i class="fas fa-check-double"></i> Ready All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="requestsTable">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">
+                                <input type="checkbox" id="selectAllCheckbox">
+                            </th>
+                            <th class="user-profile-cell">Profile</th>
+                            <th>Full Name</th>
+                            <th>Address</th>
+                            <th>Document Type</th>
+                            <th>Purpose</th>
+                            <th>Date Requested</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be dynamically inserted here -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
 
+    <!-- Rejection Reason Modal -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <h2>Reject Request</h2>
+            <p>Please provide a reason for rejection:</p>
+            <textarea id="rejectionReason" placeholder="Enter the reason for rejecting this request..."></textarea>
+            <div class="modal-buttons">
+                <button class="modal-cancel" onclick="document.getElementById('rejectModal').style.display = 'none'">Cancel</button>
+                <button class="modal-submit" onclick="submitRejection()">Submit Rejection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Rejection Reason Modal -->
+    <div id="bulkRejectModal" class="modal">
+        <div class="modal-content">
+            <h2>Reject Selected Requests</h2>
+            <p>Please provide a reason for rejection:</p>
+            <textarea id="bulkRejectionReason" placeholder="Enter the reason for rejecting these requests..."></textarea>
+            <div class="modal-buttons">
+                <button class="modal-cancel" onclick="document.getElementById('bulkRejectModal').style.display = 'none'">Cancel</button>
+                <button class="modal-submit" onclick="submitBulkRejection()">Submit Rejection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLogoutModal()">&times;</span>
+            <h3>Are you sure you want to logout?</h3>
+            <div class="modal-actions">
+                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Notification -->
+    <div id="notification" class="notification"></div>
+
     <script>
-        let currentUser = null;
+    const socket = io();
     
-        // Add authFetch function for consistent authentication
-        async function authFetch(url, options = {}) {
-            const response = await fetch(url, {
-                ...options,
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                }
-            });
-            if (response.status === 401) {
-                window.location.href = "index.html";
-                return null;
-            }
-            return response;
+    const requestsTable = document.getElementById('requestsTable');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const documentTypeFilter = document.getElementById('documentTypeFilter');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const applyFilters = document.getElementById('applyFilters');
+    const resetFilters = document.getElementById('resetFilters');
+    const notification = document.getElementById('notification');
+    const activeRequestsBtn = document.getElementById('activeRequestsBtn');
+    const archivedRequestsBtn = document.getElementById('archivedRequestsBtn');
+    const cleanupArchive = document.getElementById('cleanupArchive');
+    const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+    const selectedRequestActions = document.getElementById('selectedRequestActions');
+    const selectedUserProfile = document.getElementById('selectedUserProfile');
+    const selectedUserName = document.getElementById('selectedUserName');
+    const selectedRequestDetails = document.getElementById('selectedRequestDetails');
+    const selectedCount = document.getElementById('selectedCount');
+    const selectedApproveBtn = document.getElementById('selectedApproveBtn');
+    const selectedRejectBtn = document.getElementById('selectedRejectBtn');
+    const selectedReadyBtn = document.getElementById('selectedReadyBtn');
+    const bulkApproveBtn = document.getElementById('bulkApproveBtn');
+    const bulkRejectBtn = document.getElementById('bulkRejectBtn');
+    const bulkReadyBtn = document.getElementById('bulkReadyBtn');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+    let currentFilters = {
+        search: '',
+        status: '',
+        documentType: '',
+        startDate: '',
+        endDate: '',
+        archive: false
+    };
+
+    let currentRejectRequestId = null;
+    let selectedRequestIds = new Set();
+    let allRequests = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAuthStatus();
+        setupEventListeners();
+        setupWebSocketListeners();
+        fetchRequests();
+    });
+
+    function checkAuthStatus() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/admin-login.html';
+            return;
         }
-    
-        // Fetch current user profile with proper error handling
-        async function fetchCurrentUser() {
-            try {
-                const response = await authFetch('/api/auth/profile');
-                
-                if (!response) return null;
-                
-                if (response.ok) {
-                    currentUser = await response.json();
-                    return currentUser;
-                }
-            } catch (error) {
-                console.error('Error fetching user profile:', error);
-            }
-            return null;
-        }
-    
-        // Get user profile picture URL
-        function getUserProfilePicture(userData) {
-            if (!userData) return '/images/default-profile.png';
-            
-            if (userData.profilePicture) {
-                if (userData.profilePicture.startsWith('http') || userData.profilePicture.startsWith('/')) {
-                    return userData.profilePicture;
-                } else {
-                    return '/uploads/' + userData.profilePicture;
-                }
-            }
-            return '/images/default-profile.png';
-        }
-    
-        // Calculate total comments (including replies)
-        function calculateTotalComments(comments) {
-            if (!comments || !Array.isArray(comments)) return 0;
-            
-            let total = comments.length;
-            comments.forEach(comment => {
-                if (comment.replies && Array.isArray(comment.replies)) {
-                    total += comment.replies.length;
-                }
-            });
-            
-            return total;
-        }
-    
-        // Format comment count text
-        function formatCommentCount(count) {
-            if (count === 0) return '';
-            if (count === 1) return '1 comment';
-            return `${count} comments`;
-        }
-    
-        // Toggle sidebar
-        function toggleMenu() {
-            const sidebar = document.querySelector("nav");
-            sidebar.classList.toggle("close");
-        }
-    
-        // Load announcements from server
-        async function loadAnnouncements() {
-            try {
-                await fetchCurrentUser(); // Ensure user data is loaded first
-                
-                const response = await authFetch('/api/announcements');
-                
-                if (!response) return;
-                
-                if (!response.ok) {
-                    throw new Error('Failed to load announcements');
-                }
-                
-                const announcements = await response.json();
-                displayAnnouncements(announcements);
-            } catch (error) {
-                console.error('Error loading announcements:', error);
-                document.getElementById('announcementsList').innerHTML = `
-                    <div class="post">
-                        <p>Error loading announcements. Please try again later.</p>
-                    </div>
-                `;
-            }
-        }
-    
-        // Display announcements in Facebook-style posts
-        function displayAnnouncements(announcements) {
-            const container = document.getElementById('announcementsList');
-            
-            if (!announcements || announcements.length === 0) {
-                container.innerHTML = `
-                    <div class="post">
-                        <p>No announcements available at this time.</p>
-                    </div>
-                `;
-                return;
-            }
-    
-            container.innerHTML = announcements.map(announcement => {
-                const createdAt = new Date(announcement.createdAt);
-                const eventTime = announcement.eventDateTime ? new Date(announcement.eventDateTime) : null;
-                
-                return `
-                <div class="post" id="post-${announcement._id}">
-                    <div class="post-header">
-                        <img src="/images/barangay-bg.png" alt="Admin" class="post-avatar">
-                        <div class="post-user-info">
-                            <h3 class="post-username">Barangay Admin</h3>
-                            <p class="post-time">${createdAt.toLocaleString()}</p>
-                        </div>
-                    </div>
-                    <div class="post-content">
-                        <h4 class="post-title">${announcement.title}</h4>
-                        <p class="post-text">${announcement.content}</p>
-                        
-                        <!-- Image section with view button -->
-                        ${announcement.imageUrl ? `
-                            <div class="image-section">
-                                <button class="view-image-btn" onclick="toggleImage('${announcement._id}')">
-                                    <i class="uil uil-image"></i> View Image
-                                </button>
-                                <img src="${announcement.imageUrl}" class="post-image" id="image-${announcement._id}" alt="Announcement Image" style="display: none;">
-                            </div>
-                        ` : ''}
-                        
-                        ${eventTime ? `<p><strong>Event Time:</strong> ${eventTime.toLocaleString()}</p>` : ''}
-                        <div>
-                            ${announcement.targetGroups?.map(group => `
-                                <span class="target-badge">${group}</span>
-                            `).join('')}
-                            ${announcement.targetOccupation ? `<span class="target-badge">Occupation: ${announcement.targetOccupation}</span>` : ''}
-                            ${announcement.targetEducation ? `<span class="target-badge">Education: ${announcement.targetEducation}</span>` : ''}
-                            ${announcement.targetCivilStatus ? `<span class="target-badge">Civil Status: ${announcement.targetCivilStatus}</span>` : ''}
-                            ${announcement.targetIncome ? `<span class="target-badge">Income: ${announcement.targetIncome}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="post-footer">
-                        <!-- Comment count will be inserted here by loadComments function -->
-                        <div id="comment-count-${announcement._id}" class="comment-count"></div>
-                    </div>
-                    
-                    <!-- Comments Section -->
-                    <div class="comments-section" id="comments-${announcement._id}" style="display: none;">
-                        <div class="comment-form">
-                            <input type="text" class="comment-input" id="comment-input-${announcement._id}" placeholder="Write a comment...">
-                            <button class="comment-submit" onclick="postComment('${announcement._id}')">Comment</button>
-                        </div>
-                        <div class="comments-list" id="comments-list-${announcement._id}">
-                            <!-- Comments will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-                `;
-            }).join('');
-    
-            // Load comments for each announcement
-            announcements.forEach(announcement => {
-                loadComments(announcement._id);
-            });
-        }
-    
-        // Toggle comments section
-        function toggleComments(announcementId) {
-            const commentsSection = document.getElementById(`comments-${announcementId}`);
-            if (commentsSection.style.display === 'block') {
-                commentsSection.style.display = 'none';
-            } else {
-                commentsSection.style.display = 'block';
-                // Ensure comments are loaded when section is opened
-                loadComments(announcementId);
-            }
-        }
-    
-        // Load comments for an announcement
-        async function loadComments(announcementId) {
-            try {
-                const response = await authFetch(`/api/announcements/${announcementId}/comments`);
-                
-                if (!response) return;
-                
-                if (!response.ok) {
-                    throw new Error('Failed to load comments');
-                }
-                
-                const comments = await response.json();
-                
-                // Update comment count
-                updateCommentCount(announcementId, comments);
-                
-                // Display comments
-                displayComments(announcementId, comments);
-            } catch (error) {
-                console.error('Error loading comments:', error);
-                document.getElementById(`comments-list-${announcementId}`).innerHTML = `
-                    <div class="no-comments">
-                        <p>Error loading comments. Please try again later.</p>
-                    </div>
-                `;
-            }
-        }
-    
-        // Update comment count display
-        function updateCommentCount(announcementId, comments) {
-            const commentCountElement = document.getElementById(`comment-count-${announcementId}`);
-            const totalComments = calculateTotalComments(comments);
-            const commentCountText = formatCommentCount(totalComments);
-            
-            if (commentCountText) {
-                commentCountElement.innerHTML = `
-                    <button class="post-action-btn" onclick="toggleComments('${announcementId}')">
-                        <i class="uil uil-comment"></i> ${commentCountText}
-                    </button>
-                `;
-                commentCountElement.style.display = 'block';
-            } else {
-                commentCountElement.innerHTML = `
-                    <button class="post-action-btn" onclick="toggleComments('${announcementId}')">
-                        <i class="uil uil-comment"></i> Comment
-                    </button>
-                `;
-                commentCountElement.style.display = 'block';
-            }
-        }
-    
-        // Display comments with actual user profiles
-        function displayComments(announcementId, comments) {
-            const container = document.getElementById(`comments-list-${announcementId}`);
-            
-            if (!comments || comments.length === 0) {
-                container.innerHTML = `
-                    <div class="no-comments">
-                        <p>No comments yet. Be the first to comment!</p>
-                    </div>
-                `;
-                return;
-            }
-    
-            container.innerHTML = comments.map(comment => {
-                const commentTime = new Date(comment.createdAt);
-                const isAdminComment = comment.userName === 'Barangay Admin';
-                
-                // Use actual profile picture from comment data or fallback to current user's picture
-                let profilePicture = '/images/default-profile.png';
-                
-                if (comment.userProfilePicture) {
-                    // Use the profile picture from the comment data (if provided by server)
-                    profilePicture = comment.userProfilePicture.startsWith('http') || comment.userProfilePicture.startsWith('/') 
-                        ? comment.userProfilePicture 
-                        : '/uploads/' + comment.userProfilePicture;
-                } else if (currentUser && comment.userId === currentUser._id) {
-                    // Fallback: if it's the current user's comment, use their profile picture
-                    profilePicture = getUserProfilePicture(currentUser);
-                }
-                
-                return `
-                <div class="comment ${isAdminComment ? 'admin-comment' : ''}" id="comment-${comment._id}">
-                    <div class="comment-header">
-                        <img src="${profilePicture}" alt="${comment.userName}" class="comment-avatar" 
-                             onerror="this.src='/images/default-profile.png'">
-                        <span class="comment-user ${isAdminComment ? 'admin-user' : ''}">${comment.userName}</span>
-                        <span class="comment-time">${commentTime.toLocaleString()}</span>
-                    </div>
-                    <p class="comment-text">${comment.text}</p>
-                    
-                    ${comment.replies && comment.replies.length > 0 ? `
-                        <div class="replies">
-                            ${comment.replies.map(reply => {
-                                const replyTime = new Date(reply.createdAt);
-                                const isAdminReply = reply.userName === 'Barangay Admin';
-                                
-                                let replyProfilePicture = '/images/default-profile.png';
-                                if (reply.userProfilePicture) {
-                                    replyProfilePicture = reply.userProfilePicture.startsWith('http') || reply.userProfilePicture.startsWith('/') 
-                                        ? reply.userProfilePicture 
-                                        : '/uploads/' + reply.userProfilePicture;
-                                } else if (currentUser && reply.userId === currentUser._id) {
-                                    replyProfilePicture = getUserProfilePicture(currentUser);
-                                }
-                                
-                                return `
-                                <div class="comment reply ${isAdminReply ? 'admin-reply' : ''}">
-                                    <div class="comment-header">
-                                        <img src="${replyProfilePicture}" alt="${reply.userName}" class="comment-avatar"
-                                             onerror="this.src='/images/default-profile.png'">
-                                        <span class="comment-user ${isAdminReply ? 'admin-user' : ''}">${reply.userName}</span>
-                                        <span class="comment-time">${replyTime.toLocaleString()}</span>
-                                    </div>
-                                    <p class="comment-text">${reply.text}</p>
-                                </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    <p class="comment-reply" onclick="toggleReplyForm('${announcementId}', '${comment._id}')">
-                        <i class="uil uil-corner-up-right"></i> Reply
-                    </p>
-                    <div class="reply-form" id="reply-form-${announcementId}-${comment._id}" style="display: none;">
-                        <input type="text" class="reply-input" id="reply-input-${announcementId}-${comment._id}" placeholder="Write a reply...">
-                        <button class="reply-submit" onclick="postReply('${announcementId}', '${comment._id}')">Reply</button>
-                    </div>
-                </div>
-                `;
-            }).join('');
-        }
-    
-        // Toggle image visibility
-        function toggleImage(announcementId) {
-            const image = document.getElementById(`image-${announcementId}`);
-            const button = document.querySelector(`#image-${announcementId}`).previousElementSibling;
-            
-            if (image.style.display === 'none') {
-                image.style.display = 'block';
-                button.innerHTML = '<i class="uil uil-times"></i> Hide Image';
-            } else {
-                image.style.display = 'none';
-                button.innerHTML = '<i class="uil uil-image"></i> View Image';
-            }
-        }
-    
-        // Toggle reply form
-        function toggleReplyForm(announcementId, commentId) {
-            const replyForm = document.getElementById(`reply-form-${announcementId}-${commentId}`);
-            if (replyForm.style.display === 'block') {
-                replyForm.style.display = 'none';
-            } else {
-                // Hide any other open reply forms
-                document.querySelectorAll('.reply-form').forEach(form => {
-                    form.style.display = 'none';
-                });
-                replyForm.style.display = 'flex';
-            }
-        }
-    
-        // Post a comment
-        async function postComment(announcementId) {
-            const commentInput = document.getElementById(`comment-input-${announcementId}`);
-            const text = commentInput.value.trim();
-            
-            if (!text) {
-                alert('Please enter a comment');
-                return;
-            }
-            
-            try {
-                const response = await authFetch(`/api/announcements/${announcementId}/comments`, {
-                    method: 'POST',
-                    body: JSON.stringify({ text })
-                });
-                
-                if (!response) return;
-                
-                if (!response.ok) {
-                    throw new Error('Failed to post comment');
-                }
-                
-                const newComment = await response.json();
-                commentInput.value = '';
-                loadComments(announcementId); // Reload comments
-            } catch (error) {
-                console.error('Error posting comment:', error);
-                alert('Failed to post comment. Please try again.');
-            }
-        }
-    
-        // Post a reply
-        async function postReply(announcementId, commentId) {
-            const replyInput = document.getElementById(`reply-input-${announcementId}-${commentId}`);
-            const text = replyInput.value.trim();
-            
-            if (!text) {
-                alert('Please enter a reply');
-                return;
-            }
-            
-            try {
-                const response = await authFetch(`/api/announcements/${announcementId}/comments/${commentId}/replies`, {
-                    method: 'POST',
-                    body: JSON.stringify({ text })
-                });
-                
-                if (!response) return;
-                
-                if (!response.ok) {
-                    throw new Error('Failed to post reply');
-                }
-                
-                const newReply = await response.json();
-                replyInput.value = '';
-                document.getElementById(`reply-form-${announcementId}-${commentId}`).style.display = 'none';
-                loadComments(announcementId); // Reload comments
-            } catch (error) {
-                console.error('Error posting reply:', error);
-                alert('Failed to post reply. Please try again.');
-            }
-        }
-    
-        // Add logout functionality
-        async function logout() {
-            try {
-                const response = await authFetch('/api/auth/logout', {
-                    method: 'POST'
-                });
-                
-                if (response && response.ok) {
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-        }
-    
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load announcements when page loads
-            loadAnnouncements();
-            
-            // Add logout event listener
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    logout();
-                });
+    }
+
+    function setupEventListeners() {
+        applyFilters.addEventListener('click', applyFiltersHandler);
+        resetFilters.addEventListener('click', resetFiltersHandler);
+        searchInput.addEventListener('input', debounce(applyFiltersHandler, 300));
+
+        activeRequestsBtn.addEventListener('click', () => {
+            currentFilters.archive = false;
+            updateArchiveUI();
+            fetchRequests();
+            clearSelection();
+        });
+
+        archivedRequestsBtn.addEventListener('click', () => {
+            currentFilters.archive = true;
+            updateArchiveUI();
+            fetchRequests();
+            clearSelection();
+        });
+
+        cleanupArchive.addEventListener('click', cleanupArchiveHandler);
+        sidebarLogoutBtn.addEventListener('click', openLogoutModal);
+        
+        selectedApproveBtn.addEventListener('click', () => {
+            if (selectedRequestIds.size > 0) {
+                handleBulkAction('approve');
             }
         });
-    </script>
+        
+        selectedRejectBtn.addEventListener('click', () => {
+            if (selectedRequestIds.size > 0) {
+                handleBulkAction('reject');
+            }
+        });
+        
+        selectedReadyBtn.addEventListener('click', () => {
+            if (selectedRequestIds.size > 0) {
+                handleBulkAction('ready');
+            }
+        });
+        
+        bulkApproveBtn.addEventListener('click', () => {
+            handleBulkAction('approve', true);
+        });
+        
+        bulkRejectBtn.addEventListener('click', () => {
+            handleBulkAction('reject', true);
+        });
+        
+        bulkReadyBtn.addEventListener('click', () => {
+            handleBulkAction('ready', true);
+        });
+        
+        selectAllCheckbox.addEventListener('change', toggleSelectAll);
+    }
+
+    function updateArchiveUI() {
+        const isArchive = currentFilters.archive;
+        activeRequestsBtn.classList.toggle('active-archive', !isArchive);
+        activeRequestsBtn.classList.toggle('inactive-archive', isArchive);
+        archivedRequestsBtn.classList.toggle('active-archive', isArchive);
+        archivedRequestsBtn.classList.toggle('inactive-archive', !isArchive);
+        
+        // Hide action buttons in archive mode
+        if (isArchive) {
+            hideSelectedRequestActions();
+        }
+    }
+
+    async function cleanupArchiveHandler() {
+        if (!confirm('WARNING: This will permanently delete ALL archived requests. Continue?')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login.html';
+                return;
+            }
+
+            const response = await fetch('/api/requests/cleanup', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to clean up archive');
+            }
+
+            const result = await response.json();
+            showNotification(`Successfully deleted ${result.deletedCount} archived requests`);
+            if (currentFilters.archive) fetchRequests();
+        } catch (error) {
+            console.error('Cleanup error:', error);
+            showNotification(`Error: ${error.message}`);
+        }
+    }
+
+    function debounce(func, timeout = 300) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+    }
+
+    function setupWebSocketListeners() {
+        socket.on('request-update', (data) => {
+            let message = '';
+            switch (data.type) {
+                case 'created':
+                    message = `New request from ${data.request.fullName}`;
+                    break;
+                case 'updated':
+                    message = `Request from ${data.request.fullName} was ${data.request.status}`;
+                    break;
+                case 'deleted':
+                    message = `Cleaned up ${data.count} archived requests`;
+                    break;
+            }
+            showNotification(message);
+            if (!currentFilters.archive) fetchRequests();
+        });
+    }
+
+    function showNotification(message) {
+        notification.textContent = message;
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.classList.add('hide');
+            setTimeout(() => {
+                notification.style.display = 'none';
+                notification.classList.remove('hide');
+            }, 500);
+        }, 3000);
+    }
+
+    function applyFiltersHandler() {
+        currentFilters = {
+            ...currentFilters,
+            search: searchInput.value.trim(),
+            status: statusFilter.value,
+            documentType: documentTypeFilter.value,
+            startDate: startDate.value,
+            endDate: endDate.value
+        };
+        fetchRequests();
+        clearSelection();
+    }
+
+    function resetFiltersHandler() {
+        searchInput.value = '';
+        statusFilter.value = '';
+        documentTypeFilter.value = '';
+        startDate.value = '';
+        endDate.value = '';
+        currentFilters = {
+            ...currentFilters,
+            search: '',
+            status: '',
+            documentType: '',
+            startDate: '',
+            endDate: ''
+        };
+        fetchRequests();
+        clearSelection();
+    }
+
+    // Add authFetch function for consistent authentication
+    async function authFetch(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+        if (response.status === 401) {
+            window.location.href = "/admin-login.html";
+            return null;
+        }
+        return response;
+    }
+
+    async function fetchRequests() {
+        try {
+            const queryParams = new URLSearchParams();
+
+            if (currentFilters.search) queryParams.append('search', currentFilters.search);
+            if (currentFilters.status) queryParams.append('status', currentFilters.status);
+            if (currentFilters.documentType) queryParams.append('documentType', currentFilters.documentType);
+            if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
+            if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
+            queryParams.append('archive', currentFilters.archive);
+
+            const response = await authFetch(`/api/requests?${queryParams.toString()}`);
+            
+            if (!response) return;
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Error: ${response.status}`);
+            }
+
+            const requests = await response.json();
+            allRequests = requests;
+            
+            renderRequests(requests);
+        } catch (error) {
+            console.error('Fetch error:', error);
+            showErrorInTable(error.message);
+        }
+    }
+
+    function renderRequests(requests) {
+        const tbody = requestsTable.querySelector('tbody');
+        tbody.innerHTML = '';
+
+        if (requests.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="error-message">
+                        No ${currentFilters.archive ? 'archived' : 'active'} requests found
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        requests.forEach(request => {
+            const row = document.createElement('tr');
+            row.setAttribute('data-id', request.id);
+            
+            // Use the populated userProfile data from the backend
+            const userProfile = request.userProfile || {
+                profilePicture: '/images/default-profile.png',
+                fullName: request.fullName || 'Unknown User'
+            };
+            
+            const isSelected = selectedRequestIds.has(request.id);
+            if (isSelected) {
+                row.classList.add('selected');
+            }
+
+            const statusClass = `status-${request.status.toLowerCase().replace(/\s+/g, '-')}`;
+
+            row.innerHTML = `
+                <td class="checkbox-cell">
+                    <input type="checkbox" class="request-checkbox" data-id="${request.id}" ${isSelected ? 'checked' : ''}>
+                </td>
+                <td class="user-profile-cell">
+                    <img src="${userProfile.profilePicture}" alt="User Profile" class="user-profile-small" 
+                         onerror="this.src='/images/default-profile.png'">
+                </td>
+                <td>${userProfile.fullName}</td>
+                <td>${request.address || 'N/A'}</td>
+                <td>${request.documentType || 'N/A'}</td>
+                <td>${request.purpose || 'N/A'}</td>
+                <td class="date-cell">
+                    <div>${request.formattedDate || 'N/A'}</div>
+                    <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
+                </td>
+                <td><span class="status ${statusClass}">${request.status || 'Pending'}</span></td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        // Add event listeners to checkboxes
+        document.querySelectorAll('.request-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const requestId = e.target.getAttribute('data-id');
+                const row = e.target.closest('tr');
+                
+                if (e.target.checked) {
+                    selectedRequestIds.add(requestId);
+                    row.classList.add('selected');
+                } else {
+                    selectedRequestIds.delete(requestId);
+                    row.classList.remove('selected');
+                    selectAllCheckbox.checked = false;
+                }
+                
+                updateSelectedRequestActions();
+            });
+        });
+        
+        // Update select all checkbox state
+        updateSelectAllCheckbox();
+    }
+    
+    function toggleSelectAll() {
+        const checkboxes = document.querySelectorAll('.request-checkbox');
+        const isChecked = selectAllCheckbox.checked;
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+            const requestId = checkbox.getAttribute('data-id');
+            const row = checkbox.closest('tr');
+            
+            if (isChecked) {
+                selectedRequestIds.add(requestId);
+                row.classList.add('selected');
+            } else {
+                selectedRequestIds.delete(requestId);
+                row.classList.remove('selected');
+            }
+        });
+        
+        updateSelectedRequestActions();
+    }
+    
+    function updateSelectAllCheckbox() {
+        const checkboxes = document.querySelectorAll('.request-checkbox');
+        if (checkboxes.length === 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.disabled = true;
+        } else {
+            selectAllCheckbox.disabled = false;
+            const allChecked = checkboxes.length === selectedRequestIds.size;
+            selectAllCheckbox.checked = allChecked;
+        }
+    }
+    
+    function updateSelectedRequestActions() {
+        const selectedCountValue = selectedRequestIds.size;
+        selectedCount.textContent = selectedCountValue;
+        
+        if (selectedCountValue === 0) {
+            hideSelectedRequestActions();
+            return;
+        }
+        
+        if (currentFilters.archive) {
+            hideSelectedRequestActions();
+            return;
+        }
+        
+        // Show appropriate buttons based on selected requests
+        const selectedRequests = allRequests.filter(req => selectedRequestIds.has(req.id));
+        const hasPending = selectedRequests.some(req => req.status === 'Pending');
+        const hasApproved = selectedRequests.some(req => req.status === 'Approved');
+        
+        selectedApproveBtn.style.display = hasPending ? 'inline-block' : 'none';
+        selectedRejectBtn.style.display = hasPending ? 'inline-block' : 'none';
+        selectedReadyBtn.style.display = hasApproved ? 'inline-block' : 'none';
+        
+        // Update user profile if only one request is selected
+        if (selectedCountValue === 1) {
+            const requestId = Array.from(selectedRequestIds)[0];
+            const request = allRequests.find(req => req.id === requestId);
+            if (request) {
+                const userProfile = request.userProfile || {
+                    profilePicture: '/images/default-profile.png',
+                    fullName: request.fullName || 'Unknown User'
+                };
+                selectedUserProfile.src = userProfile.profilePicture;
+                selectedUserName.textContent = userProfile.fullName;
+                selectedRequestDetails.textContent = `${request.documentType} • ${request.purpose} • ${request.formattedDate}`;
+            }
+        } else {
+            selectedUserProfile.src = '/images/default-profile.png';
+            selectedUserName.textContent = `Selected Requests (${selectedCountValue})`;
+            selectedRequestDetails.textContent = `${selectedCountValue} requests selected for bulk actions`;
+        }
+        
+        selectedRequestActions.style.display = 'flex';
+    }
+
+    function hideSelectedRequestActions() {
+        selectedRequestActions.style.display = 'none';
+        selectedRequestIds.clear();
+        
+        // Remove selected class from all rows
+        document.querySelectorAll('#requestsTable tbody tr').forEach(row => {
+            row.classList.remove('selected');
+        });
+        
+        // Uncheck all checkboxes
+        document.querySelectorAll('.request-checkbox').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        selectAllCheckbox.checked = false;
+    }
+    
+    function clearSelection() {
+        selectedRequestIds.clear();
+        updateSelectedRequestActions();
+    }
+
+    function handleBulkAction(action, allRequests = false) {
+        let requestIds = allRequests ? 
+            allRequests.filter(req => !currentFilters.archive && 
+                ((action === 'approve' || action === 'reject') ? req.status === 'Pending' : 
+                 action === 'ready' ? req.status === 'Approved' : false))
+                .map(req => req.id) : 
+            Array.from(selectedRequestIds);
+            
+        if (requestIds.length === 0) {
+            showNotification('No requests available for this action');
+            return;
+        }
+        
+        if (action === 'reject') {
+            if (allRequests) {
+                // For bulk reject all, show modal
+                document.getElementById('bulkRejectModal').style.display = 'flex';
+                document.getElementById('bulkRejectionReason').value = '';
+            } else {
+                // For selected requests reject, show modal
+                currentRejectRequestId = 'bulk'; // Special value for bulk rejection
+                document.getElementById('rejectModal').style.display = 'flex';
+                document.getElementById('rejectionReason').value = '';
+            }
+            return;
+        }
+        
+        if (!confirm(`Are you sure you want to ${action} ${requestIds.length} request(s)?`)) return;
+        
+        performBulkAction(requestIds, action);
+    }
+
+    function submitRejection() {
+        const reason = document.getElementById('rejectionReason').value.trim();
+        if (!reason) {
+            alert('Please provide a rejection reason');
+            return;
+        }
+        
+        document.getElementById('rejectModal').style.display = 'none';
+        
+        if (currentRejectRequestId === 'bulk') {
+            // Bulk rejection of selected requests
+            performBulkAction(Array.from(selectedRequestIds), 'reject', reason);
+        } else {
+            // Single request rejection
+            performRequestAction(currentRejectRequestId, 'reject', reason);
+        }
+    }
+    
+    function submitBulkRejection() {
+        const reason = document.getElementById('bulkRejectionReason').value.trim();
+        if (!reason) {
+            alert('Please provide a rejection reason');
+            return;
+        }
+        
+        document.getElementById('bulkRejectModal').style.display = 'none';
+        
+        // Get all requests that can be rejected (Pending status)
+        const requestIds = allRequests.filter(req => 
+            !currentFilters.archive && req.status === 'Pending').map(req => req.id);
+            
+        performBulkAction(requestIds, 'reject', reason);
+    }
+
+    async function performBulkAction(requestIds, action, rejectionReason = '') {
+        try {
+            const response = await authFetch('/api/requests/bulk-action', {
+                method: 'POST',
+                body: JSON.stringify({
+                    requestIds,
+                    action,
+                    rejectionReason
+                })
+            });
+
+            if (!response) return;
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Failed to ${action} requests`);
+            }
+
+            const result = await response.json();
+            showNotification(`Successfully ${action === 'ready' ? 'marked as ready to claim' : action + 'd'} ${result.processedCount} request(s)`);
+            fetchRequests();
+            clearSelection();
+        } catch (error) {
+            console.error(`${action} error:`, error);
+            showNotification(`Error: ${error.message}`);
+        }
+    }
+    
+    async function performRequestAction(requestId, action, rejectionReason = '') {
+        try {
+            const url = `/api/requests/${requestId}/${action}`;
+            const options = {
+                method: 'PUT',
+                body: JSON.stringify({ rejectionReason })
+            };
+
+            const response = await authFetch(url, options);
+
+            if (!response) return;
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Failed to ${action}`);
+            }
+
+            showNotification(`Request ${action === 'ready' ? 'marked as ready to claim' : action + 'd'} successfully`);
+            fetchRequests();
+            clearSelection();
+        } catch (error) {
+            console.error(`${action} error:`, error);
+            showNotification(`Error: ${error.message}`);
+        }
+    }
+
+    function showErrorInTable(message) {
+        const tbody = requestsTable.querySelector('tbody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="error-message">
+                    ${message}
+                </td>
+            </tr>
+        `;
+    }
+
+    function toggleMenu() {
+        document.querySelector('.sidebar').classList.toggle('active');
+    }
+
+    // Logout functionality
+    async function logout() {
+        try {
+            const response = await fetch('/api/auth/logout', {
+                method: 'POST'
+            });
+
+            if (response && response.ok) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
+
+    function openLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'block';
+    }
+
+    function closeLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+    }
+
+    function confirmLogout() {
+        closeLogoutModal();
+        logout();
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        const logoutModal = document.getElementById('logoutModal');
+        const rejectModal = document.getElementById('rejectModal');
+        const bulkRejectModal = document.getElementById('bulkRejectModal');
+        
+        if (event.target === logoutModal) {
+            closeLogoutModal();
+        }
+        if (event.target === rejectModal) {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+        if (event.target === bulkRejectModal) {
+            document.getElementById('bulkRejectModal').style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>

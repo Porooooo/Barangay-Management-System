@@ -10,7 +10,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
         :root {
-            --primary: #0d4f8b;
+            --primary: #0d4f8b  ;
             --secondary: #e6a919;
             --light: #f8f9fa;
             --dark: #343a40;
@@ -37,18 +37,68 @@
 
         /* Sidebar Styles */
         .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: var(--sidebar-width);
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            z-index: 100;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-            border-radius: 0 20px 20px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--sidebar-width);
+  background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
+  color: #F8FAFC;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  color: #E2E8F0;
+  padding: 12px 18px;
+  margin: 6px 12px;
+  border-radius: 10px;
+  transition: 0.3s ease;
+  position: relative;
+}
+
+.sidebar a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.sidebar a i {
+  margin-right: 12px;
+  transition: all 0.3s ease;
+}
+
+.sidebar a:hover i {
+  color: #60A5FA;
+  transform: translateX(4px);
+  text-shadow: 0 0 10px #60A5FA;
+}
+.greeting-section {
+            padding: 20px 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .greeting {
+            font-size: 16px;
+            color: #E2E8F0;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .current-date {
+            font-size: 14px;
+            color: #94A3B8;
+            margin-bottom: 3px;
+        }
+
+        .current-time {
+            font-size: 14px;
+            color: #94A3B8;
+            font-weight: 500;
         }
 
         .logo-name {
@@ -112,6 +162,12 @@
             font-size: 14px;
             font-weight: 500;
         }
+
+        .logout-section {
+            padding: 15px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
 
         /* Main Content */
         .main-content {
@@ -588,45 +644,179 @@
 
         /* Logout Modal */
         #logoutModal .modal-content {
-            max-width: 350px;
-            text-align: center;
-        }
+    max-width: 350px;
+    text-align: center;
+}
 
-        #logoutModal .modal-content h3 {
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: var(--dark);
-        }
+#logoutModal .modal-content h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: var(--dark);
+}
 
-        #logoutModal .modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
+#logoutModal .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
 
-        #logoutModal .modal-actions button {
-            flex: 1;
-            padding: 10px;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-        }
+#logoutModal .modal-actions button {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
 
-        #logoutModal .confirm {
-            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
-            color: #fff;
-        }
+#logoutModal .confirm {
+    background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+    color: #fff;
+}
 
-        #logoutModal .cancel {
-            background-color: #ddd;
-            color: #333;
-        }
+#logoutModal .cancel {
+    background-color: #ddd;
+    color: #333;
+}
 
-        #logoutModal .confirm:hover, #logoutModal .cancel:hover {
-            transform: translateY(-2px);
-        }
+#logoutModal .confirm:hover, #logoutModal .cancel:hover {
+    transform: translateY(-2px);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close {
+    color: #aaa;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close:hover {
+    color: black;
+    transform: scale(1.1);
+}
+        
+        /* Modal Buttons */
+
+
+        /* Modal Styles for Resident Dashboard */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h2 {
+    color: var(--primary);
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.3s;
+}
+
+.modal-close:hover {
+    color: var(--danger);
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Emergency-specific modal */
+.emergency-modal .modal-content {
+    border-top: 4px solid var(--danger);
+    background: linear-gradient(135deg, #fff 0%, #fff8f8 100%);
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes modalSlideOut {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(-50px); opacity: 0; }
+}
 
         /* Responsive Design */
         @media (max-width: 1024px) {
@@ -645,6 +835,8 @@
             .sidebar.active {
                 left: 0;
             }
+
+            
             
             .main-content {
                 margin-left: 0;
@@ -796,6 +988,7 @@
             </div>
             <span class="logo_name">Brgy. Talipapa</span>
         </div>
+        
         <div class="menu-items">
             <ul class="nav-links">
                 <li><a href="/residentdashboard" class="active">
@@ -813,21 +1006,28 @@
                     <span class="link-name">Blotter</span>
                 </a></li>
             
-                <li><a href="/residentRequests">
-                    <i class="fas fa-file-alt"></i>
-                    <span class="link-name">Your Requests</span>
-                </a></li>
-            
-                <li><a href="/resident-blotter">
-                    <i class="fas fa-shield-alt"></i>
-                    <span class="link-name">Your Blotter</span>
-                </a></li>
+              
             
                 <li><a href="/announcement">
                     <i class="fas fa-bell"></i>
                     <span class="link-name">Announcements</span>
                 </a></li>
             </ul>
+            
+            <!-- Logout Section -->
+            <div class="logout-section">
+                <a href="#" id="sidebarLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-name">Logout</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Greeting and Time Section - MOVED TO BOTTOM -->
+        <div class="greeting-section">
+            <div class="greeting" id="greetingText"></div>
+            <div class="current-date" id="currentDate"></div>
+            <div class="current-time" id="currentTime"></div>
         </div>
     </nav>
     
@@ -863,7 +1063,7 @@
                     <span class="text">Resident Dashboard</span>
                 </div>
                 <div class="boxes">
-                    <div class="box box1" onclick="location.href='/residentRequests'">
+                    <div class="box box1" onclick="location.href='/Requests'">
                         <i class="fas fa-file-alt"></i>
                         <span class="text"></span>
                         <span class="number" id="pendingRequests">0</span>
@@ -873,7 +1073,7 @@
                         <span class="text"></span>
                         <span class="number" id="newAnnouncements">0</span>
                     </div>
-                    <div class="box box3" onclick="location.href='/resident-blotter'">
+                    <div class="box box3" onclick="location.href='/blotter'">
                         <i class="fas fa-shield-alt"></i>
                         <span class="text"></span>
                         <span class="number" id="blotterCases">0</span>
@@ -925,17 +1125,17 @@
         </div>
     </div>
 
-    <!-- Logout Confirmation Modal -->
-    <div id="logoutModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeLogoutModal()">&times;</span>
-            <h3>Are you sure you want to logout?</h3>
-            <div class="modal-actions">
-                <button class="confirm" onclick="confirmLogout()">Yes</button>
-                <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
-            </div>
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeLogoutModal()">&times;</span>
+        <h3>Are you sure you want to logout?</h3>
+        <div class="modal-actions">
+            <button class="confirm" onclick="confirmLogout()">Yes</button>
+            <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
         </div>
     </div>
+</div>
   
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -943,18 +1143,17 @@
         function toggleMenu() {
             document.querySelector('.sidebar').classList.toggle('active');
         }
-
+    
         // Toggle profile dropdown
         function toggleProfileDropdown() {
             document.getElementById('profileDropdown').classList.toggle('active');
         }
-
+    
         // Toggle notifications (placeholder for future feature)
         function toggleNotifications() {
             alert('Notification feature will be implemented soon!');
-            // This will be implemented when you add the notification system
         }
-
+    
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const profileContainer = document.querySelector('.profile-container');
@@ -964,11 +1163,50 @@
                 profileDropdown.classList.remove('active');
             }
         });
-
+    
+        // Update greeting and time
+        function updateGreetingAndTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            // Set greeting based on time of day
+            let greeting;
+            if (hours < 12) {
+                greeting = "Good Morning";
+            } else if (hours < 18) {
+                greeting = "Good Afternoon";
+            } else {
+                greeting = "Good Evening";
+            }
+            
+            // Format date
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            const dateString = now.toLocaleDateString('en-US', options);
+            
+            // Format time with AM/PM
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const formattedHours = hours % 12 || 12;
+            const timeString = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+            
+            // Update DOM elements
+            const greetingText = document.getElementById('greetingText');
+            const currentDate = document.getElementById('currentDate');
+            const currentTime = document.getElementById('currentTime');
+            
+            if (greetingText) greetingText.textContent = greeting;
+            if (currentDate) currentDate.textContent = dateString;
+            if (currentTime) currentTime.textContent = timeString;
+        }
+    
+        // Update time every second
+        setInterval(updateGreetingAndTime, 1000);
+        updateGreetingAndTime(); // Initial call
+    
         let allActivities = [];
-
         let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
-  
+    
         async function authFetch(url, options = {}) {
             const response = await fetch(url, {
                 ...options,
@@ -984,7 +1222,7 @@
             }
             return response;
         }
-  
+    
         async function fetchResidentData() {
             try {
                 const [profileResponse, requestsResponse, announcementsResponse, blotterResponse] = await Promise.all([
@@ -993,21 +1231,16 @@
                     authFetch('/api/announcements/user'),
                     authFetch('/api/blotter/user')
                 ]);
-  
+    
                 if (!profileResponse || !requestsResponse || !announcementsResponse || !blotterResponse) {
                     return;
                 }
-
-                if (!profileResponse.ok) console.error('Profile fetch failed');
-                if (!requestsResponse.ok) console.error('Requests fetch failed');
-                if (!announcementsResponse.ok) console.error('Announcements fetch failed');
-                if (!blotterResponse.ok) console.error('Blotter fetch failed');
-
+    
                 const profileData = profileResponse.ok ? await profileResponse.json() : null;
                 const requests = requestsResponse.ok ? await requestsResponse.json() : [];
                 const announcements = announcementsResponse.ok ? await announcementsResponse.json() : [];
                 let blotterCases = [];
-
+    
                 if (blotterResponse.ok) {
                     try {
                         blotterCases = await blotterResponse.json();
@@ -1020,7 +1253,7 @@
                         blotterCases = [];
                     }
                 }
-  
+    
                 if (profileData) {
                     const profilePic = document.getElementById('profilePicture');
                     if (profileData.profilePicture) {
@@ -1033,10 +1266,10 @@
                         profilePic.src = 'images/profile.jpg';
                     }
                 }
-  
+    
                 const pendingRequests = requests.filter(r => r.status === "Pending").length;
                 document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
-  
+    
                 const recentAnnouncements = announcements.filter(a =>
                     new Date(a.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
                 );
@@ -1044,7 +1277,7 @@
                     !viewedAnnouncements.includes(a._id)
                 );
                 document.getElementById('newAnnouncements').textContent = `${unviewedAnnouncements.length} Announcement${unviewedAnnouncements.length !== 1 ? 's' : ''}`;
-  
+    
                 const activeBlotterCases = Array.isArray(blotterCases) ? 
                     blotterCases.filter(b => 
                         b.status === "Pending" || b.status === "Under Investigation"
@@ -1054,7 +1287,7 @@
                 
                 // Update recent activity (show only 3 most recent)
                 updateRecentActivity(requests, blotterCases);
-
+    
             } catch (error) {
                 console.error('Fetch error:', error);
                 document.getElementById('blotterCases').textContent = '0 Blotter Cases';
@@ -1137,141 +1370,275 @@
                 window.location.href = `/resident-blotter#${id}`;
             }
         }
-  
+    
+        // Modal System for Resident Dashboard
+        const residentModal = {
+            show: function(type, title, message, buttons = []) {
+                // Close any existing modal first
+                this.hideAll();
+                
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = `modal-overlay ${type}-modal`;
+                modalOverlay.id = 'residentModalOverlay';
+                modalOverlay.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>${title}</h2>
+                            <button class="modal-close" onclick="residentModal.hide(this)">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            ${message}
+                        </div>
+                        ${buttons.length > 0 ? `
+                        <div class="modal-footer">
+                            ${buttons.map(btn => `
+                                <button class="btn ${btn.class || 'btn-primary'}" onclick="${btn.onclick}">
+                                    ${btn.text}
+                                </button>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                document.body.appendChild(modalOverlay);
+                modalOverlay.style.display = 'flex';
+                
+                modalOverlay.addEventListener('click', function(e) {
+                    if (e.target === modalOverlay) {
+                        residentModal.hide(this);
+                    }
+                });
+                
+                return modalOverlay;
+            },
+            
+            hide: function(element) {
+                const modal = element.closest('.modal-overlay') || element;
+                if (modal) {
+                    modal.style.animation = 'modalSlideOut 0.3s ease-out';
+                    setTimeout(() => {
+                        if (modal.parentNode) {
+                            modal.parentNode.removeChild(modal);
+                        }
+                    }, 300);
+                }
+            },
+            
+            hideAll: function() {
+                const modals = document.querySelectorAll('.modal-overlay');
+                modals.forEach(modal => this.hide(modal));
+            },
+            
+            success: function(message, title = 'Success') {
+                return this.show('success', title, `<p>${message}</p>`, [
+                    { text: 'OK', class: 'btn-success', onclick: 'residentModal.hide(this)' }
+                ]);
+            },
+            
+            error: function(message, title = 'Error') {
+                return this.show('error', title, `<p>${message}</p>`, [
+                    { text: 'OK', class: 'btn-danger', onclick: 'residentModal.hide(this)' }
+                ]);
+            },
+            
+            info: function(message, title = 'Information') {
+                return this.show('info', title, `<p>${message}</p>`, [
+                    { text: 'OK', class: 'btn-primary', onclick: 'residentModal.hide(this)' }
+                ]);
+            }
+        };
+    
+        // Enhanced emergency modal
         function openEmergencyModal() {
-            document.getElementById('emergencyModal').style.display = 'block';
+            residentModal.show('emergency', '🚨 Send Emergency Alert', `
+                <div style="margin-bottom: 15px;">
+                    <p style="color: #e74c3c; font-weight: 500; margin-bottom: 10px;">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        This will notify barangay admin immediately.
+                    </p>
+                    <label for="emergencyMessageInput" style="display: block; margin-bottom: 8px; font-weight: 500;">
+                        Describe your emergency:
+                    </label>
+                    <textarea 
+                        id="emergencyMessageInput" 
+                        style="width: 100%; height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; resize: vertical; font-family: inherit;"
+                        placeholder="Please describe your emergency situation in detail...&#10;Example: Medical emergency, fire, security threat, etc."
+                    ></textarea>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i>
+                        Admin will respond within 1 minute. If no response, your emergency will be sent to baragay email.
+                    </p>
+                </div>
+            `, [
+                { 
+                    text: 'Cancel', 
+                    class: 'btn-secondary', 
+                    onclick: 'residentModal.hide(this)' 
+                },
+                { 
+                    text: 'Send Emergency Alert', 
+                    class: 'btn-danger', 
+                    onclick: 'sendEmergencyAlertFromModal()' 
+                }
+            ]);
         }
-  
-        function closeEmergencyModal() {
-            document.getElementById('emergencyModal').style.display = 'none';
-        }
-  
-        async function sendEmergencyAlert() {
-            const message = document.getElementById('emergencyMessage').value.trim();
+    
+        // Enhanced send emergency alert with modal feedback
+        async function sendEmergencyAlertFromModal() {
+            const messageInput = document.getElementById('emergencyMessageInput');
+            const message = messageInput ? messageInput.value.trim() : '';
+            
             if (!message) {
-                alert('Please enter your emergency message');
+                residentModal.error('Please describe your emergency situation before sending the alert.');
                 return;
             }
-  
+    
             try {
                 const userEmail = localStorage.getItem('userEmail');
                 const response = await authFetch('/api/emergency/send', {
                     method: 'POST',
                     body: JSON.stringify({ email: userEmail, message })
                 });
-  
+    
                 if (!response) return;
-  
+    
                 const data = await response.json();
                 if (response.ok) {
-                    alert('Emergency alert sent successfully!');
-                    closeEmergencyModal();
-                    document.getElementById('emergencyMessage').value = '';
+                    residentModal.success(
+                        'Emergency alert sent successfully! Barangay officials have been notified and will respond within 1 minute.',
+                        'Alert Sent Successfully'
+                    );
+                    // Don't hide the modal immediately, let the user see the success message
                 } else {
                     throw new Error(data.error || 'Failed to send emergency alert');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Failed to send emergency alert: ' + error.message);
+                residentModal.error('Failed to send emergency alert: ' + error.message);
             }
         }
-  
+    
+        // Enhanced notification for emergency responses
+        function showEmergencyResponseNotification(message) {
+            residentModal.info(
+                `Admin Response: ${message}`,
+                '🚨 Emergency Response Received'
+            );
+            
+            // Also show the existing notification
+            if (Notification.permission === "granted") {
+                new Notification("Emergency Response", { 
+                    body: `Admin response: ${message}` 
+                });
+            }
+        }
+    
+        // ========== UPDATED LOGOUT FUNCTIONALITY ==========
+        // Logout functionality
         async function logout() {
             try {
-                const response = await authFetch('/api/auth/logout', {
+                const response = await fetch('/api/auth/logout', {
                     method: 'POST'
                 });
-  
+    
                 if (response && response.ok) {
                     localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userId');
                     window.location.href = '/';
                 }
             } catch (error) {
                 console.error('Logout error:', error);
             }
         }
-
+    
         function openLogoutModal() {
             document.getElementById('logoutModal').style.display = 'block';
         }
-
+    
         function closeLogoutModal() {
             document.getElementById('logoutModal').style.display = 'none';
         }
-
+    
         function confirmLogout() {
             closeLogoutModal();
             logout();
         }
-  
+    
+        // Sidebar logout functionality
+        function setupSidebarLogout() {
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+            if (sidebarLogoutBtn) {
+                sidebarLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openLogoutModal();
+                });
+            }
+        }
+    
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const logoutModal = document.getElementById('logoutModal');
+            
+            if (event.target === logoutModal) {
+                closeLogoutModal();
+            }
+        });
+    
+        // Set up logout button
+        document.getElementById('logoutBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            openLogoutModal();
+        });
+        // ========== END UPDATED LOGOUT FUNCTIONALITY ==========
+    
         const socket = io({ withCredentials: true });
-  
+    
         if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
-  
+    
         socket.on('request-updated', (request) => {
             if (request.userId === localStorage.getItem('userId')) {
                 showNotification(`Your request status updated to ${request.status}`);
                 fetchResidentData();
             }
         });
-  
+    
         socket.on('new_announcement', (announcement) => {
             showNotification(`New announcement: ${announcement.title}`);
             fetchResidentData();
         });
-  
+    
         socket.on('emergencyResponse', (response) => {
             if (response.residentId === localStorage.getItem('userId')) {
                 showEmergencyResponseNotification(response.message);
             }
         });
-  
+    
         socket.on('blotter-updated', (blotter) => {
             if (blotter.complainant === localStorage.getItem('userId')) {
                 showNotification(`Your blotter report status updated to ${blotter.status}`);
                 fetchResidentData();
             }
         });
-  
+    
         function showNotification(message) {
             if (Notification.permission === "granted") {
                 new Notification("BTMS Notification", { body: message });
             } else {
-                alert(message);
+                // Fallback to modal notification
+                residentModal.info(message, 'Notification');
             }
         }
-
-        function showEmergencyResponseNotification(message) {
-            if (Notification.permission === "granted") {
-                new Notification("Emergency Response", { 
-                    body: `Admin response: ${message}` 
-                });
-            }
-            
-            const notification = document.createElement('div');
-            notification.className = 'emergency-response-notification';
-            notification.innerHTML = `
-                <div class="emergency-response-content">
-                    <i class="fas fa-bell"></i>
-                    <div>
-                        <h4>Emergency Response</h4>
-                        <p>${message}</p>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'fadeOut 0.5s forwards';
-                setTimeout(() => {
-                    notification.remove();
-                }, 500);
-            }, 10000);
-        }
-  
+    
         document.addEventListener('DOMContentLoaded', function () {
+            // Initialize greeting and time
+            updateGreetingAndTime();
+            
+            // Setup sidebar logout
+            setupSidebarLogout();
+            
             authFetch('/api/auth/check-auth')
                 .then(response => {
                     if (!response) return;
@@ -1289,26 +1656,11 @@
                     console.error('Auth check error:', error);
                     window.location.href = '/';
                 });
-  
-            document.getElementById('logoutBtn').addEventListener('click', function (e) {
-                e.preventDefault();
-                openLogoutModal();
-            });
-            
-            // Close modals when clicking outside
-            window.addEventListener('click', function(event) {
-                const emergencyModal = document.getElementById('emergencyModal');
-                const logoutModal = document.getElementById('logoutModal');
-                
-                if (event.target === emergencyModal) {
-                    closeEmergencyModal();
-                }
-                if (event.target === logoutModal) {
-                    closeLogoutModal();
-                }
-            });
+    
+            // Remove the duplicate logout button event listener since we're using setupSidebarLogout
+            // The setupSidebarLogout function already handles the sidebar logout button
         });
-  
+    
         setInterval(fetchResidentData, 30000);
     </script>
 </body>

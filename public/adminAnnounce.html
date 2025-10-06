@@ -4,80 +4,177 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>Admin Announcements</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Announcements - Barangay Talipapa</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0d4f8b;
+            --secondary: #e6a919;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --danger: #e74c3c;
+            --warning: #ffa000;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
+            background-attachment: fixed;
+            color: #333;
+            overflow-x: hidden;
+        }
 
-        /* Sidebar */
+        /* Sidebar Styles */
         .sidebar {
-            height: 100%;
-            width: 250px;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #333;
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
+            color: #F8FAFC;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
-        .sidebar .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 30px;
-            color: white;
-            cursor: pointer;
-        }
+
         .sidebar a {
-            padding: 15px;
+            display: flex;
+            align-items: center;
+            color: #E2E8F0;
+            padding: 12px 18px;
+            margin: 6px 12px;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            position: relative;
             text-decoration: none;
-            font-size: 20px;
-            color: white;
-            display: block;
-            text-align: center;
-            transition: 0.3s;
         }
-        .sidebar a:hover { background-color: #5ECF89; }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover i {
+            color: #60A5FA;
+            transform: translateX(4px);
+            text-shadow: 0 0 10px #60A5FA;
+        }
+
+        .logo-name {
+            display: flex;
+            align-items: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-image img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo_name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            padding: 15px 0;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--secondary);
+        }
+
+        .nav-links i {
+            font-size: 18px;
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .link-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-section {
+            padding: 15px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
         /* Main Content */
-        .dashboard {
-            position: relative;
-            left: 250px;
-            width: calc(100% - 250px);
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
             min-height: 100vh;
-            background-color: #f0f2f5;
-            transition: all 0.5s ease;
-        }
-
-        nav.close ~ .dashboard {
-            left: 78px;
-            width: calc(100% - 78px);
+            transition: all 0.3s ease;
         }
 
         .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
-            background-color: #fff;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
         }
 
         .sidebar-toggle {
             font-size: 24px;
-            color: #333;
             cursor: pointer;
+            color: var(--primary);
+            display: none;
         }
 
+        /* Dashboard Content */
         .dash-content {
-            padding: 20px;
+            margin-top: 10px;
         }
 
         .page-header {
@@ -93,14 +190,35 @@
             color: #333;
         }
 
+        /* Create Announcement Button */
+        .create-announcement-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .create-announcement-btn:hover {
+            background-color: #1c6ea4;
+            transform: translateY(-2px);
+        }
+
         /* Announcement Form */
         .announcement-container {
-            max-width: 800px;
-            margin: 0 auto 30px;
-            padding: 20px;
-            background-color: #fff;
+            background: white;
+            padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
         }
 
         .form-group {
@@ -160,15 +278,16 @@
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: 500;
         }
 
         .btn-primary {
-            background-color: #5ECF89;
+            background-color: var(--primary);
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #4db777;
+            background-color: #1c6ea4;
         }
 
         .btn-secondary {
@@ -178,6 +297,14 @@
 
         .btn-secondary:hover {
             background-color: #ddd;
+        }
+
+        .btn-update {
+            background-color: var(--warning) !important;
+        }
+
+        .btn-update:hover {
+            background-color: #e69500 !important;
         }
 
         /* Image Upload */
@@ -193,11 +320,6 @@
             border-radius: 5px;
         }
 
-        .admin-name {
-            color: #5ECF89 !important;
-            font-weight: bold !important;
-        }
-
         .upload-btn {
             display: inline-block;
             padding: 10px 15px;
@@ -206,6 +328,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: 500;
         }
 
         .upload-btn:hover {
@@ -222,37 +345,23 @@
             flex: 1;
         }
 
-        /* Create Announcement Button */
-        .create-announcement-btn {
-            background-color: #5ECF89;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .create-announcement-btn:hover {
-            background-color: #4db777;
-        }
-
         /* Facebook-style posts */
         .announcements-list {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
         }
 
         .post {
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
-            padding: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .post:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
 
         .post-header {
@@ -278,7 +387,7 @@
         .post-username {
             font-weight: 600;
             margin: 0;
-            color: #050505;
+            color: var(--dark);
         }
 
         .post-time {
@@ -295,11 +404,11 @@
             font-weight: 600;
             font-size: 18px;
             margin-bottom: 8px;
-            color: #050505;
+            color: var(--dark);
         }
 
         .post-text {
-            color: #050505;
+            color: var(--dark);
             line-height: 1.4;
             margin-bottom: 12px;
         }
@@ -332,6 +441,9 @@
             padding: 5px 10px;
             border-radius: 4px;
             transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .post-action-btn:hover {
@@ -339,11 +451,11 @@
         }
 
         .edit-btn {
-            color: #1877F2;
+            color: var(--primary);
         }
 
         .delete-btn {
-            color: #F02849;
+            color: var(--danger);
         }
 
         /* Comment count styling */
@@ -360,7 +472,7 @@
             text-decoration: underline;
         }
 
-        /* Comments Section - Updated to match user page style */
+        /* Comments Section */
         .comments-section {
             margin-top: 12px;
             border-top: 1px solid #E4E6EB;
@@ -419,7 +531,7 @@
         .comment-user {
             font-weight: 600;
             font-size: 14px;
-            color: #050505;
+            color: var(--dark);
         }
 
         .comment-time {
@@ -430,7 +542,7 @@
 
         .comment-text {
             font-size: 14px;
-            color: #050505;
+            color: var(--dark);
             margin-left: 40px;
         }
 
@@ -463,7 +575,7 @@
         }
 
         .reply-submit {
-            background-color: #5ECF89;
+            background-color: var(--primary);
             color: white;
             border: none;
             padding: 8px 16px;
@@ -473,7 +585,7 @@
         }
 
         .reply-submit:hover {
-            background-color: #4db777;
+            background-color: #1c6ea4;
         }
 
         .replies {
@@ -498,7 +610,7 @@
 
         /* Comment count badge styling */
         .comment-count-badge {
-            background-color: #5ECF89;
+            background-color: var(--primary);
             color: white;
             border-radius: 10px;
             padding: 2px 6px;
@@ -512,21 +624,21 @@
         /* Admin comment styling */
         .admin-comment {
             background-color: #f0f8ff;
-            border-left: 3px solid #5ECF89;
+            border-left: 3px solid var(--primary);
             padding: 8px;
             border-radius: 0 8px 8px 0;
         }
 
         .admin-reply {
             background-color: #f0f8ff;
-            border-left: 3px solid #5ECF89;
+            border-left: 3px solid var(--primary);
             padding: 8px;
             margin-top: 5px;
             border-radius: 0 8px 8px 0;
         }
 
         .admin-user {
-            color: #5ECF89;
+            color: var(--primary);
             font-weight: bold;
         }   
 
@@ -542,7 +654,7 @@
 
         /* View Image Button */
         .view-image-btn {
-            background-color: #5ECF89;
+            background-color: var(--primary);
             color: white;
             border: none;
             padding: 8px 16px;
@@ -553,23 +665,15 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            transition: all 0.3s;
         }
 
         .view-image-btn:hover {
-            background-color: #4db777;
+            background-color: #1c6ea4;
         }
 
         .image-section {
             margin: 10px 0;
-        }
-
-        /* Update button style */
-        .btn-update {
-            background-color: #ffa500 !important;
-        }
-
-        .btn-update:hover {
-            background-color: #e69500 !important;
         }
 
         /* Modal */
@@ -588,12 +692,13 @@
 
         .modal-content {
             background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 25px;
+            border-radius: 10px;
             width: 90%;
             max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .modal-header {
@@ -606,6 +711,7 @@
         .modal-title {
             font-size: 20px;
             font-weight: 600;
+            color: var(--dark);
         }
 
         .close-modal {
@@ -614,118 +720,222 @@
             font-size: 24px;
             cursor: pointer;
             color: #65676B;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--dark);
+            transform: scale(1.1);
+        }
+
+        /* Logout Modal */
+        #logoutModal .modal-content {
+            max-width: 350px;
+            text-align: center;
+        }
+
+        #logoutModal .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        #logoutModal .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #logoutModal .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        #logoutModal .confirm {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            color: #fff;
+        }
+
+        #logoutModal .cancel {
+            background-color: #ddd;
+            color: #333;
+        }
+
+        #logoutModal .confirm:hover, #logoutModal .cancel:hover {
+            transform: translateY(-2px);
         }
 
         /* Responsive Design */
+        @media (max-width: 1024px) {
+            .checkbox-group {
+                gap: 10px;
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
+                left: -100%;
+                width: 280px;
+                border-radius: 0 20px 20px 0;
             }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
             .main-content {
                 margin-left: 0;
+                padding: 15px;
             }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+            
+            .top {
+                padding: 12px 15px;
+            }
+            
             .checkbox-group {
                 flex-direction: column;
                 gap: 10px;
             }
+            
             .datetime-group {
                 flex-direction: column;
                 gap: 0;
             }
+            
             .reply-form {
                 flex-direction: column;
                 margin-left: 0;
             }
+            
             .reply-input {
                 margin-bottom: 8px;
             }
+            
             .post-footer {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
             }
+            
             .post-actions {
                 width: 100%;
                 justify-content: flex-end;
+            }
+            
+            .announcement-container {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .top {
+                padding: 10px 12px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .create-announcement-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <nav>
+    <!-- Sidebar -->
+    <nav class="sidebar">
         <div class="logo-name">
             <div class="logo-image">
                 <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
             <span class="logo_name">Admin Panel</span>
         </div>
+        
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="/admin-dashboard" class="active">
-                    <i class="uil uil-estate"></i>
+                <li><a href="/admin-dashboard">
+                    <i class="fas fa-home"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
                 <li><a href="/manage-residents">
-                    <i class="uil uil-users-alt"></i>
+                    <i class="fas fa-users"></i>
                     <span class="link-name">Manage Residents</span>
                 </a></li>
                 <li><a href="/adminRequests">
-                    <i class="uil uil-file-alt"></i>
+                    <i class="fas fa-file-alt"></i>
                     <span class="link-name">Document Requests</span>
                 </a></li>
                 <li><a href="/admin-blotter">
-                    <i class="uil uil-file-shield-alt"></i>
+                    <i class="fas fa-shield-alt"></i>
                     <span class="link-name">Blotter Reports</span>
                 </a></li>
-                <li><a href="/adminAnnounce">
-                    <i class="uil uil-megaphone"></i>
+                <li><a href="/adminAnnounce" class="active">
+                    <i class="fas fa-bell"></i>
                     <span class="link-name">Announcement</span>
                 </a></li>
                 <li><a href="/admin-approvals">
-                    <i class="uil uil-user-check"></i>
+                    <i class="fas fa-user-check"></i>
                     <span class="link-name">Approval</span>
                 </a></li>
                 <li><a href="/emergency">
-                    <i class="uil uil-bell"></i>
+                    <i class="fas fa-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
             </ul>
-                
-            </ul>
-            <ul class="logout-mode">
-                <li><a href="/">
-                    <i class="uil uil-signout"></i>
+            
+            <!-- Logout Section -->
+            <div class="logout-section">
+                <a href="#" id="sidebarLogoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
                     <span class="link-name">Logout</span>
-                </a></li>
-                <li class="mode">
-                    <a href="#">
-                        <i class="uil uil-moon"></i>
-                        <span class="link-name">Dark Mode</span>
-                    </a>
-                    <div class="mode-toggle">
-                        <span class="switch"></span>
-                    </div>
-                </li>
-                
-            </ul>
+                </a>
+            </div>
         </div>
     </nav>
 
-    <section class="dashboard">
+    <!-- Main Content -->
+    <section class="main-content">
         <div class="top">
-            <i class="uil uil-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
             <div class="header">
-                <h1><i class="uil uil-megaphone"></i> Barangay Announcements</h1>
+                <h1><i class="fas fa-bell"></i> Barangay Announcements</h1>
             </div>
-        </div><br><br>
+        </div>
 
         <div class="dash-content">
             <div class="page-header">
-                <h2 class="page-title">Announcements</h2>
                 <button class="create-announcement-btn" onclick="openAnnouncementForm()">
-                    <i class="uil uil-plus"></i> Create Announcement
+                    <i class="fas fa-plus"></i> Create Announcement
                 </button>
             </div>
 
@@ -877,7 +1087,18 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLogoutModal()">&times;</span>
+            <h3>Are you sure you want to logout?</h3>
+            <div class="modal-actions">
+                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0/index.min.js"></script>
 
@@ -955,8 +1176,7 @@
     
         // Toggle sidebar
         function toggleMenu() {
-            const sidebar = document.querySelector("nav");
-            sidebar.classList.toggle("close");
+            document.querySelector('.sidebar').classList.toggle('active');
         }
     
         // Set default date and time to current
@@ -970,6 +1190,9 @@
             
             // Load existing announcements
             loadAnnouncements();
+            
+            // Setup logout functionality
+            setupLogout();
         });
     
         // Image preview functionality
@@ -1011,10 +1234,10 @@
             
             if (image.style.display === 'none') {
                 image.style.display = 'block';
-                button.innerHTML = '<i class="uil uil-times"></i> Hide Image';
+                button.innerHTML = '<i class="fas fa-times"></i> Hide Image';
             } else {
                 image.style.display = 'none';
-                button.innerHTML = '<i class="uil uil-image"></i> View Image';
+                button.innerHTML = '<i class="fas fa-image"></i> View Image';
             }
         }
     
@@ -1077,7 +1300,7 @@
                         ${announcement.imageUrl ? `
                             <div class="image-section">
                                 <button class="view-image-btn" onclick="toggleImage('${announcement._id}')">
-                                    <i class="uil uil-image"></i> View Image
+                                    <i class="fas fa-image"></i> View Image
                                 </button>
                                 <img src="${announcement.imageUrl}" class="post-image" id="image-${announcement._id}" alt="Announcement Image" style="display: none;">
                             </div>
@@ -1100,10 +1323,10 @@
                         
                         <div class="post-actions">
                             <button class="post-action-btn edit-btn" onclick="editAnnouncement('${announcement._id}')">
-                                <i class="uil uil-edit"></i> Edit
+                                <i class="fas fa-edit"></i> Edit
                             </button>
                             <button class="post-action-btn delete-btn" onclick="deleteAnnouncement('${announcement._id}')">
-                                <i class="uil uil-trash-alt"></i> Delete
+                                <i class="fas fa-trash-alt"></i> Delete
                             </button>
                         </div>
                     </div>
@@ -1172,7 +1395,7 @@
             
             if (commentCountText) {
                 commentCountElement.innerHTML = `
-                    <i class="uil uil-comment"></i>
+                    <i class="fas fa-comment"></i>
                     <span onclick="toggleComments('${announcementId}')">${commentCountText}</span>
                 `;
                 commentCountElement.style.display = 'flex';
@@ -1252,7 +1475,7 @@
                     ` : ''}
                     
                     <p class="comment-reply" onclick="toggleReplyForm('${announcementId}', '${comment._id}')">
-                        <i class="uil uil-corner-up-right"></i> Reply as Admin
+                        <i class="fas fa-reply"></i> Reply as Admin
                     </p>
                     <div class="reply-form" id="reply-form-${announcementId}-${comment._id}" style="display: none;">
                         <input type="text" class="reply-input" id="reply-input-${announcementId}-${comment._id}" placeholder="Write a reply as admin...">
@@ -1486,21 +1709,55 @@
             document.getElementById('announcementTime').value = timeStr;
         }
     
-        // Add logout functionality
+        // Logout functionality
         async function logout() {
             try {
-                const response = await authFetch('/api/auth/logout', {
+                const response = await fetch('/api/auth/logout', {
                     method: 'POST'
                 });
-                
+
                 if (response && response.ok) {
+                    localStorage.removeItem('token');
                     window.location.href = '/';
                 }
             } catch (error) {
                 console.error('Logout error:', error);
             }
         }
-    
+
+        function openLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'block';
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            closeLogoutModal();
+            logout();
+        }
+
+        // Setup logout functionality
+        function setupLogout() {
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+            if (sidebarLogoutBtn) {
+                sidebarLogoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openLogoutModal();
+                });
+            }
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const logoutModal = document.getElementById('logoutModal');
+            
+            if (event.target === logoutModal) {
+                closeLogoutModal();
+            }
+        });
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             // Handle "All Residents" checkbox
@@ -1522,15 +1779,6 @@
     
             // Trigger change event to set initial state
             document.getElementById('allResidents').dispatchEvent(new Event('change'));
-    
-            // Add logout event listener
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    logout();
-                });
-            }
         });
     </script>
 </body>

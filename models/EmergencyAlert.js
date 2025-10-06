@@ -16,7 +16,9 @@ const emergencyAlertSchema = new mongoose.Schema({
     adminResponse: { type: String },
     createdAt: { type: Date, default: Date.now },
     acknowledgedAt: { type: Date },
-    resolvedAt: { type: Date }
+    resolvedAt: { type: Date },
+    emailSent: { type: Boolean, default: false },
+    emailSentAt: { type: Date }
 });
 
 const EmergencyAlert = mongoose.model("EmergencyAlert", emergencyAlertSchema);
