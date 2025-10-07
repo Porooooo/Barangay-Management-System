@@ -11,7 +11,6 @@ const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
 
-const { startCleanupSchedule } = require('./middleware/announcementCleanup');
 const { authMiddleware, adminMiddleware } = require('./middleware/authMiddleware');
 
 const app = express();
@@ -40,7 +39,6 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(() => {
   console.log("✅ Connected to MongoDB Atlas");
-  startCleanupSchedule();
 })
 .catch(err => {
   console.error("❌ MongoDB Atlas Connection Error:", err);
@@ -103,6 +101,14 @@ app.get('/images/default-profile.png', (req, res) => {
       'Expires': '0'
     }
   });
+});
+
+app.get('/api/auth/check-session', (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ loggedIn: true, user: req.session.user });
+  } else {
+    res.json({ loggedIn: false });
+  }
 });
 
 // 🧠 Session Store in MongoDB
@@ -331,29 +337,27 @@ app.use((err, req, res, next) => {
   }
 });
 
-// ❓ 404 Not Found
-app.use((req, res) => {
-  if (req.originalUrl.startsWith('/api')) {
-    res.status(404).json({ error: 'Endpoint not found' });
-  } else {
-    res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
-  }
-});
 
-// 🛑 Graceful Shutdown
-const gracefulShutdown = () => {
-  console.log('🛑 Shutting down gracefully...');
+
+const Shutdown = () => {
+  console.log('🛑 Shutting down ...');
   server.close(() => {
     console.log('🚪 Server closed');
-    mongoose.connection.close(false, () => {
-      console.log('🗄️ MongoDB connection closed');
-      process.exit(0);
-    });
+    mongoose.connection.close(false)
+      .then(() => {
+        console.log('🗄️ MongoDB connection closed');
+        process.exit(0);
+      })
+      .catch(err => {
+        console.error('❌ Error closing MongoDB connection:', err);
+        process.exit(1);
+      });
   });
 };
 
-process.on('SIGINT', gracefulShutdown);
-process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', Shutdown);
+process.on('SIGTERM', Shutdown);
+
 
 // 🚀 Start Server
 server.listen(PORT, () => {

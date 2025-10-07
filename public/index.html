@@ -813,65 +813,113 @@
     }
     
     @media (max-width: 768px) {
-      .top-header {
-        display: none;
-      }
-      
-      .header-container {
-        flex-direction: column;
-        text-align: center;
-      }
-      
-      .logo-section {
-        margin-bottom: 15px;
-      }
-      
-      .nav-menu {
-        flex-direction: column;
-        width: 100%;
-        display: none;
-      }
-      
-      .nav-menu.active {
-        display: flex;
-      }
-      
-      .nav-menu li {
-        margin: 10px 0;
-      }
-      
-      .mobile-menu-btn {
-        display: block;
-        position: absolute;
-        top: 20px;
-        right: 20px;
-      }
-      
-      .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .btn {
-        width: 100%;
-        max-width: 300px;
-      }
-      
-      .stats {
-        flex-direction: column;
-      }
-      
-      .announcement-item {
-        flex-direction: column;
-      }
-      
-      .announcement-date {
-        flex-direction: row;
-        justify-content: center;
-        gap: 10px;
-        min-height: 70px;
-      }
-    }
+  .top-header {
+    display: none;
+  }
+  
+  .header-container {
+    flex-direction: row;
+    text-align: left;
+    justify-content: space-between;
+    padding: 10px 20px;
+  }
+  
+  .logo-section {
+    margin-bottom: 0;
+    flex: 1;
+  }
+  
+  .nav-menu {
+    flex-direction: column;
+    width: 100%;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+  
+  .nav-menu.active {
+    display: flex;
+  }
+  
+  .nav-menu li {
+    margin: 0;
+    width: 100%;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .nav-menu a {
+    display: block;
+    padding: 15px 20px;
+    width: 100%;
+  }
+  
+  .mobile-menu-btn {
+    display: block;
+    position: static;
+    margin-left: 15px;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .stats {
+    flex-direction: column;
+  }
+  
+  .announcement-item {
+    flex-direction: column;
+  }
+  
+  .announcement-date {
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    min-height: 70px;
+  }
+  
+  /* Better touch targets */
+  button, .btn, a {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Prevent zoom on input focus */
+  input, select, textarea {
+    font-size: 16px;
+  }
+  
+  /* Full-height app when installed */
+  .standalone body {
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* Hide browser UI elements when standalone */
+  .standalone .main-content {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Adjust install button for mobile */
+  .install-btn {
+    bottom: 80px;
+    padding: 15px 25px;
+    font-size: 16px;
+  }
+}
     
     @media (max-width: 576px) {
       .hero h1 {
@@ -922,7 +970,6 @@
           <li><a href="#" class="active" data-section="home">Home</a></li>
           <li><a href="#services" data-section="services">Services</a></li>
           <li><a href="#about" data-section="about">About</a></li>
-          <li><a href="#announcements" data-section="announcements">Announcements</a></li>
           <li><a href="#contact" data-section="contact">Contact</a></li>
           <li class="login-container">
             <button class="login-btn">
@@ -1021,59 +1068,7 @@
   </div>
 </section>
 
-  <!-- Announcements Section -->
-  <section class="announcements" id="announcements">
-    <div class="announcements-container">
-      <div class="section-title">
-        <h2>Latest Announcements</h2>
-        <p>Stay updated with the latest news and events in Barangay Talipapa</p>
-      </div>
-      
-      <div class="announcement-tabs">
-        <button class="tab-btn active">News</button>
-        <button class="tab-btn">Events</button>
-        <button class="tab-btn">Advisories</button>
-      </div>
-      
-      <div class="announcement-list">
-        <div class="announcement-item">
-          <div class="announcement-date">
-            <span class="announcement-day">15</span>
-            <span class="announcement-month">OCT</span>
-          </div>
-          <div class="announcement-content">
-            <h3>Community Clean-up Drive</h3>
-            <p>Join us for our monthly community clean-up drive this Saturday. All residents are encouraged to participate.</p>
-            <a href="#" class="read-more">Read More</a>
-          </div>
-        </div>
-        
-        <div class="announcement-item">
-          <div class="announcement-date">
-            <span class="announcement-day">10</span>
-            <span class="announcement-month">OCT</span>
-          </div>
-          <div class="announcement-content">
-            <h3>New Online Services Available</h3>
-            <p>We've launched new online services for document requests. Residents can now apply for barangay clearance online.</p>
-            <a href="#" class="read-more">Read More</a>
-          </div>
-        </div>
-        
-        <div class="announcement-item">
-          <div class="announcement-date">
-            <span class="announcement-day">05</span>
-            <span class="announcement-month">OCT</span>
-          </div>
-          <div class="announcement-content">
-            <h3>Health and Wellness Seminar</h3>
-            <p>Free health and wellness seminar for senior citizens will be held at the barangay hall next week.</p>
-            <a href="#" class="read-more">Read More</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  
 
   <!-- Contact Section -->
   <section class="contact" id="contact">
