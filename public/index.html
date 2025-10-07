@@ -30,8 +30,6 @@
       --success: #28a745;
     }
 
-    
-    
     * { 
       margin: 0; 
       padding: 0; 
@@ -50,7 +48,7 @@
       scroll-behavior: smooth;
     }
 
-    /* PWA Installation Button Styles */
+    /* PWA Installation Button Styles - Mobile Only */
     .install-btn {
       position: fixed;
       bottom: 20px;
@@ -73,11 +71,15 @@
       transition: all 0.3s ease;
       opacity: 0;
       visibility: hidden;
+      
+      /* Hide by default on desktop */
+      display: none;
     }
 
     .install-btn.show {
       opacity: 1;
       visibility: visible;
+      display: flex; /* Show when the show class is added */
     }
 
     .install-btn:hover {
@@ -86,44 +88,6 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    /* Mobile-first improvements */
-    @media (max-width: 768px) {
-      /* Better touch targets */
-      button, .btn, a {
-        min-height: 44px;
-        min-width: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      /* Prevent zoom on input focus */
-      input, select, textarea {
-        font-size: 16px;
-      }
-      
-      /* Full-height app when installed */
-      .standalone body {
-        height: 100vh;
-        overflow: hidden;
-      }
-      
-      /* Hide browser UI elements when standalone */
-      .standalone .main-content {
-        padding-bottom: env(safe-area-inset-bottom);
-      }
-
-      /* Adjust install button for mobile */
-      .install-btn {
-        bottom: 80px;
-        padding: 15px 25px;
-        font-size: 16px;
-      }
-    }
-
-  
-
-    /* Rest of your existing CSS styles remain exactly the same */
     /* Header Styles */
     .top-header {
       background-color: var(--primary);
@@ -800,19 +764,26 @@
       font-size: 14px;
     }
 
-    /* Responsive Styles */
-    @media (max-width: 992px) {
-      .about-container,
-      .contact-container {
-        grid-template-columns: 1fr;
-      }
-      
-      .hero h1 {
-        font-size: 2.3rem;
-      }
-    }
-    
-    @media (max-width: 768px) {
+   /* Mobile-specific styles */
+@media (max-width: 768px) {
+  /* Show install button only on mobile */
+  .install-btn {
+    display: flex;
+  }
+  
+  .install-btn.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Adjust install button for mobile */
+  .install-btn {
+    bottom: 80px;
+    padding: 15px 25px;
+    font-size: 16px;
+  }
+
   .top-header {
     display: none;
   }
@@ -820,13 +791,16 @@
   .header-container {
     flex-direction: row;
     text-align: left;
-    justify-content: space-between;
-    padding: 10px 20px;
+    padding: 15px 20px;
   }
   
   .logo-section {
     margin-bottom: 0;
     flex: 1;
+  }
+  
+  .logo-section img {
+    height: 70px; /* Keep original logo size */
   }
   
   .nav-menu {
@@ -837,8 +811,9 @@
     top: 100%;
     left: 0;
     background-color: white;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-    z-index: 1000;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    z-index: 999;
+    padding: 20px;
   }
   
   .nav-menu.active {
@@ -846,21 +821,73 @@
   }
   
   .nav-menu li {
-    margin: 0;
+    margin: 10px 0;
     width: 100%;
-    border-bottom: 1px solid #f0f0f0;
   }
   
-  .nav-menu a {
-    display: block;
-    padding: 15px 20px;
+  .nav-menu li:not(.login-container) {
+    display: none; /* Hide all menu items except login container */
+  }
+  
+  .login-container {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .login-btn {
+    display: none; /* Hide the login button in mobile */
+  }
+  
+  .login-dropdown {
+    position: static;
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    display: none;
+    background: transparent;
+    border-radius: 0;
+  }
+  
+  .login-dropdown.active {
+    display: flex;
+    flex-direction: row; /* Changed from column to row */
+    gap: 10px;
+  }
+  
+  .login-dropdown a {
+    text-align: center;
+    background-color: var(--primary); /* Yellow background like login button */
+    color: white; /* White text */
+    border-radius: 5px;
+    padding: 12px 15px; /* Slightly increased padding */
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+    flex: 1; /* Make buttons take equal width */
+  }
+  
+  .login-dropdown a:hover {
+    background-color: #d4960f; /* Darker yellow on hover */
+    transform: translateY(-2px);
   }
   
   .mobile-menu-btn {
     display: block;
-    position: static;
-    margin-left: 15px;
+    font-size: 24px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
   }
   
   .hero-buttons {
@@ -912,14 +939,19 @@
   .standalone .main-content {
     padding-bottom: env(safe-area-inset-bottom);
   }
-
-  /* Adjust install button for mobile */
-  .install-btn {
-    bottom: 80px;
-    padding: 15px 25px;
-    font-size: 16px;
-  }
 }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .about-container,
+      .contact-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .hero h1 {
+        font-size: 2.3rem;
+      }
+    }
     
     @media (max-width: 576px) {
       .hero h1 {
@@ -934,11 +966,11 @@
         margin-bottom: 20px;
       }
     }
-  </style>
+  </style>  
 </head>
 <body>
 
-  <!-- PWA Install Button -->
+  <!-- PWA Install Button - Only shows on mobile -->
   <button id="installBtn" class="install-btn">
     <i class="fas fa-mobile-alt"></i> Install App
   </button>
@@ -1178,7 +1210,7 @@
       }
     });
 
-    // PWA Installation Prompt
+    // PWA Installation Prompt - Mobile Only
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
 
@@ -1188,15 +1220,18 @@
       // Stash the event so it can be triggered later
       deferredPrompt = e;
       
-      // Show install button
-      installBtn.classList.add('show');
-      
-      // Auto-hide after 15 seconds
-      setTimeout(() => {
-        if (installBtn.parentNode) {
-          installBtn.classList.remove('show');
-        }
-      }, 15000);
+      // Only show install button on mobile devices
+      if (window.innerWidth <= 768) {
+        // Show install button
+        installBtn.classList.add('show');
+        
+        // Auto-hide after 7 seconds
+        setTimeout(() => {
+          if (installBtn.parentNode) {
+            installBtn.classList.remove('show');
+          }
+        }, 7000);
+      }
     });
 
     installBtn.addEventListener('click', async () => {
@@ -1218,23 +1253,42 @@
     document.addEventListener('DOMContentLoaded', function() {
       const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
       const navMenu = document.querySelector('.nav-menu');
-      
-      mobileMenuBtn.addEventListener('click', function() {
-        navMenu.classList.toggle('active');
-      });
-      
-      // Login Dropdown Functionality
       const loginBtn = document.querySelector('.login-btn');
       const loginDropdown = document.querySelector('.login-dropdown');
       
-      loginBtn.addEventListener('click', function() {
-        loginDropdown.classList.toggle('active');
+      mobileMenuBtn.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+        
+        // Toggle login dropdown when mobile menu is opened
+        if (navMenu.classList.contains('active')) {
+          loginDropdown.classList.add('active');
+        } else {
+          loginDropdown.classList.remove('active');
+        }
+      });
+      
+      // Login Dropdown Functionality (for desktop)
+      loginBtn.addEventListener('click', function(e) {
+        // Only trigger on desktop (when nav menu is not in mobile mode)
+        if (window.innerWidth > 768) {
+          e.stopPropagation();
+          loginDropdown.classList.toggle('active');
+        }
       });
       
       // Close dropdown when clicking outside
       document.addEventListener('click', function(event) {
-        if (!event.target.closest('.login-container')) {
+        // Close login dropdown on desktop
+        if (window.innerWidth > 768 && !event.target.closest('.login-container')) {
           loginDropdown.classList.remove('active');
+        }
+        
+        // Close mobile menu when clicking outside
+        if (!event.target.closest('nav') && !event.target.closest('.mobile-menu-btn')) {
+          navMenu.classList.remove('active');
+          if (window.innerWidth <= 768) {
+            loginDropdown.classList.remove('active');
+          }
         }
       });
       
