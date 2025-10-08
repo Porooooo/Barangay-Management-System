@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brgy. Talipapa Management System</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0d4f8b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="BTMS">
+  <meta name="description" content="Barangay Talipapa Management System - Empowering officials and residents through digital transformation">
+
+  <!-- Icons for iOS -->
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
+  <!-- Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #0d4f8b;
+      --secondary: #e6a919;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --success: #28a745;
+    }
+
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: #f5f5f5;
+      margin: 0;
+      overflow-x: hidden;
+      color: #333;
+      scroll-behavior: smooth;
+    }
+
+    /* PWA Installation Prompt Styles */
+    .install-prompt {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      color: #333;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      z-index: 1001;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      border: 2px solid var(--primary);
+    }
+
+    .install-prompt.show {
+      display: flex;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .install-prompt-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .install-prompt-header i {
+      font-size: 24px;
+      color: var(--primary);
+    }
+
+    .install-prompt-header h3 {
+      color: var(--primary);
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .install-prompt p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.4;
+      color: #666;
+    }
+
+    .install-prompt-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .install-prompt-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      min-height: 44px;
+      gap: 8px;
+    }
+
+    .btn-install {
+      background-color: var(--primary);
+      color: white;
+      flex: 1;
+    }
+
+    .btn-install:hover {
+      background-color: #0a3d6c;
+      transform: translateY(-2px);
+    }
+
+    .btn-later {
+      background-color: #6c757d;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-later:hover {
+      background-color: #5a6268;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 5px;
+      align-self: flex-end;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .dont-show-again {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+
+    .dont-show-again input {
+      margin: 0;
+    }
+
+    .later-options {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+
+    .later-options.show {
+      display: flex;
+    }
+
+    /* PWA Installation Button Styles - Mobile Only */
+    .install-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0d4f8b;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+      
+      /* Hide by default on desktop */
+      display: none;
+    }
+
+    .install-btn.show {
+      opacity: 1;
+      visibility: visible;
+      display: flex; /* Show when the show class is added */
+    }
+
+    .install-btn:hover {
+      background: #0a3d6c;
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+
+    /* Header Styles */
+    .top-header {
+      background-color: var(--primary);
+      color: white;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    
+    .top-header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    
+    .contact-info span {
+      margin-right: 20px;
+    }
+    
+    .contact-info i {
+      margin-right: 5px;
+    }
+    
+    .social-links a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+    }
+
+    /* Main Header */
+    .main-header {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo-section img {
+      height: 70px;
+      margin-right: 15px;
+    }
+    
+    .logo-text h1 {
+      font-size: 24px;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+    
+    .logo-text p {
+      font-size: 14px;
+      color: var(--dark);
+    }
+    
+    /* Navigation */
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      align-items: center;
+    }
+    
+    .nav-menu li {
+      margin-left: 25px;
+      position: relative;
+    }
+    
+    .nav-menu a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      transition: color 0.3s;
+      padding: 5px 0;
+      position: relative;
+    }
+    
+    .nav-menu a:hover {
+      color: var(--primary);
+    }
+    
+    .nav-menu a.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    /* Active indicator line */
+    .nav-menu a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background-color: var(--secondary);
+      transition: width 0.3s ease;
+    }
+    
+    .nav-menu a.active::after,
+    .nav-menu a:hover::after {
+      width: 100%;
+    }
+    
+    /* Login Dropdown */
+    .login-container {
+      position: relative;
+    }
+    
+    .login-btn {
+      background-color: var(--secondary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .login-btn:hover {
+      background-color: #d4960f;
+      transform: translateY(-2px);
+    }
+    
+    .login-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 180px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .login-dropdown.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(5px);
+    }
+    
+    .login-dropdown a {
+      display: block;
+      padding: 12px 15px;
+      text-decoration: none;
+      color: #333;
+      transition: background 0.3s;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .login-dropdown a:last-child {
+      border-bottom: none;
+    }
+    
+    .login-dropdown a:hover {
+      background-color: #f9f9f9;
+    }
+    
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(rgba(13, 79, 139, 0.8), rgba(13, 79, 139, 0.9)), url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      padding: 80px 20px;
+      text-align: center;
+    }
+    
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .hero h1 {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    
+    .btn-primary {
+      background-color: var(--secondary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #d4960f;
+      transform: translateY(-3px);
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+    
+    .btn-outline:hover {
+      background-color: white;
+      color: var(--primary);
+    }
+
+    /* Services Section */
+    .services {
+      padding: 80px 20px;
+      background-color: white;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    .section-title h2 {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-title h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--secondary);
+    }
+    
+    .section-title p {
+      color: #666;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .service-card {
+      background-color: var(--light);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .service-icon {
+      background-color: var(--primary);
+      color: white;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+    
+    .service-content {
+      padding: 25px;
+    }
+    
+    .service-content h3 {
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+    
+    .service-content p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    
+    .service-link {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .service-link i {
+      margin-left: 5px;
+      transition: transform 0.3s;
+    }
+    
+    .service-link:hover i {
+      transform: translateX(5px);
+    }
+
+    /* About Section */
+    .about {
+      padding: 80px 20px;
+      background-color: #f8f9fa;
+    }
+    
+    .about-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+    }
+    
+    .about-image img {
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .about-content h2 {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+    
+    .about-content p {
+      color: #666;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    
+    .stats {
+      display: flex;
+      margin-top: 30px;
+    }
+    
+    .stat-item {
+      flex: 1;
+      text-align: center;
+      padding: 15px;
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+    }
+    
+    .stat-label {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Announcements Section */
+    .announcements {
+      padding: 80px 20px;
+      background-color: white;
+    }
+    
+    .announcements-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .announcement-tabs {
+      display: flex;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .tab-btn {
+      padding: 12px 25px;
+      background: none;
+      border: none;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .tab-btn.active {
+      color: var(--primary);
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary);
+    }
+    
+    .announcement-list {
+      display: grid;
+      gap: 20px;
+    }
+    
+    .announcement-item {
+      display: flex;
+      background-color: var(--light);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .announcement-date {
+      background-color: var(--primary);
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 100px;
+    }
+    
+    .announcement-day {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .announcement-month {
+      font-size: 14px;
+    }
+    
+    .announcement-content {
+      padding: 20px;
+      flex: 1;
+    }
+    
+    .announcement-content h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+    
+    .announcement-content p {
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
+    .read-more {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Contact Section */
+    .contact {
+      padding: 80px 20px;
+      background: linear-gradient(rgba(13, 79, 139, 0.9), rgba(13, 79, 139, 0.9)), url('https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+      background-size: cover;
+      background-position: center;
+      color: white;
+    }
+    
+    .contact-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+    }
+    
+    .contact-info h2 {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+    
+    .contact-info p {
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    
+    .contact-details {
+      margin-bottom: 30px;
+    }
+    
+    .contact-item {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    
+    .contact-icon {
+      background-color: var(--secondary);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    
+    .contact-text h4 {
+      margin-bottom: 5px;
+    }
+    
+    .contact-form {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    .form-message {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      text-align: center;
+      display: none;
+    }
+    
+    .form-message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .form-message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #1a1a1a;
+      color: #aaa;
+      padding: 60px 20px 20px;
+    }
+    
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+    }
+    
+    .footer-col h3 {
+      color: white;
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .footer-col h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background-color: var(--secondary);
+    }
+    
+    .footer-col p {
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-links a {
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer-links a:hover {
+      color: var(--secondary);
+    }
+    
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 40px auto 0;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+      text-align: center;
+      font-size: 14px;
+    }
+
+   /* Mobile-specific styles */
+@media (max-width: 768px) {
+  /* Show install button only on mobile */
+  .install-btn {
+    display: flex;
+  }
+  
+  .install-btn.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .install-prompt {
+    bottom: 80px;
+    max-width: 90%;
+  }
+
+  .install-prompt-buttons {
+    flex-direction: column;
+  }
+
+  /* Adjust install button for mobile */
+  .install-btn {
+    bottom: 80px;
+    padding: 15px 25px;
+    font-size: 16px;
+  }
+
+  .top-header {
+    display: none;
+  }
+  
+  .header-container {
+    flex-direction: row;
+    text-align: left;
+    padding: 15px 20px;
+  }
+  
+  .logo-section {
+    margin-bottom: 0;
+    flex: 1;
+  }
+  
+  .logo-section img {
+    height: 70px; /* Keep original logo size */
+  }
+  
+  .nav-menu {
+    flex-direction: column;
+    width: 100%;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    z-index: 999;
+    padding: 20px;
+  }
+  
+  .nav-menu.active {
+    display: flex;
+  }
+  
+  .nav-menu li {
+    margin: 10px 0;
+    width: 100%;
+  }
+  
+  .nav-menu li:not(.login-container) {
+    display: none; /* Hide all menu items except login container */
+  }
+  
+  .login-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .login-btn {
+    display: none; /* Hide the login button in mobile */
+  }
+  
+  .login-dropdown {
+    position: static;
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    display: none;
+    background: transparent;
+    border-radius: 0;
+  }
+  
+  .login-dropdown.active {
+    display: flex;
+    flex-direction: row; /* Changed from column to row */
+    gap: 10px;
+  }
+  
+  .login-dropdown a {
+    text-align: center;
+    background-color: var(--primary); /* Yellow background like login button */
+    color: white; /* White text */
+    border-radius: 5px;
+    padding: 12px 15px; /* Slightly increased padding */
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: block;
+    flex: 1; /* Make buttons take equal width */
+  }
+  
+  .login-dropdown a:hover {
+    background-color: #d4960f; /* Darker yellow on hover */
+    transform: translateY(-2px);
+  }
+  
+  .mobile-menu-btn {
+    display: block;
+    font-size: 24px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .stats {
+    flex-direction: column;
+  }
+  
+  .announcement-item {
+    flex-direction: column;
+  }
+  
+  .announcement-date {
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    min-height: 70px;
+  }
+  
+  /* Better touch targets */
+  button, .btn, a {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Prevent zoom on input focus */
+  input, select, textarea {
+    font-size: 16px;
+  }
+  
+  /* Full-height app when installed */
+  .standalone body {
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* Hide browser UI elements when standalone */
+  .standalone .main-content {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .about-container,
+      .contact-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .hero h1 {
+        font-size: 2.3rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .hero h1 {
+        font-size: 1.8rem;
+      }
+      
+      .section-title h2 {
+        font-size: 1.8rem;
+      }
+      
+      .service-card {
+        margin-bottom: 20px;
+      }
+    }
+  </style>  
+</head>
+<body>
+
+  <!-- PWA Install Prompt -->
+  <div id="installPrompt" class="install-prompt">
+    <button class="btn-close" id="closePrompt">
+      <i class="fas fa-times"></i>
+    </button>
+    
+    <div class="install-prompt-header">
+      <i class="fas fa-mobile-alt"></i>
+      <h3>Install BTMS App</h3>
+    </div>
+    
+    <p>Install our app for a better experience and quick access to barangay services.</p>
+    
+    <div class="install-prompt-buttons">
+      <button id="installApp" class="btn btn-install">
+        <i class="fas fa-download"></i> Install Now
+      </button>
+      <button id="showLaterOptions" class="btn btn-later">
+        <i class="fas fa-clock"></i> Later
+      </button>
+    </div>
+    
+    <div id="laterOptions" class="later-options">
+      <div class="dont-show-again">
+        <input type="checkbox" id="dontShowAgain">
+        <label for="dontShowAgain">Don't show this again</label>
+      </div>
+      <button id="remindLater" class="btn btn-later">
+        <i class="fas fa-bell"></i> Remind me in 7 days
+      </button>
+    </div>
+  </div>
+
+  <!-- PWA Install Button - Only shows on mobile -->
+  <button id="installBtn" class="install-btn">
+    <i class="fas fa-mobile-alt"></i> Install App
+  </button>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="top-header-container">
+      
+      
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="logo-section">
+        <img src="images/barangay-bg.png" alt="Brgy Logo">
+        <div class="logo-text">
+
+        </div>
+      </div>
+      
+      <button class="mobile-menu-btn">
+        <i class="fas fa-bars"></i>
+      </button>
+      
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="#" class="active" data-section="home">Home</a></li>
+          <li><a href="#services" data-section="services">Services</a></li>
+          <li><a href="#about" data-section="about">About</a></li>
+          <li><a href="#contact" data-section="contact">Contact</a></li>
+          <li class="login-container">
+            <button class="login-btn">
+              Login <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="login-dropdown">
+              <a href="register">Register</a>
+              <a href="login">Login</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <h1>Empowering Barangay Talipapa Through Digital Transformation</h1><br><br>
+      <div class="hero-buttons">
+        <a href="register" class="btn btn-primary">Get Started</a>
+        <a href="#about" class="btn btn-outline">Learn More</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="services" id="services">
+    <div class="section-title">
+      <h2>Our Services</h2>
+      <p>Access a wide range of barangay services conveniently through our digital platform</p>
+    </div>
+    
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="service-content">
+          <h3>Document Requests</h3>
+          <p>Request barangay documents such as certificates, clearances, and permits online with real-time tracking.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      
+      <div class="service-card">
+        <div class="service-icon">
+          <i class="fas fa-bullhorn"></i>
+        </div>
+        <div class="service-content">
+          <h3>Announcements</h3>
+          <p>Stay informed with the latest barangay news, events, and important community announcements.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      
+      <div class="service-card">
+        <div class="service-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="service-content">
+          <h3>Community Services</h3>
+          <p>Access various barangay services and connect with fellow community members for collaborative initiatives.</p>
+          <a href="#" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ <!-- About Section -->
+<section class="about" id="about">
+  <div class="about-container">
+    <div class="about-image">
+      <img src="https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr4zGbl69cgv-Tr0YPQYmiJVnZZ9tgGbnEzum_m38fiA-AjAhYBshifsN2ZjoQtzt834tJOEs9iIxLmdwKfujWPQ07SuIlT80GjYqRid4Ra0ezsyCfXL3_nUf-2Fwi1eHIBOG3d=w408-h306-k-no" alt="Barangay Talipapa">
+    </div>
+    <div class="about-content">
+      <h2>About Barangay Talipapa</h2>
+      <p>Barangay Talipapa is a vibrant community in Cabanatuan City dedicated to providing efficient public service and fostering community development.</p>
+      <p>Our computerized record system empowers officials to better manage barangay activities while providing residents with convenient access to services and documents.</p>
+      
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-number">5,000+</span>
+          <span class="stat-label">Registered Residents</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">25+</span>
+          <span class="stat-label">Years of Service</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">15</span>
+          <span class="stat-label">Puroks</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  
+
+  <!-- Contact Section -->
+  <section class="contact" id="contact">
+    <div class="contact-container">
+      <div class="contact-info">
+        <h2>Contact Barangay Talipapa</h2>
+        <p>Have questions or need assistance? Reach out to us through any of the following channels:</p>
+        
+        <div class="contact-details">
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="contact-text">
+              <h4>Our Location</h4>
+              <p>Barangay Talipapa, Cabanatuan City, Nueva Ecija</p>
+            </div>
+          </div>
+          
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div class="contact-text">
+              <h4>Call Us</h4>
+              <p>0999999999</p>
+            </div>
+          </div>
+          
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="contact-text">
+              <h4>Email Us</h4>
+              <p>barangaytalipapa7@gmail.com</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="contact-form">
+        <h3 style="color: var(--primary); margin-bottom: 20px;">Send us a Message</h3>
+        <div id="form-message" class="form-message"></div>
+        <form id="contact-form">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" class="form-control" placeholder="Your Name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="Your Email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" class="form-control" placeholder="Subject" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" class="form-control" placeholder="Your Message" required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>Barangay Talipapa</h3>
+        <p>Empowering officials and residents through digital transformation and efficient public service delivery.</p>
+        
+      </div>
+      
+      
+    
+    <div class="footer-bottom">
+      <p>&copy; 2023 Barangay Talipapa Management System. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('SW registered: ', registration);
+          })
+          .catch(function(registrationError) {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+
+    // Detect when app is launched from home screen
+    window.addEventListener('load', function() {
+      if (window.navigator.standalone === true) {
+        // App launched from home screen
+        document.body.classList.add('standalone');
+      }
+    });
+
+    // PWA Installation Logic
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    const installPrompt = document.getElementById('installPrompt');
+    const installAppBtn = document.getElementById('installApp');
+    const closePromptBtn = document.getElementById('closePrompt');
+    const showLaterOptionsBtn = document.getElementById('showLaterOptions');
+    const laterOptions = document.getElementById('laterOptions');
+    const remindLaterBtn = document.getElementById('remindLater');
+    const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
+
+    // Check if user has previously dismissed the prompt
+    function shouldShowPrompt() {
+      const dontShowAgain = localStorage.getItem('pwaDontShowAgain');
+      const lastPromptTime = localStorage.getItem('pwaLastPromptTime');
+      
+      if (dontShowAgain === 'true') {
+        return false;
+      }
+      
+      if (lastPromptTime) {
+        const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        return lastPromptTime < sevenDaysAgo;
+      }
+      
+      return true;
+    }
+
+    function showInstallPrompt() {
+      if (shouldShowPrompt() && window.innerWidth <= 768) {
+        installPrompt.classList.add('show');
+        // Store the current time as last prompt time
+        localStorage.setItem('pwaLastPromptTime', Date.now());
+      }
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      deferredPrompt = e;
+      
+      // Show install button on mobile
+      if (window.innerWidth <= 768) {
+        installBtn.classList.add('show');
+        
+        // Auto-show prompt after 3 seconds
+        setTimeout(showInstallPrompt, 3000);
+        
+        // Auto-hide button after 7 seconds
+        setTimeout(() => {
+          installBtn.classList.remove('show');
+        }, 7000);
+      }
+    });
+
+    // Install button click
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        deferredPrompt = null;
+        installBtn.classList.remove('show');
+        installPrompt.classList.remove('show');
+      }
+    });
+
+    // Install from prompt
+    installAppBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        deferredPrompt = null;
+        installPrompt.classList.remove('show');
+        installBtn.classList.remove('show');
+      }
+    });
+
+    // Close prompt
+    closePromptBtn.addEventListener('click', () => {
+      installPrompt.classList.remove('show');
+    });
+
+    // Show later options
+    showLaterOptionsBtn.addEventListener('click', () => {
+      laterOptions.classList.add('show');
+    });
+
+    // Remind later (7 days)
+    remindLaterBtn.addEventListener('click', () => {
+      if (dontShowAgainCheckbox.checked) {
+        localStorage.setItem('pwaDontShowAgain', 'true');
+      } else {
+        localStorage.setItem('pwaLastPromptTime', Date.now());
+      }
+      installPrompt.classList.remove('show');
+    });
+
+    window.addEventListener('appinstalled', (evt) => {
+      console.log('App was successfully installed');
+      installBtn.classList.remove('show');
+      installPrompt.classList.remove('show');
+      // Clear the deferredPrompt so it can be garbage collected
+      deferredPrompt = null;
+    });
+
+    // Mobile Menu Toggle
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+      const navMenu = document.querySelector('.nav-menu');
+      const loginBtn = document.querySelector('.login-btn');
+      const loginDropdown = document.querySelector('.login-dropdown');
+      
+      mobileMenuBtn.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+        
+        // Toggle login dropdown when mobile menu is opened
+        if (navMenu.classList.contains('active')) {
+          loginDropdown.classList.add('active');
+        } else {
+          loginDropdown.classList.remove('active');
+        }
+      });
+      
+      // Login Dropdown Functionality (for desktop)
+      loginBtn.addEventListener('click', function(e) {
+        // Only trigger on desktop (when nav menu is not in mobile mode)
+        if (window.innerWidth > 768) {
+          e.stopPropagation();
+          loginDropdown.classList.toggle('active');
+        }
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        // Close login dropdown on desktop
+        if (window.innerWidth > 768 && !event.target.closest('.login-container')) {
+          loginDropdown.classList.remove('active');
+        }
+        
+        // Close mobile menu when clicking outside
+        if (!event.target.closest('nav') && !event.target.closest('.mobile-menu-btn')) {
+          navMenu.classList.remove('active');
+          if (window.innerWidth <= 768) {
+            loginDropdown.classList.remove('active');
+          }
+        }
+      });
+      
+      // Tab functionality for announcements
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          // Remove active class from all buttons
+          tabBtns.forEach(b => b.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+        });
+      });
+      
+      // Contact Form Submission
+      const contactForm = document.getElementById('contact-form');
+      const formMessage = document.getElementById('form-message');
+      
+      contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value;
+        
+        // Simple validation
+        if (!name || !email || !subject || !message) {
+          showFormMessage('Please fill in all fields.', 'error');
+          return;
+        }
+        
+        // Create mailto link
+        const mailtoLink = `mailto:barangaytalipapa7@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+        
+        // Open email client
+        window.location.href = mailtoLink;
+        
+        // Show success message
+        showFormMessage('Your message has been prepared. Please send it from your email client.', 'success');
+        
+        // Reset form
+        contactForm.reset();
+      });
+      
+      function showFormMessage(message, type) {
+        formMessage.textContent = message;
+        formMessage.className = `form-message ${type}`;
+        formMessage.style.display = 'block';
+        
+        // Hide message after 5 seconds
+        setTimeout(() => {
+          formMessage.style.display = 'none';
+        }, 5000);
+      }
+      
+      // Active Menu Item Highlighting
+      const navLinks = document.querySelectorAll('.nav-menu a[data-section]');
+      const sections = document.querySelectorAll('section[id]');
+      
+      // Function to update active menu item
+      function updateActiveMenu() {
+        let currentSection = '';
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - 100;
+          const sectionHeight = section.clientHeight;
+          if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+            currentSection = section.getAttribute('id');
+          }
+        });
+        
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('data-section') === currentSection) {
+            link.classList.add('active');
+          }
+        });
+      }
+      
+      // Update active menu on scroll
+      window.addEventListener('scroll', updateActiveMenu);
+      
+      // Update active menu on click
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          navLinks.forEach(l => l.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+      
+      // Initialize active menu on page load
+      updateActiveMenu();
+    });
+  </script>
+</body>
+</html>
