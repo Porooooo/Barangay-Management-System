@@ -86,7 +86,7 @@
             <span class="close" onclick="closeLogoutModal()">&times;</span>
             <h3>Are you sure you want to logout?</h3>
             <div class="modal-actions">
-                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="confirm" onclick="confirmLogout()">Yes, Logout</button>
                 <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
             </div>
         </div>
@@ -98,7 +98,26 @@
         // Toggle sidebar menu
         function toggleMenu() {
             const sidebar = document.querySelector('.sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
             sidebar.classList.toggle('active');
+
+            if (sidebar.classList.contains('active')) {
+                menuBtn.style.display = 'none';
+            } else {
+                menuBtn.style.display = 'flex';
+            }
+        }
+
+        // Create and add mobile close button to sidebar
+        function addMobileCloseButton() {
+            const sidebar = document.querySelector('.sidebar');
+            const closeBtn = document.createElement('div');
+            closeBtn.className = 'mobile-close-btn';
+            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            closeBtn.onclick = toggleMenu;
+            
+            const logoName = document.querySelector('.logo-name');
+            logoName.appendChild(closeBtn);
         }
 
         // Close sidebar when clicking on a link (mobile)
@@ -581,6 +600,9 @@
     
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Add mobile close button
+            addMobileCloseButton();
+            
             // Load announcements when page loads
             loadAnnouncements();
             

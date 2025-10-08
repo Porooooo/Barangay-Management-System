@@ -11,6 +11,11 @@
 </head>
 
 <body>
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu-btn" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
     <!-- Sidebar -->
     <nav class="sidebar">
         <div class="logo-name">
@@ -36,8 +41,6 @@
                         <i class="fas fa-shield-alt"></i>
                         <span class="link-name">Blotter</span>
                     </a></li>
-
-
 
                 <li><a href="/announcement">
                         <i class="fas fa-bell"></i>
@@ -95,7 +98,7 @@
                     <span class="text">Resident Dashboard</span>
                 </div>
                 <div class="boxes">
-                    <div class="box box1" onclick="location.href='/Requests'">
+                    <div class="box box1" onclick="location.href='/requests'">
                         <i class="fas fa-file-alt"></i>
                         <span class="text"></span>
                         <span class="number" id="pendingRequests">0</span>
@@ -163,7 +166,7 @@
             <span class="close" onclick="closeLogoutModal()">&times;</span>
             <h3>Are you sure you want to logout?</h3>
             <div class="modal-actions">
-                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="confirm" onclick="confirmLogout()">Yes, Logout</button>
                 <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
             </div>
         </div>
@@ -171,10 +174,39 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Toggle sidebar on mobile
+        // Toggle sidebar menu
         function toggleMenu() {
-            document.querySelector('.sidebar').classList.toggle('active');
+            const sidebar = document.querySelector('.sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            sidebar.classList.toggle('active');
+
+            if (sidebar.classList.contains('active')) {
+                menuBtn.style.display = 'none';
+            } else {
+                menuBtn.style.display = 'flex';
+            }
         }
+
+        // Create and add mobile close button to sidebar
+        function addMobileCloseButton() {
+            const sidebar = document.querySelector('.sidebar');
+            const closeBtn = document.createElement('div');
+            closeBtn.className = 'mobile-close-btn';
+            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            closeBtn.onclick = toggleMenu;
+            
+            const logoName = document.querySelector('.logo-name');
+            logoName.appendChild(closeBtn);
+        }
+
+        // Close sidebar when clicking on a link (mobile)
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleMenu();
+                }
+            });
+        });
 
         // Toggle profile dropdown
         function toggleProfileDropdown() {
@@ -397,9 +429,9 @@
 
         function viewActivity(type, id) {
             if (type === 'Request') {
-                window.location.href = `/residentRequests#${id}`;
+                window.location.href = `/requests#${id}`;
             } else if (type === 'Blotter') {
-                window.location.href = `/resident-blotter#${id}`;
+                window.location.href = `/blotter#${id}`;
             }
         }
 
@@ -566,24 +598,7 @@
             }
         }
 
-        // ========== UPDATED LOGOUT FUNCTIONALITY ==========
         // Logout functionality
-        async function logout() {
-            try {
-                const response = await fetch('/api/auth/logout', {
-                    method: 'POST'
-                });
-
-                if (response && response.ok) {
-                    localStorage.removeItem('userEmail');
-                    localStorage.removeItem('userId');
-                    window.location.href = '/';
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-        }
-
         function openLogoutModal() {
             document.getElementById('logoutModal').style.display = 'block';
         }
@@ -592,9 +607,22 @@
             document.getElementById('logoutModal').style.display = 'none';
         }
 
-        function confirmLogout() {
-            closeLogoutModal();
-            logout();
+        async function confirmLogout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    throw new Error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Failed to logout. Please try again.');
+            }
         }
 
         // Sidebar logout functionality
@@ -622,7 +650,6 @@
             e.preventDefault();
             openLogoutModal();
         });
-        // ========== END UPDATED LOGOUT FUNCTIONALITY ==========
 
         const socket = io({ withCredentials: true });
 
@@ -665,6 +692,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Add mobile close button
+            addMobileCloseButton();
+            
             // Initialize greeting and time
             updateGreetingAndTime();
 
@@ -688,9 +718,6 @@
                     console.error('Auth check error:', error);
                     window.location.href = '/';
                 });
-
-            // Remove the duplicate logout button event listener since we're using setupSidebarLogout
-            // The setupSidebarLogout function already handles the sidebar logout button
         });
 
         setInterval(fetchResidentData, 30000);
