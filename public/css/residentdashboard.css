@@ -1234,3 +1234,63 @@
          gap: 10px;
      }
  }
+
+ /* === Logout Modal Responsive Design === */
+@media (max-width: 768px) {
+    #logoutModal .modal-content {
+        width: 90%;
+        max-width: 320px;
+        padding: 20px;
+        margin: 30% auto;
+        border-radius: 10px;
+    }
+
+    #logoutModal .modal-content h3 {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    #logoutModal .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #logoutModal .modal-actions button {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    #logoutModal .modal-content {
+        width: 95%;
+        padding: 18px;
+        margin: 40% auto;
+    }
+
+    #logoutModal .modal-content h3 {
+        font-size: 15px;
+    }
+
+    #logoutModal .modal-actions button {
+        font-size: 13px;
+        padding: 9px;
+    }
+}
+
+@media (max-width: 360px) {
+    #logoutModal .modal-content {
+        margin: 45% auto;
+        padding: 16px;
+    }
+
+    #logoutModal .modal-content h3 {
+        font-size: 14px;
+    }
+
+    #logoutModal .modal-actions button {
+        font-size: 12px;
+        padding: 8px;
+    }
+}
