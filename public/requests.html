@@ -35,46 +35,48 @@
 
         /* Sidebar Styles */
         .sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: var(--sidebar-width);
-  background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
-  color: #F8FAFC;
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
-  overflow-y: auto;
-  transition: all 0.3s ease;
-}
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
+            color: #F8FAFC;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
 
-.sidebar a {
-  display: flex;
-  align-items: center;
-  color: #E2E8F0;
-  padding: 12px 18px;
-  margin: 6px 12px;
-  border-radius: 10px;
-  transition: 0.3s ease;
-  position: relative;
-}
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: #E2E8F0;
+            padding: 12px 18px;
+            margin: 6px 12px;
+            border-radius: 10px;
+            transition: 0.3s ease;
+            position: relative;
+        }
 
-.sidebar a:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  transform: translateX(4px);
-}
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(4px);
+        }
 
-.sidebar a i {
-  margin-right: 12px;
-  transition: all 0.3s ease;
-}
+        .sidebar a i {
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
 
-.sidebar a:hover i {
-  color: #60A5FA;
-  transform: translateX(4px);
-  text-shadow: 0 0 10px #60A5FA;
-}
-.greeting-section {
+        .sidebar a:hover i {
+            color: #60A5FA;
+            transform: translateX(4px);
+            text-shadow: 0 0 10px #60A5FA;
+        }
+
+        .greeting-section {
             padding: 20px 15px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin-top: auto;
@@ -669,7 +671,7 @@
             transform: translateY(-2px);
         }
 
-        /* Responsive Design */
+        /* Mobile Responsive Table Styles */
         @media (max-width: 768px) {
             .sidebar {
                 left: -100%;
@@ -692,6 +694,7 @@
             
             .requests-container {
                 padding: 20px;
+                overflow-x: auto;
             }
             
             .request-modal-content {
@@ -700,10 +703,12 @@
                 margin: 10% auto;
             }
             
+            /* Horizontal scroll for tablets and larger phones */
             table {
                 display: block;
                 overflow-x: auto;
                 white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
             }
         }
 
@@ -714,7 +719,7 @@
             }
             
             .requests-container {
-                padding: 15px;
+                padding: 10px;
             }
             
             .modal-content {
@@ -727,10 +732,6 @@
                 padding: 15px;
             }
             
-            th, td {
-                padding: 8px 10px;
-            }
-            
             .page-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -738,7 +739,83 @@
             }
             
             .request-document-btn {
-                align-self: flex-end;
+                align-self: stretch;
+                text-align: center;
+            }
+            
+            /* Stack table for very small screens */
+            table {
+                display: block;
+                width: 100%;
+                overflow-x: visible;
+                white-space: normal;
+            }
+            
+            thead {
+                display: none;
+            }
+            
+            tbody {
+                display: block;
+                width: 100%;
+            }
+            
+            tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 15px;
+                background: white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            
+            td {
+                display: block;
+                text-align: right;
+                padding: 8px 10px;
+                border: none;
+                border-bottom: 1px solid #f0f0f0;
+                position: relative;
+                white-space: normal;
+            }
+            
+            td:last-child {
+                border-bottom: none;
+            }
+            
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                top: 8px;
+                font-weight: 600;
+                color: var(--primary);
+                text-transform: uppercase;
+                font-size: 0.8em;
+            }
+            
+            /* Status styling adjustments for mobile */
+            .status {
+                display: inline-block;
+                margin-top: 5px;
+            }
+            
+            /* Action buttons styling for mobile */
+            .action-btn, .delete-btn {
+                width: 100%;
+                padding: 10px;
+                margin-top: 5px;
+            }
+            
+            /* Document details adjustments */
+            .document-details div {
+                margin-bottom: 5px;
+            }
+            
+            .rejection-reason {
+                font-size: 0.75em;
+                margin-top: 8px;
             }
         }
     </style>
@@ -802,6 +879,7 @@
     <!-- Main Content -->
     <section class="main-content">
         <div class="page-header">
+            <h1 class="page-title">Document Requests</h1>
             <button class="request-document-btn" id="requestDocumentBtn">
                 <i class="fas fa-plus"></i> Request New Document
             </button>
@@ -904,8 +982,6 @@
             </div>
         </div>
     </div>
-
-    
 
     <!-- Success Modal -->
     <div id="successModal" class="modal">
@@ -1243,10 +1319,12 @@
                 // Document Type
                 const docTypeCell = row.insertCell();
                 docTypeCell.textContent = request.documentType || 'N/A';
+                docTypeCell.setAttribute('data-label', 'Document Type');
                 
                 // Purpose
                 const purposeCell = row.insertCell();
                 purposeCell.textContent = request.purpose || 'N/A';
+                purposeCell.setAttribute('data-label', 'Purpose');
                 
                 // Date Requested
                 const dateCell = row.insertCell();
@@ -1254,6 +1332,7 @@
                     <div>${request.formattedDate || 'N/A'}</div>
                     <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
                 `;
+                dateCell.setAttribute('data-label', 'Date Requested');
                 
                 // Status - Updated to include rejection reason
                 const statusCell = row.insertCell();
@@ -1276,6 +1355,7 @@
                 }
                 
                 statusCell.innerHTML = statusHTML;
+                statusCell.setAttribute('data-label', 'Status');
                 
                 // Details Column - Added more information
                 const detailsCell = row.insertCell();
@@ -1299,9 +1379,11 @@
                 }
                 
                 detailsCell.innerHTML = detailsHTML || 'No additional details';
+                detailsCell.setAttribute('data-label', 'Details');
                 
                 // Actions
                 const actionsCell = row.insertCell();
+                actionsCell.setAttribute('data-label', 'Actions');
                 
                 if (request.status === 'Ready to Claim') {
                     const claimBtn = document.createElement('button');
