@@ -39,6 +39,7 @@ body {
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
+    z-index: 1000;
 }
 
 .sidebar a {
@@ -99,6 +100,7 @@ body {
     align-items: center;
     padding: 20px 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
 }
 
 .logo-image img {
@@ -162,6 +164,29 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Mobile Close Button */
+.mobile-close-btn {
+    position: absolute;
+    top: 25px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #fff;
+    display: none;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.mobile-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
 /* Main Content */
 .main-content {
     margin-left: var(--sidebar-width);
@@ -178,7 +203,7 @@ body {
     font-size: 24px;
     cursor: pointer;
     color: var(--primary);
-    z-index: 99;
+    z-index: 999;
     background: white;
     width: 40px;
     height: 40px;
@@ -187,6 +212,12 @@ body {
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+    background: white;
+    transform: scale(1.1);
 }
 
 /* Header */
@@ -609,6 +640,10 @@ body {
     
     .sidebar.active {
         left: 0;
+    }
+    
+    .mobile-close-btn {
+        display: flex;
     }
     
     .main-content {

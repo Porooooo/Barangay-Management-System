@@ -20,6 +20,9 @@
                 <img src="images/barangay-bg.png" alt="BTMS Logo">
             </div>
             <span class="logo_name">Brgy. Talipapa</span>
+            <div class="mobile-close-btn">
+                <i class="fas fa-times"></i>
+            </div>
         </div>
         
         <div class="menu-items">
@@ -309,7 +312,26 @@
         // Toggle sidebar menu
         function toggleMenu() {
             const sidebar = document.querySelector('.sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
             sidebar.classList.toggle('active');
+            
+            if (sidebar.classList.contains('active')) {
+                menuBtn.style.display = 'none';
+            } else {
+                menuBtn.style.display = 'flex';
+            }
+        }
+
+        // Create and add mobile close button to sidebar
+        function addMobileCloseButton() {
+            const sidebar = document.querySelector('.sidebar');
+            const closeBtn = document.createElement('div');
+            closeBtn.className = 'mobile-close-btn';
+            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            closeBtn.onclick = toggleMenu;
+            
+            const logoName = document.querySelector('.logo-name');
+            logoName.appendChild(closeBtn);
         }
 
         // Close sidebar when clicking on a link (mobile)
@@ -360,6 +382,9 @@
         // Check authentication status when page loads
         document.addEventListener('DOMContentLoaded', async function() {
             try {
+                // Add mobile close button
+                addMobileCloseButton();
+                
                 const response = await fetch('/api/auth/check-auth', {
                     credentials: 'include'
                 });
@@ -376,6 +401,20 @@
                 
                 // Set up event listeners
                 setupEventListeners();
+                
+                // Add logout event listener
+                document.getElementById('sidebarLogoutBtn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openLogoutModal();
+                });
+                
+                // Close logout modal when clicking outside
+                window.addEventListener('click', function(event) {
+                    const logoutModal = document.getElementById('logoutModal');
+                    if (event.target === logoutModal) {
+                        closeLogoutModal();
+                    }
+                });
             } catch (error) {
                 console.error('Error checking auth status:', error);
                 window.location.href = '/login';
@@ -401,12 +440,6 @@
             document.getElementById('cancelEditBtn').addEventListener('click', function(e) {
                 e.preventDefault();
                 cancelEdit();
-            });
-
-            // Add logout event listener
-            document.getElementById('sidebarLogoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                openLogoutModal();
             });
         }
 
@@ -843,14 +876,6 @@
                 alert('An error occurred during logout.');
             });
         }
-
-        // Close logout modal when clicking outside
-        window.addEventListener('click', function(event) {
-            const logoutModal = document.getElementById('logoutModal');
-            if (event.target === logoutModal) {
-                closeLogoutModal();
-            }
-        });
     </script>
 </body>
 </html>
