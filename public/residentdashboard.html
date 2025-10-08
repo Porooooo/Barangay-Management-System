@@ -1,984 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">    
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/residentdashboard.css">
     <title>Resident Dashboard - Barangay Talipapa</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
-        :root {
-            --primary: #0d4f8b  ;
-            --secondary: #e6a919;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --success: #28a745;
-            --danger: #e74c3c;
-            --warning: #ffa000;
-            --sidebar-width: 250px;
-            --header-height: 70px;
-        }
-        
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
-        
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
-            background-attachment: fixed;
-            color: #333;
-            overflow-x: hidden;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: var(--sidebar-width);
-  background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
-  color: #F8FAFC;
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
-  overflow-y: auto;
-  transition: all 0.3s ease;
-}
-
-.sidebar a {
-  display: flex;
-  align-items: center;
-  color: #E2E8F0;
-  padding: 12px 18px;
-  margin: 6px 12px;
-  border-radius: 10px;
-  transition: 0.3s ease;
-  position: relative;
-}
-
-.sidebar a:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  transform: translateX(4px);
-}
-
-.sidebar a i {
-  margin-right: 12px;
-  transition: all 0.3s ease;
-}
-
-.sidebar a:hover i {
-  color: #60A5FA;
-  transform: translateX(4px);
-  text-shadow: 0 0 10px #60A5FA;
-}
-.greeting-section {
-            padding: 20px 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: auto;
-        }
-
-        .greeting {
-            font-size: 16px;
-            color: #E2E8F0;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .current-date {
-            font-size: 14px;
-            color: #94A3B8;
-            margin-bottom: 3px;
-        }
-
-        .current-time {
-            font-size: 14px;
-            color: #94A3B8;
-            font-weight: 500;
-        }
-
-        .logo-name {
-            display: flex;
-            align-items: center;
-            padding: 20px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo-image img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .logo_name {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .menu-items {
-            padding: 15px 0;
-        }
-
-        .nav-links {
-            list-style: none;
-        }
-
-        .nav-links li {
-            margin-bottom: 5px;
-        }
-
-        .nav-links a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-left-color: var(--secondary);
-        }
-
-        .nav-links i {
-            font-size: 18px;
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .link-name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .logout-section {
-            padding: 15px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-
-        /* Main Content */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 20px;
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
-
-        .top {
-    display: flex;
-    justify-content: flex-end; /* push content to the right */
-    align-items: center;
-    background-color: white;
-    padding: 15px 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px;
-}
-
-        .sidebar-toggle {
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--primary);
-            display: none;
-        }
-
-        /* Header Right Section */
-        .header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-left: auto; /* pushes it all the way right */
-}
-
-
-        /* Notification Icon */
-        .notification-icon {
-            position: relative;
-            cursor: pointer;
-            color: var(--dark);
-            font-size: 22px;
-            transition: all 0.3s ease;
-            padding: 8px;
-            border-radius: 50%;
-        }
-
-        .notification-icon:hover {
-            background-color: #f0f0f0;
-            color: var(--primary);
-            transform: scale(1.1);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background-color: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
-            }
-            70% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
-            }
-        }
-
-        /* Profile Dropdown */
-        .profile-container {
-            position: relative;
-        }
-
-        .profile-picture {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .profile-picture:hover {
-            transform: scale(1.05);
-            border-color: var(--secondary);
-        }
-
-        .profile-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 180px;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-        }
-
-        .profile-dropdown.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(5px);
-            animation: dropdownFadeIn 0.3s ease-out;
-        }
-
-        @keyframes dropdownFadeIn {
-            0% {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(5px);
-            }
-        }
-
-        .profile-dropdown a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: var(--dark);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .profile-dropdown a:last-child {
-            border-bottom: none;
-        }
-
-        .profile-dropdown a:hover {
-            background-color: #f8f9fa;
-            color: var(--primary);
-            padding-left: 20px;
-        }
-
-        .profile-dropdown i {
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        /* Dashboard Content */
-        .dash-content {
-            margin-top: 10px;
-        }
-
-        .title {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .title i {
-            font-size: 24px;
-            color: var(--primary);
-            margin-right: 10px;
-        }
-
-        .title .text {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .boxes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .box {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-top: 4px solid transparent;
-        }
-
-        .box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .box i {
-            font-size: 32px;
-            margin-bottom: 15px;
-        }
-
-        .box .text {
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: var(--dark);
-        }
-
-        .box .number {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .box1 { 
-            border-top-color: var(--primary); 
-        }
-        .box1 i { color: var(--primary); }
-        .box1 .number { color: var(--primary); }
-
-        .box2 { 
-            border-top-color: var(--success); 
-        }
-        .box2 i { color: var(--success); }
-        .box2 .number { color: var(--success); }
-
-        .box3 { 
-            border-top-color: var(--warning); 
-        }
-        .box3 i { color: var(--warning); }
-        .box3 .number { color: var(--warning); }
-
-        /* Recent Activity */
-        .activity-section {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-top: 20px;
-        }
-
-        .activity-section .title {
-            margin-bottom: 15px;
-        }
-
-        .activity-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .activity-table th, .activity-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .activity-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .activity-table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        .status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            text-transform: uppercase;
-        }
-
-        .status-pending { background-color: #fff3cd; color: #856404; }
-        .status-under-investigation { background-color: #d1ecf1; color: #0c5460; }
-        .status-resolved { background-color: #d4edda; color: #155724; }
-        .status-dismissed { background-color: #f8d7da; color: #721c24; }
-
-        .view-button {
-            background-color: var(--primary);
-            color: white;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background-color 0.3s;
-        }
-
-        .view-button:hover {
-            background-color: #1c6ea4;
-            transform: translateY(-2px);
-        }
-
-        /* Emergency Button */
-        .emergency-button-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 100;
-        }
-
-        .emergency-button {
-            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 15px 25px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .emergency-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
-        }
-
-        /* Emergency Response Notification */
-        .emergency-response-notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #5ECF89;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            max-width: 80%;
-            width: 400px;
-            animation: slideDown 0.3s forwards;
-        }
-
-        .emergency-response-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .emergency-response-content i {
-            font-size: 24px;
-        }
-
-        .emergency-response-content h4 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
-        }
-
-        .emergency-response-content p {
-            margin: 0;
-            font-size: 14px;
-        }
-
-        @keyframes slideDown {
-            from { transform: translate(-50%, -100%); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translate(-50%, 0); }
-            to { opacity: 0; transform: translate(-50%, -100%); }
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 10% auto;
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            position: relative;
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .close {
-            color: #aaa;
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .close:hover {
-            color: black;
-            transform: scale(1.1);
-        }
-
-        .modal-content h2 {
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-
-        .modal-content textarea {
-            width: 100%;
-            height: 150px;
-            margin: 15px 0;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            resize: none;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .modal-content textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(13, 79, 139, 0.2);
-        }
-
-        .modal-content button {
-            background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .modal-content button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(13, 79, 139, 0.3);
-        }
-
-        /* Logout Modal */
-        #logoutModal .modal-content {
-    max-width: 350px;
-    text-align: center;
-}
-
-#logoutModal .modal-content h3 {
-    margin-bottom: 20px;
-    font-size: 18px;
-    color: var(--dark);
-}
-
-#logoutModal .modal-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-#logoutModal .modal-actions button {
-    flex: 1;
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: none;
-    transition: all 0.3s ease;
-}
-
-#logoutModal .confirm {
-    background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
-    color: #fff;
-}
-
-#logoutModal .cancel {
-    background-color: #ddd;
-    color: #333;
-}
-
-#logoutModal .confirm:hover, #logoutModal .cancel:hover {
-    transform: translateY(-2px);
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 25px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    position: relative;
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.close {
-    color: #aaa;
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.close:hover {
-    color: black;
-    transform: scale(1.1);
-}
-        
-        /* Modal Buttons */
-
-
-        /* Modal Styles for Resident Dashboard */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
-}
-
-.modal-content {
-    background: white;
-    border-radius: 15px;
-    padding: 25px;
-    width: 90%;
-    max-width: 450px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    position: relative;
-    animation: modalSlideIn 0.3s ease-out;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.modal-header h2 {
-    color: var(--primary);
-    margin: 0;
-    font-size: 1.3rem;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 22px;
-    cursor: pointer;
-    color: #999;
-    transition: color 0.3s;
-}
-
-.modal-close:hover {
-    color: var(--danger);
-}
-
-.modal-body {
-    margin-bottom: 20px;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-/* Emergency-specific modal */
-.emergency-modal .modal-content {
-    border-top: 4px solid var(--danger);
-    background: linear-gradient(135deg, #fff 0%, #fff8f8 100%);
-}
-
-@keyframes modalSlideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes modalSlideOut {
-    from { transform: translateY(0); opacity: 1; }
-    to { transform: translateY(-50px); opacity: 0; }
-}
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .boxes {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                left: -100%;
-                width: 280px;
-                border-radius: 0 20px 20px 0;
-            }
-            
-            .sidebar.active {
-                left: 0;
-            }
-
-            
-            
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-            
-            .sidebar-toggle {
-                display: block;
-            }
-            
-            .top {
-                padding: 12px 15px;
-            }
-            
-            .boxes {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .box {
-                padding: 20px;
-            }
-            
-            .emergency-button-container {
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            .emergency-response-notification {
-                width: 90%;
-                top: 15px;
-                max-width: 350px;
-            }
-            
-            /* Emergency button only icon on mobile */
-            .emergency-button {
-                padding: 12px;
-                border-radius: 50%;
-                width: 55px;
-                height: 55px;
-                justify-content: center;
-                gap: 0;
-            }
-            .emergency-button span { 
-                display: none; 
-            }
-            .emergency-button i { 
-                margin: 0; 
-                font-size: 22px; 
-            }
-            
-            .activity-table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 10px;
-            }
-            
-            .top {
-                padding: 10px 12px;
-            }
-            
-            .profile-picture {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .notification-icon {
-                font-size: 20px;
-            }
-            
-            .title .text {
-                font-size: 18px;
-            }
-            
-            .box {
-                padding: 15px;
-            }
-            
-            .box i {
-                font-size: 28px;
-            }
-            
-            .box .text {
-                font-size: 14px;
-            }
-            
-            .box .number {
-                font-size: 18px;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 20% auto;
-                padding: 20px;
-            }
-            
-            .emergency-button {
-                width: 50px;
-                height: 50px;
-                padding: 10px;
-            }
-            
-            .emergency-button i {
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .box .text, .box .number {
-                font-size: 13px;
-            }
-            
-            .emergency-button {
-                width: 45px;
-                height: 45px;
-                padding: 8px;
-            }
-            
-            .emergency-button i {
-                font-size: 18px;
-            }
-            
-            .activity-section {
-                padding: 15px;
-            }
-            
-            .activity-table th, .activity-table td {
-                padding: 8px 10px;
-                font-size: 13px;
-            }
-            
-            .header-right {
-                gap: 10px;
-            }
-        }
-    </style>
 </head>
+
 <body>
     <!-- Sidebar -->
     <nav class="sidebar">
@@ -988,32 +19,32 @@
             </div>
             <span class="logo_name">Brgy. Talipapa</span>
         </div>
-        
+
         <div class="menu-items">
             <ul class="nav-links">
                 <li><a href="/residentdashboard" class="active">
-                    <i class="fas fa-home"></i>
-                    <span class="link-name">Dashboard</span>
-                </a></li>
-            
+                        <i class="fas fa-home"></i>
+                        <span class="link-name">Dashboard</span>
+                    </a></li>
+
                 <li><a href="/requests">
-                    <i class="fas fa-file-alt"></i>
-                    <span class="link-name">Request Document</span>
-                </a></li>
-            
+                        <i class="fas fa-file-alt"></i>
+                        <span class="link-name">Request Document</span>
+                    </a></li>
+
                 <li><a href="/blotter">
-                    <i class="fas fa-shield-alt"></i>
-                    <span class="link-name">Blotter</span>
-                </a></li>
-            
-              
-            
+                        <i class="fas fa-shield-alt"></i>
+                        <span class="link-name">Blotter</span>
+                    </a></li>
+
+
+
                 <li><a href="/announcement">
-                    <i class="fas fa-bell"></i>
-                    <span class="link-name">Announcements</span>
-                </a></li>
+                        <i class="fas fa-bell"></i>
+                        <span class="link-name">Announcements</span>
+                    </a></li>
             </ul>
-            
+
             <!-- Logout Section -->
             <div class="logout-section">
                 <a href="#" id="sidebarLogoutBtn">
@@ -1022,7 +53,7 @@
                 </a>
             </div>
         </div>
-        
+
         <!-- Greeting and Time Section - MOVED TO BOTTOM -->
         <div class="greeting-section">
             <div class="greeting" id="greetingText"></div>
@@ -1030,7 +61,7 @@
             <div class="current-time" id="currentTime"></div>
         </div>
     </nav>
-    
+
     <!-- Main Content -->
     <section class="main-content">
         <div class="top">
@@ -1041,7 +72,8 @@
                     <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
                 </div>
                 <div class="profile-container">
-                    <img id="profilePicture" class="profile-picture" src="" alt="Profile Picture" onclick="toggleProfileDropdown()" />
+                    <img id="profilePicture" class="profile-picture" src="" alt="Profile Picture"
+                        onclick="toggleProfileDropdown()" />
                     <div class="profile-dropdown" id="profileDropdown">
                         <a href="/profile">
                             <i class="fas fa-user"></i>
@@ -1055,7 +87,7 @@
                 </div>
             </div>
         </div>
-    
+
         <div class="dash-content">
             <div class="overview">
                 <div class="title">
@@ -1080,7 +112,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Recent Activity Section -->
             <div class="activity-section">
                 <div class="title">
@@ -1107,14 +139,14 @@
             </div>
         </div>
     </section>
-  
+
     <!-- Emergency Button -->
     <div class="emergency-button-container">
         <button class="emergency-button" onclick="openEmergencyModal()">
             <i class="fas fa-bell"></i> <span>Emergency</span>
         </button>
     </div>
-  
+
     <!-- Emergency Modal -->
     <div id="emergencyModal" class="modal">
         <div class="modal-content">
@@ -1125,52 +157,52 @@
         </div>
     </div>
 
-<!-- Logout Confirmation Modal -->
-<div id="logoutModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeLogoutModal()">&times;</span>
-        <h3>Are you sure you want to logout?</h3>
-        <div class="modal-actions">
-            <button class="confirm" onclick="confirmLogout()">Yes</button>
-            <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLogoutModal()">&times;</span>
+            <h3>Are you sure you want to logout?</h3>
+            <div class="modal-actions">
+                <button class="confirm" onclick="confirmLogout()">Yes</button>
+                <button class="cancel" onclick="closeLogoutModal()">Cancel</button>
+            </div>
         </div>
     </div>
-</div>
-  
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         // Toggle sidebar on mobile
         function toggleMenu() {
             document.querySelector('.sidebar').classList.toggle('active');
         }
-    
+
         // Toggle profile dropdown
         function toggleProfileDropdown() {
             document.getElementById('profileDropdown').classList.toggle('active');
         }
-    
+
         // Toggle notifications (placeholder for future feature)
         function toggleNotifications() {
             alert('Notification feature will be implemented soon!');
         }
-    
+
         // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             const profileContainer = document.querySelector('.profile-container');
             const profileDropdown = document.getElementById('profileDropdown');
-            
+
             if (!profileContainer.contains(event.target)) {
                 profileDropdown.classList.remove('active');
             }
         });
-    
+
         // Update greeting and time
         function updateGreetingAndTime() {
             const now = new Date();
             const hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
-            
+
             // Set greeting based on time of day
             let greeting;
             if (hours < 12) {
@@ -1180,33 +212,33 @@
             } else {
                 greeting = "Good Evening";
             }
-            
+
             // Format date
             const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
             const dateString = now.toLocaleDateString('en-US', options);
-            
+
             // Format time with AM/PM
             const ampm = hours >= 12 ? 'PM' : 'AM';
             const formattedHours = hours % 12 || 12;
             const timeString = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
-            
+
             // Update DOM elements
             const greetingText = document.getElementById('greetingText');
             const currentDate = document.getElementById('currentDate');
             const currentTime = document.getElementById('currentTime');
-            
+
             if (greetingText) greetingText.textContent = greeting;
             if (currentDate) currentDate.textContent = dateString;
             if (currentTime) currentTime.textContent = timeString;
         }
-    
+
         // Update time every second
         setInterval(updateGreetingAndTime, 1000);
         updateGreetingAndTime(); // Initial call
-    
+
         let allActivities = [];
         let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
-    
+
         async function authFetch(url, options = {}) {
             const response = await fetch(url, {
                 ...options,
@@ -1222,7 +254,7 @@
             }
             return response;
         }
-    
+
         async function fetchResidentData() {
             try {
                 const [profileResponse, requestsResponse, announcementsResponse, blotterResponse] = await Promise.all([
@@ -1231,16 +263,16 @@
                     authFetch('/api/announcements/user'),
                     authFetch('/api/blotter/user')
                 ]);
-    
+
                 if (!profileResponse || !requestsResponse || !announcementsResponse || !blotterResponse) {
                     return;
                 }
-    
+
                 const profileData = profileResponse.ok ? await profileResponse.json() : null;
                 const requests = requestsResponse.ok ? await requestsResponse.json() : [];
                 const announcements = announcementsResponse.ok ? await announcementsResponse.json() : [];
                 let blotterCases = [];
-    
+
                 if (blotterResponse.ok) {
                     try {
                         blotterCases = await blotterResponse.json();
@@ -1253,7 +285,7 @@
                         blotterCases = [];
                     }
                 }
-    
+
                 if (profileData) {
                     const profilePic = document.getElementById('profilePicture');
                     if (profileData.profilePicture) {
@@ -1266,10 +298,10 @@
                         profilePic.src = 'images/profile.jpg';
                     }
                 }
-    
+
                 const pendingRequests = requests.filter(r => r.status === "Pending").length;
                 document.getElementById('pendingRequests').textContent = `${pendingRequests} Pending`;
-    
+
                 const recentAnnouncements = announcements.filter(a =>
                     new Date(a.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
                 );
@@ -1277,30 +309,30 @@
                     !viewedAnnouncements.includes(a._id)
                 );
                 document.getElementById('newAnnouncements').textContent = `${unviewedAnnouncements.length} Announcement${unviewedAnnouncements.length !== 1 ? 's' : ''}`;
-    
-                const activeBlotterCases = Array.isArray(blotterCases) ? 
-                    blotterCases.filter(b => 
+
+                const activeBlotterCases = Array.isArray(blotterCases) ?
+                    blotterCases.filter(b =>
                         b.status === "Pending" || b.status === "Under Investigation"
                     ).length : 0;
-                    
+
                 document.getElementById('blotterCases').textContent = `${activeBlotterCases} Blotter Case${activeBlotterCases !== 1 ? 's' : ''}`;
-                
+
                 // Update recent activity (show only 3 most recent)
                 updateRecentActivity(requests, blotterCases);
-    
+
             } catch (error) {
                 console.error('Fetch error:', error);
                 document.getElementById('blotterCases').textContent = '0 Blotter Cases';
             }
         }
-        
+
         function updateRecentActivity(requests, blotterCases) {
             const activityTable = document.getElementById('recentActivity');
             if (!activityTable) return;
-            
+
             // Combine activities
             allActivities = [];
-            
+
             // Add requests
             requests.forEach(request => {
                 allActivities.push({
@@ -1311,7 +343,7 @@
                     id: request._id
                 });
             });
-            
+
             // Add blotter cases
             if (Array.isArray(blotterCases)) {
                 blotterCases.forEach(blotter => {
@@ -1324,29 +356,29 @@
                     });
                 });
             }
-            
+
             // Sort by date (newest first) and take only 3
             allActivities.sort((a, b) => new Date(b.date) - new Date(a.date));
             const displayActivities = allActivities.slice(0, 3);
-            
+
             // Clear table
             activityTable.innerHTML = '';
-            
+
             if (displayActivities.length === 0) {
                 activityTable.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">No recent activity</td></tr>';
                 return;
             }
-            
+
             // Add activities to table
             displayActivities.forEach(activity => {
                 const row = document.createElement('tr');
-                
+
                 // Status badge
                 let statusClass = 'status-pending';
                 if (activity.status === 'Under Investigation') statusClass = 'status-under-investigation';
                 else if (activity.status === 'Resolved') statusClass = 'status-resolved';
                 else if (activity.status === 'Dismissed') statusClass = 'status-dismissed';
-                
+
                 row.innerHTML = `
                     <td>${activity.type}</td>
                     <td>${activity.description}</td>
@@ -1358,11 +390,11 @@
                         </button>
                     </td>
                 `;
-                
+
                 activityTable.appendChild(row);
             });
         }
-        
+
         function viewActivity(type, id) {
             if (type === 'Request') {
                 window.location.href = `/residentRequests#${id}`;
@@ -1370,13 +402,13 @@
                 window.location.href = `/resident-blotter#${id}`;
             }
         }
-    
+
         // Modal System for Resident Dashboard
         const residentModal = {
-            show: function(type, title, message, buttons = []) {
+            show: function (type, title, message, buttons = []) {
                 // Close any existing modal first
                 this.hideAll();
-                
+
                 const modalOverlay = document.createElement('div');
                 modalOverlay.className = `modal-overlay ${type}-modal`;
                 modalOverlay.id = 'residentModalOverlay';
@@ -1400,20 +432,20 @@
                         ` : ''}
                     </div>
                 `;
-                
+
                 document.body.appendChild(modalOverlay);
                 modalOverlay.style.display = 'flex';
-                
-                modalOverlay.addEventListener('click', function(e) {
+
+                modalOverlay.addEventListener('click', function (e) {
                     if (e.target === modalOverlay) {
                         residentModal.hide(this);
                     }
                 });
-                
+
                 return modalOverlay;
             },
-            
-            hide: function(element) {
+
+            hide: function (element) {
                 const modal = element.closest('.modal-overlay') || element;
                 if (modal) {
                     modal.style.animation = 'modalSlideOut 0.3s ease-out';
@@ -1424,31 +456,31 @@
                     }, 300);
                 }
             },
-            
-            hideAll: function() {
+
+            hideAll: function () {
                 const modals = document.querySelectorAll('.modal-overlay');
                 modals.forEach(modal => this.hide(modal));
             },
-            
-            success: function(message, title = 'Success') {
+
+            success: function (message, title = 'Success') {
                 return this.show('success', title, `<p>${message}</p>`, [
                     { text: 'OK', class: 'btn-success', onclick: 'residentModal.hide(this)' }
                 ]);
             },
-            
-            error: function(message, title = 'Error') {
+
+            error: function (message, title = 'Error') {
                 return this.show('error', title, `<p>${message}</p>`, [
                     { text: 'OK', class: 'btn-danger', onclick: 'residentModal.hide(this)' }
                 ]);
             },
-            
-            info: function(message, title = 'Information') {
+
+            info: function (message, title = 'Information') {
                 return this.show('info', title, `<p>${message}</p>`, [
                     { text: 'OK', class: 'btn-primary', onclick: 'residentModal.hide(this)' }
                 ]);
             }
         };
-    
+
         // Enhanced emergency modal
         function openEmergencyModal() {
             residentModal.show('emergency', '🚨 Send Emergency Alert', `
@@ -1471,38 +503,38 @@
                     </p>
                 </div>
             `, [
-                { 
-                    text: 'Cancel', 
-                    class: 'btn-secondary', 
-                    onclick: 'residentModal.hide(this)' 
+                {
+                    text: 'Cancel',
+                    class: 'btn-secondary',
+                    onclick: 'residentModal.hide(this)'
                 },
-                { 
-                    text: 'Send Emergency Alert', 
-                    class: 'btn-danger', 
-                    onclick: 'sendEmergencyAlertFromModal()' 
+                {
+                    text: 'Send Emergency Alert',
+                    class: 'btn-danger',
+                    onclick: 'sendEmergencyAlertFromModal()'
                 }
             ]);
         }
-    
+
         // Enhanced send emergency alert with modal feedback
         async function sendEmergencyAlertFromModal() {
             const messageInput = document.getElementById('emergencyMessageInput');
             const message = messageInput ? messageInput.value.trim() : '';
-            
+
             if (!message) {
                 residentModal.error('Please describe your emergency situation before sending the alert.');
                 return;
             }
-    
+
             try {
                 const userEmail = localStorage.getItem('userEmail');
                 const response = await authFetch('/api/emergency/send', {
                     method: 'POST',
                     body: JSON.stringify({ email: userEmail, message })
                 });
-    
+
                 if (!response) return;
-    
+
                 const data = await response.json();
                 if (response.ok) {
                     residentModal.success(
@@ -1518,22 +550,22 @@
                 residentModal.error('Failed to send emergency alert: ' + error.message);
             }
         }
-    
+
         // Enhanced notification for emergency responses
         function showEmergencyResponseNotification(message) {
             residentModal.info(
                 `Admin Response: ${message}`,
                 '🚨 Emergency Response Received'
             );
-            
+
             // Also show the existing notification
             if (Notification.permission === "granted") {
-                new Notification("Emergency Response", { 
-                    body: `Admin response: ${message}` 
+                new Notification("Emergency Response", {
+                    body: `Admin response: ${message}`
                 });
             }
         }
-    
+
         // ========== UPDATED LOGOUT FUNCTIONALITY ==========
         // Logout functionality
         async function logout() {
@@ -1541,7 +573,7 @@
                 const response = await fetch('/api/auth/logout', {
                     method: 'POST'
                 });
-    
+
                 if (response && response.ok) {
                     localStorage.removeItem('userEmail');
                     localStorage.removeItem('userId');
@@ -1551,78 +583,78 @@
                 console.error('Logout error:', error);
             }
         }
-    
+
         function openLogoutModal() {
             document.getElementById('logoutModal').style.display = 'block';
         }
-    
+
         function closeLogoutModal() {
             document.getElementById('logoutModal').style.display = 'none';
         }
-    
+
         function confirmLogout() {
             closeLogoutModal();
             logout();
         }
-    
+
         // Sidebar logout functionality
         function setupSidebarLogout() {
             const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
             if (sidebarLogoutBtn) {
-                sidebarLogoutBtn.addEventListener('click', function(e) {
+                sidebarLogoutBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     openLogoutModal();
                 });
             }
         }
-    
+
         // Close modals when clicking outside
-        window.addEventListener('click', function(event) {
+        window.addEventListener('click', function (event) {
             const logoutModal = document.getElementById('logoutModal');
-            
+
             if (event.target === logoutModal) {
                 closeLogoutModal();
             }
         });
-    
+
         // Set up logout button
         document.getElementById('logoutBtn').addEventListener('click', function (e) {
             e.preventDefault();
             openLogoutModal();
         });
         // ========== END UPDATED LOGOUT FUNCTIONALITY ==========
-    
+
         const socket = io({ withCredentials: true });
-    
+
         if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
-    
+
         socket.on('request-updated', (request) => {
             if (request.userId === localStorage.getItem('userId')) {
                 showNotification(`Your request status updated to ${request.status}`);
                 fetchResidentData();
             }
         });
-    
+
         socket.on('new_announcement', (announcement) => {
             showNotification(`New announcement: ${announcement.title}`);
             fetchResidentData();
         });
-    
+
         socket.on('emergencyResponse', (response) => {
             if (response.residentId === localStorage.getItem('userId')) {
                 showEmergencyResponseNotification(response.message);
             }
         });
-    
+
         socket.on('blotter-updated', (blotter) => {
             if (blotter.complainant === localStorage.getItem('userId')) {
                 showNotification(`Your blotter report status updated to ${blotter.status}`);
                 fetchResidentData();
             }
         });
-    
+
         function showNotification(message) {
             if (Notification.permission === "granted") {
                 new Notification("BTMS Notification", { body: message });
@@ -1631,14 +663,14 @@
                 residentModal.info(message, 'Notification');
             }
         }
-    
+
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize greeting and time
             updateGreetingAndTime();
-            
+
             // Setup sidebar logout
             setupSidebarLogout();
-            
+
             authFetch('/api/auth/check-auth')
                 .then(response => {
                     if (!response) return;
@@ -1656,12 +688,13 @@
                     console.error('Auth check error:', error);
                     window.location.href = '/';
                 });
-    
+
             // Remove the duplicate logout button event listener since we're using setupSidebarLogout
             // The setupSidebarLogout function already handles the sidebar logout button
         });
-    
+
         setInterval(fetchResidentData, 30000);
     </script>
 </body>
+
 </html>

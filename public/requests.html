@@ -1,825 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Request - Barangay Talipapa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
-        :root {
-            --primary: #0d4f8b;
-            --secondary: #e6a919;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --success: #28a745;
-            --danger: #e74c3c;
-            --warning: #ffa000;
-            --sidebar-width: 250px;
-        }
-        
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
-        
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(135deg, #e6f2ff 0%, #f0f8ff 100%);
-            background-attachment: fixed;
-            color: #333;
-            overflow-x: hidden;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: var(--sidebar-width);
-            background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 100%);
-            color: #F8FAFC;
-            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
-            overflow-y: auto;
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            color: #E2E8F0;
-            padding: 12px 18px;
-            margin: 6px 12px;
-            border-radius: 10px;
-            transition: 0.3s ease;
-            position: relative;
-        }
-
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            transform: translateX(4px);
-        }
-
-        .sidebar a i {
-            margin-right: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar a:hover i {
-            color: #60A5FA;
-            transform: translateX(4px);
-            text-shadow: 0 0 10px #60A5FA;
-        }
-
-        .greeting-section {
-            padding: 20px 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: auto;
-        }
-
-        .greeting {
-            font-size: 16px;
-            color: #E2E8F0;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .current-date {
-            font-size: 14px;
-            color: #94A3B8;
-            margin-bottom: 3px;
-        }
-
-        .current-time {
-            font-size: 14px;
-            color: #94A3B8;
-            font-weight: 500;
-        }
-
-        .logo-name {
-            display: flex;
-            align-items: center;
-            padding: 20px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo-image img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .logo_name {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .menu-items {
-            padding: 15px 0;
-        }
-
-        .nav-links {
-            list-style: none;
-        }
-
-        .nav-links li {
-            margin-bottom: 5px;
-        }
-
-        .nav-links a {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-left-color: var(--secondary);
-        }
-
-        .nav-links i {
-            font-size: 18px;
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .link-name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .logout-section {
-            padding: 15px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 20px;
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
-
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--primary);
-            z-index: 99;
-            background: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        /* Header with Request Document Button */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .page-title {
-            color: var(--primary);
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .request-document-btn {
-            background: linear-gradient(135deg, var(--secondary) 0%, #f1c40f 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .request-document-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(230, 169, 25, 0.3);
-        }
-
-        /* Requests Table Container */
-        .requests-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .requests-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary);
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        /* Enhanced Table Styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border: 1px solid #e0e0e0;
-        }
-
-        th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: var(--primary);
-            border-bottom: 2px solid #d0d0d0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9em;
-        }
-
-        tr {
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f0f8ff;
-        }
-
-        .status {
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-weight: 500;
-            font-size: 0.85em;
-        }
-
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .status-approved {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .status-ready-to-claim {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .status-claimed {
-            background-color: #e2e3e5;
-            color: #383d41;
-            border: 1px solid #d6d8db;
-        }
-
-        .action-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            border: 1px solid #0b3d6b;
-        }
-
-        .action-btn:hover {
-            background-color: #0b3d6b;
-        }
-
-        .delete-btn {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            border: 1px solid #c0392b;
-        }
-
-        .delete-btn:hover {
-            background-color: #c0392b;
-        }
-
-        .rejection-reason {
-            margin-top: 5px;
-            font-size: 0.8em;
-            color: #666;
-        }
-
-        .document-details {
-            font-size: 0.85em;
-            color: #666;
-        }
-
-        .document-details div {
-            margin-top: 3px;
-        }
-
-        #loadingMessage {
-            text-align: center;
-            padding: 20px;
-        }
-
-        #errorMessage {
-            text-align: center;
-            color: var(--danger);
-            padding: 20px;
-            display: none;
-        }
-
-        #successMessage {
-            text-align: center;
-            color: var(--success);
-            padding: 20px;
-            display: none;
-        }
-
-        /* Request Form Modal */
-        .request-modal {
-            display: none;
-            position: fixed;
-            z-index: 1100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .request-modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease-out;
-            position: relative;
-        }
-
-        .request-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .request-modal-title {
-            color: var(--primary);
-            font-size: 24px;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .close-modal {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            background: none;
-            border: none;
-            transition: color 0.3s;
-        }
-
-        .close-modal:hover {
-            color: var(--danger);
-        }
-
-        /* Form Container */
-        .form-container {
-            padding: 0;
-        }
-
-        .form-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary);
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-            background-color: #f9f9f9;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(13, 79, 139, 0.2);
-            outline: none;
-            background-color: white;
-        }
-
-        .form-group input[type="submit"] {
-            background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input[type="submit"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(13, 79, 139, 0.3);
-        }
-
-        /* Checkbox styling */
-        .checkbox-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 5px;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            margin-right: 10px;
-            width: auto;
-            transform: scale(1.2);
-        }
-
-        .other-document-input {
-            margin-top: 10px;
-            display: none;
-        }
-
-        .other-document-input.show {
-            display: block;
-        }
-
-        .other-purpose-input {
-            margin-top: 10px;
-            display: none;
-        }
-
-        .other-purpose-input.show {
-            display: block;
-        }
-
-        /* Select dropdown styling */
-        select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 1em;
-        }
-
-        /* Success Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 30px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 500px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-icon {
-            font-size: 60px;
-            color: var(--success);
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 24px;
-            margin-bottom: 15px;
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .modal-message {
-            font-size: 16px;
-            margin-bottom: 25px;
-            color: #555;
-            line-height: 1.5;
-        }
-
-        .modal-button {
-            background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .modal-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(13, 79, 139, 0.3);
-        }
-
-        /* Logout Modal */
-        #logoutModal .modal-content {
-            max-width: 350px;
-            text-align: center;
-        }
-
-        #logoutModal .modal-content h3 {
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: var(--dark);
-        }
-
-        #logoutModal .modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        #logoutModal .modal-actions button {
-            flex: 1;
-            padding: 10px;
-            font-size: 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        #logoutModal .confirm {
-            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
-            color: #fff;
-        }
-
-        #logoutModal .cancel {
-            background-color: #ddd;
-            color: #333;
-        }
-
-        #logoutModal .confirm:hover, #logoutModal .cancel:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Mobile Responsive Table Styles */
-        @media (max-width: 768px) {
-            .sidebar {
-                left: -100%;
-                width: 280px;
-            }
-            
-            .sidebar.active {
-                left: 0;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-                padding-top: 80px;
-            }
-            
-            .mobile-menu-btn {
-                display: flex;
-            }
-            
-            .requests-container {
-                padding: 20px;
-                overflow-x: auto;
-            }
-            
-            .request-modal-content {
-                padding: 20px;
-                width: 95%;
-                margin: 10% auto;
-            }
-            
-            /* Horizontal scroll for tablets and larger phones */
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 10px;
-                padding-top: 70px;
-            }
-            
-            .requests-container {
-                padding: 10px;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 20% auto;
-                padding: 20px;
-            }
-            
-            .request-modal-content {
-                padding: 15px;
-            }
-            
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .request-document-btn {
-                align-self: stretch;
-                text-align: center;
-            }
-            
-            /* Stack table for very small screens */
-            table {
-                display: block;
-                width: 100%;
-                overflow-x: visible;
-                white-space: normal;
-            }
-            
-            thead {
-                display: none;
-            }
-            
-            tbody {
-                display: block;
-                width: 100%;
-            }
-            
-            tr {
-                display: block;
-                margin-bottom: 15px;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 15px;
-                background: white;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            }
-            
-            td {
-                display: block;
-                text-align: right;
-                padding: 8px 10px;
-                border: none;
-                border-bottom: 1px solid #f0f0f0;
-                position: relative;
-                white-space: normal;
-            }
-            
-            td:last-child {
-                border-bottom: none;
-            }
-            
-            td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                top: 8px;
-                font-weight: 600;
-                color: var(--primary);
-                text-transform: uppercase;
-                font-size: 0.8em;
-            }
-            
-            /* Status styling adjustments for mobile */
-            .status {
-                display: inline-block;
-                margin-top: 5px;
-            }
-            
-            /* Action buttons styling for mobile */
-            .action-btn, .delete-btn {
-                width: 100%;
-                padding: 10px;
-                margin-top: 5px;
-            }
-            
-            /* Document details adjustments */
-            .document-details div {
-                margin-bottom: 5px;
-            }
-            
-            .rejection-reason {
-                font-size: 0.75em;
-                margin-top: 8px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/requests.css">
 </head>
+
 <body>
     <!-- Mobile Menu Button -->
     <div class="mobile-menu-btn" onclick="toggleMenu()">
@@ -834,31 +23,31 @@
             </div>
             <span class="logo_name">Brgy. Talipapa</span>
         </div>
-        
+
         <div class="menu-items">
             <ul class="nav-links">
                 <li><a href="/residentdashboard">
-                    <i class="fas fa-home"></i>
-                    <span class="link-name">Dashboard</span>
-                </a></li>
-            
+                        <i class="fas fa-home"></i>
+                        <span class="link-name">Dashboard</span>
+                    </a></li>
+
                 <li><a href="/requests" class="active">
-                    <i class="fas fa-file-alt"></i>
-                    <span class="link-name">Request Document</span>
-                </a></li>
-            
+                        <i class="fas fa-file-alt"></i>
+                        <span class="link-name">Request Document</span>
+                    </a></li>
+
                 <li><a href="/blotter">
-                    <i class="fas fa-shield-alt"></i>
-                    <span class="link-name">Blotter</span>
-                </a></li>
-            
-                
+                        <i class="fas fa-shield-alt"></i>
+                        <span class="link-name">Blotter</span>
+                    </a></li>
+
+
                 <li><a href="/announcement">
-                    <i class="fas fa-bell"></i>
-                    <span class="link-name">Announcements</span>
-                </a></li>
+                        <i class="fas fa-bell"></i>
+                        <span class="link-name">Announcements</span>
+                    </a></li>
             </ul>
-            
+
             <!-- Logout Section -->
             <div class="logout-section">
                 <a href="#" id="sidebarLogoutBtn">
@@ -867,7 +56,7 @@
                 </a>
             </div>
         </div>
-        
+
         <!-- Greeting and Time Section - MOVED TO BOTTOM -->
         <div class="greeting-section">
             <div class="greeting" id="greetingText">Good Morning</div>
@@ -875,11 +64,10 @@
             <div class="current-time" id="currentTime">07:08:09 AM</div>
         </div>
     </nav>
-    
+
     <!-- Main Content -->
     <section class="main-content">
         <div class="page-header">
-            <h1 class="page-title">Document Requests</h1>
             <button class="request-document-btn" id="requestDocumentBtn">
                 <i class="fas fa-plus"></i> Request New Document
             </button>
@@ -888,19 +76,19 @@
         <!-- Requests Table Container -->
         <div class="requests-container">
             <h2 class="requests-title">Your Document Requests</h2>
-            
+
             <div id="loadingMessage" style="text-align: center; padding: 20px;">
                 <p>Loading your requests...</p>
             </div>
-            
+
             <div id="errorMessage" style="text-align: center; color: red; padding: 20px; display: none;">
                 <p>Failed to load requests. Please try again later.</p>
             </div>
-            
+
             <div id="successMessage" style="text-align: center; color: green; padding: 20px; display: none;">
                 <p>Document claimed successfully!</p>
             </div>
-            
+
             <table id="requestsTable" style="display: none;">
                 <thead>
                     <tr>
@@ -926,19 +114,21 @@
                 <h2 class="request-modal-title">Request New Document</h2>
                 <button class="close-modal">&times;</button>
             </div>
-            
+
             <div class="form-container">
                 <form id="documentRequestForm">
                     <div class="form-group">
                         <label for="address">Address:</label>
-                        <input type="text" id="address" name="address" required placeholder="Enter your complete address">
+                        <input type="text" id="address" name="address" required
+                            placeholder="Enter your complete address">
                     </div>
 
                     <div class="form-group">
                         <label>Document Type (Select one or more):</label>
                         <div class="checkbox-group">
                             <div class="checkbox-item">
-                                <input type="checkbox" id="barangayClearance" name="documentTypes" value="Barangay Clearance">
+                                <input type="checkbox" id="barangayClearance" name="documentTypes"
+                                    value="Barangay Clearance">
                                 <label for="barangayClearance">Barangay Clearance</label>
                             </div>
                             <div class="checkbox-item">
@@ -946,11 +136,13 @@
                                 <label for="businessPermit">Business Permit</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="certificateResidency" name="documentTypes" value="Certificate of Residency">
+                                <input type="checkbox" id="certificateResidency" name="documentTypes"
+                                    value="Certificate of Residency">
                                 <label for="certificateResidency">Certificate of Residency</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="certificateIndigency" name="documentTypes" value="Certificate of Indigency">
+                                <input type="checkbox" id="certificateIndigency" name="documentTypes"
+                                    value="Certificate of Indigency">
                                 <label for="certificateIndigency">Certificate of Indigency</label>
                             </div>
                             <div class="checkbox-item">
@@ -958,7 +150,8 @@
                                 <label for="otherDocument">Other (Please specify)</label>
                             </div>
                         </div>
-                        <input type="text" id="otherDocumentInput" name="otherDocumentInput" class="other-document-input" placeholder="Specify other document type">
+                        <input type="text" id="otherDocumentInput" name="otherDocumentInput"
+                            class="other-document-input" placeholder="Specify other document type">
                     </div>
 
                     <div class="form-group">
@@ -972,7 +165,8 @@
                             <option value="Loan Application">Loan Application</option>
                             <option value="Other">Other (Please specify)</option>
                         </select>
-                        <input type="text" id="otherPurposeInput" name="otherPurposeInput" class="other-purpose-input" placeholder="Specify other purpose">
+                        <input type="text" id="otherPurposeInput" name="otherPurposeInput" class="other-purpose-input"
+                            placeholder="Specify other purpose">
                     </div>
 
                     <div class="form-group">
@@ -983,6 +177,8 @@
         </div>
     </div>
 
+
+
     <!-- Success Modal -->
     <div id="successModal" class="modal">
         <div class="modal-content">
@@ -990,7 +186,8 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <h2 class="modal-title">Request Submitted Successfully!</h2>
-            <p class="modal-message">Your document request has been received. You can track the status in the "Your Requests" section.</p>
+            <p class="modal-message">Your document request has been received. You can track the status in the "Your
+                Requests" section.</p>
             <button class="modal-button" onclick="closeModalAndRedirect()">Continue</button>
         </div>
     </div>
@@ -1011,8 +208,16 @@
         // Toggle sidebar menu
         function toggleMenu() {
             const sidebar = document.querySelector('.sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
             sidebar.classList.toggle('active');
+
+            if (sidebar.classList.contains('active')) {
+                menuBtn.style.display = 'none';
+            } else {
+                menuBtn.style.display = 'flex';
+            }
         }
+
 
         // Close sidebar when clicking on a link (mobile)
         document.querySelectorAll('.nav-links a').forEach(link => {
@@ -1029,7 +234,7 @@
             const hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
-            
+
             // Set greeting based on time of day
             let greeting;
             if (hours < 12) {
@@ -1039,16 +244,16 @@
             } else {
                 greeting = "Good Evening";
             }
-            
+
             // Format date
             const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
             const dateString = now.toLocaleDateString('en-US', options);
-            
+
             // Format time with AM/PM
             const ampm = hours >= 12 ? 'PM' : 'AM';
             const formattedHours = hours % 12 || 12;
             const timeString = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
-            
+
             // Update DOM elements
             document.getElementById('greetingText').textContent = greeting;
             document.getElementById('currentDate').textContent = dateString;
@@ -1060,7 +265,7 @@
         updateGreetingAndTime(); // Initial call
 
         // Toggle other document input field
-        document.getElementById('otherDocument').addEventListener('change', function() {
+        document.getElementById('otherDocument').addEventListener('change', function () {
             const otherInput = document.getElementById('otherDocumentInput');
             if (this.checked) {
                 otherInput.classList.add('show');
@@ -1073,7 +278,7 @@
         });
 
         // Toggle other purpose input field when "Other" is selected
-        document.getElementById('purpose').addEventListener('change', function() {
+        document.getElementById('purpose').addEventListener('change', function () {
             const otherPurposeInput = document.getElementById('otherPurposeInput');
             if (this.value === 'Other') {
                 otherPurposeInput.classList.add('show');
@@ -1084,44 +289,44 @@
                 otherPurposeInput.value = '';
             }
         });
-    
+
         // Check if user is banned
         async function checkUserStatus() {
             try {
                 const response = await fetch('/api/auth/check-auth', {
                     credentials: 'include'
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to check user status');
                 }
-                
+
                 const data = await response.json();
-                
+
                 if (data.user?.isBanned) {
                     alert('Your account has been disabled. You cannot submit document requests.');
                     window.location.href = '/residentdashboard';
                     return false;
                 }
-                
+
                 return true;
             } catch (error) {
                 console.error('Error checking user status:', error);
                 return false;
             }
         }
-    
+
         // Fetch user profile data
         async function fetchUserProfile() {
             try {
                 const response = await fetch('/api/auth/profile', {
                     credentials: 'include'
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch profile');
                 }
-                
+
                 return await response.json();
             } catch (error) {
                 console.error('Error fetching profile:', error);
@@ -1129,20 +334,20 @@
                 return null;
             }
         }
-    
+
         // Auto-fill form with user data
         async function autoFillForm() {
             const user = await fetchUserProfile();
             if (user) {
                 document.getElementById('address').value = user.address || '';
-                
+
                 if (user.isBanned) {
                     alert('Your account has been disabled. You cannot submit document requests.');
                     window.location.href = '/residentdashboard';
                 }
             }
         }
-    
+
         // Show success modal
         function showSuccessModal() {
             const modal = document.getElementById('successModal');
@@ -1156,27 +361,27 @@
             // Refresh the requests table
             fetchRequests();
         }
-    
+
         // Handle form submission
         document.getElementById('documentRequestForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const isAllowed = await checkUserStatus();
             if (!isAllowed) return;
-            
+
             const user = await fetchUserProfile();
             if (!user) return;
-            
+
             // Get selected document types
             const checkboxes = document.querySelectorAll('input[name="documentTypes"]:checked');
             const documentTypes = Array.from(checkboxes).map(cb => cb.value);
-            
+
             // Handle "Other" document type
             const otherInput = document.getElementById('otherDocumentInput');
             if (documentTypes.includes('Other') && otherInput.value.trim()) {
                 documentTypes[documentTypes.indexOf('Other')] = `Other: ${otherInput.value.trim()}`;
             }
-    
+
             if (documentTypes.length === 0) {
                 alert('Please select at least one document type');
                 return;
@@ -1185,7 +390,7 @@
             // Get purpose
             const purposeSelect = document.getElementById('purpose');
             let purpose = purposeSelect.value;
-            
+
             if (purpose === 'Other') {
                 const otherPurpose = document.getElementById('otherPurposeInput').value.trim();
                 if (!otherPurpose) {
@@ -1197,7 +402,7 @@
                 alert('Please select a purpose for the document');
                 return;
             }
-    
+
             const formData = {
                 fullName: user.fullName,
                 email: user.email,
@@ -1205,36 +410,36 @@
                 documentTypes: documentTypes,
                 purpose: purpose
             };
-    
+
             // Basic validation
             if (!formData.address) {
                 alert('Please fill in all required fields');
                 return;
             }
-    
+
             try {
                 const response = await fetch('/api/requests', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(formData),
                     credentials: 'include'
                 });
-    
+
                 const result = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(result.message || 'Failed to submit request');
                 }
-    
+
                 // Close the request modal
                 document.getElementById('requestModal').style.display = 'none';
                 // Reset the form
                 document.getElementById('documentRequestForm').reset();
                 // Show success modal
                 showSuccessModal();
-            } catch (error) {   
+            } catch (error) {
                 console.error('Error submitting request:', error);
                 alert(error.message || 'An error occurred. Please try again.');
             }
@@ -1245,18 +450,18 @@
         const requestModal = document.getElementById('requestModal');
         const closeModalBtn = document.querySelector('.close-modal');
 
-        requestDocumentBtn.addEventListener('click', async function() {
+        requestDocumentBtn.addEventListener('click', async function () {
             requestModal.style.display = 'block';
             // Auto-fill form when modal opens
             await autoFillForm();
         });
 
-        closeModalBtn.addEventListener('click', function() {
+        closeModalBtn.addEventListener('click', function () {
             requestModal.style.display = 'none';
         });
 
         // Close modal when clicking outside of it
-        window.addEventListener('click', function(event) {
+        window.addEventListener('click', function (event) {
             if (event.target === requestModal) {
                 requestModal.style.display = 'none';
             }
@@ -1268,11 +473,11 @@
                 document.getElementById('loadingMessage').style.display = 'block';
                 document.getElementById('errorMessage').style.display = 'none';
                 document.getElementById('requestsTable').style.display = 'none';
-                
+
                 const response = await fetch('/api/requests/user', {
                     credentials: 'include'
                 });
-                
+
                 if (!response.ok) {
                     if (response.status === 401) {
                         window.location.href = 'login';
@@ -1280,7 +485,7 @@
                     }
                     throw new Error('Failed to fetch requests');
                 }
-                
+
                 const requests = await response.json();
                 renderRequests(requests);
             } catch (error) {
@@ -1294,14 +499,14 @@
             const tableBody = document.querySelector("#requestsTable tbody");
             const loadingMessage = document.getElementById('loadingMessage');
             const tableElement = document.getElementById('requestsTable');
-            
+
             tableBody.innerHTML = '';
             loadingMessage.style.display = 'none';
             tableElement.style.display = 'table';
-            
+
             // Filter out claimed requests on client side as extra precaution
             const filteredRequests = requests.filter(request => request.status !== "Claimed");
-            
+
             if (filteredRequests.length === 0) {
                 const row = tableBody.insertRow();
                 const cell = row.insertCell();
@@ -1311,33 +516,30 @@
                 cell.style.padding = "20px";
                 return;
             }
-            
+
             filteredRequests.forEach(request => {
                 const row = tableBody.insertRow();
                 row.setAttribute('data-id', request.id);
-                
+
                 // Document Type
                 const docTypeCell = row.insertCell();
                 docTypeCell.textContent = request.documentType || 'N/A';
-                docTypeCell.setAttribute('data-label', 'Document Type');
-                
+
                 // Purpose
                 const purposeCell = row.insertCell();
                 purposeCell.textContent = request.purpose || 'N/A';
-                purposeCell.setAttribute('data-label', 'Purpose');
-                
+
                 // Date Requested
                 const dateCell = row.insertCell();
                 dateCell.innerHTML = `
                     <div>${request.formattedDate || 'N/A'}</div>
                     <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
                 `;
-                dateCell.setAttribute('data-label', 'Date Requested');
-                
+
                 // Status - Updated to include rejection reason
                 const statusCell = row.insertCell();
                 let statusClass = '';
-                switch(request.status) {
+                switch (request.status) {
                     case 'Pending': statusClass = 'status-pending'; break;
                     case 'Approved': statusClass = 'status-approved'; break;
                     case 'Rejected': statusClass = 'status-rejected'; break;
@@ -1346,45 +548,42 @@
                 }
 
                 let statusHTML = `<span class="status ${statusClass}">${request.status}</span>`;
-                
+
                 // Add rejection reason if available
                 if (request.status === 'Rejected' && request.rejectionReason) {
                     statusHTML += `<div class="rejection-reason">
                         <strong>Reason:</strong> ${request.rejectionReason}
                     </div>`;
                 }
-                
+
                 statusCell.innerHTML = statusHTML;
-                statusCell.setAttribute('data-label', 'Status');
-                
+
                 // Details Column - Added more information
                 const detailsCell = row.insertCell();
                 detailsCell.className = 'document-details';
                 let detailsHTML = '';
-                
+
                 if (request.documentTypes && Array.isArray(request.documentTypes)) {
                     detailsHTML += `<div><strong>Types:</strong> ${request.documentTypes.join(', ')}</div>`;
                 }
-                
+
                 if (request.address) {
                     detailsHTML += `<div><strong>Address:</strong> ${request.address}</div>`;
                 }
-                
+
                 if (request.estimatedCompletion) {
                     detailsHTML += `<div><strong>Est. Completion:</strong> ${request.estimatedCompletion}</div>`;
                 }
-                
+
                 if (request.adminNotes) {
                     detailsHTML += `<div><strong>Notes:</strong> ${request.adminNotes}</div>`;
                 }
-                
+
                 detailsCell.innerHTML = detailsHTML || 'No additional details';
-                detailsCell.setAttribute('data-label', 'Details');
-                
+
                 // Actions
                 const actionsCell = row.insertCell();
-                actionsCell.setAttribute('data-label', 'Actions');
-                
+
                 if (request.status === 'Ready to Claim') {
                     const claimBtn = document.createElement('button');
                     claimBtn.textContent = 'Claim';
@@ -1407,7 +606,7 @@
 
         async function claimRequest(requestId, rowElement) {
             if (!confirm('Are you sure you want to mark this document as claimed?')) return;
-            
+
             try {
                 const response = await fetch(`/api/requests/${requestId}/claim`, {
                     method: 'PUT',
@@ -1416,20 +615,20 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Failed to claim request');
                 }
-                
+
                 // Show success message
                 const successMessage = document.getElementById('successMessage');
                 successMessage.textContent = "Document claimed successfully!";
                 successMessage.style.display = 'block';
-                
+
                 // Remove the row immediately for better UX
                 rowElement.remove();
-                
+
                 // Check if table is now empty
                 const tableBody = document.querySelector("#requestsTable tbody");
                 if (tableBody.rows.length === 0) {
@@ -1440,13 +639,13 @@
                     cell.style.textAlign = "center";
                     cell.style.padding = "20px";
                 }
-                
+
                 setTimeout(() => {
                     successMessage.style.display = 'none';
                     // Refresh the data from server to ensure consistency
                     fetchRequests();
                 }, 3000);
-                
+
             } catch (error) {
                 console.error('Claim error:', error);
                 alert(`Error: ${error.message}`);
@@ -1455,7 +654,7 @@
 
         async function deleteRequest(requestId, rowElement) {
             if (!confirm('Are you sure you want to delete this rejected request?')) return;
-            
+
             try {
                 const response = await fetch(`/api/requests/${requestId}`, {
                     method: 'DELETE',
@@ -1480,19 +679,19 @@
 
                 // Parse the successful response
                 const result = await response.json();
-                
+
                 if (!result.success) {
                     throw new Error(result.message || 'Request deletion failed');
                 }
 
                 // Remove the row immediately for better UX
                 rowElement.remove();
-                
+
                 // Show success message
                 const successMessage = document.getElementById('successMessage');
                 successMessage.textContent = result.message || "Request deleted successfully!";
                 successMessage.style.display = 'block';
-                
+
                 // Check if table is now empty
                 const tableBody = document.querySelector("#requestsTable tbody");
                 if (tableBody.rows.length === 0) {
@@ -1503,11 +702,11 @@
                     cell.style.textAlign = "center";
                     cell.style.padding = "20px";
                 }
-                
+
                 setTimeout(() => {
                     successMessage.style.display = 'none';
                 }, 3000);
-                
+
             } catch (error) {
                 console.error('Delete error:', error);
                 alert(`Error: ${error.message}`);
@@ -1529,7 +728,7 @@
                     method: 'POST',
                     credentials: 'include'
                 });
-                
+
                 if (response.ok) {
                     window.location.href = '/login';
                 } else {
@@ -1540,25 +739,25 @@
                 alert('Failed to logout. Please try again.');
             }
         }
-    
+
         // Initialize page - load requests on page load
         window.addEventListener('DOMContentLoaded', async () => {
             await fetchRequests();
-            
+
             // Add logout event listener
-            document.getElementById('sidebarLogoutBtn').addEventListener('click', function(e) {
+            document.getElementById('sidebarLogoutBtn').addEventListener('click', function (e) {
                 e.preventDefault();
                 openLogoutModal();
             });
-            
+
             // Close logout modal when clicking outside
-            window.addEventListener('click', function(event) {
+            window.addEventListener('click', function (event) {
                 const logoutModal = document.getElementById('logoutModal');
                 if (event.target === logoutModal) {
                     closeLogoutModal();
                 }
             });
-            
+
             // Disable functionality if user is banned
             const isAllowed = await checkUserStatus();
             if (!isAllowed) {
@@ -1567,4 +766,5 @@
         });
     </script>
 </body>
+
 </html>
