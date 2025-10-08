@@ -1,9 +1,10 @@
 const express = require("express");
 const EmergencyAlert = require("../models/EmergencyAlert");
 const User = require("../models/User");
+const mongoose = require("mongoose");
 const router = express.Router();
 
-// Function to send emergency email to admin - UPDATED: Use transporter from app
+// Function to send emergency email to admin
 async function sendEmergencyEmailToAdmin(req, alert) {
     try {
         const emailTransporter = req.app.get('emailTransporter');
@@ -66,30 +67,7 @@ async function sendEmergencyEmailToAdmin(req, alert) {
     }
 }
 
-// Function to check for unacknowledged alerts and send emails
-async function checkUnacknowledgedAlerts(req) {
-    try {
-        const oneMinuteAgo = new Date(Date.now() - 60000); // 1 minute ago
-        
-        const unacknowledgedAlerts = await EmergencyAlert.find({
-            status: 'pending',
-            createdAt: { $lte: oneMinuteAgo },
-            emailSent: false
-        });
-        
-        for (const alert of unacknowledgedAlerts) {
-            console.log(`Sending email for unacknowledged alert: ${alert._id}`);
-            await sendEmergencyEmailToAdmin(req, alert);
-        }
-    } catch (error) {
-        console.error('Error checking unacknowledged alerts:', error);
-    }
-}
-
-// Run check every 30 seconds
-setInterval(() => {
-    // We'll call this from routes that have access to req
-}, 30000);
+// ==================== GET ROUTES ====================
 
 // Stats endpoint
 router.get("/stats", async (req, res) => {
@@ -116,121 +94,7 @@ router.get("/stats", async (req, res) => {
     }
 });
 
-router.post("/send", async (req, res) => {
-    try {
-        const { email, message } = req.body;
-        
-        const resident = await User.findOne({ email });
-        if (!resident) {
-            return res.status(404).json({ error: "Resident not found" });
-        }
-
-        const alert = new EmergencyAlert({
-            residentId: resident._id,
-            residentName: resident.fullName,
-            message
-        });
-
-        await alert.save();
-        
-        // Emit socket event
-        req.app.get('io').emit('newEmergencyAlert', alert);
-        
-        // Schedule email check for this alert after 1 minute
-        setTimeout(async () => {
-            const updatedAlert = await EmergencyAlert.findById(alert._id);
-            if (updatedAlert && updatedAlert.status === 'pending' && !updatedAlert.emailSent) {
-                console.log(`Alert ${alert._id} still unacknowledged after 1 minute, sending email...`);
-                await sendEmergencyEmailToAdmin(req, updatedAlert);
-            }
-        }, 61000); // 61 seconds to ensure 1 minute has passed
-        
-        res.status(201).json(alert);
-    } catch (error) {
-        console.error("Error sending alert:", error);
-        res.status(500).json({ error: "Failed to send emergency alert" });
-    }
-});
-
-// Keep both endpoints for compatibility
-router.put("/:id/acknowledge", async (req, res) => {
-    try {
-        const alert = await EmergencyAlert.findByIdAndUpdate(
-            req.params.id,
-            { 
-                status: 'acknowledged',
-                acknowledgedAt: new Date() 
-            },
-            { new: true }
-        );
-        
-        if (!alert) {
-            return res.status(404).json({ error: "Alert not found" });
-        }
-        
-        req.app.get('io').emit('alertAcknowledged', alert);
-        res.json(alert);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to acknowledge alert" });
-    }
-});
-
-router.put("/:id/resolve", async (req, res) => {
-    try {
-        const alert = await EmergencyAlert.findByIdAndUpdate(
-            req.params.id,
-            { 
-                status: 'resolved',
-                resolvedAt: new Date() 
-            },
-            { new: true }
-        );
-        
-        if (!alert) {
-            return res.status(404).json({ error: "Alert not found" });
-        }
-        
-        req.app.get('io').emit('alertResolved', alert._id);
-        res.json(alert);
-    } catch (error) {
-        res.status(500).json({ error: "Failed to resolve alert" });
-    }
-});
-
-router.delete("/:id", async (req, res) => {
-    try {
-        const alert = await EmergencyAlert.findByIdAndDelete(req.params.id);
-        
-        if (!alert) {
-            return res.status(404).json({ error: "Alert not found" });
-        }
-        
-        req.app.get('io').emit('alertRemoved', alert._id);
-        res.json({ message: "Alert deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to delete alert" });
-    }
-});
-
-// Cleanup endpoint to delete all resolved alerts
-router.delete("/cleanup", async (req, res) => {
-    try {
-        const result = await EmergencyAlert.deleteMany({ status: 'resolved' });
-        
-        res.json({
-            success: true,
-            message: `Successfully cleared ${result.deletedCount} resolved alerts`,
-            deletedCount: result.deletedCount
-        });
-    } catch (error) {
-        console.error("Error clearing resolved alerts:", error);
-        res.status(500).json({ 
-            success: false,
-            error: "Failed to clear resolved alerts" 
-        });
-    }
-});
-
+// Get all alerts (with optional status filter)
 router.get("/", async (req, res) => {
     try {
         const { status } = req.query;
@@ -272,6 +136,7 @@ router.get("/", async (req, res) => {
     }
 });
 
+// Get single alert by ID
 router.get("/:id", async (req, res) => {
     try {
         const alert = await EmergencyAlert.findById(req.params.id)
@@ -310,7 +175,46 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-// Updated respond endpoint to match frontend
+// ==================== POST ROUTES ====================
+
+// Send new emergency alert
+router.post("/send", async (req, res) => {
+    try {
+        const { email, message } = req.body;
+        
+        const resident = await User.findOne({ email });
+        if (!resident) {
+            return res.status(404).json({ error: "Resident not found" });
+        }
+
+        const alert = new EmergencyAlert({
+            residentId: resident._id,
+            residentName: resident.fullName,
+            message
+        });
+
+        await alert.save();
+        
+        // Emit socket event
+        req.app.get('io').emit('newEmergencyAlert', alert);
+        
+        // Schedule email check for this alert after 1 minute
+        setTimeout(async () => {
+            const updatedAlert = await EmergencyAlert.findById(alert._id);
+            if (updatedAlert && updatedAlert.status === 'pending' && !updatedAlert.emailSent) {
+                console.log(`Alert ${alert._id} still unacknowledged after 1 minute, sending email...`);
+                await sendEmergencyEmailToAdmin(req, updatedAlert);
+            }
+        }, 61000); // 61 seconds to ensure 1 minute has passed
+        
+        res.status(201).json(alert);
+    } catch (error) {
+        console.error("Error sending alert:", error);
+        res.status(500).json({ error: "Failed to send emergency alert" });
+    }
+});
+
+// Respond to alert (acknowledge with message)
 router.post("/:id/respond", async (req, res) => {
     try {
         const { id } = req.params;
@@ -359,23 +263,150 @@ router.post("/:id/respond", async (req, res) => {
     }
 });
 
-// Background check for unacknowledged alerts
-setInterval(async () => {
+// ==================== PUT ROUTES ====================
+
+// Acknowledge alert
+router.put("/:id/acknowledge", async (req, res) => {
     try {
-        const oneMinuteAgo = new Date(Date.now() - 60000);
-        const unacknowledgedAlerts = await EmergencyAlert.find({
-            status: 'pending',
-            createdAt: { $lte: oneMinuteAgo },
-            emailSent: false
+        const alert = await EmergencyAlert.findByIdAndUpdate(
+            req.params.id,
+            { 
+                status: 'acknowledged',
+                acknowledgedAt: new Date() 
+            },
+            { new: true }
+        );
+        
+        if (!alert) {
+            return res.status(404).json({ error: "Alert not found" });
+        }
+        
+        req.app.get('io').emit('alertAcknowledged', alert);
+        res.json(alert);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to acknowledge alert" });
+    }
+});
+
+// Resolve alert
+router.put("/:id/resolve", async (req, res) => {
+    try {
+        const alert = await EmergencyAlert.findByIdAndUpdate(
+            req.params.id,
+            { 
+                status: 'resolved',
+                resolvedAt: new Date() 
+            },
+            { new: true }
+        );
+        
+        if (!alert) {
+            return res.status(404).json({ error: "Alert not found" });
+        }
+        
+        req.app.get('io').emit('alertResolved', alert._id);
+        res.json(alert);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to resolve alert" });
+    }
+});
+
+// ==================== DELETE ROUTES ====================
+
+// Test cleanup endpoint (MUST COME FIRST)
+router.delete("/cleanup-test", async (req, res) => {
+    try {
+        console.log("TEST CLEANUP ROUTE HIT - SUCCESS");
+        res.json({
+            success: true,
+            message: "Cleanup test route is working",
+            test: true,
+            deletedCount: 0
+        });
+    } catch (error) {
+        console.error("Test route error:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Test route failed",
+            details: error.message 
+        });
+    }
+});
+
+// Cleanup endpoint to delete all resolved alerts
+router.delete("/cleanup", async (req, res) => {
+    try {
+        console.log("=== CLEANUP REQUEST STARTED ===");
+        
+        // Check if MongoDB is connected
+        if (mongoose.connection.readyState !== 1) {
+            console.error("MongoDB is not connected");
+            return res.status(500).json({
+                success: false,
+                error: "Database not connected",
+                details: "MongoDB connection is not established"
+            });
+        }
+
+        console.log("MongoDB connection status: OK");
+        
+        // Count before deletion for logging
+        const beforeCount = await EmergencyAlert.countDocuments({ status: 'resolved' });
+        console.log(`Found ${beforeCount} resolved alerts to delete`);
+        
+        if (beforeCount === 0) {
+            console.log("No resolved alerts to delete");
+            return res.json({
+                success: true,
+                message: "No resolved alerts to clear",
+                deletedCount: 0
+            });
+        }
+
+        // Perform the deletion
+        console.log("Starting delete operation...");
+        const result = await EmergencyAlert.deleteMany({ status: 'resolved' });
+        
+        console.log(`Cleaned up ${result.deletedCount} resolved alerts`);
+        console.log("Delete operation completed successfully");
+        console.log("=== CLEANUP REQUEST COMPLETED ===");
+        
+        res.json({
+            success: true,
+            message: `Successfully cleared ${result.deletedCount} resolved alerts`,
+            deletedCount: result.deletedCount
         });
         
-        // We can't send emails here without req, but we can log them
-        if (unacknowledgedAlerts.length > 0) {
-            console.log(`Found ${unacknowledgedAlerts.length} unacknowledged alerts older than 1 minute`);
-        }
     } catch (error) {
-        console.error('Error in background alert check:', error);
+        console.error("=== CLEANUP ERROR ===");
+        console.error("Error clearing resolved alerts:", error);
+        console.error("Error details:", error.message);
+        console.error("Error stack:", error.stack);
+        console.error("=== CLEANUP ERROR END ===");
+        
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to clear resolved alerts",
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
-}, 30000);
+});
+
+// Delete single alert by ID (MUST COME LAST)
+router.delete("/:id", async (req, res) => {
+    try {
+        const alert = await EmergencyAlert.findByIdAndDelete(req.params.id);
+        
+        if (!alert) {
+            return res.status(404).json({ error: "Alert not found" });
+        }
+        
+        req.app.get('io').emit('alertRemoved', alert._id);
+        res.json({ message: "Alert deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete alert" });
+    }
+});
 
 module.exports = router;

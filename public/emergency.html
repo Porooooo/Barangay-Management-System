@@ -1067,14 +1067,14 @@
                     'pending': 'Pending Emergency Alerts',
                     'acknowledged': 'Acknowledged Alerts',
                     'resolved': 'Resolved Alerts',
-                    'all': 'Active Emergency Alerts' // Changed from "All Emergency Alerts"
+                    'all': 'Active Emergency Alerts'
                 };
                 
                 const statusLabels = {
                     'pending': 'Pending Alerts',
                     'acknowledged': 'Acknowledged Alerts',
                     'resolved': 'Resolved Alerts',
-                    'all': 'Active Alerts' // Changed from "All Alerts"
+                    'all': 'Active Alerts'
                 };
                 
                 const tableTitle = document.getElementById('tableTitle');
@@ -1117,7 +1117,7 @@
                     // For "all" status, exclude resolved alerts and only show pending + acknowledged
                     let url;
                     if (status === 'all') {
-                        url = '/api/emergency?status=active'; // Use active instead of all
+                        url = '/api/emergency?status=active';
                     } else {
                         url = `/api/emergency?status=${status}`;
                     }
@@ -1515,54 +1515,127 @@
                 openModal('cleanupModal');
             }
 
-            // Cleanup resolved alerts
-            async function cleanupResolvedAlerts() {
+            // Enhanced API request handler
+            async function handleApiRequest(url, options = {}) {
                 try {
-                    const cleanupBtn = document.getElementById('cleanupResolvedBtn');
-                    if (cleanupBtn) {
-                        cleanupBtn.disabled = true;
-                        cleanupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
-                    }
-
-                    const response = await fetch('/api/emergency/cleanup', {
-                        method: 'DELETE',
+                    const response = await fetch(url, {
                         credentials: 'include',
                         headers: {
-                            'Content-Type': 'application/json'
-                        }
+                            'Content-Type': 'application/json',
+                            ...options.headers
+                        },
+                        ...options
                     });
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        if (result.success) {
-                            showNotification('All resolved alerts have been cleared successfully!', 'success');
-                            closeModal('cleanupModal');
-                            
-                            // Reload the resolved alerts view
-                            if (currentStatus === 'resolved') {
-                                loadAlertsByStatus('resolved');
-                            }
-                            
-                            // Update stats
-                            loadAlertStats();
-                        } else {
-                            throw new Error(result.message || 'Failed to clear resolved alerts');
-                        }
+                    let data;
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        data = await response.json();
                     } else {
-                        const errorText = await response.text();
-                        throw new Error('Failed to clear resolved alerts: ' + errorText);
+                        const text = await response.text();
+                        throw new Error(`Unexpected response format: ${text}`);
                     }
+
+                    if (!response.ok) {
+                        throw new Error(data.error || data.message || `HTTP ${response.status}`);
+                    }
+
+                    return { success: true, data };
                 } catch (error) {
-                    console.error('Error clearing resolved alerts:', error);
-                    showNotification('Error clearing resolved alerts: ' + error.message, 'error');
-                } finally {
-                    const cleanupBtn = document.getElementById('cleanupResolvedBtn');
-                    if (cleanupBtn) {
-                        cleanupBtn.disabled = false;
-                        cleanupBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Clear All Resolved Alerts';
-                    }
+                    console.error('API request failed:', error);
+                    return { success: false, error: error.message };
                 }
             }
+
+            // Cleanup resolved alerts - ULTIMATE FIXED VERSION
+async function cleanupResolvedAlerts() {
+    const cleanupBtn = document.getElementById('cleanupResolvedBtn');
+    
+    try {
+        if (cleanupBtn) {
+            cleanupBtn.disabled = true;
+            cleanupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+        }
+
+        console.log('🧹 Starting cleanup of resolved alerts...');
+        
+        
+
+        // Test the cleanup endpoint
+        console.log('🧪 Testing cleanup endpoint...');
+        const testResponse = await fetch('/api/emergency/cleanup-test', {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        
+        const testData = await testResponse.json();
+        console.log('Cleanup test result:', testData);
+        
+        if (!testResponse.ok) {
+            throw new Error('Cleanup test failed: ' + (testData.error || 'Unknown test error'));
+        }
+
+        // Now make the actual cleanup request
+        console.log('🚀 Making actual cleanup request...');
+        const response = await fetch('/api/emergency/cleanup', {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('📨 Response status:', response.status);
+        
+        const responseText = await response.text();
+        console.log('📄 Raw response:', responseText);
+        
+        let result;
+        try {
+            result = JSON.parse(responseText);
+            console.log('📊 Parsed result:', result);
+        } catch (parseError) {
+            console.error('❌ JSON parse error:', parseError);
+            throw new Error(`Server returned invalid response: ${responseText}`);
+        }
+
+        if (response.ok && result.success) {
+            console.log('✅ Cleanup successful!');
+            const deletedCount = result.deletedCount || 0;
+            showNotification(`Successfully cleared ${deletedCount} resolved alerts! 🎉`, 'success');
+            closeModal('cleanupModal');
+            
+            // Reload the resolved alerts view
+            if (currentStatus === 'resolved') {
+                console.log('🔄 Reloading resolved alerts view...');
+                await loadAlertsByStatus('resolved');
+            }
+            
+            // Update stats
+            console.log('📈 Updating statistics...');
+            await loadAlertStats();
+            
+        } else {
+            // Use enhanced error information
+            const errorDetails = result.details || result.error || result.message || 'Unknown error occurred';
+            const errorType = result.errorType || 'Unknown';
+            console.error(`❌ Cleanup failed: ${errorDetails} (Type: ${errorType})`);
+            throw new Error(errorDetails);
+        }
+        
+    } catch (error) {
+        console.error('💥 Cleanup process failed:', error);
+        showNotification('Cleanup failed: ' + error.message, 'error');
+    } finally {
+        if (cleanupBtn) {
+            cleanupBtn.disabled = false;
+            cleanupBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Clear All Resolved Alerts';
+        }
+        console.log('🏁 Cleanup process completed');
+    }
+}
+
     
             // Modal functions
             function openModal(modalId) {
@@ -1764,14 +1837,14 @@
             };
     
             // Initialize the page
-async function initialize() {
-    const isAuthenticated = await checkAdminAuth();
-    if (isAuthenticated) {
-        await loadAlertStats();
-        // Change this from 'all' to 'pending' to auto-select pending alerts
-        filterByStatus('pending');
-    }
-}
+            async function initialize() {
+                const isAuthenticated = await checkAdminAuth();
+                if (isAuthenticated) {
+                    await loadAlertStats();
+                    // Change this from 'all' to 'pending' to auto-select pending alerts
+                    filterByStatus('pending');
+                }
+            }
     
             // Start the application
             initialize();
