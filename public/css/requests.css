@@ -941,6 +941,7 @@ select {
   .mobile-request-card .actions button {
     max-width: 100%;
   }
+<<<<<<< HEAD
 }
 
 /* Print Styles */
@@ -954,4 +955,6 @@ select {
   .main-content {
     margin-left: 0;
   }
+=======
+>>>>>>> f9b218ce3fc87fe955d56908065124b5f8f04d54
 }
