@@ -117,6 +117,13 @@
       justify-content: center;
     }
 
+    .install-prompt-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
     .btn {
       padding: 12px 24px;
       border-radius: 25px;
@@ -179,6 +186,59 @@
 
     .dont-show-again input {
       margin: 0;
+    }
+
+    .later-options {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+
+    .later-options.show {
+      display: flex;
+    }
+
+    /* PWA Installation Button Styles - Mobile Only */
+    .install-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0d4f8b;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+      
+      /* Hide by default on desktop */
+      display: none;
+    }
+
+    .install-btn.show {
+      opacity: 1;
+      visibility: visible;
+      display: flex; /* Show when the show class is added */
+    }
+
+    .install-btn:hover {
+      background: #0a3d6c;
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
     /* Header Styles */
@@ -847,6 +907,17 @@
 
    /* Mobile-specific styles */
 @media (max-width: 768px) {
+  /* Show install button only on mobile */
+  .install-btn {
+    display: flex;
+  }
+  
+  .install-btn.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
   .install-prompt {
     bottom: 80px;
     max-width: 90%;
@@ -854,6 +925,13 @@
 
   .install-prompt-buttons {
     flex-direction: column;
+  }
+
+  /* Adjust install button for mobile */
+  .install-btn {
+    bottom: 80px;
+    padding: 15px 25px;
+    font-size: 16px;
   }
 
   .top-header {
@@ -1052,7 +1130,9 @@
       <i class="fas fa-mobile-alt"></i>
       <h3>Install BTMS App</h3>
     </div>
-        
+    
+    <p>Install our app for a better experience and quick access to barangay services.</p>
+    
     <div class="install-prompt-buttons">
       <button id="installApp" class="btn btn-install">
         <i class="fas fa-download"></i> Install Now
@@ -1062,11 +1142,21 @@
       </button>
     </div>
     
-    <div class="dont-show-again">
-      <input type="checkbox" id="dontShowAgain">
-      <label for="dontShowAgain">Don't show this again</label>
+    <div id="laterOptions" class="later-options">
+      <div class="dont-show-again">
+        <input type="checkbox" id="dontShowAgain">
+        <label for="dontShowAgain">Don't show this again</label>
+      </div>
+      <button id="remindLater" class="btn btn-later">
+        <i class="fas fa-bell"></i> Remind me in 7 days
+      </button>
     </div>
   </div>
+
+  <!-- PWA Install Button - Only shows on mobile -->
+  <button id="installBtn" class="install-btn">
+    <i class="fas fa-mobile-alt"></i> Install App
+  </button>
 
   <!-- Top Header -->
   <div class="top-header">
@@ -1305,21 +1395,37 @@
 
     // PWA Installation Logic
     let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
     const installPrompt = document.getElementById('installPrompt');
     const installAppBtn = document.getElementById('installApp');
     const closePromptBtn = document.getElementById('closePrompt');
     const showLaterOptionsBtn = document.getElementById('showLaterOptions');
+    const laterOptions = document.getElementById('laterOptions');
+    const remindLaterBtn = document.getElementById('remindLater');
     const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
 
     // Check if user has previously dismissed the prompt
     function shouldShowPrompt() {
       const dontShowAgain = localStorage.getItem('pwaDontShowAgain');
-      return dontShowAgain !== 'true';
+      const lastPromptTime = localStorage.getItem('pwaLastPromptTime');
+      
+      if (dontShowAgain === 'true') {
+        return false;
+      }
+      
+      if (lastPromptTime) {
+        const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        return lastPromptTime < sevenDaysAgo;
+      }
+      
+      return true;
     }
 
     function showInstallPrompt() {
       if (shouldShowPrompt() && window.innerWidth <= 768) {
         installPrompt.classList.add('show');
+        // Store the current time as last prompt time
+        localStorage.setItem('pwaLastPromptTime', Date.now());
       }
     }
 
@@ -1329,9 +1435,29 @@
       // Stash the event so it can be triggered later
       deferredPrompt = e;
       
-      // Auto-show prompt after 3 seconds on mobile
+      // Show install button on mobile
       if (window.innerWidth <= 768) {
+        installBtn.classList.add('show');
+        
+        // Auto-show prompt after 3 seconds
         setTimeout(showInstallPrompt, 3000);
+        
+        // Auto-hide button after 7 seconds
+        setTimeout(() => {
+          installBtn.classList.remove('show');
+        }, 7000);
+      }
+    });
+
+    // Install button click
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        deferredPrompt = null;
+        installBtn.classList.remove('show');
+        installPrompt.classList.remove('show');
       }
     });
 
@@ -1343,27 +1469,33 @@
         console.log(`User response to the install prompt: ${outcome}`);
         deferredPrompt = null;
         installPrompt.classList.remove('show');
+        installBtn.classList.remove('show');
       }
     });
 
     // Close prompt
     closePromptBtn.addEventListener('click', () => {
-      if (dontShowAgainCheckbox.checked) {
-        localStorage.setItem('pwaDontShowAgain', 'true');
-      }
       installPrompt.classList.remove('show');
     });
 
-    // Later button
+    // Show later options
     showLaterOptionsBtn.addEventListener('click', () => {
+      laterOptions.classList.add('show');
+    });
+
+    // Remind later (7 days)
+    remindLaterBtn.addEventListener('click', () => {
       if (dontShowAgainCheckbox.checked) {
         localStorage.setItem('pwaDontShowAgain', 'true');
+      } else {
+        localStorage.setItem('pwaLastPromptTime', Date.now());
       }
       installPrompt.classList.remove('show');
     });
 
     window.addEventListener('appinstalled', (evt) => {
       console.log('App was successfully installed');
+      installBtn.classList.remove('show');
       installPrompt.classList.remove('show');
       // Clear the deferredPrompt so it can be garbage collected
       deferredPrompt = null;
