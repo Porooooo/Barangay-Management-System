@@ -329,16 +329,6 @@
             transform: translateY(-2px);
         }
 
-        .edit-btn {
-            background: var(--info);
-            color: white;
-        }
-
-        .edit-btn:hover {
-            background: #138496;
-            transform: translateY(-2px);
-        }
-
         /* Status Badges */
         .status-badge {
             padding: 0.4rem 0.8rem;
@@ -636,9 +626,6 @@
                         <button class="action-btn disable-btn" id="disableBtn">
                             <i class="fas fa-ban"></i> Disable Account
                         </button>
-                        <button class="action-btn edit-btn" id="editBtn">
-                            <i class="fas fa-edit"></i> Edit Profile
-                        </button>
                     </div>
                 </div>
             </div>
@@ -660,7 +647,6 @@
             const sidebarToggle = document.getElementById('sidebarToggle');
             const backBtn = document.getElementById('backBtn');
             const disableBtn = document.getElementById('disableBtn');
-            const editBtn = document.getElementById('editBtn');
             const profilePicture = document.getElementById('profilePicture');
             const profileStatus = document.getElementById('profileStatus');
             const accountStatus = document.getElementById('accountStatus');
@@ -683,7 +669,6 @@
             sidebarToggle.addEventListener('click', toggleMenu);
             backBtn.addEventListener('click', goBack);
             disableBtn.addEventListener('click', toggleResidentStatus);
-            editBtn.addEventListener('click', editResidentProfile);
 
             // Get resident ID from URL
             const urlParams = new URLSearchParams(window.location.search);
@@ -922,12 +907,6 @@
                         window.location.href = '/admin-login';
                     }
                 }
-            }
-
-            // Edit resident profile
-            function editResidentProfile() {
-                showNotification('Edit functionality coming soon!', 'info');
-                // window.location.href = `/edit-resident.html?id=${residentId}`;
             }
 
             // Initialize page

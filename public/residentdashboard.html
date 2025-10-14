@@ -8,6 +8,134 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/residentdashboard.css">
     <title>Resident Dashboard - Barangay Talipapa</title>
+    <style>
+        /* Updated CSS for centered changing text */
+.changing-text-container {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the text */
+    min-height: 45px;
+    overflow: hidden;
+    flex: 1; /* Take up available space */
+    position: absolute; /* Position absolutely */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for exact center */
+}
+
+.changing-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary);
+    text-align: center; /* Keep text centered */
+    transition: all 0.5s ease-in-out;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.changing-text.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+/* Make sure the top section has relative positioning */
+.top {
+    position: relative; /* Needed for absolute positioning of child */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+/* Keep header-right on the right */
+.header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+/* Red emergency notification bell */
+.notification-icon.emergency {
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
+    transition: all 0.3s ease;
+}
+
+.notification-icon.emergency:hover {
+    background-color: #c0392b;
+    transform: scale(1.05);
+}
+
+.notification-icon.emergency .fa-bell {
+    animation: ring 2s infinite;
+}
+
+@keyframes ring {
+    0% { transform: rotate(0); }
+    10% { transform: rotate(15deg); }
+    20% { transform: rotate(-15deg); }
+    30% { transform: rotate(10deg); }
+    40% { transform: rotate(-10deg); }
+    50% { transform: rotate(5deg); }
+    60% { transform: rotate(-5deg); }
+    70% { transform: rotate(2deg); }
+    80% { transform: rotate(-2deg); }
+    90% { transform: rotate(1deg); }
+    100% { transform: rotate(0); }
+}
+
+        /* Red emergency notification bell */
+        .notification-icon.emergency {
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .notification-icon.emergency:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .notification-icon.emergency .fa-bell {
+            animation: ring 2s infinite;
+        }
+
+        @keyframes ring {
+            0% { transform: rotate(0); }
+            10% { transform: rotate(15deg); }
+            20% { transform: rotate(-15deg); }
+            30% { transform: rotate(10deg); }
+            40% { transform: rotate(-10deg); }
+            50% { transform: rotate(5deg); }
+            60% { transform: rotate(-5deg); }
+            70% { transform: rotate(2deg); }
+            80% { transform: rotate(-2deg); }
+            90% { transform: rotate(1deg); }
+            100% { transform: rotate(0); }
+        }
+    </style>
 </head>
 
 <body>
@@ -70,7 +198,8 @@
         <div class="top">
             <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
             <div class="header-right">
-                <div class="notification-icon" onclick="toggleNotifications()">
+                <!-- Changed notification icon to red emergency button -->
+                <div class="notification-icon emergency" onclick="openEmergencyModal()" title="Emergency Alert">
                     <i class="fas fa-bell"></i>
                     <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
                 </div>
@@ -143,13 +272,6 @@
         </div>
     </section>
 
-    <!-- Emergency Button -->
-    <div class="emergency-button-container">
-        <button class="emergency-button" onclick="openEmergencyModal()">
-            <i class="fas fa-bell"></i> <span>Emergency</span>
-        </button>
-    </div>
-
     <!-- Emergency Modal -->
     <div id="emergencyModal" class="modal">
         <div class="modal-content">
@@ -174,6 +296,50 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Changing text effect for Resident Dashboard
+        const changingTexts = [
+            "Welcome to Talipapa",
+            "Community Dashboard",
+            "Resident Services",
+            "Barangay Talipapa",
+            "Your Neighborhood Hub"
+        ];
+
+        let currentTextIndex = 0;
+        let changingTextElement;
+
+        function initChangingText() {
+    // Create changing text container and element
+    const topSection = document.querySelector('.top');
+    const changingTextContainer = document.createElement('div');
+    changingTextContainer.className = 'changing-text-container';
+    
+    changingTextElement = document.createElement('span');
+    changingTextElement.className = 'changing-text';
+    changingTextElement.textContent = changingTexts[0];
+    
+    changingTextContainer.appendChild(changingTextElement);
+    
+    // Append to the top section
+    topSection.appendChild(changingTextContainer);
+    
+    // Start the text rotation
+    setInterval(updateChangingText, 4000);
+}
+        function updateChangingText() {
+            // Fade out current text
+            changingTextElement.classList.add('hidden');
+            
+            setTimeout(() => {
+                // Change text
+                currentTextIndex = (currentTextIndex + 1) % changingTexts.length;
+                changingTextElement.textContent = changingTexts[currentTextIndex];
+                
+                // Fade in new text
+                changingTextElement.classList.remove('hidden');
+            }, 500);
+        }
+
         // Toggle sidebar menu
         function toggleMenu() {
             const sidebar = document.querySelector('.sidebar');
@@ -213,9 +379,9 @@
             document.getElementById('profileDropdown').classList.toggle('active');
         }
 
-        // Toggle notifications (placeholder for future feature)
+        // Toggle notifications (now emergency button)
         function toggleNotifications() {
-            alert('Notification feature will be implemented soon!');
+            openEmergencyModal();
         }
 
         // Close dropdown when clicking outside
@@ -700,6 +866,9 @@
 
             // Setup sidebar logout
             setupSidebarLogout();
+
+            // Initialize changing text effect
+            initChangingText();
 
             authFetch('/api/auth/check-auth')
                 .then(response => {

@@ -38,34 +38,34 @@ const UserSchema = new mongoose.Schema({
   },
   
   // NEW: Login security fields
-loginAttempts: {
-  type: Number,
-  default: 0,
-  select: false
-},
-lockUntil: {
-  type: Date,
-  default: null,
-  select: false
-},
-lastFailedLogin: {
-  type: Date,
-  default: null,
-  select: false
-},
+  loginAttempts: {
+    type: Number,
+    default: 0,
+    select: false
+  },
+  lockUntil: {
+    type: Date,
+    default: null,
+    select: false
+  },
+  lastFailedLogin: {
+    type: Date,
+    default: null,
+    select: false
+  },
 
-// Force password change field
-forcePasswordChange: {
-  type: Boolean,
-  default: false
-},
+  // Force password change field
+  forcePasswordChange: {
+    type: Boolean,
+    default: false
+  },
 
-// Approval status field
-approvalStatus: {
-  type: String,
-  enum: ['pending', 'approved', 'rejected'],
-  default: 'pending'
-},
+  // Approval status field
+  approvalStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
 
   rejectionReason: {
     type: String,
@@ -84,8 +84,6 @@ approvalStatus: {
     ref: 'User',
     default: null
   },
-  
-
 
   // Admin Specific Fields
   adminSpecificFields: {
@@ -122,7 +120,9 @@ approvalStatus: {
   contactNumber: {
     type: String,
     trim: true,
-    default: null
+    default: null,
+    unique: true,
+    sparse: true
   },
   alternateContact: {
     type: String,
@@ -190,34 +190,8 @@ approvalStatus: {
     ],
     default: null
   },
-  monthlyIncome: {
-    type: String,
-    enum: [
-      'Below 5,000',
-      '5,000-10,000',
-      '10,001-20,000',
-      '20,001-30,000',
-      '30,001-50,000',
-      'Above 50,000'
-    ],
-    default: null
-  },
-  homeowner: {
-    type: String,
-    enum: ['Yes', 'No'],
-    default: null
-  },
-  yearsResiding: {
-    type: String,
-    enum: [
-      'Since birth',
-      '1-5 years',
-      '6-10 years',
-      '11-20 years',
-      '20+ years'
-    ],
-    default: null
-  },
+  
+  // REMOVED: Homeowner Status, Years Residing, Monthly Income fields
   
   // Government Program Participation
   registeredVoter: {
@@ -271,7 +245,6 @@ approvalStatus: {
     default: false,
     select: false
   },
-  
 
   // Timestamps
   createdAt: {
@@ -427,7 +400,5 @@ UserSchema.virtual('isApproved').get(function() {
 UserSchema.virtual('isPending').get(function() {
   return this.approvalStatus === 'pending';
 });
-
-
 
 module.exports = mongoose.model('User', UserSchema);

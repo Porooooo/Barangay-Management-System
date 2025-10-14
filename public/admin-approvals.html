@@ -943,18 +943,12 @@
                         <input type="radio" name="rejectionReason" value="Incomplete Information">
                         <span>Incomplete Information</span>
                     </label>
-                    <label class="rejection-option">
-                        <input type="radio" name="rejectionReason" value="Invalid ID Verification">
-                        <span>Invalid ID Verification</span>
-                    </label>
+                    
                     <label class="rejection-option">
                         <input type="radio" name="rejectionReason" value="Does Not Meet Requirements">
                         <span>Does Not Meet Requirements</span>
                     </label>
-                    <label class="rejection-option">
-                        <input type="radio" name="rejectionReason" value="Duplicate Registration">
-                        <span>Duplicate Registration</span>
-                    </label>
+                    
                     <label class="rejection-option">
                         <input type="radio" name="rejectionReason" value="Other">
                         <span>Other (specify below)</span>
@@ -1259,7 +1253,7 @@
             }
         }
 
-        // Display user details in modal
+        // Display user details in modal - UPDATED: Removed Years Residing, Monthly Income, Homeowner
         function displayUserDetails(user) {
             const content = document.getElementById('userDetailsContent');
 
@@ -1319,14 +1313,11 @@
                     <label>Address Information</label>
                     <p><strong>Address:</strong> ${user.address || 'N/A'}</p>
                     <p><strong>Barangay:</strong> ${user.barangay || 'N/A'}</p>
-                    <p><strong>Years Residing:</strong> ${user.yearsResiding || 'N/A'}</p>
                 </div>
 
                 <div class="user-detail-item">
                     <label>Additional Information</label>
                     <p><strong>Educational Attainment:</strong> ${user.educationalAttainment || 'N/A'}</p>
-                    <p><strong>Monthly Income:</strong> ${user.monthlyIncome || 'N/A'}</p>
-                    <p><strong>Homeowner:</strong> ${user.homeowner || 'N/A'}</p>
                 </div>
 
                 <div class="user-detail-item">

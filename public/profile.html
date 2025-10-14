@@ -6,6 +6,425 @@
     <title>User Profile - Barangay Talipapa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/profile.css">
+    <style>
+        /* Additional styles for the new layout */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-upload-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(13, 79, 139, 0.3);
+        }
+
+        .profile-upload-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(13, 79, 139, 0.4);
+        }
+
+        .profile-info-header {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .profile-email {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .profile-status {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #28a745;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .profile-header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .password-btn {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Edit Profile Modal */
+        .edit-profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .edit-profile-content {
+            background: white;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .edit-profile-content h3 {
+            margin-bottom: 25px;
+            color: var(--primary);
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .close-edit-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .close-edit-modal:hover {
+            color: #333;
+        }
+
+        .edit-profile-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .edit-form-section {
+            margin-bottom: 20px;
+        }
+
+        .edit-form-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .edit-form-section h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 16px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+
+        .edit-form-group {
+            margin-bottom: 15px;
+        }
+
+        .edit-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .edit-form-group input,
+        .edit-form-group select,
+        .edit-form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .edit-form-group input:focus,
+        .edit-form-group select:focus,
+        .edit-form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .edit-form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group-edit {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item-edit {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item-edit input {
+            width: auto;
+        }
+
+        .checkbox-item-edit label {
+            margin: 0;
+            font-weight: normal;
+            font-size: 14px;
+        }
+
+        .edit-profile-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+            grid-column: 1 / -1;
+        }
+
+        .edit-profile-actions button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .save-edit-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .cancel-edit-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .save-edit-btn:hover,
+        .cancel-edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Change Password Modal */
+        .change-password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .change-password-content {
+            background: white;
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .change-password-content h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .close-password-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .password-form-group {
+            margin-bottom: 15px;
+        }
+
+        .password-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .password-form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .password-requirements {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 3px;
+        }
+
+        .requirement.met {
+            color: #28a745;
+        }
+
+        .requirement.not-met {
+            color: #6c757d;
+        }
+
+        .password-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .password-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .password-submit {
+            background: var(--primary);
+            color: white;
+        }
+
+        .password-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .d-none {
+            display: none !important;
+        }
+
+        /* Hide monthly income and logout button */
+        .monthly-income-section {
+            display: none !important;
+        }
+
+        .profile-actions .btn-danger {
+            display: none !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .profile-header-actions {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .edit-profile-form {
+                grid-template-columns: 1fr;
+            }
+
+            .checkbox-group-edit {
+                grid-template-columns: 1fr;
+            }
+
+            .edit-profile-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Mobile Menu Button -->
@@ -47,10 +466,7 @@
                     <span class="link-name">Announcements</span>
                 </a></li>
             
-                <li><a href="/profile" class="active">
-                    <i class="fas fa-user"></i>
-                    <span class="link-name">Profile</span>
-                </a></li>
+                
             </ul>
             
             <!-- Logout Section -->
@@ -78,7 +494,7 @@
 
         <!-- Profile Container -->
         <div class="profile-container">
-            <!-- Profile Header -->
+            <!-- Profile Header with Action Buttons -->
             <div class="profile-header">
                 <div class="profile-picture-container">
                     <img id="profilePicture" src="" alt="Profile Picture" class="profile-picture">
@@ -92,10 +508,20 @@
                     <p class="profile-email" id="profileEmailDisplay">Loading...</p>
                     <span class="profile-status">Active Account</span>
                 </div>
+                
+                <!-- Action Buttons aligned with profile header -->
+                <div class="profile-header-actions">
+                    <button type="button" class="action-btn edit-btn" onclick="openEditProfileModal()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    <button type="button" class="action-btn password-btn" onclick="openChangePasswordModal()">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
             </div>
 
-            <!-- Profile Form -->
-            <form id="profileForm">
+            <!-- Profile Display (Read-only) -->
+            <div class="profile-display">
                 <div class="profile-form">
                     <!-- Personal Information -->
                     <div class="form-section">
@@ -104,25 +530,21 @@
                         <div class="form-group">
                             <label class="form-label">Full Name</label>
                             <div class="profile-value" id="fullNameDisplay">Loading...</div>
-                            <input type="text" class="form-control edit-field" id="fullName" placeholder="Enter full name">
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Email Address</label>
                             <div class="profile-value" id="emailDisplay">Loading...</div>
-                            <input type="email" class="form-control edit-field readonly-field" id="email" placeholder="Enter email" readonly>
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Contact Number</label>
                             <div class="profile-value" id="contactNumberDisplay">Loading...</div>
-                            <input type="tel" class="form-control edit-field" id="contactNumber" placeholder="Enter contact number">
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Birthdate</label>
                             <div class="profile-value" id="birthdateDisplay">Loading...</div>
-                            <input type="date" class="form-control edit-field" id="birthdate">
                         </div>
                     </div>
 
@@ -133,7 +555,101 @@
                         <div class="form-group">
                             <label class="form-label">Civil Status</label>
                             <div class="profile-value" id="civilStatusDisplay">Loading...</div>
-                            <select class="form-control edit-field" id="civilStatus">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Occupation</label>
+                            <div class="profile-value" id="occupationDisplay">Loading...</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Educational Attainment</label>
+                            <div class="profile-value" id="educationalAttainmentDisplay">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Address Information -->
+                    <div class="form-section" style="grid-column: 1 / -1;">
+                        <h3 class="form-section-title">Address Information</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Complete Address</label>
+                            <div class="profile-value" id="addressDisplay">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Government Programs -->
+                    <div class="form-section" style="grid-column: 1 / -1;">
+                        <h3 class="form-section-title">Government Program Participation</h3>
+                        
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="registeredVoterDisplay" disabled>
+                                <label for="registeredVoterDisplay">Registered Voter</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="fourPsMemberDisplay" disabled>
+                                <label for="fourPsMemberDisplay">4Ps Member</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="pwdMemberDisplay" disabled>
+                                <label for="pwdMemberDisplay">PWD Member</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="seniorCitizenDisplay" disabled>
+                                <label for="seniorCitizenDisplay">Senior Citizen</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="soloParentDisplay" disabled>
+                                <label for="soloParentDisplay">Solo Parent</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="edit-profile-modal">
+        <div class="edit-profile-content">
+            <span class="close-edit-modal" onclick="closeEditProfileModal()">&times;</span>
+            <h3>Edit Profile</h3>
+            
+            <form id="editProfileForm">
+                <div class="edit-profile-form">
+                    <!-- Personal Information -->
+                    <div class="edit-form-section">
+                        <h4>Personal Information</h4>
+                        
+                        <div class="edit-form-group">
+                            <label for="editFullName">Full Name *</label>
+                            <input type="text" id="editFullName" name="fullName" required>
+                        </div>
+                        
+                        <div class="edit-form-group">
+                            <label for="editEmail">Email Address</label>
+                            <input type="email" id="editEmail" name="email" readonly style="background-color: #f8f9fa;">
+                        </div>
+                        
+                        <div class="edit-form-group">
+                            <label for="editContactNumber">Contact Number *</label>
+                            <input type="tel" id="editContactNumber" name="contactNumber" required>
+                        </div>
+                        
+                        <div class="edit-form-group">
+                            <label for="editBirthdate">Birthdate</label>
+                            <input type="date" id="editBirthdate" name="birthdate">
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="edit-form-section">
+                        <h4>Additional Information</h4>
+                        
+                        <div class="edit-form-group">
+                            <label for="editCivilStatus">Civil Status</label>
+                            <select id="editCivilStatus" name="civilStatus">
                                 <option value="">Select civil status</option>
                                 <option value="Single">Single</option>
                                 <option value="Married">Married</option>
@@ -142,10 +658,9 @@
                             </select>
                         </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">Occupation</label>
-                            <div class="profile-value" id="occupationDisplay">Loading...</div>
-                            <select class="form-control edit-field" id="occupation">
+                        <div class="edit-form-group">
+                            <label for="editOccupation">Occupation</label>
+                            <select id="editOccupation" name="occupation">
                                 <option value="">Select occupation</option>
                                 <option value="Student">Student</option>
                                 <option value="Employed">Employed</option>
@@ -161,10 +676,9 @@
                             </select>
                         </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">Educational Attainment</label>
-                            <div class="profile-value" id="educationalAttainmentDisplay">Loading...</div>
-                            <select class="form-control edit-field" id="educationalAttainment">
+                        <div class="edit-form-group">
+                            <label for="editEducationalAttainment">Educational Attainment</label>
+                            <select id="editEducationalAttainment" name="educationalAttainment">
                                 <option value="">Select educational attainment</option>
                                 <option value="Elementary Graduate">Elementary Graduate</option>
                                 <option value="High School Graduate">High School Graduate</option>
@@ -174,124 +688,103 @@
                                 <option value="None">None</option>
                             </select>
                         </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Monthly Income</label>
-                            <div class="profile-value" id="monthlyIncomeDisplay">Loading...</div>
-                            <select class="form-control edit-field" id="monthlyIncome">
-                                <option value="">Select monthly income</option>
-                                <option value="Below 5,000">Below ₱5,000</option>
-                                <option value="5,000-10,000">₱5,000 - ₱10,000</option>
-                                <option value="10,001-20,000">₱10,001 - ₱20,000</option>
-                                <option value="20,001-30,000">₱20,001 - ₱30,000</option>
-                                <option value="30,001-50,000">₱30,001 - ₱50,000</option>
-                                <option value="Above 50,000">Above ₱50,000</option>
-                            </select>
-                        </div>
                     </div>
 
                     <!-- Address Information -->
-                    <div class="form-section" style="grid-column: 1 / -1;">
-                        <h3 class="form-section-title">Address Information</h3>
+                    <div class="edit-form-section full-width">
+                        <h4>Address Information</h4>
                         
-                        <div class="form-group">
-                            <label class="form-label">Complete Address</label>
-                            <div class="profile-value" id="addressDisplay">Loading...</div>
-                            <textarea class="form-control edit-field" id="address" placeholder="Enter complete address" rows="3"></textarea>
+                        <div class="edit-form-group">
+                            <label for="editAddress">Complete Address *</label>
+                            <textarea id="editAddress" name="address" required></textarea>
                         </div>
                     </div>
 
                     <!-- Government Programs -->
-                    <div class="form-section" style="grid-column: 1 / -1;">
-                        <h3 class="form-section-title">Government Program Participation</h3>
+                    <div class="edit-form-section full-width">
+                        <h4>Government Program Participation</h4>
                         
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="registeredVoter" name="registeredVoter">
-                                <label for="registeredVoter">Registered Voter</label>
+                        <div class="checkbox-group-edit">
+                            <div class="checkbox-item-edit">
+                                <input type="checkbox" id="editRegisteredVoter" name="registeredVoter">
+                                <label for="editRegisteredVoter">Registered Voter</label>
                             </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="fourPsMember" name="fourPsMember">
-                                <label for="fourPsMember">4Ps Member</label>
+                            <div class="checkbox-item-edit">
+                                <input type="checkbox" id="editFourPsMember" name="fourPsMember">
+                                <label for="editFourPsMember">4Ps Member</label>
                             </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="pwdMember" name="pwdMember">
-                                <label for="pwdMember">PWD Member</label>
+                            <div class="checkbox-item-edit">
+                                <input type="checkbox" id="editPwdMember" name="pwdMember">
+                                <label for="editPwdMember">PWD Member</label>
                             </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="seniorCitizen" name="seniorCitizen">
-                                <label for="seniorCitizen">Senior Citizen</label>
+                            <div class="checkbox-item-edit">
+                                <input type="checkbox" id="editSeniorCitizen" name="seniorCitizen">
+                                <label for="editSeniorCitizen">Senior Citizen</label>
                             </div>
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="soloParent" name="soloParent">
-                                <label for="soloParent">Solo Parent</label>
+                            <div class="checkbox-item-edit">
+                                <input type="checkbox" id="editSoloParent" name="soloParent">
+                                <label for="editSoloParent">Solo Parent</label>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Change Password Section -->
-                <div class="change-password-section">
-                    <div class="change-password-toggle" onclick="togglePasswordForm()">
-                        <i class="fas fa-key"></i>
-                        <span>Change Password</span>
-                        <i class="fas fa-chevron-down" id="passwordToggleIcon"></i>
-                    </div>
-                    
-                    <div class="change-password-form" id="changePasswordForm">
-                        <div id="passwordMessage" class="message"></div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="currentPassword">Current Password</label>
-                            <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="newPassword">New Password</label>
-                            <input type="password" id="newPassword" name="newPassword" class="form-control" required oninput="validatePassword()">
-                            <div class="password-requirements">
-                                <div id="reqLength" class="requirement not-met">
-                                    <i class="fas fa-circle"></i> At least 8 characters
-                                </div>
-                                <div id="reqUppercase" class="requirement not-met">
-                                    <i class="fas fa-circle"></i> At least one uppercase letter
-                                </div>
-                                <div id="reqSpecial" class="requirement not-met">
-                                    <i class="fas fa-circle"></i> At least one special character
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="confirmPassword">Confirm New Password</label>
-                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required oninput="checkPasswordMatch()">
-                            <div id="passwordMatch" class="password-requirements"></div>
-                        </div>
-                        
-                        <button type="button" class="btn btn-primary" onclick="handlePasswordChange()" id="changePasswordBtn">
-                            <i class="fas fa-save"></i> Change Password
+                    <!-- Action Buttons -->
+                    <div class="edit-profile-actions">
+                        <button type="button" class="cancel-edit-btn" onclick="closeEditProfileModal()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="button" class="save-edit-btn" onclick="saveProfile()">
+                            <i class="fas fa-save"></i> Save Changes
                         </button>
                     </div>
                 </div>
-
-                <!-- Action Buttons -->
-                <div class="profile-actions">
-                    <button type="button" class="btn btn-primary" id="editProfileBtn">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-                    <button type="button" class="btn btn-success" id="saveProfileBtn" style="display: none;">
-                        <i class="fas fa-save"></i> Save Changes
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display: none;">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                    <button type="button" class="btn btn-danger" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
             </form>
         </div>
-    </section>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="change-password-modal">
+        <div class="change-password-content">
+            <span class="close-password-modal" onclick="closeChangePasswordModal()">&times;</span>
+            <h3>Change Password</h3>
+            
+            <div id="passwordMessage" class="message"></div>
+            
+            <div class="password-form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+            </div>
+            
+            <div class="password-form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" name="newPassword" class="form-control" required oninput="validatePassword()">
+                <div class="password-requirements">
+                    <div id="reqLength" class="requirement not-met">
+                        <i class="fas fa-circle"></i> At least 8 characters
+                    </div>
+                    <div id="reqUppercase" class="requirement not-met">
+                        <i class="fas fa-circle"></i> At least one uppercase letter
+                    </div>
+                    <div id="reqSpecial" class="requirement not-met">
+                        <i class="fas fa-circle"></i> At least one special character
+                    </div>
+                </div>
+            </div>
+            
+            <div class="password-form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required oninput="checkPasswordMatch()">
+                <div id="passwordMatch" class="password-requirements"></div>
+            </div>
+            
+            <div class="password-actions">
+                <button type="button" class="password-cancel" onclick="closeChangePasswordModal()">Cancel</button>
+                <button type="button" class="password-submit" onclick="handlePasswordChange()" id="changePasswordBtn">
+                    <i class="fas fa-save"></i> Change Password
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
@@ -307,7 +800,6 @@
 
     <script>
         let originalData = {}; // To store original values when editing
-        let isPasswordFormOpen = false;
 
         // Toggle sidebar menu
         function toggleMenu() {
@@ -408,11 +900,20 @@
                     openLogoutModal();
                 });
                 
-                // Close logout modal when clicking outside
+                // Close modals when clicking outside
                 window.addEventListener('click', function(event) {
                     const logoutModal = document.getElementById('logoutModal');
+                    const passwordModal = document.getElementById('changePasswordModal');
+                    const editModal = document.getElementById('editProfileModal');
+                    
                     if (event.target === logoutModal) {
                         closeLogoutModal();
+                    }
+                    if (event.target === passwordModal) {
+                        closeChangePasswordModal();
+                    }
+                    if (event.target === editModal) {
+                        closeEditProfileModal();
                     }
                 });
             } catch (error) {
@@ -426,20 +927,6 @@
                 if (this.files[0]) {
                     updateProfilePicture();
                 }
-            });
-
-            document.getElementById('editProfileBtn').addEventListener('click', function() {
-                toggleEditMode(true);
-            });
-
-            document.getElementById('saveProfileBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                saveProfile();
-            });
-
-            document.getElementById('cancelEditBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                cancelEdit();
             });
         }
 
@@ -466,7 +953,6 @@
                         civilStatus: result.civilStatus || '',
                         occupation: result.occupation || '',
                         educationalAttainment: result.educationalAttainment || '',
-                        monthlyIncome: result.monthlyIncome || '',
                         registeredVoter: result.registeredVoter || false,
                         fourPsMember: result.fourPsMember || false,
                         pwdMember: result.pwdMember || false,
@@ -487,26 +973,13 @@
                     document.getElementById('occupationDisplay').textContent = originalData.occupation || 'Not provided';
                     document.getElementById('educationalAttainmentDisplay').textContent = 
                         originalData.educationalAttainment || 'Not provided';
-                    document.getElementById('monthlyIncomeDisplay').textContent = originalData.monthlyIncome || 'Not provided';
 
-                    // Set form field values
-                    document.getElementById('fullName').value = originalData.fullName;
-                    document.getElementById('email').value = originalData.email;
-                    document.getElementById('contactNumber').value = originalData.contactNumber;
-                    document.getElementById('address').value = originalData.address;
-                    document.getElementById('birthdate').value = originalData.birthdate ? 
-                        formatDateForInput(originalData.birthdate) : '';
-                    document.getElementById('civilStatus').value = originalData.civilStatus;
-                    document.getElementById('occupation').value = originalData.occupation;
-                    document.getElementById('educationalAttainment').value = originalData.educationalAttainment;
-                    document.getElementById('monthlyIncome').value = originalData.monthlyIncome;
-
-                    // Set checkbox values
-                    document.getElementById('registeredVoter').checked = originalData.registeredVoter;
-                    document.getElementById('fourPsMember').checked = originalData.fourPsMember;
-                    document.getElementById('pwdMember').checked = originalData.pwdMember;
-                    document.getElementById('seniorCitizen').checked = originalData.seniorCitizen;
-                    document.getElementById('soloParent').checked = originalData.soloParent;
+                    // Set display checkbox values
+                    document.getElementById('registeredVoterDisplay').checked = originalData.registeredVoter;
+                    document.getElementById('fourPsMemberDisplay').checked = originalData.fourPsMember;
+                    document.getElementById('pwdMemberDisplay').checked = originalData.pwdMember;
+                    document.getElementById('seniorCitizenDisplay').checked = originalData.seniorCitizen;
+                    document.getElementById('soloParentDisplay').checked = originalData.soloParent;
 
                     // Set profile picture - add timestamp to prevent caching
                     const timestamp = new Date().getTime();
@@ -551,8 +1024,8 @@
                 return;
             }
 
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File size must be less than 2MB.');
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB.');
                 return;
             }
 
@@ -587,46 +1060,50 @@
             }
         }
 
-        function toggleEditMode(edit) {
-            const displayFields = document.querySelectorAll('.profile-value');
-            const editFields = document.querySelectorAll('.edit-field');
-            const editBtn = document.getElementById('editProfileBtn');
-            const saveBtn = document.getElementById('saveProfileBtn');
-            const cancelBtn = document.getElementById('cancelEditBtn');
+        // ==================== EDIT PROFILE MODAL FUNCTIONS ====================
+        
+        function openEditProfileModal() {
+            // Populate the edit form with current data
+            document.getElementById('editFullName').value = originalData.fullName || '';
+            document.getElementById('editEmail').value = originalData.email || '';
+            document.getElementById('editContactNumber').value = originalData.contactNumber || '';
+            document.getElementById('editAddress').value = originalData.address || '';
+            document.getElementById('editBirthdate').value = originalData.birthdate ? 
+                formatDateForInput(originalData.birthdate) : '';
+            document.getElementById('editCivilStatus').value = originalData.civilStatus || '';
+            document.getElementById('editOccupation').value = originalData.occupation || '';
+            document.getElementById('editEducationalAttainment').value = originalData.educationalAttainment || '';
+            
+            // Set checkbox values
+            document.getElementById('editRegisteredVoter').checked = originalData.registeredVoter;
+            document.getElementById('editFourPsMember').checked = originalData.fourPsMember;
+            document.getElementById('editPwdMember').checked = originalData.pwdMember;
+            document.getElementById('editSeniorCitizen').checked = originalData.seniorCitizen;
+            document.getElementById('editSoloParent').checked = originalData.soloParent;
+            
+            // Show the modal
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
 
-            if (edit) {
-                // Enter edit mode
-                displayFields.forEach(field => field.style.display = 'none');
-                editFields.forEach(field => field.style.display = 'block');
-                editBtn.style.display = 'none';
-                saveBtn.style.display = 'block';
-                cancelBtn.style.display = 'block';
-            } else {
-                // Exit edit mode
-                displayFields.forEach(field => field.style.display = 'flex');
-                editFields.forEach(field => field.style.display = 'none');
-                editBtn.style.display = 'block';
-                saveBtn.style.display = 'none';
-                cancelBtn.style.display = 'none';
-            }
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
         }
 
         async function saveProfile() {
             // Prepare the update data with proper formatting
             const updatedData = {
-                fullName: document.getElementById('fullName').value.trim(),
-                contactNumber: document.getElementById('contactNumber').value.trim(),
-                address: document.getElementById('address').value.trim(),
-                birthdate: document.getElementById('birthdate').value || null,
-                civilStatus: document.getElementById('civilStatus').value || null,
-                occupation: document.getElementById('occupation').value.trim() || null,
-                educationalAttainment: document.getElementById('educationalAttainment').value || null,
-                monthlyIncome: document.getElementById('monthlyIncome').value || null,
-                registeredVoter: document.getElementById('registeredVoter').checked,
-                fourPsMember: document.getElementById('fourPsMember').checked,
-                pwdMember: document.getElementById('pwdMember').checked,
-                seniorCitizen: document.getElementById('seniorCitizen').checked,
-                soloParent: document.getElementById('soloParent').checked
+                fullName: document.getElementById('editFullName').value.trim(),
+                contactNumber: document.getElementById('editContactNumber').value.trim(),
+                address: document.getElementById('editAddress').value.trim(),
+                birthdate: document.getElementById('editBirthdate').value || null,
+                civilStatus: document.getElementById('editCivilStatus').value || null,
+                occupation: document.getElementById('editOccupation').value.trim() || null,
+                educationalAttainment: document.getElementById('editEducationalAttainment').value || null,
+                registeredVoter: document.getElementById('editRegisteredVoter').checked,
+                fourPsMember: document.getElementById('editFourPsMember').checked,
+                pwdMember: document.getElementById('editPwdMember').checked,
+                seniorCitizen: document.getElementById('editSeniorCitizen').checked,
+                soloParent: document.getElementById('editSoloParent').checked
             };
 
             // Validate required fields
@@ -663,58 +1140,29 @@
 
                 const result = await response.json();
                 alert('Profile updated successfully!');
-                fetchUserProfile();
-                toggleEditMode(false);
+                closeEditProfileModal();
+                fetchUserProfile(); // Refresh the displayed data
             } catch (error) {
                 console.error('Error:', error);
                 alert(error.message || 'An error occurred while updating the profile.');
             }
         }
 
-        function cancelEdit() {
-            // Restore original values
-            document.getElementById('fullName').value = originalData.fullName;
-            document.getElementById('contactNumber').value = originalData.contactNumber;
-            document.getElementById('address').value = originalData.address;
-            document.getElementById('birthdate').value = originalData.birthdate ? 
-                formatDateForInput(originalData.birthdate) : '';
-            document.getElementById('civilStatus').value = originalData.civilStatus;
-            document.getElementById('occupation').value = originalData.occupation;
-            document.getElementById('educationalAttainment').value = originalData.educationalAttainment;
-            document.getElementById('monthlyIncome').value = originalData.monthlyIncome;
-
-            // Restore checkbox values
-            document.getElementById('registeredVoter').checked = originalData.registeredVoter;
-            document.getElementById('fourPsMember').checked = originalData.fourPsMember;
-            document.getElementById('pwdMember').checked = originalData.pwdMember;
-            document.getElementById('seniorCitizen').checked = originalData.seniorCitizen;
-            document.getElementById('soloParent').checked = originalData.soloParent;
-
-            toggleEditMode(false);
-        }
-
         // ==================== PASSWORD CHANGE FUNCTIONS ====================
         
-        function togglePasswordForm() {
-            const passwordForm = document.getElementById('changePasswordForm');
-            const toggleIcon = document.getElementById('passwordToggleIcon');
-            
-            isPasswordFormOpen = !isPasswordFormOpen;
-            
-            if (isPasswordFormOpen) {
-                passwordForm.classList.add('active');
-                toggleIcon.classList.remove('fa-chevron-down');
-                toggleIcon.classList.add('fa-chevron-up');
-            } else {
-                passwordForm.classList.remove('active');
-                toggleIcon.classList.remove('fa-chevron-up');
-                toggleIcon.classList.add('fa-chevron-down');
-                // Reset form when closing
-                document.getElementById('changePasswordForm').reset();
-                validatePassword();
-                document.getElementById('passwordMatch').textContent = '';
-                document.getElementById('passwordMessage').style.display = 'none';
-            }
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+            // Reset form
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            validatePassword();
+            document.getElementById('passwordMatch').textContent = '';
+            document.getElementById('passwordMessage').style.display = 'none';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
         }
 
         // Password validation
@@ -814,13 +1262,15 @@
                 
                 if (response.ok) {
                     showMessage(messageElement, 'Password changed successfully!', 'success');
-                    document.getElementById('changePasswordForm').reset();
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
                     validatePassword();
                     document.getElementById('passwordMatch').textContent = '';
                     
-                    // Close the password form after successful change
+                    // Close the password modal after successful change
                     setTimeout(() => {
-                        togglePasswordForm();
+                        closeChangePasswordModal();
                     }, 2000);
                 } else {
                     showMessage(messageElement, result.message || 'Failed to change password', 'error');

@@ -157,14 +157,18 @@ app.set('io', io);
 app.set('emailTransporter', emailTransporter);
 
 // 🔐 Rate Limit
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 500,
-  message: 'Too many requests from this IP, please try again later',
-  standardHeaders: true,
-  legacyHeaders: false
+// Relaxed limiter for beta testing
+const rateLimit = require("express-rate-limit");
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 2000,                 // up to 2000 requests per 15 mins
+  message: "Too many requests, please try again later"
 });
-app.use(limiter);
+
+// Apply only to authentication routes
+app.use("/api/auth", authLimiter);
+
 
 // 🛣️ Routes
 const authRoutes = require("./routes/authRoutes");

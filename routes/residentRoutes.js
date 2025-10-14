@@ -113,8 +113,7 @@ router.put("/profile", authMiddleware, async (req, res) => {
       'fullName', 'firstName', 'lastName', 'middleName', 'suffix',
       'contactNumber', 'alternateContact', 'address', 'birthdate',
       'gender', 'civilStatus', 'occupation', 'educationalAttainment',
-      'monthlyIncome', 'homeowner', 'yearsResiding', 'registeredVoter',
-      'fourPsMember', 'pwdMember', 'seniorCitizen', 'soloParent'
+      'registeredVoter', 'fourPsMember', 'pwdMember', 'seniorCitizen', 'soloParent'
     ];
 
     const updates = Object.keys(req.body)
@@ -224,6 +223,16 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
       });
     }
 
+    // NEW: Check for duplicate phone number
+    const existingPhone = await User.findOne({ contactNumber: req.body.contactNumber });
+    if (existingPhone) {
+      return res.status(409).json({
+        success: false,
+        error: "Duplicate Phone Number",
+        message: "Phone number already exists"
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newResident = new User({
       ...req.body,
@@ -264,6 +273,21 @@ router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
 
     if (updates.password) {
       updates.password = await bcrypt.hash(updates.password, 10);
+    }
+
+    // NEW: Check for duplicate phone number if updating contact number
+    if (updates.contactNumber) {
+      const existingPhone = await User.findOne({ 
+        contactNumber: updates.contactNumber,
+        _id: { $ne: req.params.id }
+      });
+      if (existingPhone) {
+        return res.status(409).json({
+          success: false,
+          error: "Duplicate Phone Number",
+          message: "Phone number already exists"
+        });
+      }
     }
 
     const updatedResident = await User.findByIdAndUpdate(

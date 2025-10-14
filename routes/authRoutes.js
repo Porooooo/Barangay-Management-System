@@ -37,7 +37,7 @@ transporter.verify((error, success) => {
     }
 });
 
-// Multer configuration for multiple file uploads
+// Multer configuration for multiple file uploads - UPDATED to 10MB limit
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = path.join(__dirname, "../uploads");
@@ -74,7 +74,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024,
+    fileSize: 10 * 1024 * 1024, // UPDATED: 10MB limit
     files: 2 // Allow up to 2 files (profile picture and ID photo)
   }
 });
@@ -102,6 +102,42 @@ router.get("/check-email", async (req, res) => {
         return res.status(500).json({
             error: "Server error",
             message: "Failed to check email availability"
+        });
+    }
+});
+
+// NEW: Check phone number availability route
+router.get("/check-phone", async (req, res) => {
+    try {
+        const { phone } = req.query;
+        
+        if (!phone) {
+            return res.status(400).json({
+                error: "Validation error",
+                message: "Phone number is required"
+            });
+        }
+
+        // Validate phone format
+        const phonePattern = /^09\d{9}$/;
+        if (!phonePattern.test(phone)) {
+            return res.status(400).json({
+                error: "Validation error",
+                message: "Invalid phone number format"
+            });
+        }
+
+        const user = await User.findOne({ contactNumber: phone });
+        
+        return res.status(200).json({
+            exists: !!user,
+            phone: phone
+        });
+    } catch (error) {
+        console.error("Phone check error:", error);
+        return res.status(500).json({
+            error: "Server error",
+            message: "Failed to check phone number availability"
         });
     }
 });
@@ -438,13 +474,23 @@ router.post("/register", upload.fields([
       });
     }
 
-    // Check for existing user
-    const existingUser = await User.findOne({ email: formData.email });
-    if (existingUser) {
+    // Check for existing user by email
+    const existingUserByEmail = await User.findOne({ email: formData.email });
+    if (existingUserByEmail) {
       if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
       return res.status(400).json({
         error: "Duplicate email",
         message: "Email already registered"
+      });
+    }
+
+    // NEW: Check for existing user by phone number
+    const existingUserByPhone = await User.findOne({ contactNumber: formData.contactNumber });
+    if (existingUserByPhone) {
+      if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
+      return res.status(400).json({
+        error: "Duplicate phone number",
+        message: "Phone number already registered"
       });
     }
 
@@ -495,9 +541,6 @@ router.post("/register", upload.fields([
       houseNumber: formData.houseNumber,
       street: formData.street,
       barangay: formData.barangay,
-      homeowner: formData.homeownerStatus || null,
-      yearsResiding: formData.yearsResiding || null,
-      monthlyIncome: formData.monthlyIncome || null,
       
       // Additional Information
       educationalAttainment: formData.educationalAttainment || null,
@@ -579,7 +622,7 @@ router.post("/register", upload.fields([
     if (error.code === "LIMIT_FILE_SIZE") {
       return res.status(400).json({ 
         error: "File too large", 
-        message: "Files must be less than 5MB" 
+        message: "Files must be less than 10MB" 
       });
     }
     if (error.message === "Only image files are allowed!") {
