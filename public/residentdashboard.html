@@ -10,94 +10,55 @@
     <title>Resident Dashboard - Barangay Talipapa</title>
     <style>
         /* Updated CSS for centered changing text */
-.changing-text-container {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Center the text */
-    min-height: 45px;
-    overflow: hidden;
-    flex: 1; /* Take up available space */
-    position: absolute; /* Position absolutely */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Adjust for exact center */
-}
+        .changing-text-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center the text */
+            min-height: 45px;
+            overflow: hidden;
+            flex: 1; /* Take up available space */
+            position: absolute; /* Position absolutely */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust for exact center */
+        }
 
-.changing-text {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--primary);
-    text-align: center; /* Keep text centered */
-    transition: all 0.5s ease-in-out;
-    opacity: 1;
-    transform: translateY(0);
-}
+        .changing-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+            text-align: center; /* Keep text centered */
+            transition: all 0.5s ease-in-out;
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-.changing-text.hidden {
-    opacity: 0;
-    transform: translateY(-10px);
-}
+        .changing-text.hidden {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
 
-/* Make sure the top section has relative positioning */
-.top {
-    position: relative; /* Needed for absolute positioning of child */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: white;
-    padding: 15px 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px;
-}
+        /* Make sure the top section has relative positioning */
+        .top {
+            position: relative; /* Needed for absolute positioning of child */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
 
-/* Keep header-right on the right */
-.header-right {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 15px;
-}
+        /* Keep header-right on the right */
+        .header-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+        }
 
-/* Red emergency notification bell */
-.notification-icon.emergency {
-    background-color: #e74c3c;
-    color: white;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
-    transition: all 0.3s ease;
-}
-
-.notification-icon.emergency:hover {
-    background-color: #c0392b;
-    transform: scale(1.05);
-}
-
-.notification-icon.emergency .fa-bell {
-    animation: ring 2s infinite;
-}
-
-@keyframes ring {
-    0% { transform: rotate(0); }
-    10% { transform: rotate(15deg); }
-    20% { transform: rotate(-15deg); }
-    30% { transform: rotate(10deg); }
-    40% { transform: rotate(-10deg); }
-    50% { transform: rotate(5deg); }
-    60% { transform: rotate(-5deg); }
-    70% { transform: rotate(2deg); }
-    80% { transform: rotate(-2deg); }
-    90% { transform: rotate(1deg); }
-    100% { transform: rotate(0); }
-}
-
-        /* Red emergency notification bell */
+        /* Red emergency notification bell - UPDATED */
         .notification-icon.emergency {
             background-color: #e74c3c;
             color: white;
@@ -118,22 +79,38 @@
             transform: scale(1.05);
         }
 
+        /* REMOVED constant animation - only animate on hover */
         .notification-icon.emergency .fa-bell {
-            animation: ring 2s infinite;
+            /* No animation by default */
+        }
+
+        .notification-icon.emergency:hover .fa-bell {
+            /* Animation only on hover */
+            animation: ring 0.5s ease-in-out;
         }
 
         @keyframes ring {
             0% { transform: rotate(0); }
-            10% { transform: rotate(15deg); }
-            20% { transform: rotate(-15deg); }
-            30% { transform: rotate(10deg); }
-            40% { transform: rotate(-10deg); }
-            50% { transform: rotate(5deg); }
-            60% { transform: rotate(-5deg); }
-            70% { transform: rotate(2deg); }
-            80% { transform: rotate(-2deg); }
-            90% { transform: rotate(1deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-10deg); }
+            75% { transform: rotate(5deg); }
             100% { transform: rotate(0); }
+        }
+
+        /* Hide changing text on mobile */
+        @media (max-width: 768px) {
+            .changing-text-container {
+                display: none !important;
+            }
+            
+            .top {
+                justify-content: space-between;
+            }
+            
+            .header-right {
+                flex: 1;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
@@ -307,26 +284,39 @@
 
         let currentTextIndex = 0;
         let changingTextElement;
+        let changingTextInterval;
 
         function initChangingText() {
-    // Create changing text container and element
-    const topSection = document.querySelector('.top');
-    const changingTextContainer = document.createElement('div');
-    changingTextContainer.className = 'changing-text-container';
-    
-    changingTextElement = document.createElement('span');
-    changingTextElement.className = 'changing-text';
-    changingTextElement.textContent = changingTexts[0];
-    
-    changingTextContainer.appendChild(changingTextElement);
-    
-    // Append to the top section
-    topSection.appendChild(changingTextContainer);
-    
-    // Start the text rotation
-    setInterval(updateChangingText, 4000);
-}
+            // Check if we're on mobile - don't show changing text on mobile
+            if (window.innerWidth <= 768) {
+                return; // Exit function on mobile
+            }
+
+            // Create changing text container and element
+            const topSection = document.querySelector('.top');
+            const changingTextContainer = document.createElement('div');
+            changingTextContainer.className = 'changing-text-container';
+            
+            changingTextElement = document.createElement('span');
+            changingTextElement.className = 'changing-text';
+            changingTextElement.textContent = changingTexts[0];
+            
+            changingTextContainer.appendChild(changingTextElement);
+            
+            // Append to the top section
+            topSection.appendChild(changingTextContainer);
+            
+            // Start the text rotation
+            changingTextInterval = setInterval(updateChangingText, 4000);
+        }
+
         function updateChangingText() {
+            // Check if we're on mobile - stop animation if so
+            if (window.innerWidth <= 768) {
+                clearInterval(changingTextInterval);
+                return;
+            }
+
             // Fade out current text
             changingTextElement.classList.add('hidden');
             
@@ -338,6 +328,32 @@
                 // Fade in new text
                 changingTextElement.classList.remove('hidden');
             }, 500);
+        }
+
+        // Handle window resize to stop/start changing text
+        function handleResize() {
+            const changingTextContainer = document.querySelector('.changing-text-container');
+            
+            if (window.innerWidth <= 768) {
+                // Mobile view - hide changing text and clear interval
+                if (changingTextContainer) {
+                    changingTextContainer.style.display = 'none';
+                }
+                if (changingTextInterval) {
+                    clearInterval(changingTextInterval);
+                }
+            } else {
+                // Desktop view - show changing text and restart interval
+                if (changingTextContainer) {
+                    changingTextContainer.style.display = 'flex';
+                }
+                // Reinitialize if not already initialized
+                if (!changingTextElement && changingTextContainer) {
+                    initChangingText();
+                } else if (changingTextElement && !changingTextInterval) {
+                    changingTextInterval = setInterval(updateChangingText, 4000);
+                }
+            }
         }
 
         // Toggle sidebar menu
@@ -867,8 +883,11 @@
             // Setup sidebar logout
             setupSidebarLogout();
 
-            // Initialize changing text effect
+            // Initialize changing text effect (will check for mobile inside function)
             initChangingText();
+
+            // Add resize listener to handle changing text on screen size changes
+            window.addEventListener('resize', handleResize);
 
             authFetch('/api/auth/check-auth')
                 .then(response => {
