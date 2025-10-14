@@ -156,9 +156,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.set('io', io);
 app.set('emailTransporter', emailTransporter);
 
-// 🔐 Rate Limit
 // Relaxed limiter for beta testing
-const rateLimit = require("express-rate-limit");
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
@@ -360,7 +358,7 @@ const Shutdown = () => {
 };
 
 process.on('SIGINT', Shutdown);
-process.on('SIGTERM', Shutdown);
+process.on('SIGTERM', Shutdown);  
 
 
 // 🚀 Start Server
