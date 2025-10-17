@@ -1224,7 +1224,7 @@
             const isValid = phonePattern.test(phoneValue);
             
             if (!isValid) {
-                validationElement.textContent = 'Enter a valid phone number (11 digits starting with 09)';
+                validationElement.textContent = '';
                 validationElement.className = 'phone-validation phone-invalid';
                 validationElement.style.display = 'block';
                 phoneInput.classList.add('input-error');
@@ -1256,7 +1256,7 @@
             const isValid = phonePattern.test(phoneValue);
             
             if (!isValid) {
-                validationElement.textContent = 'Enter a valid phone number (11 digits starting with 09)';
+                validationElement.textContent = '';
                 validationElement.className = 'phone-validation phone-invalid';
                 validationElement.style.display = 'block';
                 phoneInput.classList.add('input-error');
