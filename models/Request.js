@@ -41,7 +41,7 @@ const requestSchema = new mongoose.Schema({
         type: String, 
         default: "Pending",
         enum: {
-            values: ['Pending', 'Approved', 'Rejected', 'Ready to Claim', 'Claimed'],
+            values: ['Pending', 'Approved', 'Rejected', 'Ready to Claim', 'Scheduled for Pickup', 'Claimed'],
             message: 'Invalid status'
         },
         index: true
@@ -49,6 +49,19 @@ const requestSchema = new mongoose.Schema({
     rejectionReason: {
         type: String,
         trim: true
+    },
+    // Claim scheduling fields
+    scheduledClaimDate: {
+        type: Date,
+        default: null
+    },
+    scheduledClaimTime: {
+        type: String,
+        default: null
+    },
+    pickupNotes: {
+        type: String,
+        default: ''
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -103,6 +116,22 @@ requestSchema.virtual('formattedTime').get(function() {
     });
 });
 
+// Virtual for formatted scheduled claim date
+requestSchema.virtual('formattedScheduledDate').get(function() {
+    if (!this.scheduledClaimDate) return 'Not scheduled';
+    return this.scheduledClaimDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric'
+    });
+});
+
+// Virtual for formatted scheduled claim time
+requestSchema.virtual('formattedScheduledTime').get(function() {
+    if (!this.scheduledClaimTime) return 'Not scheduled';
+    return this.scheduledClaimTime;
+});
+
 // Add pre-save hook
 requestSchema.pre('save', function(next) {
     if (this.isModified('status')) {
@@ -118,6 +147,7 @@ requestSchema.pre('save', function(next) {
 requestSchema.index({ status: 1, userId: 1 });
 requestSchema.index({ createdAt: -1 });
 requestSchema.index({ updatedAt: -1 });
+requestSchema.index({ scheduledClaimDate: 1 });
 
 const Request = mongoose.model("Request", requestSchema);
     

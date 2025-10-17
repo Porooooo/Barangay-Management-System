@@ -16,6 +16,20 @@ const formatDateSafe = (date) => {
   }
 };
 
+// Helper function to calculate age
+const calculateAge = (birthdate) => {
+  const today = new Date();
+  const birthDate = new Date(birthdate);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+};
+
 // Format resident object consistently
 const formatResidentData = (resident) => {
   return {
@@ -123,6 +137,18 @@ router.put("/profile", authMiddleware, async (req, res) => {
         return obj;
       }, {});
 
+    // NEW: Validate age if birthdate is being updated
+    if (updates.birthdate) {
+      const age = calculateAge(updates.birthdate);
+      if (age < 18) {
+        return res.status(400).json({
+          success: false,
+          error: "Age restriction",
+          message: "Residents must be 18 years or older. Current age would be " + age
+        });
+      }
+    }
+
     const requiredFields = ['fullName', 'contactNumber', 'address', 'birthdate'];
     for (const field of requiredFields) {
       if (updates[field] === '') {
@@ -200,7 +226,7 @@ router.get("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-// POST create new resident (Admin only)
+// POST create new resident (Admin only) - UPDATED with age validation
 router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const requiredFields = ['fullName', 'email', 'contactNumber', 'address', 'birthdate', 'password'];
@@ -211,6 +237,16 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
         success: false,
         error: "Validation Error",
         message: `Missing required fields: ${missingFields.join(', ')}`
+      });
+    }
+
+    // NEW: Validate age - must be 18 or older
+    const age = calculateAge(req.body.birthdate);
+    if (age < 18) {
+      return res.status(400).json({
+        success: false,
+        error: "Age restriction",
+        message: "Residents must be 18 years or older. Current age is " + age
       });
     }
 
@@ -237,7 +273,8 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
     const newResident = new User({
       ...req.body,
       password: hashedPassword,
-      role: 'resident'
+      role: 'resident',
+      approvalStatus: 'approved' // Admin-created residents are automatically approved
     });
 
     await newResident.save();
@@ -257,7 +294,7 @@ router.post("/", authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-// PUT update resident by ID (Admin only)
+// PUT update resident by ID (Admin only) - UPDATED with age validation
 router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -270,6 +307,18 @@ router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
 
     const updates = { ...req.body };
     if (updates.role) delete updates.role;
+
+    // NEW: Validate age if birthdate is being updated
+    if (updates.birthdate) {
+      const age = calculateAge(updates.birthdate);
+      if (age < 18) {
+        return res.status(400).json({
+          success: false,
+          error: "Age restriction",
+          message: "Residents must be 18 years or older. Current age would be " + age
+        });
+      }
+    }
 
     if (updates.password) {
       updates.password = await bcrypt.hash(updates.password, 10);

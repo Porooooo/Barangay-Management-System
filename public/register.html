@@ -14,6 +14,7 @@
           --light: #f8f9fa;
           --dark: #343a40;
           --success: #28a745;
+          --danger: #e74c3c;
         }
         
         * {
@@ -509,6 +510,21 @@
         .phone-invalid {
           color: #e74c3c;
         }
+
+        /* Age validation styles */
+        .age-validation {
+          font-size: 11px;
+          margin-top: 2px;
+          display: none;
+        }
+    
+        .age-valid {
+          color: var(--success);
+        }
+    
+        .age-invalid {
+          color: #e74c3c;
+        }
     
         /* Success Modal Styles */
         .success-modal {
@@ -765,6 +781,7 @@
             </div>
             <div class="welcome-text">
                 <h3>Join Our Community</h3>
+                <p>Registration is for residents 18 years old and above only.</p>
             </div>
         </div>
 
@@ -826,7 +843,8 @@
                         </div>
                         <div class="form-column">
                             <label for="birthdate" class="required-field">Birthdate</label>
-                            <input type="date" id="birthdate" name="birthdate" placeholder="Birthdate" required>
+                            <input type="date" id="birthdate" name="birthdate" placeholder="Birthdate" required onchange="validateAge()">
+                            <div id="birthdateValidation" class="age-validation">You must be 18 years or older to register.</div>
                             
                             <label for="gender" class="required-field">Gender</label>
                             <select id="gender" name="gender" required>
@@ -954,7 +972,7 @@
                     <div class="certification-container">
                         <div class="checkbox-item">
                             <input type="checkbox" id="agreeTerms" required>
-                            <label for="agreeTerms">I certify that the information provided is true and correct.</label>
+                            <label for="agreeTerms">I certify that the information provided is true and correct, and I am 18 years of age or older.</label>
                         </div>
                     </div>
                     
@@ -1033,6 +1051,41 @@
         function prevPage(currentPage) {
             showPage(currentPage - 1);
         }
+
+        // Age validation function
+        function validateAge() {
+            const birthdateInput = document.getElementById('birthdate');
+            const validationElement = document.getElementById('birthdateValidation');
+            
+            if (!birthdateInput.value) {
+                validationElement.style.display = 'none';
+                birthdateInput.classList.remove('input-error');
+                return false;
+            }
+            
+            const birthdate = new Date(birthdateInput.value);
+            const today = new Date();
+            const age = today.getFullYear() - birthdate.getFullYear();
+            const monthDiff = today.getMonth() - birthdate.getMonth();
+            
+            // Check if birthday has occurred this year
+            const hasBirthdayOccurred = monthDiff > 0 || (monthDiff === 0 && today.getDate() >= birthdate.getDate());
+            const actualAge = hasBirthdayOccurred ? age : age - 1;
+            
+            if (actualAge < 18) {
+                validationElement.textContent = `You must be 18 years or older to register. Your current age is ${actualAge}.`;
+                validationElement.className = 'age-validation age-invalid';
+                validationElement.style.display = 'block';
+                birthdateInput.classList.add('input-error');
+                return false;
+            } else {
+                validationElement.textContent = '';
+                validationElement.className = 'age-validation age-valid';
+                validationElement.style.display = 'block';
+                birthdateInput.classList.remove('input-error');
+                return true;
+            }
+        }
         
         function validatePage(pageNumber) {
             let isValid = true;
@@ -1060,6 +1113,11 @@
                 }
                 
                 if (lastName.value && !isValidNameFormat(lastName.value)) {
+                    isValid = false;
+                }
+
+                // Validate age
+                if (!validateAge()) {
                     isValid = false;
                 }
             }
@@ -1174,7 +1232,7 @@
             } else {
                 // Check if phone number is already registered
                 checkPhoneAvailability(phoneValue);
-                validationElement.textContent = 'Phone number format is valid';
+                validationElement.textContent = '';
                 validationElement.className = 'phone-validation phone-valid';
                 validationElement.style.display = 'block';
                 phoneInput.classList.remove('input-error');
@@ -1204,7 +1262,7 @@
                 phoneInput.classList.add('input-error');
                 return false;
             } else {
-                validationElement.textContent = 'Phone number format is valid';
+                validationElement.textContent = '';
                 validationElement.className = 'phone-validation phone-valid';
                 validationElement.style.display = 'block';
                 phoneInput.classList.remove('input-error');
@@ -1355,6 +1413,13 @@
               }
           }
 
+          // Additional age validation before submission
+          if (!validateAge()) {
+              showPage(1);
+              alert('You must be 18 years or older to register.');
+              return;
+          }
+
           if (!allPagesValid) {
               return;
           }
@@ -1419,4 +1484,4 @@
         });
     </script>
 </body>
-</html>x
+</html>

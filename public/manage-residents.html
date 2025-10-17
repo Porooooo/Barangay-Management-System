@@ -676,7 +676,7 @@
                         <td>${resident.fullName}</td>
                         <td>${resident.email}</td>
                         <td>${resident.contactNumber || 'N/A'}</td>
-                        <td class="status-${resident.isBanned ? 'banned' : 'active'}">${resident.isBanned ? 'Banned' : 'Active'}</td>
+                        <td class="status-${resident.isBanned ? 'banned' : 'active'}">${resident.isBanned ? 'Disabled' : 'Active'}</td>
                         <td>${new Date(resident.createdAt).toLocaleString()}</td>
                         <td>
                             <button class="action-btn view-btn" data-id="${resident._id || resident.id}">View</button>

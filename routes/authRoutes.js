@@ -142,6 +142,21 @@ router.get("/check-phone", async (req, res) => {
     }
 });
 
+// Helper function to calculate age from birthdate
+function calculateAge(birthdate) {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Check if birthday has occurred this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    
+    return age;
+}
+
 // Login route with enhanced security features
 router.post("/login", async (req, res) => {
   try {
@@ -436,7 +451,7 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-//Update the register route
+//Update the register route with age validation
 router.post("/register", upload.fields([
   { name: "profilePicture", maxCount: 1 }
 ]), async (req, res) => {
@@ -471,6 +486,17 @@ router.post("/register", upload.fields([
       return res.status(400).json({
         error: "Validation error",
         message: "Invalid email format"
+      });
+    }
+
+    // NEW: Validate age - must be 18 or older
+    const birthdate = new Date(formData.birthdate);
+    const age = calculateAge(birthdate);
+    if (age < 18) {
+      if (profilePictureFile) fs.unlinkSync(profilePictureFile.path);
+      return res.status(400).json({
+        error: "Age restriction",
+        message: "You must be 18 years or older to register. Your current age is " + age
       });
     }
 
@@ -567,7 +593,8 @@ router.post("/register", upload.fields([
       id: newUser._id,
       email: newUser.email,
       fullName: newUser.fullName,
-      approvalStatus: newUser.approvalStatus
+      approvalStatus: newUser.approvalStatus,
+      age: age
     });
 
     // Set session data
@@ -715,7 +742,7 @@ router.post("/:userId/ban", async (req, res) => {
     }
 
     res.status(200).json({
-      message: "User banned successfully",
+      message: "User Disabled successfully",
       user: {
         id: user._id,
         email: user.email,
@@ -755,7 +782,7 @@ router.post("/:userId/unban", async (req, res) => {
     }
 
     res.status(200).json({
-      message: "User unbanned successfully",
+      message: "User enabled successfully",
       user: {
         id: user._id,
         email: user.email,

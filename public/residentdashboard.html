@@ -79,23 +79,22 @@
             transform: scale(1.05);
         }
 
-        /* REMOVED constant animation - only animate on hover */
-        .notification-icon.emergency .fa-bell {
-            /* No animation by default */
-        }
+        /* Default state - no animation */
+.notification-icon.emergency .fa-bell {
+    animation: none;
+}
 
-        .notification-icon.emergency:hover .fa-bell {
-            /* Animation only on hover */
-            animation: ring 0.5s ease-in-out;
-        }
+/* Animate only on hover */
+.notification-icon.emergency:hover .fa-bell {
+    animation: shake 0.5s ease-in-out;
+}
 
-        @keyframes ring {
-            0% { transform: rotate(0); }
-            25% { transform: rotate(15deg); }
-            50% { transform: rotate(-10deg); }
-            75% { transform: rotate(5deg); }
-            100% { transform: rotate(0); }
-        }
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(5deg); }
+    50% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
 
         /* Hide changing text on mobile */
         @media (max-width: 768px) {
@@ -142,14 +141,15 @@
                         <span class="link-name">Request Document</span>
                     </a></li>
 
-                <li><a href="/blotter">
-                        <i class="fas fa-shield-alt"></i>
-                        <span class="link-name">Blotter</span>
-                    </a></li>
+                
 
                 <li><a href="/announcement">
                         <i class="fas fa-bell"></i>
                         <span class="link-name">Announcements</span>
+                    </a></li>
+                    <li><a href="/blotter">
+                        <i class="fas fa-shield-alt"></i>
+                        <span class="link-name">Blotter</span>
                     </a></li>
             </ul>
 

@@ -642,32 +642,32 @@
             background-color: #1c6ea4;
         }
 
-/* Modal Overlay */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-}
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
 
-/* Updated Report Modal Styles - Make the container larger */
-.report-modal {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 30px rgba(0,0,0,0.3);
-    width: 75%; /* Increased from 85% */
-    max-width: 900px; /* Increased from 1100px */
-    height: 95vh; /* Increased from 85vh */
-    overflow-y: auto;
-    position: relative;
-    animation: modalFadeIn 0.3s ease;
-}
+        /* Compact Report Card Styles */
+        .report-modal {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            width: 65%;
+            max-width: 900px;
+            height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
 
         @keyframes modalFadeIn {
             from { opacity: 0; transform: translateY(-50px); }
@@ -692,9 +692,8 @@
         }
 
         .modal-content {
-    padding: 20px; /* Reduced from 30px to give more content space */
-    width: 550%;
-}
+            padding: 30px;
+        }
 
         .report-header {
             display: flex;
@@ -715,7 +714,7 @@
             align-items: center;
             gap: 10px;
             margin: 0;
-            font-size: 1.8rem; /* Increased font size */
+            font-size: 1.5rem;
         }
         
         .export-buttons {
@@ -724,7 +723,7 @@
         }
         
         .btn {
-            padding: 10px 15px; /* Increased padding */
+            padding: 8px 12px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -733,7 +732,7 @@
             align-items: center;
             gap: 5px;
             transition: all 0.3s;
-            font-size: 0.9rem; /* Slightly larger font */
+            font-size: 0.85rem;
         }
         
         .btn-primary {
@@ -811,13 +810,13 @@
         
         .report-summary-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Increased min width */
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
         
         .report-summary-cards .box {
-            padding: 20px; /* Increased padding */
+            padding: 15px;
             text-align: center;
             background: white;
             border-radius: 8px;
@@ -833,36 +832,36 @@
         }
         
         .report-summary-cards .box i {
-            font-size: 28px; /* Increased icon size */
-            margin-bottom: 10px; /* Increased margin */
+            font-size: 24px;
+            margin-bottom: 8px;
         }
         
         .report-summary-cards .text {
-            font-size: 0.9rem; /* Increased font size */
+            font-size: 0.8rem;
             font-weight: 500;
             margin-bottom: 5px;
             color: var(--dark);
         }
         
         .report-summary-cards .number {
-            font-size: 1.4rem; /* Increased font size */
+            font-size: 1.2rem;
             font-weight: 600;
         }
 
-        /* Removed charts-grid section as requested */
+        /* Charts grid removed */
         
         .data-table {
             background: white;
-            padding: 20px; /* Increased padding */
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 15px;
         }
         
         .data-table h3 {
-            margin-bottom: 15px; /* Increased margin */
+            margin-bottom: 12px;
             color: var(--dark);
-            font-size: 1.2rem; /* Increased font size */
+            font-size: 1rem;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -871,11 +870,11 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem; /* Increased font size */
+            font-size: 0.8rem;
         }
         
         th, td {
-            padding: 12px 15px; /* Increased padding */
+            padding: 8px 10px;
             text-align: left;
             border-bottom: 1px solid #dee2e6;
         }
@@ -884,7 +883,7 @@
             background-color: #f8f9fa;
             font-weight: 600;
             color: #495057;
-            font-size: 0.85rem; /* Slightly larger */
+            font-size: 0.75rem;
             text-transform: uppercase;
         }
         
@@ -902,13 +901,13 @@
         }
         
         .pagination button {
-            padding: 8px 15px; /* Increased padding */
+            padding: 6px 12px;
             background-color: var(--primary);
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.9rem; /* Increased font size */
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -921,7 +920,7 @@
         }
         
         .page-info {
-            font-size: 0.9rem; /* Increased font size */
+            font-size: 0.8rem;
             color: #6c757d;
             font-weight: 500;
         }
@@ -1091,7 +1090,7 @@
             
             .report-modal {
                 width: 95%;
-                height: 95vh;
+                height: 90vh;
             }
 
             .modal-content {
@@ -1129,10 +1128,6 @@
             .export-buttons {
                 width: 100%;
                 justify-content: center;
-            }
-            
-            .report-summary-cards {
-                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -1616,9 +1611,38 @@
                     </div>
                 </div>
                 
-                <!-- Removed charts-grid section as requested -->
+                <!-- Charts grid removed -->
                 
-                
+                <div class="data-table">
+                    <h3><i class="fas fa-table"></i> Resident Details</h3>
+                    <div id="residentTableContainer">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Gender</th>
+                                    <th>Civil Status</th>
+                                    <th>Status</th>
+                                    <th>Programs</th>
+                                </tr>
+                            </thead>
+                            <tbody id="residentTableBody">
+                                <tr>
+                                    <td colspan="6" class="loading">Loading resident data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination">
+                        <button id="prevPage" disabled>
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                        <button id="nextPage" disabled>
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2594,9 +2618,6 @@
             // Update summary cards
             updateReportSummaryCards(filteredResidents);
             
-            // Update charts
-            updateReportCharts(filteredResidents);
-            
             // Update table
             updateResidentTable();
         }
@@ -2671,13 +2692,6 @@
             document.getElementById('reportMaleCount').textContent = maleCount;
         }
         
-        // Function to update report charts - modified to remove chart creation
-        function updateReportCharts(residents) {
-            // Charts have been removed as requested
-            // This function is kept for compatibility but does nothing
-            console.log("Charts removed from report card as requested");
-        }
-        
         // Function to update resident table
         function updateResidentTable() {
             const startIndex = (currentPage - 1) * residentsPerPage;
@@ -2726,37 +2740,32 @@
             pageInfoEl.textContent = `Page ${currentPage} of ${totalPages || 1}`;
         }
         
-        // Function to export to PDF with barangay logo and prepared by section
+        // Function to export to PDF with barangay logo
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // Use an absolute path to the logo - adjust based on your project structure
+            // Load and add barangay logo
             const logo = new Image();
-            logo.src = '/images/barangay-bg.png'; // Absolute path from public folder
+            logo.src = '/images/barangay-bg.png';
             
-            // Add error handling
-            logo.onerror = function() {
-                console.error('Failed to load logo image');
-                generatePDFWithoutLogo(doc); // Fallback function
-            };
-
-            logo.onload = function () {
+            logo.onload = function() {
                 // Add barangay logo (top left)
                 doc.addImage(logo, 'PNG', 15, 10, 25, 25);
 
-                // Add title at Y=65
+                // Add title
                 doc.setFontSize(20);
-                doc.setTextColor(0, 0, 0);
-                doc.text('RESIDENT REPORT CARD', 105, 55, { align: 'center' });
+                doc.setTextColor(13, 79, 139);
+                doc.text('RESIDENT REPORT CARD', 105, 25, { align: 'center' });
 
-                // Add date below the title
+                // Add date
                 doc.setFontSize(12);
-                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 65, { align: 'center' }); // Increased Y position from 55 to 75
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 35, { align: 'center' });
 
                 // Add resident table heading
-                doc.setFontSize(16);
-                doc.text('Resident Details', 15, 80); // Increased Y position from 0 to 90
+                doc.setFontSize(14);
+                doc.text('RESIDENT DETAILS', 15, 50);
 
                 // Prepare table data
                 const tableData = filteredResidents.map(resident => {
@@ -2773,11 +2782,11 @@
                     ];
                 });
 
-                // Add table - starting below the heading
+                // Add table
                 doc.autoTable({
                     head: [['Name', 'Age', 'Gender', 'Civil Status', 'Status', 'Programs']],
                     body: tableData,
-                    startY: 85, // Increased from 65 to 95 to position below the heading
+                    startY: 55,
                     theme: 'grid',
                     headStyles: {
                         fillColor: [13, 79, 139],
@@ -2785,60 +2794,185 @@
                         fontStyle: 'bold'
                     },
                     styles: {
-                        fontSize: 10,
-                        cellPadding: 3
+                        fontSize: 8,
+                        cellPadding: 2,
+                        overflow: 'linebreak',
+                        cellWidth: 'wrap'
                     },
-                    margin: { left: 15, right: 15 }
+                    margin: { left: 10, right: 10 },
+                    pageBreak: 'auto'
                 });
 
-                // Get the final Y position after the table
-                const finalY = doc.lastAutoTable.finalY + 20;
+                // Get final Y position after table
+                const finalY = doc.lastAutoTable.finalY + 10;
 
-                // Add "Prepared by" section at the bottom left
-                doc.setFontSize(12);
-                doc.text('Prepared by:', 15, finalY);
-                doc.text('_________________________', 15, finalY + 10);
-                doc.setFontSize(10);
-                doc.text('Barangay Secretary', 15, finalY + 20);
+                // Add footer with prepared by section
+                if (finalY < 250) {
+                    doc.setFontSize(10);
+                    doc.text('Prepared by: _________________________', 15, finalY + 10);
+                    doc.text('Barangay Secretary', 15, finalY + 20);
+                } else {
+                    // Add new page for footer if no space
+                    doc.addPage();
+                    doc.setFontSize(10);
+                    doc.text('Prepared by: _________________________', 15, 20);
+                    doc.text('Barangay Secretary', 15, 30);
+                }
 
                 // Save the PDF
-                doc.save('resident-report-card.pdf');
+                doc.save(`resident-report-${new Date().toISOString().split('T')[0]}.pdf`);
+            };
+
+            // If logo fails to load, generate PDF without logo
+            logo.onerror = function() {
+                console.error('Failed to load logo image');
+                
+                // Add title
+                doc.setFontSize(20);
+                doc.setTextColor(13, 79, 139);
+                doc.text('RESIDENT REPORT CARD', 105, 20, { align: 'center' });
+
+                // Add date
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+
+                // Add resident table heading
+                doc.setFontSize(14);
+                doc.text('RESIDENT DETAILS', 15, 45);
+
+                // Prepare table data
+                const tableData = filteredResidents.map(resident => {
+                    const age = calculateAge(resident.birthdate);
+                    const programs = getProgramParticipation(resident);
+
+                    return [
+                        resident.fullName || 'N/A',
+                        age !== null ? age.toString() : 'N/A',
+                        resident.gender || 'N/A',
+                        resident.civilStatus || 'N/A',
+                        resident.status || 'N/A',
+                        programs
+                    ];
+                });
+
+                // Add table
+                doc.autoTable({
+                    head: [['Name', 'Age', 'Gender', 'Civil Status', 'Status', 'Programs']],
+                    body: tableData,
+                    startY: 50,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [13, 79, 139],
+                        textColor: 255,
+                        fontStyle: 'bold'
+                    },
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2,
+                        overflow: 'linebreak',
+                        cellWidth: 'wrap'
+                    },
+                    margin: { left: 10, right: 10 },
+                    pageBreak: 'auto'
+                });
+
+                // Get final Y position after table
+                const finalY = doc.lastAutoTable.finalY + 10;
+
+                // Add footer with prepared by section
+                if (finalY < 250) {
+                    doc.setFontSize(10);
+                    doc.text('Prepared by: _________________________', 15, finalY + 10);
+                    doc.text('Barangay Secretary', 15, finalY + 20);
+                } else {
+                    // Add new page for footer if no space
+                    doc.addPage();
+                    doc.setFontSize(10);
+                    doc.text('Prepared by: _________________________', 15, 20);
+                    doc.text('Barangay Secretary', 15, 30);
+                }
+
+                // Save the PDF
+                doc.save(`resident-report-${new Date().toISOString().split('T')[0]}.pdf`);
             };
         }
         
-        // Function to export to DOCS (simulated with text file)
+        // Function to export to DOCS (Creates actual Word document)
         function exportToDOCS() {
-            // Create a text representation of the report
-            let content = 'RESIDENT REPORT CARD\n';
-            content += '====================\n\n';
-            content += `Generated on: ${new Date().toLocaleDateString()}\n\n`;
+            // Create HTML content that can be saved as .doc file
+            let htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Resident Report Card</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 40px; }
+                        .header { text-align: center; color: #0d4f8b; margin-bottom: 30px; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        th { background-color: #0d4f8b; color: white; padding: 10px; text-align: left; }
+                        td { padding: 8px; border: 1px solid #ddd; }
+                        .footer { margin-top: 50px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>RESIDENT REPORT CARD</h1>
+                        <p>Generated on: ${new Date().toLocaleDateString()}</p>
+                    </div>  
+                    
+                    <h2>RESIDENT DETAILS</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Civil Status</th>
+                                <th>Status</th>
+                                <th>Programs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
             
-            content += 'RESIDENT DETAILS\n';
-            content += '----------------\n';
-            content += 'Name\tAge\tGender\tCivil Status\tStatus\tPrograms\n';
-            
+            // Add table rows
             filteredResidents.forEach(resident => {
                 const age = calculateAge(resident.birthdate);
                 const programs = getProgramParticipation(resident);
                 
-                content += `${resident.fullName || 'N/A'}\t`;
-                content += `${age !== null ? age : 'N/A'}\t`;
-                content += `${resident.gender || 'N/A'}\t`;
-                content += `${resident.civilStatus || 'N/A'}\t`;
-                content += `${resident.status || 'N/A'}\t`;
-                content += `${programs}\n`;
+                htmlContent += `
+                    <tr>
+                        <td>${resident.fullName || 'N/A'}</td>
+                        <td>${age !== null ? age : 'N/A'}</td>
+                        <td>${resident.gender || 'N/A'}</td>
+                        <td>${resident.civilStatus || 'N/A'}</td>
+                        <td>${resident.status || 'N/A'}</td>
+                        <td>${programs}</td>
+                    </tr>
+                `;
             });
             
-            content += '\n\n';
-            content += 'Prepared by: _________________________\n';
-            content += 'Barangay Secretary\n';
+            // Close HTML content
+            htmlContent += `
+                        </tbody>
+                    </table>
+                    
+                    <div class="footer">
+                        <p><strong>Prepared by:</strong> _________________________</p>
+                        <p><strong>Position:</strong> Barangay Secretary</p>
+                    </div>
+                </body>
+                </html>
+            `;
             
-            // Create a Blob and download link
-            const blob = new Blob([content], { type: 'text/plain' });
+            // Create Blob and download
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'resident-report-card.txt';
+            a.download = `resident-report-${new Date().toISOString().split('T')[0]}.doc`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2977,7 +3111,6 @@
 
         // Call this function when the dashboard loads
         document.addEventListener('DOMContentLoaded', function() {
-            // ... existing code ...
             setupEmergencyEmailNotification();
         });
     </script>

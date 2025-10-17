@@ -7,6 +7,8 @@
     <title>Document Request - Barangay Talipapa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/requests.css">
+    <!-- Load socket.io client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 
 <body>
@@ -35,17 +37,17 @@
                         <i class="fas fa-file-alt"></i>
                         <span class="link-name">Request Document</span>
                     </a></li>
+                    <li><a href="/announcement">
+                        <i class="fas fa-bell"></i>
+                        <span class="link-name">Announcements</span>
+                    </a></li>
 
                 <li><a href="/blotter">
                         <i class="fas fa-shield-alt"></i>
                         <span class="link-name">Blotter</span>
                     </a></li>
 
-
-                <li><a href="/announcement">
-                        <i class="fas fa-bell"></i>
-                        <span class="link-name">Announcements</span>
-                    </a></li>
+                
             </ul>
 
             <!-- Logout Section -->
@@ -57,7 +59,7 @@
             </div>
         </div>
 
-        <!-- Greeting and Time Section - MOVED TO BOTTOM -->
+        <!-- Greeting and Time Section -->
         <div class="greeting-section">
             <div class="greeting" id="greetingText">Good Morning</div>
             <div class="current-date" id="currentDate">Thursday, Jul 09, 2020</div>
@@ -67,48 +69,68 @@
 
     <!-- Main Content -->
     <section class="main-content">
-        <div class="page-header">
-            <button class="request-document-btn" id="requestDocumentBtn">
-                <i class="fas fa-plus"></i> Request New Document
-            </button>
+        <div class="top">
+            <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
+            <div class="header">
+                <h1><i class="fas fa-file-alt"></i> Document Requests</h1>
+            </div>
         </div>
 
-        <!-- Requests Table Container -->
-        <div class="requests-container">
-            <h2 class="requests-title">Your Document Requests</h2>
-
-            <div id="loadingMessage" style="text-align: center; padding: 20px;">
-                <p>Loading your requests...</p>
+        <div class="dash-content">
+            <div class="page-header">
+                <button class="request-document-btn" id="requestDocumentBtn">
+                    <i class="fas fa-plus"></i> Request New Document
+                </button>
             </div>
 
-            <div id="errorMessage" style="text-align: center; color: red; padding: 20px; display: none;">
-                <p>Failed to load requests. Please try again later.</p>
+            <!-- Archive Toggle -->
+            <div class="archive-controls">
+                <div class="archive-toggle">
+                    <button id="activeRequestsBtn" class="active-archive">Active Requests</button>
+                    <button id="archivedRequestsBtn" class="inactive-archive">Scheduled for Pickup</button>
+                </div>
+                <button id="cleanupArchiveBtn" class="cleanup-btn" style="display: none;">
+                    <i class="fas fa-broom"></i> Cleanup Archive
+                </button>
             </div>
 
-            <div id="successMessage" style="text-align: center; color: green; padding: 20px; display: none;">
-                <p>Document claimed successfully!</p>
-            </div>
+            <!-- Requests Table Container -->
+            <div class="requests-container">
+                <h2 class="requests-title" id="requestsTitle">Your Document Requests</h2>
 
-            <table id="requestsTable" style="display: none;">
-                <thead>
-                    <tr>
-                        <th>Document Type</th>
-                        <th>Purpose</th>
-                        <th>Date Requested</th>
-                        <th>Status</th>
-                        <th>Details</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data will be dynamically inserted here -->
-                </tbody>
-            </table>
+                <div id="loadingMessage" style="text-align: center; padding: 20px;">
+                    <p>Loading your requests...</p>
+                </div>
+
+                <div id="errorMessage" style="text-align: center; color: red; padding: 20px; display: none;">
+                    <p>Failed to load requests. Please try again later.</p>
+                </div>
+
+                <div id="successMessage" style="text-align: center; color: green; padding: 20px; display: none;">
+                    <p>Document claimed successfully!</p>
+                </div>
+
+                <table id="requestsTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Document Type</th>
+                            <th>Purpose</th>
+                            <th>Date Requested</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 
     <!-- Request Form Modal -->
-    <div id="requestModal" class="request-modal">
+    <div id="requestModal" class="modal">
         <div class="request-modal-content">
             <div class="request-modal-header">
                 <h2 class="request-modal-title">Request New Document</h2>
@@ -177,7 +199,51 @@
         </div>
     </div>
 
-
+    <!-- Schedule Document Pickup Modal -->
+    <div id="scheduleClaimModal" class="modal">
+        <div class="claim-modal-content">
+            <div class="claim-modal-header">
+                <h2 class="claim-modal-title">Schedule Document Pickup</h2>
+                <button class="close-modal" onclick="closeScheduleModal()">&times;</button>
+            </div>
+            <form id="scheduleClaimForm">
+                <input type="hidden" id="claimRequestId">
+                <div class="datetime-group">
+                    <div class="form-group">
+                        <label for="pickupDate">Pickup Date</label>
+                        <input type="date" id="pickupDate" name="pickupDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pickupTime">Pickup Time</label>
+                        <select id="pickupTime" name="pickupTime" required>
+                            <option value="" disabled selected>Select a time</option>
+                            <option value="08:00">8:00 AM</option>
+                            <option value="09:00">9:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="13:00">1:00 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                        </select>
+                        <small class="office-hours-note">Office hours: 8:00 AM - 4:00 PM</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pickupNotes">Additional Notes (Optional)</label>
+                    <textarea id="pickupNotes" name="pickupNotes" placeholder="Any special instructions or notes..."></textarea>
+                </div>
+                <div class="id-reminder">
+                    <i class="fas fa-id-card"></i>
+                    <span>Please bring a valid ID when claiming your document at the scheduled time.</span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeScheduleModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Pickup</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Success Modal -->
     <div id="successModal" class="modal">
@@ -204,761 +270,1011 @@
     </div>
 </div>
 
-    <script>
-        // Toggle sidebar menu
-        function toggleMenu() {
-            const sidebar = document.querySelector('.sidebar');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
-            sidebar.classList.toggle('active');
-    
-            if (sidebar.classList.contains('active')) {
-                menuBtn.style.display = 'none';
-            } else {
-                menuBtn.style.display = 'flex';
+<script>
+    // Initialize Socket.io
+    const socket = io();
+
+    // Toggle sidebar menu
+    function toggleMenu() {
+        const sidebar = document.querySelector('.sidebar');
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        sidebar.classList.toggle('active');
+
+        if (sidebar.classList.contains('active')) {
+            menuBtn.style.display = 'none';
+        } else {
+            menuBtn.style.display = 'flex';
+        }
+    }
+
+    // Create and add mobile close button to sidebar
+    function addMobileCloseButton() {
+        const sidebar = document.querySelector('.sidebar');
+        const closeBtn = document.createElement('div');
+        closeBtn.className = 'mobile-close-btn';
+        closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        closeBtn.onclick = toggleMenu;
+        
+        const logoName = document.querySelector('.logo-name');
+        logoName.appendChild(closeBtn);
+    }
+
+    // Close sidebar when clicking on a link (mobile)
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                toggleMenu();
             }
+        });
+    });
+
+    // Update greeting and time
+    function updateGreetingAndTime() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+
+        // Set greeting based on time of day
+        let greeting;
+        if (hours < 12) {
+            greeting = "Good Morning";
+        } else if (hours < 18) {
+            greeting = "Good Afternoon";
+        } else {
+            greeting = "Good Evening";
         }
-    
-        // Create and add mobile close button to sidebar
-        function addMobileCloseButton() {
-            const sidebar = document.querySelector('.sidebar');
-            const closeBtn = document.createElement('div');
-            closeBtn.className = 'mobile-close-btn';
-            closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-            closeBtn.onclick = toggleMenu;
-            
-            const logoName = document.querySelector('.logo-name');
-            logoName.appendChild(closeBtn);
+
+        // Format date
+        const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+        const dateString = now.toLocaleDateString('en-US', options);
+
+        // Format time with AM/PM
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 || 12;
+        const timeString = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+
+        // Update DOM elements
+        document.getElementById('greetingText').textContent = greeting;
+        document.getElementById('currentDate').textContent = dateString;
+        document.getElementById('currentTime').textContent = timeString;
+    }
+
+    // Update time every second
+    setInterval(updateGreetingAndTime, 1000);
+    updateGreetingAndTime(); // Initial call
+
+    // Toggle other document input field
+    document.getElementById('otherDocument').addEventListener('change', function () {
+        const otherInput = document.getElementById('otherDocumentInput');
+        if (this.checked) {
+            otherInput.classList.add('show');
+            otherInput.required = true;
+        } else {
+            otherInput.classList.remove('show');
+            otherInput.required = false;
+            otherInput.value = '';
         }
-    
-        // Close sidebar when clicking on a link (mobile)
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    toggleMenu();
-                }
+    });
+
+    // Toggle other purpose input field when "Other" is selected
+    document.getElementById('purpose').addEventListener('change', function () {
+        const otherPurposeInput = document.getElementById('otherPurposeInput');
+        if (this.value === 'Other') {
+            otherPurposeInput.classList.add('show');
+            otherPurposeInput.required = true;
+        } else {
+            otherPurposeInput.classList.remove('show');
+            otherPurposeInput.required = false;
+            otherPurposeInput.value = '';
+        }
+    });
+
+    // Check if user is banned
+    async function checkUserStatus() {
+        try {
+            const response = await fetch('/api/auth/check-auth', {
+                credentials: 'include'
             });
-        });
-    
-        // Update greeting and time
-        function updateGreetingAndTime() {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const seconds = now.getSeconds().toString().padStart(2, '0');
-    
-            // Set greeting based on time of day
-            let greeting;
-            if (hours < 12) {
-                greeting = "Good Morning";
-            } else if (hours < 18) {
-                greeting = "Good Afternoon";
-            } else {
-                greeting = "Good Evening";
+
+            if (!response.ok) {
+                throw new Error('Failed to check user status');
             }
-    
-            // Format date
-            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
-            const dateString = now.toLocaleDateString('en-US', options);
-    
-            // Format time with AM/PM
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            const formattedHours = hours % 12 || 12;
-            const timeString = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
-    
-            // Update DOM elements
-            document.getElementById('greetingText').textContent = greeting;
-            document.getElementById('currentDate').textContent = dateString;
-            document.getElementById('currentTime').textContent = timeString;
-        }
-    
-        // Update time every second
-        setInterval(updateGreetingAndTime, 1000);
-        updateGreetingAndTime(); // Initial call
-    
-        // Toggle other document input field
-        document.getElementById('otherDocument').addEventListener('change', function () {
-            const otherInput = document.getElementById('otherDocumentInput');
-            if (this.checked) {
-                otherInput.classList.add('show');
-                otherInput.required = true;
-            } else {
-                otherInput.classList.remove('show');
-                otherInput.required = false;
-                otherInput.value = '';
-            }
-        });
-    
-        // Toggle other purpose input field when "Other" is selected
-        document.getElementById('purpose').addEventListener('change', function () {
-            const otherPurposeInput = document.getElementById('otherPurposeInput');
-            if (this.value === 'Other') {
-                otherPurposeInput.classList.add('show');
-                otherPurposeInput.required = true;
-            } else {
-                otherPurposeInput.classList.remove('show');
-                otherPurposeInput.required = false;
-                otherPurposeInput.value = '';
-            }
-        });
-    
-        // Check if user is banned
-        async function checkUserStatus() {
-            try {
-                const response = await fetch('/api/auth/check-auth', {
-                    credentials: 'include'
-                });
-    
-                if (!response.ok) {
-                    throw new Error('Failed to check user status');
-                }
-    
-                const data = await response.json();
-    
-                if (data.user?.isBanned) {
-                    alert('Your account has been disabled. You cannot submit document requests.');
-                    window.location.href = '/residentdashboard';
-                    return false;
-                }
-    
-                return true;
-            } catch (error) {
-                console.error('Error checking user status:', error);
+
+            const data = await response.json();
+
+            if (data.user?.isBanned) {
+                alert('Your account has been disabled. You cannot submit document requests.');
+                window.location.href = '/residentdashboard';
                 return false;
             }
+
+            return true;
+        } catch (error) {
+            console.error('Error checking user status:', error);
+            return false;
         }
-    
-        // Fetch user profile data
-        async function fetchUserProfile() {
-            try {
-                const response = await fetch('/api/auth/profile', {
-                    credentials: 'include'
-                });
-    
-                if (!response.ok) {
-                    throw new Error('Failed to fetch profile');
-                }
-    
-                return await response.json();
-            } catch (error) {
-                console.error('Error fetching profile:', error);
-                window.location.href = '/login';
-                return null;
+    }
+
+    // Fetch user profile data
+    async function fetchUserProfile() {
+        try {
+            const response = await fetch('/api/auth/profile', {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch profile');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            window.location.href = '/login';
+            return null;
+        }
+    }
+
+    // Auto-fill form with user data
+    async function autoFillForm() {
+        const user = await fetchUserProfile();
+        if (user) {
+            document.getElementById('address').value = user.address || '';
+
+            if (user.isBanned) {
+                alert('Your account has been disabled. You cannot submit document requests.');
+                window.location.href = '/residentdashboard';
             }
         }
-    
-        // Auto-fill form with user data
-        async function autoFillForm() {
-            const user = await fetchUserProfile();
-            if (user) {
-                document.getElementById('address').value = user.address || '';
-    
-                if (user.isBanned) {
-                    alert('Your account has been disabled. You cannot submit document requests.');
-                    window.location.href = '/residentdashboard';
-                }
-            }
+    }
+
+    // Show success modal
+    function showSuccessModal() {
+        const modal = document.getElementById('successModal');
+        modal.style.display = 'flex';
+    }
+
+    // Close modal and redirect
+    function closeModalAndRedirect() {
+        const modal = document.getElementById('successModal');
+        modal.style.display = 'none';
+        // Refresh the requests table
+        fetchRequests();
+    }
+
+    // Handle form submission
+    document.getElementById('documentRequestForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const isAllowed = await checkUserStatus();
+        if (!isAllowed) return;
+
+        const user = await fetchUserProfile();
+        if (!user) return;
+
+        // Get selected document types
+        const checkboxes = document.querySelectorAll('input[name="documentTypes"]:checked');
+        const documentTypes = Array.from(checkboxes).map(cb => cb.value);
+
+        // Handle "Other" document type
+        const otherInput = document.getElementById('otherDocumentInput');
+        if (documentTypes.includes('Other') && otherInput.value.trim()) {
+            documentTypes[documentTypes.indexOf('Other')] = `Other: ${otherInput.value.trim()}`;
         }
-    
-        // Show success modal
-        function showSuccessModal() {
-            const modal = document.getElementById('successModal');
-            modal.style.display = 'block';
+
+        if (documentTypes.length === 0) {
+            alert('Please select at least one document type');
+            return;
         }
-    
-        // Close modal and redirect
-        function closeModalAndRedirect() {
-            const modal = document.getElementById('successModal');
-            modal.style.display = 'none';
-            // Refresh the requests table
-            fetchRequests();
-        }
-    
-        // Handle form submission
-        document.getElementById('documentRequestForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-    
-            const isAllowed = await checkUserStatus();
-            if (!isAllowed) return;
-    
-            const user = await fetchUserProfile();
-            if (!user) return;
-    
-            // Get selected document types
-            const checkboxes = document.querySelectorAll('input[name="documentTypes"]:checked');
-            const documentTypes = Array.from(checkboxes).map(cb => cb.value);
-    
-            // Handle "Other" document type
-            const otherInput = document.getElementById('otherDocumentInput');
-            if (documentTypes.includes('Other') && otherInput.value.trim()) {
-                documentTypes[documentTypes.indexOf('Other')] = `Other: ${otherInput.value.trim()}`;
-            }
-    
-            if (documentTypes.length === 0) {
-                alert('Please select at least one document type');
+
+        // Get purpose
+        const purposeSelect = document.getElementById('purpose');
+        let purpose = purposeSelect.value;
+
+        if (purpose === 'Other') {
+            const otherPurpose = document.getElementById('otherPurposeInput').value.trim();
+            if (!otherPurpose) {
+                alert('Please specify the purpose');
                 return;
             }
-    
-            // Get purpose
-            const purposeSelect = document.getElementById('purpose');
-            let purpose = purposeSelect.value;
-    
-            if (purpose === 'Other') {
-                const otherPurpose = document.getElementById('otherPurposeInput').value.trim();
-                if (!otherPurpose) {
-                    alert('Please specify the purpose');
-                    return;
-                }
-                purpose = `Other: ${otherPurpose}`;
-            } else if (!purpose) {
-                alert('Please select a purpose for the document');
-                return;
+            purpose = `Other: ${otherPurpose}`;
+        } else if (!purpose) {
+            alert('Please select a purpose for the document');
+            return;
+        }
+
+        const formData = {
+            fullName: user.fullName,
+            email: user.email,
+            address: document.getElementById('address').value.trim(),
+            documentTypes: documentTypes,
+            purpose: purpose
+        };
+
+        // Basic validation
+        if (!formData.address) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/requests', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+                credentials: 'include'
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to submit request');
             }
-    
-            const formData = {
-                fullName: user.fullName,
-                email: user.email,
-                address: document.getElementById('address').value.trim(),
-                documentTypes: documentTypes,
-                purpose: purpose
-            };
-    
-            // Basic validation
-            if (!formData.address) {
-                alert('Please fill in all required fields');
-                return;
-            }
-    
-            try {
-                const response = await fetch('/api/requests', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData),
-                    credentials: 'include'
-                });
-    
-                const result = await response.json();
-    
-                if (!response.ok) {
-                    throw new Error(result.message || 'Failed to submit request');
-                }
-    
-                // Close the request modal
-                document.getElementById('requestModal').style.display = 'none';
-                // Reset the form
-                document.getElementById('documentRequestForm').reset();
-                // Show success modal
-                showSuccessModal();
-            } catch (error) {
-                console.error('Error submitting request:', error);
-                alert(error.message || 'An error occurred. Please try again.');
-            }
-        });
-    
-        // Request Document Modal Functionality
-        const requestDocumentBtn = document.getElementById('requestDocumentBtn');
-        const requestModal = document.getElementById('requestModal');
-        const closeModalBtn = document.querySelector('.close-modal');
-    
-        requestDocumentBtn.addEventListener('click', async function () {
-            requestModal.style.display = 'block';
-            // Auto-fill form when modal opens
-            await autoFillForm();
-        });
-    
-        closeModalBtn.addEventListener('click', function () {
+
+            // Close the request modal
+            document.getElementById('requestModal').style.display = 'none';
+            // Reset the form
+            document.getElementById('documentRequestForm').reset();
+            // Show success modal
+            showSuccessModal();
+        } catch (error) {
+            console.error('Error submitting request:', error);
+            alert(error.message || 'An error occurred. Please try again.');
+        }
+    });
+
+    // Request Document Modal Functionality
+    const requestDocumentBtn = document.getElementById('requestDocumentBtn');
+    const requestModal = document.getElementById('requestModal');
+    const closeModalBtn = document.querySelector('.close-modal');
+
+    requestDocumentBtn.addEventListener('click', async function () {
+        requestModal.style.display = 'flex';
+        // Auto-fill form when modal opens
+        await autoFillForm();
+    });
+
+    closeModalBtn.addEventListener('click', function () {
+        requestModal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function (event) {
+        if (event.target === requestModal) {
             requestModal.style.display = 'none';
-        });
-    
-        // Close modal when clicking outside of it
-        window.addEventListener('click', function (event) {
-            if (event.target === requestModal) {
-                requestModal.style.display = 'none';
-            }
-        });
-    
-        // Fetch and display requests
-        async function fetchRequests() {
-            try {
-                document.getElementById('loadingMessage').style.display = 'block';
-                document.getElementById('errorMessage').style.display = 'none';
-                document.getElementById('requestsTable').style.display = 'none';
-    
-                // Clear any existing mobile table
-                const existingMobileTable = document.getElementById('mobileRequestsTable');
-                if (existingMobileTable) {
-                    existingMobileTable.remove();
-                }
-    
-                const response = await fetch('/api/requests/user', {
-                    credentials: 'include'
-                });
-    
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = 'login';
-                        return;
-                    }
-                    throw new Error('Failed to fetch requests');
-                }
-    
-                const requests = await response.json();
-                renderRequests(requests);
-            } catch (error) {
-                console.error("Error fetching requests:", error);
-                document.getElementById('loadingMessage').style.display = 'none';
-                document.getElementById('errorMessage').style.display = 'block';
-            }
         }
-    
-        // Render mobile-friendly table cards
-        function renderMobileRequests(requests) {
-            const mobileTable = document.createElement('div');
-            mobileTable.className = 'mobile-table';
-            mobileTable.id = 'mobileRequestsTable';
+        if (event.target === document.getElementById('scheduleClaimModal')) {
+            closeScheduleModal();
+        }
+        if (event.target === document.getElementById('successModal')) {
+            closeModalAndRedirect();
+        }
+    });
+
+    // Archive toggle functionality
+    let showArchive = false;
+    const activeRequestsBtn = document.getElementById('activeRequestsBtn');
+    const archivedRequestsBtn = document.getElementById('archivedRequestsBtn');
+    const requestsTitle = document.getElementById('requestsTitle');
+    const cleanupArchiveBtn = document.getElementById('cleanupArchiveBtn');
+
+    activeRequestsBtn.addEventListener('click', () => {
+        showArchive = false;
+        updateArchiveUI();
+        fetchRequests();
+    });
+
+    archivedRequestsBtn.addEventListener('click', () => {
+        showArchive = true;
+        updateArchiveUI();
+        fetchRequests();
+    });
+
+    function updateArchiveUI() {
+        if (showArchive) {
+            activeRequestsBtn.classList.remove('active-archive');
+            activeRequestsBtn.classList.add('inactive-archive');
+            archivedRequestsBtn.classList.remove('inactive-archive');
+            archivedRequestsBtn.classList.add('active-archive');
+            requestsTitle.textContent = 'Documents Scheduled for Pickup';
+            cleanupArchiveBtn.style.display = 'block';
+        } else {
+            activeRequestsBtn.classList.remove('inactive-archive');
+            activeRequestsBtn.classList.add('active-archive');
+            archivedRequestsBtn.classList.remove('active-archive');
+            archivedRequestsBtn.classList.add('inactive-archive');
+            requestsTitle.textContent = 'Your Document Requests';
+            cleanupArchiveBtn.style.display = 'none';
+        }
+    }
+
+    // NEW: Cleanup Archive functionality
+    cleanupArchiveBtn.addEventListener('click', async function() {
+        if (!confirm('Are you sure you want to permanently delete all claimed documents from your archive? This action cannot be undone.')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/requests/cleanup-archive', {
+                method: 'DELETE',
+                credentials: 'include'
+            });
             
-            const tableBody = document.querySelector("#requestsTable tbody");
-            const loadingMessage = document.getElementById('loadingMessage');
-            const tableElement = document.getElementById('requestsTable');
+            // First check if response is OK
+            if (!response.ok) {
+                // Try to parse error as JSON, fallback to text if that fails
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch {
+                    const text = await response.text();
+                    throw new Error(text || 'Failed to cleanup archive');
+                }
+                throw new Error(errorData.error || errorData.message || 'Failed to cleanup archive');
+            }
             
-            // Clear existing mobile table
+            // Parse the successful response
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.message || 'Archive cleanup failed');
+            }
+            
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = result.message || "Archive cleaned up successfully!";
+            successMessage.style.display = 'block';
+            
+            // Refresh the requests
+            fetchRequests();
+            
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+            
+        } catch (error) {
+            console.error('Cleanup error:', error);
+            alert(`Error: ${error.message}`);
+        }
+    });
+
+    // Schedule Claim Modal functionality
+    let currentClaimRequestId = null;
+    let currentClaimRowElement = null;
+
+    function openScheduleModal(requestId, rowElement) {
+        currentClaimRequestId = requestId;
+        currentClaimRowElement = rowElement;
+        
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('pickupDate').min = today;
+        document.getElementById('pickupDate').value = today;
+        
+        // Set default time to 8:00 AM
+        document.getElementById('pickupTime').value = '08:00';
+        
+        // Reset notes
+        document.getElementById('pickupNotes').value = '';
+        
+        // Show modal
+        document.getElementById('scheduleClaimModal').style.display = 'flex';
+    }
+
+    function closeScheduleModal() {
+        document.getElementById('scheduleClaimModal').style.display = 'none';
+        currentClaimRequestId = null;
+        currentClaimRowElement = null;
+    }
+
+    // Validate office hours (8 AM - 4 PM)
+    function validateOfficeHours(timeString) {
+        const time = timeString.split(':');
+        const hours = parseInt(time[0]);
+        const minutes = parseInt(time[1]);
+        
+        // Check if time is between 8:00 AM (08:00) and 4:00 PM (16:00)
+        if (hours < 8 || hours > 16) {
+            return false;
+        }
+        
+        // If it's exactly 4:00 PM, it's valid
+        if (hours === 16 && minutes === 0) {
+            return true;
+        }
+        
+        // If it's after 4:00 PM, it's invalid
+        if (hours === 16 && minutes > 0) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Handle schedule claim form submission
+    document.getElementById('scheduleClaimForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const pickupDate = document.getElementById('pickupDate').value;
+        const pickupTime = document.getElementById('pickupTime').value;
+        const pickupNotes = document.getElementById('pickupNotes').value;
+        
+        if (!pickupDate || !pickupTime) {
+            alert('Please select both date and time for pickup');
+            return;
+        }
+        
+        // Validate office hours
+        if (!validateOfficeHours(pickupTime)) {
+            alert('Please select a time between 8:00 AM and 4:00 PM. Office hours are 8:00 AM to 4:00 PM.');
+            return;
+        }
+        
+        await schedulePickup(currentClaimRequestId, currentClaimRowElement, pickupDate, pickupTime, pickupNotes);
+    });
+
+    // Fetch and display requests
+    async function fetchRequests() {
+        try {
+            document.getElementById('loadingMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('requestsTable').style.display = 'none';
+
+            // Clear any existing mobile table
             const existingMobileTable = document.getElementById('mobileRequestsTable');
             if (existingMobileTable) {
                 existingMobileTable.remove();
             }
-            
-            loadingMessage.style.display = 'none';
-            tableElement.style.display = 'none';
-            
-            // Filter out claimed requests
-            const filteredRequests = requests.filter(request => request.status !== "Claimed");
-            
-            if (filteredRequests.length === 0) {
-                mobileTable.innerHTML = `
-                    <div class="mobile-request-card" style="text-align: center; padding: 40px 20px;">
-                        <p>You haven't made any requests yet</p>
-                    </div>
-                `;
-            } else {
-                filteredRequests.forEach(request => {
-                    const card = document.createElement('div');
-                    card.className = 'mobile-request-card';
-                    card.setAttribute('data-id', request.id);
-                    
-                    let statusClass = '';
-                    switch (request.status) {
-                        case 'Pending': statusClass = 'status-pending'; break;
-                        case 'Approved': statusClass = 'status-approved'; break;
-                        case 'Rejected': statusClass = 'status-rejected'; break;
-                        case 'Ready to Claim': statusClass = 'status-ready-to-claim'; break;
-                        case 'Claimed': statusClass = 'status-claimed'; break;
-                    }
-                    
-                    let actionsHTML = '';
-                    if (request.status === 'Ready to Claim') {
-                        actionsHTML = `<button class="action-btn" onclick="claimRequest('${request.id}', this.closest('.mobile-request-card'))">Claim</button>`;
-                    } else if (request.status === 'Rejected') {
-                        actionsHTML = `<button class="delete-btn" onclick="deleteRequest('${request.id}', this.closest('.mobile-request-card'))">Delete</button>`;
-                    }
-                    
-                    let detailsHTML = '';
-                    if (request.documentTypes && Array.isArray(request.documentTypes)) {
-                        detailsHTML += `<div><strong>Types:</strong> ${request.documentTypes.join(', ')}</div>`;
-                    }
-                    if (request.address) {
-                        detailsHTML += `<div><strong>Address:</strong> ${request.address}</div>`;
-                    }
-                    if (request.estimatedCompletion) {
-                        detailsHTML += `<div><strong>Est. Completion:</strong> ${request.estimatedCompletion}</div>`;
-                    }
-                    if (request.adminNotes) {
-                        detailsHTML += `<div><strong>Notes:</strong> ${request.adminNotes}</div>`;
-                    }
-                    
-                    card.innerHTML = `
-                        <div class="card-row">
-                            <span class="card-label">Document Type:</span>
-                            <span class="card-value">${request.documentType || 'N/A'}</span>
-                        </div>
-                        <div class="card-row">
-                            <span class="card-label">Purpose:</span>
-                            <span class="card-value">${request.purpose || 'N/A'}</span>
-                        </div>
-                        <div class="card-row">
-                            <span class="card-label">Date Requested:</span>
-                            <span class="card-value">
-                                ${request.formattedDate || 'N/A'}<br>
-                                <small>${request.formattedTime || ''}</small>
-                            </span>
-                        </div>
-                        <div class="card-row">
-                            <span class="card-label">Status:</span>
-                            <span class="card-value">
-                                <span class="status ${statusClass}">${request.status}</span>
-                                ${request.status === 'Rejected' && request.rejectionReason ? 
-                                    `<div class="rejection-reason" style="margin-top: 5px;">
-                                        <strong>Reason:</strong> ${request.rejectionReason}
-                                    </div>` : ''}
-                            </span>
-                        </div>
-                        ${detailsHTML ? `
-                        <div class="card-row">
-                            <span class="card-label">Details:</span>
-                            <span class="card-value" style="text-align: left;">
-                                ${detailsHTML}
-                            </span>
-                        </div>
-                        ` : ''}
-                        ${actionsHTML ? `
-                        <div class="card-row">
-                            <span class="card-label">Actions:</span>
-                            <span class="card-value">
-                                <div class="actions">
-                                    ${actionsHTML}
-                                </div>
-                            </span>
-                        </div>
-                        ` : ''}
-                    `;
-                    
-                    mobileTable.appendChild(card);
-                });
+
+            const url = showArchive ? '/api/requests/user?archive=true' : '/api/requests/user';
+            const response = await fetch(url, {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    window.location.href = 'login';
+                    return;
+                }
+                throw new Error('Failed to fetch requests');
             }
-            
-            document.querySelector('.requests-container').appendChild(mobileTable);
+
+            const requests = await response.json();
+            renderRequests(requests);
+        } catch (error) {
+            console.error("Error fetching requests:", error);
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'block';
         }
-    
-        // Update the renderRequests function to use mobile view on small screens
-        function renderRequests(requests) {
+    }
+
+    // Render mobile-friendly table cards
+    function renderMobileRequests(requests) {
+        const mobileTable = document.createElement('div');
+        mobileTable.className = 'mobile-table';
+        mobileTable.id = 'mobileRequestsTable';
+        
+        const tableBody = document.querySelector("#requestsTable tbody");
+        const loadingMessage = document.getElementById('loadingMessage');
+        const tableElement = document.getElementById('requestsTable');
+        
+        // Clear existing mobile table
+        const existingMobileTable = document.getElementById('mobileRequestsTable');
+        if (existingMobileTable) {
+            existingMobileTable.remove();
+        }
+        
+        loadingMessage.style.display = 'none';
+        tableElement.style.display = 'none';
+        
+        if (requests.length === 0) {
+            const message = showArchive ? 
+                "You don't have any documents scheduled for pickup" : 
+                "You haven't made any requests yet";
+                
+            mobileTable.innerHTML = `
+                <div class="mobile-request-card" style="text-align: center; padding: 40px 20px;">
+                    <p>${message}</p>
+                </div>
+            `;
+        } else {
+            requests.forEach(request => {
+                const card = document.createElement('div');
+                card.className = 'mobile-request-card';
+                card.setAttribute('data-id', request.id);
+                
+                let statusClass = '';
+                switch (request.status) {
+                    case 'Pending': statusClass = 'status-pending'; break;
+                    case 'Approved': statusClass = 'status-approved'; break;
+                    case 'Rejected': statusClass = 'status-rejected'; break;
+                    case 'Ready to Claim': statusClass = 'status-ready-to-claim'; break;
+                    case 'Scheduled for Pickup': statusClass = 'status-scheduled'; break;
+                    case 'Claimed': statusClass = 'status-claimed'; break;
+                }
+                
+                let actionsHTML = '';
+                if (request.status === 'Ready to Claim') {
+                    actionsHTML = `<button class="action-btn" onclick="openScheduleModal('${request.id}', this.closest('.mobile-request-card'))">Schedule Pickup</button>`;
+                } else if (request.status === 'Rejected') {
+                    actionsHTML = `<button class="delete-btn" onclick="deleteRequest('${request.id}', this.closest('.mobile-request-card'))">Delete</button>`;
+                }
+                
+                let detailsHTML = '';
+                if (request.documentTypes && Array.isArray(request.documentTypes)) {
+                    detailsHTML += `<div><strong>Types:</strong> ${request.documentTypes.join(', ')}</div>`;
+                }
+                if (request.address) {
+                    detailsHTML += `<div><strong>Address:</strong> ${request.address}</div>`;
+                }
+                if (request.estimatedCompletion) {
+                    detailsHTML += `<div><strong>Est. Completion:</strong> ${request.estimatedCompletion}</div>`;
+                }
+                if (request.adminNotes) {
+                    detailsHTML += `<div><strong>Notes:</strong> ${request.adminNotes}</div>`;
+                }
+                // Show scheduled claim info
+                if (request.scheduledClaimDate && request.scheduledClaimTime) {
+                    detailsHTML += `<div><strong>Scheduled Pickup:</strong> ${request.formattedScheduledDate} at ${request.formattedScheduledTime}</div>`;
+                }
+                
+                card.innerHTML = `
+                    <div class="card-row">
+                        <span class="card-label">Document Type:</span>
+                        <span class="card-value">${request.documentType || 'N/A'}</span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label">Purpose:</span>
+                        <span class="card-value">${request.purpose || 'N/A'}</span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label">Date Requested:</span>
+                        <span class="card-value">
+                            ${request.formattedDate || 'N/A'}<br>
+                            <small>${request.formattedTime || ''}</small>
+                        </span>
+                    </div>
+                    <div class="card-row">
+                        <span class="card-label">Status:</span>
+                        <span class="card-value">
+                            <span class="status ${statusClass}">${request.status}</span>
+                            ${request.status === 'Rejected' && request.rejectionReason ? 
+                                `<div class="rejection-reason" style="margin-top: 5px;">
+                                    <strong>Reason:</strong> ${request.rejectionReason}
+                                </div>` : ''}
+                        </span>
+                    </div>
+                    ${detailsHTML ? `
+                    <div class="card-row">
+                        <span class="card-label">Details:</span>
+                        <span class="card-value" style="text-align: left;">
+                            ${detailsHTML}
+                        </span>
+                    </div>
+                    ` : ''}
+                    ${actionsHTML ? `
+                    <div class="card-row">
+                        <span class="card-label">Actions:</span>
+                        <span class="card-value">
+                            <div class="actions">
+                                ${actionsHTML}
+                            </div>
+                        </span>
+                    </div>
+                    ` : ''}
+                `;
+                
+                mobileTable.appendChild(card);
+            });
+        }
+        
+        document.querySelector('.requests-container').appendChild(mobileTable);
+    }
+
+    // Update the renderRequests function to use mobile view on small screens
+    function renderRequests(requests) {
+        if (window.innerWidth <= 768) {
+            renderMobileRequests(requests);
+        } else {
+            // Desktop table rendering code
+            const tableBody = document.querySelector("#requestsTable tbody");
+            const loadingMessage = document.getElementById('loadingMessage');
+            const tableElement = document.getElementById('requestsTable');
+
+            tableBody.innerHTML = '';
+            loadingMessage.style.display = 'none';
+            tableElement.style.display = 'table';
+
+            if (requests.length === 0) {
+                const message = showArchive ? 
+                    "You don't have any documents scheduled for pickup" : 
+                    "You haven't made any requests yet";
+                    
+                const row = tableBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 6;
+                cell.textContent = message;
+                cell.style.textAlign = "center";
+                cell.style.padding = "20px";
+                return;
+            }
+
+            requests.forEach(request => {
+                const row = tableBody.insertRow();
+                row.setAttribute('data-id', request.id);
+
+                // Document Type
+                const docTypeCell = row.insertCell();
+                docTypeCell.textContent = request.documentType || 'N/A';
+
+                // Purpose
+                const purposeCell = row.insertCell();
+                purposeCell.textContent = request.purpose || 'N/A';
+
+                // Date Requested
+                const dateCell = row.insertCell();
+                dateCell.innerHTML = `
+                    <div>${request.formattedDate || 'N/A'}</div>
+                    <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
+                `;
+
+                // Status - Updated to include rejection reason
+                const statusCell = row.insertCell();
+                let statusClass = '';
+                switch (request.status) {
+                    case 'Pending': statusClass = 'status-pending'; break;
+                    case 'Approved': statusClass = 'status-approved'; break;
+                    case 'Rejected': statusClass = 'status-rejected'; break;
+                    case 'Ready to Claim': statusClass = 'status-ready-to-claim'; break;
+                    case 'Scheduled for Pickup': statusClass = 'status-scheduled'; break;
+                    case 'Claimed': statusClass = 'status-claimed'; break;
+                }
+
+                let statusHTML = `<span class="status ${statusClass}">${request.status}</span>`;
+
+                // Add rejection reason if available
+                if (request.status === 'Rejected' && request.rejectionReason) {
+                    statusHTML += `<div class="rejection-reason">
+                        <strong>Reason:</strong> ${request.rejectionReason}
+                    </div>`;
+                }
+
+                statusCell.innerHTML = statusHTML;
+
+                // Details Column - Added more information
+                const detailsCell = row.insertCell();
+                detailsCell.className = 'document-details';
+                let detailsHTML = '';
+
+                if (request.documentTypes && Array.isArray(request.documentTypes)) {
+                    detailsHTML += `<div><strong>Types:</strong> ${request.documentTypes.join(', ')}</div>`;
+                }
+
+                if (request.address) {
+                    detailsHTML += `<div><strong>Address:</strong> ${request.address}</div>`;
+                }
+
+                if (request.estimatedCompletion) {
+                    detailsHTML += `<div><strong>Est. Completion:</strong> ${request.estimatedCompletion}</div>`;
+                }
+
+                if (request.adminNotes) {
+                    detailsHTML += `<div><strong>Notes:</strong> ${request.adminNotes}</div>`;
+                }
+
+                // Show scheduled claim info
+                if (request.scheduledClaimDate && request.scheduledClaimTime) {
+                    detailsHTML += `<div><strong>Scheduled Pickup:</strong> ${request.formattedScheduledDate} at ${request.formattedScheduledTime}</div>`;
+                }
+
+                detailsCell.innerHTML = detailsHTML || 'No additional details';
+
+                // Actions
+                const actionsCell = row.insertCell();
+
+                if (request.status === 'Ready to Claim') {
+                    const claimBtn = document.createElement('button');
+                    claimBtn.textContent = 'Schedule Pickup';
+                    claimBtn.className = 'action-btn';
+                    claimBtn.onclick = () => openScheduleModal(request.id, row);
+                    actionsCell.appendChild(claimBtn);
+                } else if (request.status === 'Approved') {
+                    actionsCell.textContent = 'Waiting for processing';
+                } else if (request.status === 'Rejected') {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = 'Delete';
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.onclick = () => deleteRequest(request.id, row);
+                    actionsCell.appendChild(deleteBtn);
+                } else {
+                    actionsCell.textContent = '';
+                }
+            });
+        }
+    }
+
+    async function schedulePickup(requestId, rowElement, pickupDate, pickupTime, pickupNotes) {
+    try {
+        // FIX: Changed endpoint from '/claim' to '/schedule-pickup'
+        const response = await fetch(`/api/requests/${requestId}/schedule-pickup`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                scheduledClaimDate: pickupDate,
+                scheduledClaimTime: pickupTime,
+                pickupNotes: pickupNotes
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to schedule pickup');
+        }
+
+        const result = await response.json();
+
+        // Close schedule modal
+        closeScheduleModal();
+
+        // Show success message
+        const successMessage = document.getElementById('successMessage');
+        successMessage.textContent = result.message || "Pickup scheduled successfully!";
+        successMessage.style.display = 'block';
+
+        // Remove the row/card immediately for better UX
+        if (rowElement.remove) {
+            rowElement.remove();
+        } else if (rowElement.parentNode) {
+            rowElement.parentNode.removeChild(rowElement);
+        }
+
+        // Check if we need to show empty state
+        if (window.innerWidth <= 768) {
+            // Mobile view - check mobile cards
+            const mobileCards = document.querySelectorAll('.mobile-request-card');
+            if (mobileCards.length === 0) {
+                const mobileTable = document.getElementById('mobileRequestsTable');
+                if (mobileTable) {
+                    const message = showArchive ? 
+                        "You don't have any documents scheduled for pickup" : 
+                        "You haven't made any requests yet";
+                        
+                    mobileTable.innerHTML = `
+                        <div class="mobile-request-card" style="text-align: center; padding: 40px 20px;">
+                            <p>${message}</p>
+                        </div>
+                    `;
+                }
+            }
+        } else {
+            // Desktop view - check table rows
+            const tableBody = document.querySelector("#requestsTable tbody");
+            if (tableBody.rows.length === 0) {
+                const message = showArchive ? 
+                    "You don't have any documents scheduled for pickup" : 
+                    "You haven't made any requests yet";
+                    
+                const row = tableBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 6;
+                cell.textContent = message;
+                cell.style.textAlign = "center";
+                cell.style.padding = "20px";
+            }
+        }
+
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+            // Refresh the data from server to ensure consistency
+            fetchRequests();
+        }, 5000);
+
+    } catch (error) {
+        console.error('Schedule pickup error:', error);
+        alert(`Error: ${error.message}`);
+    }
+}
+
+
+
+    async function deleteRequest(requestId, rowElement) {
+        if (!confirm('Are you sure you want to delete this rejected request?')) return;
+
+        try {
+            const response = await fetch(`/api/requests/${requestId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // First check if response is OK
+            if (!response.ok) {
+                // Try to parse error as JSON, fallback to text if that fails
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch {
+                    const text = await response.text();
+                    throw new Error(text || 'Failed to delete request');
+                }
+                throw new Error(errorData.error || errorData.message || 'Failed to delete request');
+            }
+
+            // Parse the successful response
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.message || 'Request deletion failed');
+            }
+
+            // Remove the row/card immediately for better UX
+            if (rowElement.remove) {
+                rowElement.remove();
+            } else if (rowElement.parentNode) {
+                rowElement.parentNode.removeChild(rowElement);
+            }
+
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = result.message || "Request deleted successfully!";
+            successMessage.style.display = 'block';
+
+            // Check if we need to show empty state
             if (window.innerWidth <= 768) {
-                renderMobileRequests(requests);
+                // Mobile view - check mobile cards
+                const mobileCards = document.querySelectorAll('.mobile-request-card');
+                if (mobileCards.length === 0) {
+                    const mobileTable = document.getElementById('mobileRequestsTable');
+                    if (mobileTable) {
+                        const message = showArchive ? 
+                            "You don't have any documents scheduled for pickup" : 
+                            "You haven't made any requests yet";
+                            
+                        mobileTable.innerHTML = `
+                            <div class="mobile-request-card" style="text-align: center; padding: 40px 20px;">
+                                <p>${message}</p>
+                            </div>
+                        `;
+                    }
+                }
             } else {
-                // Desktop table rendering code
+                // Desktop view - check table rows
                 const tableBody = document.querySelector("#requestsTable tbody");
-                const loadingMessage = document.getElementById('loadingMessage');
-                const tableElement = document.getElementById('requestsTable');
-    
-                tableBody.innerHTML = '';
-                loadingMessage.style.display = 'none';
-                tableElement.style.display = 'table';
-    
-                // Filter out claimed requests on client side as extra precaution
-                const filteredRequests = requests.filter(request => request.status !== "Claimed");
-    
-                if (filteredRequests.length === 0) {
+                if (tableBody.rows.length === 0) {
+                    const message = showArchive ? 
+                        "You don't have any documents scheduled for pickup" : 
+                        "You haven't made any requests yet";
+                        
                     const row = tableBody.insertRow();
                     const cell = row.insertCell();
                     cell.colSpan = 6;
-                    cell.textContent = "You haven't made any requests yet";
+                    cell.textContent = message;
                     cell.style.textAlign = "center";
                     cell.style.padding = "20px";
-                    return;
                 }
-    
-                filteredRequests.forEach(request => {
-                    const row = tableBody.insertRow();
-                    row.setAttribute('data-id', request.id);
-    
-                    // Document Type
-                    const docTypeCell = row.insertCell();
-                    docTypeCell.textContent = request.documentType || 'N/A';
-    
-                    // Purpose
-                    const purposeCell = row.insertCell();
-                    purposeCell.textContent = request.purpose || 'N/A';
-    
-                    // Date Requested
-                    const dateCell = row.insertCell();
-                    dateCell.innerHTML = `
-                        <div>${request.formattedDate || 'N/A'}</div>
-                        <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
-                    `;
-    
-                    // Status - Updated to include rejection reason
-                    const statusCell = row.insertCell();
-                    let statusClass = '';
-                    switch (request.status) {
-                        case 'Pending': statusClass = 'status-pending'; break;
-                        case 'Approved': statusClass = 'status-approved'; break;
-                        case 'Rejected': statusClass = 'status-rejected'; break;
-                        case 'Ready to Claim': statusClass = 'status-ready-to-claim'; break;
-                        case 'Claimed': statusClass = 'status-claimed'; break;
-                    }
-    
-                    let statusHTML = `<span class="status ${statusClass}">${request.status}</span>`;
-    
-                    // Add rejection reason if available
-                    if (request.status === 'Rejected' && request.rejectionReason) {
-                        statusHTML += `<div class="rejection-reason">
-                            <strong>Reason:</strong> ${request.rejectionReason}
-                        </div>`;
-                    }
-    
-                    statusCell.innerHTML = statusHTML;
-    
-                    // Details Column - Added more information
-                    const detailsCell = row.insertCell();
-                    detailsCell.className = 'document-details';
-                    let detailsHTML = '';
-    
-                    if (request.documentTypes && Array.isArray(request.documentTypes)) {
-                        detailsHTML += `<div><strong>Types:</strong> ${request.documentTypes.join(', ')}</div>`;
-                    }
-    
-                    if (request.address) {
-                        detailsHTML += `<div><strong>Address:</strong> ${request.address}</div>`;
-                    }
-    
-                    if (request.estimatedCompletion) {
-                        detailsHTML += `<div><strong>Est. Completion:</strong> ${request.estimatedCompletion}</div>`;
-                    }
-    
-                    if (request.adminNotes) {
-                        detailsHTML += `<div><strong>Notes:</strong> ${request.adminNotes}</div>`;
-                    }
-    
-                    detailsCell.innerHTML = detailsHTML || 'No additional details';
-    
-                    // Actions
-                    const actionsCell = row.insertCell();
-    
-                    if (request.status === 'Ready to Claim') {
-                        const claimBtn = document.createElement('button');
-                        claimBtn.textContent = 'Claim';
-                        claimBtn.className = 'action-btn';
-                        claimBtn.onclick = () => claimRequest(request.id, row);
-                        actionsCell.appendChild(claimBtn);
-                    } else if (request.status === 'Approved') {
-                        actionsCell.textContent = 'Waiting for processing';
-                    } else if (request.status === 'Rejected') {
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.textContent = 'Delete';
-                        deleteBtn.className = 'delete-btn';
-                        deleteBtn.onclick = () => deleteRequest(request.id, row);
-                        actionsCell.appendChild(deleteBtn);
-                    } else {
-                        actionsCell.textContent = '';
-                    }
-                });
             }
+
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+
+        } catch (error) {
+            console.error('Delete error:', error);
+            alert(`Error: ${error.message}`);
         }
-    
-        async function claimRequest(requestId, rowElement) {
-            if (!confirm('Are you sure you want to mark this document as claimed?')) return;
-    
-            try {
-                const response = await fetch(`/api/requests/${requestId}/claim`, {
-                    method: 'PUT',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-    
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to claim request');
-                }
-    
-                // Show success message
-                const successMessage = document.getElementById('successMessage');
-                successMessage.textContent = "Document claimed successfully!";
-                successMessage.style.display = 'block';
-    
-                // Remove the row/card immediately for better UX
-                if (rowElement.remove) {
-                    rowElement.remove();
-                } else if (rowElement.parentNode) {
-                    rowElement.parentNode.removeChild(rowElement);
-                }
-    
-                // Check if we need to show empty state
-                if (window.innerWidth <= 768) {
-                    // Mobile view - check mobile cards
-                    const mobileCards = document.querySelectorAll('.mobile-request-card');
-                    if (mobileCards.length === 0) {
-                        const mobileTable = document.getElementById('mobileRequestsTable');
-                        if (mobileTable) {
-                            mobileTable.innerHTML = `
-                                <div class="mobile-request-card" style="text-align: center; padding: 40px 20px;">
-                                    <p>You haven't made any requests yet</p>
-                                </div>
-                            `;
-                        }
-                    }
-                } else {
-                    // Desktop view - check table rows
-                    const tableBody = document.querySelector("#requestsTable tbody");
-                    if (tableBody.rows.length === 0) {
-                        const row = tableBody.insertRow();
-                        const cell = row.insertCell();
-                        cell.colSpan = 6;
-                        cell.textContent = "You haven't made any requests yet";
-                        cell.style.textAlign = "center";
-                        cell.style.padding = "20px";
-                    }
-                }
-    
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                    // Refresh the data from server to ensure consistency
-                    fetchRequests();
-                }, 3000);
-    
-            } catch (error) {
-                console.error('Claim error:', error);
-                alert(`Error: ${error.message}`);
+    }
+
+    // Logout functionality
+    function openLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'block';
+    }
+
+    function closeLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+    }
+
+    async function confirmLogout() {
+        try {
+            const response = await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                window.location.href = '/login';
+            } else {
+                throw new Error('Logout failed');
             }
+        } catch (error) {
+            console.error('Logout error:', error);
+            alert('Failed to logout. Please try again.');
         }
-    
-        async function deleteRequest(requestId, rowElement) {
-            if (!confirm('Are you sure you want to delete this rejected request?')) return;
-    
-            try {
-                const response = await fetch(`/api/requests/${requestId}`, {
-                    method: 'DELETE',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-    
-                // First check if response is OK
-                if (!response.ok) {
-                    // Try to parse error as JSON, fallback to text if that fails
-                    let errorData;
-                    try {
-                        errorData = await response.json();
-                    } catch {
-                        const text = await response.text();
-                        throw new Error(text || 'Failed to delete request');
-                    }
-                    throw new Error(errorData.error || errorData.message || 'Failed to delete request');
-                }
-    
-                // Parse the successful response
-                const result = await response.json();
-    
-                if (!result.success) {
-                    throw new Error(result.message || 'Request deletion failed');
-                }
-    
-                // Remove the row/card immediately for better UX
-                if (rowElement.remove) {
-                    rowElement.remove();
-                } else if (rowElement.parentNode) {
-                    rowElement.parentNode.removeChild(rowElement);
-                }
-    
-                // Show success message
-                const successMessage = document.getElementById('successMessage');
-                successMessage.textContent = result.message || "Request deleted successfully!";
-                successMessage.style.display = 'block';
-    
-                // Check if we need to show empty state
-                if (window.innerWidth <= 768) {
-                    // Mobile view - check mobile cards
-                    const mobileCards = document.querySelectorAll('.mobile-request-card');
-                    if (mobileCards.length === 0) {
-                        const mobileTable = document.getElementById('mobileRequestsTable');
-                        if (mobileTable) {
-                            mobileTable.innerHTML = `
-                                <div class="mobile-request-card" style="text-align: center; padding: 40px 20px;">
-                                    <p>You haven't made any requests yet</p>
-                                </div>
-                            `;
-                        }
-                    }
-                } else {
-                    // Desktop view - check table rows
-                    const tableBody = document.querySelector("#requestsTable tbody");
-                    if (tableBody.rows.length === 0) {
-                        const row = tableBody.insertRow();
-                        const cell = row.insertCell();
-                        cell.colSpan = 6;
-                        cell.textContent = "You haven't made any requests yet";
-                        cell.style.textAlign = "center";
-                        cell.style.padding = "20px";
-                    }
-                }
-    
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 3000);
-    
-            } catch (error) {
-                console.error('Delete error:', error);
-                alert(`Error: ${error.message}`);
-            }
-        }
-    
-        // Logout functionality
-        function openLogoutModal() {
-            document.getElementById('logoutModal').style.display = 'block';
-        }
-    
-        function closeLogoutModal() {
-            document.getElementById('logoutModal').style.display = 'none';
-        }
-    
-        async function confirmLogout() {
-            try {
-                const response = await fetch('/api/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include'
-                });
-    
-                if (response.ok) {
-                    window.location.href = '/login';
-                } else {
-                    throw new Error('Logout failed');
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-                alert('Failed to logout. Please try again.');
-            }
-        }
-    
-        // Initialize page - load requests on page load
-        window.addEventListener('DOMContentLoaded', async () => {
-            // Add mobile close button
-            addMobileCloseButton();
+    }
+
+    // Socket.io real-time updates
+    function setupSocketListeners() {
+        socket.on('request-update', (data) => {
+            console.log('Real-time update received:', data);
             
-            await fetchRequests();
-    
-            // Add logout event listener
-            document.getElementById('sidebarLogoutBtn').addEventListener('click', function (e) {
-                e.preventDefault();
-                openLogoutModal();
-            });
-    
-            // Close logout modal when clicking outside
-            window.addEventListener('click', function (event) {
-                const logoutModal = document.getElementById('logoutModal');
-                if (event.target === logoutModal) {
-                    closeLogoutModal();
-                }
-            });
-    
-            // Add resize listener to handle table rendering on window resize
-            window.addEventListener('resize', function() {
-                // Re-render requests when window is resized to switch between mobile/desktop views
-                const requestsTable = document.querySelector("#requestsTable tbody");
-                if (requestsTable && requestsTable.rows.length > 0) {
-                    // You might want to store the requests data and re-render here
-                    // For now, we'll just reload the data
-                    fetchRequests();
-                }
-            });
-    
-            // Disable functionality if user is banned
-            const isAllowed = await checkUserStatus();
-            if (!isAllowed) {
-                document.getElementById('requestDocumentBtn').disabled = true;
+            // Show notification
+            const successMessage = document.getElementById('successMessage');
+            if (data.type === 'updated') {
+                successMessage.textContent = `Request status updated to: ${data.request.status}`;
+            } else if (data.type === 'created') {
+                successMessage.textContent = 'New request created';
+            }
+            successMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+            
+            // Refresh requests if needed
+            if (!showArchive) {
+                fetchRequests();
             }
         });
-    </script>
+
+        socket.on('connect', () => {
+            console.log('Connected to server for real-time updates');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+    }
+
+    // Initialize page - load requests on page load
+    window.addEventListener('DOMContentLoaded', async () => {
+        // Add mobile close button
+        addMobileCloseButton();
+        
+        // Initialize archive UI
+        updateArchiveUI();
+        await fetchRequests();
+
+        // Setup socket.io listeners
+        setupSocketListeners();
+
+        // Add logout event listener
+        document.getElementById('sidebarLogoutBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            openLogoutModal();
+        });
+
+        // Close logout modal when clicking outside
+        window.addEventListener('click', function (event) {
+            const logoutModal = document.getElementById('logoutModal');
+            if (event.target === logoutModal) {
+                closeLogoutModal();
+            }
+        });
+
+        // Add resize listener to handle table rendering on window resize
+        window.addEventListener('resize', function() {
+            // Re-render requests when window is resized to switch between mobile/desktop views
+            const requestsTable = document.querySelector("#requestsTable tbody");
+            if (requestsTable && requestsTable.rows.length > 0) {
+                // You might want to store the requests data and re-render here
+                // For now, we'll just reload the data
+                fetchRequests();
+            }
+        });
+
+        // Disable functionality if user is banned
+        const isAllowed = await checkUserStatus();
+        if (!isAllowed) {
+            document.getElementById('requestDocumentBtn').disabled = true;
+        }
+    });
+</script>
 </body>
 
 </html>

@@ -227,18 +227,23 @@
         }
 
         .cleanup-btn {
-            background-color: var(--danger);
+            background-color: var(--warning);
             color: white;
-            padding: 8px 16px;
             border: none;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            display: none;
         }
 
         .cleanup-btn:hover {
-            background-color: #c82333;
+            background-color: #e69500;
+            transform: translateY(-2px);
         }
 
         /* Filter Controls */
@@ -337,43 +342,6 @@
             gap: 10px;
         }
 
-        .bulk-actions {
-            display: flex;
-            gap: 10px;
-            margin-left: auto;
-        }
-
-        .bulk-action-btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s;
-        }
-
-        .bulk-approve {
-            background-color: var(--success);
-            color: white;
-        }
-
-        .bulk-reject {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .bulk-ready {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .bulk-action-btn:hover {
-            opacity: 0.9;
-        }
-
         /* Table Styles */
         .table-container {
             background: white;
@@ -467,6 +435,11 @@
             color: #004085;
         }
 
+        .status-scheduled {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
         .status-claimed {
             background: #e2e3e5;
             color: #383d41;
@@ -508,6 +481,15 @@
 
         .ready-btn:hover {
             background-color: #138496;
+        }
+
+        .claim-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .claim-btn:hover {
+            background-color: #1c6ea4;
         }
 
         /* Notification */
@@ -677,7 +659,7 @@
                 align-items: flex-start;
             }
 
-            .selected-request-buttons, .bulk-actions {
+            .selected-request-buttons {
                 width: 100%;
                 justify-content: flex-start;
                 margin-top: 10px;
@@ -756,11 +738,11 @@
                 width: 100%;
             }
 
-            .selected-request-buttons, .bulk-actions {
+            .selected-request-buttons {
                 flex-direction: column;
             }
 
-            .selected-request-buttons button, .bulk-actions button {
+            .selected-request-buttons button {
                 width: 100%;
             }
         }
@@ -843,7 +825,9 @@
                     <button id="archivedRequestsBtn" class="inactive-archive">Archive</button>
                 </div>
                 <div>
-                    <button id="cleanupArchive" class="cleanup-btn">Clean Up Archive</button>
+                    <button id="cleanupArchive" class="cleanup-btn">
+                        <i class="fas fa-broom"></i> Cleanup Archive
+                    </button>
                 </div>
             </div>
             
@@ -862,6 +846,7 @@
                         <option value="Approved">Approved</option>
                         <option value="Rejected">Rejected</option>
                         <option value="Ready to Claim">Ready to Claim</option>
+                        <option value="Scheduled for Pickup">Scheduled for Pickup</option>
                         <option value="Claimed">Claimed</option>
                     </select>
                 </div>
@@ -902,24 +887,14 @@
                     <img src="/images/default-profile.png" alt="User Profile" class="user-profile" id="selectedUserProfile">
                     <div class="selected-request-details">
                         <h3 id="selectedUserName">Selected Requests (<span id="selectedCount">0</span>)</h3>
-                        <p id="selectedRequestDetails">Select requests to perform bulk actions</p>
+                        <p id="selectedRequestDetails">Select requests to perform actions</p>
                     </div>
                 </div>
                 <div class="selected-request-buttons">
                     <button class="action-button approve-btn" id="selectedApproveBtn">Approve</button>
                     <button class="action-button reject-btn" id="selectedRejectBtn">Reject</button>
                     <button class="action-button ready-btn" id="selectedReadyBtn">Ready to Claim</button>
-                </div>
-                <div class="bulk-actions">
-                    <button class="bulk-action-btn bulk-approve" id="bulkApproveBtn">
-                        <i class="fas fa-check"></i> Approve All
-                    </button>
-                    <button class="bulk-action-btn bulk-reject" id="bulkRejectBtn">
-                        <i class="fas fa-times"></i> Reject All
-                    </button>
-                    <button class="bulk-action-btn bulk-ready" id="bulkReadyBtn">
-                        <i class="fas fa-check-double"></i> Ready All
-                    </button>
+                    <button class="action-button claim-btn" id="selectedClaimBtn" style="display: none;">Mark as Claimed</button>
                 </div>
             </div>
             
@@ -937,6 +912,7 @@
                             <th>Purpose</th>
                             <th>Date Requested</th>
                             <th>Status</th>
+                            <th>Scheduled Pickup</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1012,9 +988,7 @@
     const selectedApproveBtn = document.getElementById('selectedApproveBtn');
     const selectedRejectBtn = document.getElementById('selectedRejectBtn');
     const selectedReadyBtn = document.getElementById('selectedReadyBtn');
-    const bulkApproveBtn = document.getElementById('bulkApproveBtn');
-    const bulkRejectBtn = document.getElementById('bulkRejectBtn');
-    const bulkReadyBtn = document.getElementById('bulkReadyBtn');
+    const selectedClaimBtn = document.getElementById('selectedClaimBtn');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 
     let currentFilters = {
@@ -1084,17 +1058,11 @@
                 handleBulkAction('ready');
             }
         });
-        
-        bulkApproveBtn.addEventListener('click', () => {
-            handleBulkAction('approve', true);
-        });
-        
-        bulkRejectBtn.addEventListener('click', () => {
-            handleBulkAction('reject', true);
-        });
-        
-        bulkReadyBtn.addEventListener('click', () => {
-            handleBulkAction('ready', true);
+
+        selectedClaimBtn.addEventListener('click', () => {
+            if (selectedRequestIds.size > 0) {
+                handleBulkAction('claim');
+            }
         });
         
         selectAllCheckbox.addEventListener('change', toggleSelectAll);
@@ -1106,6 +1074,9 @@
         activeRequestsBtn.classList.toggle('inactive-archive', isArchive);
         archivedRequestsBtn.classList.toggle('active-archive', isArchive);
         archivedRequestsBtn.classList.toggle('inactive-archive', !isArchive);
+        
+        // Show/hide cleanup button based on archive mode
+        cleanupArchive.style.display = isArchive ? 'flex' : 'none';
         
         // Hide action buttons in archive mode
         if (isArchive) {
@@ -1272,7 +1243,7 @@
         if (requests.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="error-message">
+                    <td colspan="9" class="error-message">
                         No ${currentFilters.archive ? 'archived' : 'active'} requests found
                     </td>
                 </tr>
@@ -1314,6 +1285,13 @@
                     <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
                 </td>
                 <td><span class="status ${statusClass}">${request.status || 'Pending'}</span></td>
+                <td>
+                    ${request.scheduledClaimDate ? 
+                        `<div>${request.formattedScheduledDate}</div>
+                         <div style="font-size: 0.8em; color: #666;">${request.formattedScheduledTime}</div>` 
+                        : 'Not scheduled'
+                    }
+                </td>
             `;
 
             tbody.appendChild(row);
@@ -1393,10 +1371,13 @@
         const selectedRequests = allRequests.filter(req => selectedRequestIds.has(req.id));
         const hasPending = selectedRequests.some(req => req.status === 'Pending');
         const hasApproved = selectedRequests.some(req => req.status === 'Approved');
+        const hasReady = selectedRequests.some(req => req.status === 'Ready to Claim');
+        const hasScheduled = selectedRequests.some(req => req.status === 'Scheduled for Pickup');
         
         selectedApproveBtn.style.display = hasPending ? 'inline-block' : 'none';
         selectedRejectBtn.style.display = hasPending ? 'inline-block' : 'none';
         selectedReadyBtn.style.display = hasApproved ? 'inline-block' : 'none';
+        selectedClaimBtn.style.display = hasScheduled ? 'inline-block' : 'none';
         
         // Update user profile if only one request is selected
         if (selectedCountValue === 1) {
@@ -1414,7 +1395,7 @@
         } else {
             selectedUserProfile.src = '/images/default-profile.png';
             selectedUserName.textContent = `Selected Requests (${selectedCountValue})`;
-            selectedRequestDetails.textContent = `${selectedCountValue} requests selected for bulk actions`;
+            selectedRequestDetails.textContent = `${selectedCountValue} requests selected for actions`;
         }
         
         selectedRequestActions.style.display = 'flex';
@@ -1442,30 +1423,25 @@
         updateSelectedRequestActions();
     }
 
-    function handleBulkAction(action, allRequests = false) {
-        let requestIds = allRequests ? 
-            allRequests.filter(req => !currentFilters.archive && 
-                ((action === 'approve' || action === 'reject') ? req.status === 'Pending' : 
-                 action === 'ready' ? req.status === 'Approved' : false))
-                .map(req => req.id) : 
-            Array.from(selectedRequestIds);
+    function openRejectModal(requestId) {
+        currentRejectRequestId = requestId;
+        document.getElementById('rejectModal').style.display = 'flex';
+        document.getElementById('rejectionReason').value = '';
+    }
+
+    function handleBulkAction(action) {
+        let requestIds = Array.from(selectedRequestIds);
             
         if (requestIds.length === 0) {
-            showNotification('No requests available for this action');
+            showNotification('No requests selected for this action');
             return;
         }
         
         if (action === 'reject') {
-            if (allRequests) {
-                // For bulk reject all, show modal
-                document.getElementById('bulkRejectModal').style.display = 'flex';
-                document.getElementById('bulkRejectionReason').value = '';
-            } else {
-                // For selected requests reject, show modal
-                currentRejectRequestId = 'bulk'; // Special value for bulk rejection
-                document.getElementById('rejectModal').style.display = 'flex';
-                document.getElementById('rejectionReason').value = '';
-            }
+            // For selected requests reject, show modal
+            currentRejectRequestId = 'bulk'; // Special value for bulk rejection
+            document.getElementById('rejectModal').style.display = 'flex';
+            document.getElementById('rejectionReason').value = '';
             return;
         }
         
@@ -1488,7 +1464,7 @@
             performBulkAction(Array.from(selectedRequestIds), 'reject', reason);
         } else {
             // Single request rejection
-            performRequestAction(currentRejectRequestId, 'reject', reason);
+            performSingleAction(currentRejectRequestId, 'reject', reason);
         }
     }
     
@@ -1527,7 +1503,7 @@
             }
 
             const result = await response.json();
-            showNotification(`Successfully ${action === 'ready' ? 'marked as ready to claim' : action + 'd'} ${result.processedCount} request(s)`);
+            showNotification(`Successfully ${action === 'ready' ? 'marked as ready to claim' : action === 'claim' ? 'marked as claimed' : action + 'd'} ${result.processedCount} request(s)`);
             fetchRequests();
             clearSelection();
         } catch (error) {
@@ -1536,7 +1512,7 @@
         }
     }
     
-    async function performRequestAction(requestId, action, rejectionReason = '') {
+    async function performSingleAction(requestId, action, rejectionReason = '') {
         try {
             const url = `/api/requests/${requestId}/${action}`;
             const options = {
@@ -1553,7 +1529,7 @@
                 throw new Error(errorData.error || `Failed to ${action}`);
             }
 
-            showNotification(`Request ${action === 'ready' ? 'marked as ready to claim' : action + 'd'} successfully`);
+            showNotification(`Request ${action === 'ready' ? 'marked as ready to claim' : action === 'claim' ? 'marked as claimed' : action + 'd'} successfully`);
             fetchRequests();
             clearSelection();
         } catch (error) {
@@ -1566,7 +1542,7 @@
         const tbody = requestsTable.querySelector('tbody');
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="error-message">
+                <td colspan="9" class="error-message">
                     ${message}
                 </td>
             </tr>
