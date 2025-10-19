@@ -780,6 +780,38 @@ body {
     }
 }
 
+/* Delete comment button */
+.delete-comment-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.3s;
+    margin-left: auto;
+}
+
+.delete-comment-btn:hover {
+    background-color: #ffeaea;
+    transform: scale(1.1);
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.comment-header .comment-user {
+    margin-right: 8px;
+}
+
+.comment-header .comment-time {
+    margin-right: 8px;
+}
+
 /* Print Styles */
 @media print {
     .sidebar,

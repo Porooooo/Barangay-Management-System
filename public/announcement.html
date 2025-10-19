@@ -241,7 +241,7 @@
             try {
                 await fetchCurrentUser(); // Ensure user data is loaded first
                 
-                const response = await authFetch('/api/announcements');
+                const response = await authFetch('/api/announcements/user');
                 
                 if (!response) return;
                 
@@ -416,6 +416,7 @@
             container.innerHTML = comments.map(comment => {
                 const commentTime = new Date(comment.createdAt);
                 const isAdminComment = comment.userName === 'Barangay Admin';
+                const isCurrentUserComment = currentUser && comment.userId === currentUser._id;
                 
                 // Use actual profile picture from comment data or fallback to current user's picture
                 let profilePicture = '/images/default-profile.png';
@@ -437,6 +438,11 @@
                              onerror="this.src='/images/default-profile.png'">
                         <span class="comment-user ${isAdminComment ? 'admin-user' : ''}">${comment.userName}</span>
                         <span class="comment-time">${commentTime.toLocaleString()}</span>
+                        ${isCurrentUserComment ? `
+                            <button class="delete-comment-btn" onclick="deleteComment('${announcementId}', '${comment._id}')" title="Delete comment">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
                     </div>
                     <p class="comment-text">${comment.text}</p>
                     
@@ -445,6 +451,7 @@
                             ${comment.replies.map(reply => {
                                 const replyTime = new Date(reply.createdAt);
                                 const isAdminReply = reply.userName === 'Barangay Admin';
+                                const isCurrentUserReply = currentUser && reply.userId === currentUser._id;
                                 
                                 let replyProfilePicture = '/images/default-profile.png';
                                 if (reply.userProfilePicture) {
@@ -462,6 +469,11 @@
                                              onerror="this.src='/images/default-profile.png'">
                                         <span class="comment-user ${isAdminReply ? 'admin-user' : ''}">${reply.userName}</span>
                                         <span class="comment-time">${replyTime.toLocaleString()}</span>
+                                        ${isCurrentUserReply ? `
+                                            <button class="delete-comment-btn" onclick="deleteReply('${announcementId}', '${comment._id}', '${reply._id}')" title="Delete reply">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        ` : ''}
                                     </div>
                                     <p class="comment-text">${reply.text}</p>
                                 </div>
@@ -570,6 +582,54 @@
             } catch (error) {
                 console.error('Error posting reply:', error);
                 alert('Failed to post reply. Please try again.');
+            }
+        }
+
+        // Delete a comment
+        async function deleteComment(announcementId, commentId) {
+            if (!confirm('Are you sure you want to delete this comment?')) {
+                return;
+            }
+            
+            try {
+                const response = await authFetch(`/api/announcements/${announcementId}/comments/${commentId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response) return;
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete comment');
+                }
+                
+                loadComments(announcementId); // Reload comments
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                alert('Failed to delete comment. Please try again.');
+            }
+        }
+
+        // Delete a reply
+        async function deleteReply(announcementId, commentId, replyId) {
+            if (!confirm('Are you sure you want to delete this reply?')) {
+                return;
+            }
+            
+            try {
+                const response = await authFetch(`/api/announcements/${announcementId}/comments/${commentId}/replies/${replyId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response) return;
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete reply');
+                }
+                
+                loadComments(announcementId); // Reload comments
+            } catch (error) {
+                console.error('Error deleting reply:', error);
+                alert('Failed to delete reply. Please try again.');
             }
         }
 

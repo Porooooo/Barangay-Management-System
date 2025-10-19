@@ -310,6 +310,47 @@ router.get('/:id/comments', async (req, res) => {
     }
 });
 
+// Delete a comment
+router.delete('/:id/comments/:commentId', async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ error: 'Announcement not found' });
+        }
+
+        const comment = announcement.comments.id(req.params.commentId);
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+
+        // Check if the user owns the comment or is an admin
+        const user = await User.findById(req.session.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const isOwner = comment.userId.toString() === req.session.userId;
+        const isAdmin = user.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return res.status(403).json({ error: 'You can only delete your own comments' });
+        }
+
+        // Remove the comment
+        announcement.comments.pull({ _id: req.params.commentId });
+        await announcement.save();
+
+        res.json({ message: 'Comment deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).json({ error: 'Failed to delete comment' });
+    }
+});
+
 // Add a reply to a comment
 router.post('/:id/comments/:commentId/replies', async (req, res) => {
     try {
@@ -367,6 +408,52 @@ router.post('/:id/comments/:commentId/replies', async (req, res) => {
     } catch (error) {
         console.error('Error adding reply:', error);
         res.status(500).json({ error: 'Failed to add reply' });
+    }
+});
+
+// Delete a reply
+router.delete('/:id/comments/:commentId/replies/:replyId', async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const announcement = await Announcement.findById(req.params.id);
+        if (!announcement) {
+            return res.status(404).json({ error: 'Announcement not found' });
+        }
+
+        const comment = announcement.comments.id(req.params.commentId);
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
+
+        const reply = comment.replies.id(req.params.replyId);
+        if (!reply) {
+            return res.status(404).json({ error: 'Reply not found' });
+        }
+
+        // Check if the user owns the reply or is an admin
+        const user = await User.findById(req.session.userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const isOwner = reply.userId.toString() === req.session.userId;
+        const isAdmin = user.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return res.status(403).json({ error: 'You can only delete your own replies' });
+        }
+
+        // Remove the reply
+        comment.replies.pull({ _id: req.params.replyId });
+        await announcement.save();
+
+        res.json({ message: 'Reply deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting reply:', error);
+        res.status(500).json({ error: 'Failed to delete reply' });
     }
 });
 
