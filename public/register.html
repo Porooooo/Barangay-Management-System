@@ -618,7 +618,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-    
+
         /* Responsive Styles */
         @media (max-width: 768px) {
           .container {
@@ -643,6 +643,10 @@
           
           .welcome-text h3 {
             font-size: 16px;
+          }
+          
+          .welcome-text p {
+            font-size: 13px;
           }
           
           .right-section {
@@ -804,7 +808,7 @@
             <span class="close" onclick="closeModal()">&times;</span>
             <h2>Create Account</h2>
             
-            <!-- Progress Bar - 3 steps -->
+            <!-- Progress Bar - 3 steps (removed ID verification step) -->
             <div class="progress-bar">
                 <div class="progress-step active" id="step1">
                     <div class="step-number">1</div>
@@ -967,12 +971,12 @@
                             </select>
                         </div>
                     </div>
-                    
-                    <!-- Certification checkbox - single line -->
+
+                    <!-- Certification checkbox -->
                     <div class="certification-container">
                         <div class="checkbox-item">
                             <input type="checkbox" id="agreeTerms" required>
-                            <label for="agreeTerms">I certify that the information provided is true and correct.</label>
+                            <label for="agreeTerms">I certify that the information provided is true and correct, and I am 18 years of age or older.</label>
                         </div>
                     </div>
                     
@@ -1016,7 +1020,7 @@
             document.getElementById('registerModal').style.display = 'none';
         }
 
-        // Multi-page form navigation
+        // Multi-page form navigation - UPDATED for 3 steps
         function showPage(pageNumber) {
             // Hide all pages
             document.querySelectorAll('.form-page').forEach(page => {
@@ -1149,6 +1153,14 @@
                     isValid = false;
                 }
             }
+
+            // Special validation for page 3 (certification)
+            if (pageNumber === 3) {
+                if (!document.getElementById('agreeTerms').checked) {
+                    alert('Please certify that the information provided is true and correct.');
+                    isValid = false;
+                }
+            }
             
             if (!isValid) {
                 alert('Please fill in all required fields correctly.');
@@ -1224,7 +1236,7 @@
             const isValid = phonePattern.test(phoneValue);
             
             if (!isValid) {
-                validationElement.textContent = '';
+                validationElement.textContent = 'Enter a valid phone number (11 digits starting with 09)';
                 validationElement.className = 'phone-validation phone-invalid';
                 validationElement.style.display = 'block';
                 phoneInput.classList.add('input-error');
@@ -1256,7 +1268,7 @@
             const isValid = phonePattern.test(phoneValue);
             
             if (!isValid) {
-                validationElement.textContent = '';
+                validationElement.textContent = 'Enter a valid phone number (11 digits starting with 09)';
                 validationElement.className = 'phone-validation phone-invalid';
                 validationElement.style.display = 'block';
                 phoneInput.classList.add('input-error');
@@ -1399,7 +1411,7 @@
             window.location.href = 'login';
         }
 
-        // Handle form submission 
+        // Handle form submission - UPDATED: Removed ID photo upload
         document.getElementById('registerForm').addEventListener('submit', async function(event) {
           event.preventDefault();
 
@@ -1417,6 +1429,13 @@
           if (!validateAge()) {
               showPage(1);
               alert('You must be 18 years or older to register.');
+              return;
+          }
+
+          // Check certification agreement
+          if (!document.getElementById('agreeTerms').checked) {
+              showPage(3);
+              alert('Please certify that the information provided is true and correct.');
               return;
           }
 
@@ -1460,7 +1479,7 @@
           formData.append('barangay', document.getElementById('barangay').value);
           formData.append('educationalAttainment', document.getElementById('educationalAttainment').value);
 
-          console.log("Submitting form data...");
+          console.log("Submitting form data without ID verification...");
 
           try {       
             const response = await fetch('/api/auth/register', {

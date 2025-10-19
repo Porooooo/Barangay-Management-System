@@ -67,7 +67,112 @@ async function sendEmergencyEmailToAdmin(req, alert) {
     }
 }
 
+// Middleware to get user from session
+const getAuthenticatedUser = async (req) => {
+    try {
+        // Check session-based authentication
+        if (req.session.userId) {
+            const user = await User.findById(req.session.userId);
+            return user;
+        }
+        
+        // Check token-based authentication (if you're using JWT)
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        if (token) {
+            // You would verify JWT token here if using JWT
+            // For now, we'll rely on session
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('Error getting authenticated user:', error);
+        return null;
+    }
+};
+
 // ==================== GET ROUTES ====================
+
+// Get resident's own emergency alerts - FIXED VERSION
+router.get("/my-alerts", async (req, res) => {
+    try {
+        // Get authenticated user
+        const user = await getAuthenticatedUser(req);
+        
+        if (!user) {
+            return res.status(401).json({ 
+                success: false,
+                error: "Authentication required. Please log in again." 
+            });
+        }
+
+        console.log(`Fetching alerts for user: ${user._id}, ${user.email}`);
+
+        const alerts = await EmergencyAlert.find({ residentId: user._id })
+            .sort({ createdAt: -1 })
+            .select('residentName message status adminResponse createdAt acknowledgedAt resolvedAt');
+            
+        console.log(`Found ${alerts.length} alerts for user ${user._id}`);
+            
+        res.json({
+            success: true,
+            alerts: alerts.map(alert => ({
+                _id: alert._id,
+                residentName: alert.residentName,
+                message: alert.message,
+                status: alert.status,
+                adminResponse: alert.adminResponse,
+                createdAt: alert.createdAt,
+                acknowledgedAt: alert.acknowledgedAt,
+                resolvedAt: alert.resolvedAt
+            }))
+        });
+    } catch (error) {
+        console.error("Error fetching resident alerts:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to fetch emergency alerts",
+            details: error.message 
+        });
+    }
+});
+
+// Alternative route that accepts user ID as parameter (for testing)
+router.get("/user/:userId/alerts", async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        if (!userId) {
+            return res.status(400).json({ 
+                success: false,
+                error: "User ID is required" 
+            });
+        }
+
+        const alerts = await EmergencyAlert.find({ residentId: userId })
+            .sort({ createdAt: -1 })
+            .select('residentName message status adminResponse createdAt acknowledgedAt resolvedAt');
+            
+        res.json({
+            success: true,
+            alerts: alerts.map(alert => ({
+                _id: alert._id,
+                residentName: alert.residentName,
+                message: alert.message,
+                status: alert.status,
+                adminResponse: alert.adminResponse,
+                createdAt: alert.createdAt,
+                acknowledgedAt: alert.acknowledgedAt,
+                resolvedAt: alert.resolvedAt
+            }))
+        });
+    } catch (error) {
+        console.error("Error fetching user alerts:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to fetch emergency alerts" 
+        });
+    }
+});
 
 // Stats endpoint
 router.get("/stats", async (req, res) => {
@@ -108,13 +213,15 @@ router.get("/", async (req, res) => {
         
         const alerts = await EmergencyAlert.find(query)
             .sort({ createdAt: -1 })
-            .populate('residentId', 'contactNumber address');
+            .populate('residentId', 'contactNumber address email');
             
         res.json({
             success: true,
             alerts: alerts.map(alert => ({
                 _id: alert._id,
+                residentId: alert.residentId?._id,
                 residentName: alert.residentName || 'Unknown Resident',
+                residentEmail: alert.residentId?.email,
                 message: alert.message || '',
                 status: alert.status || 'pending',
                 adminResponse: alert.adminResponse,
@@ -140,7 +247,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const alert = await EmergencyAlert.findById(req.params.id)
-            .populate('residentId', 'contactNumber address');
+            .populate('residentId', 'contactNumber address email');
             
         if (!alert) {
             return res.status(404).json({ 
@@ -153,7 +260,9 @@ router.get("/:id", async (req, res) => {
             success: true,
             alert: {
                 _id: alert._id,
+                residentId: alert.residentId?._id,
                 residentName: alert.residentName || 'Unknown Resident',
+                residentEmail: alert.residentId?.email,
                 message: alert.message || '',
                 status: alert.status || 'pending',
                 adminResponse: alert.adminResponse,
@@ -177,14 +286,24 @@ router.get("/:id", async (req, res) => {
 
 // ==================== POST ROUTES ====================
 
-// Send new emergency alert
+// Send new emergency alert - FIXED VERSION
 router.post("/send", async (req, res) => {
     try {
         const { email, message } = req.body;
         
+        if (!email || !message) {
+            return res.status(400).json({ 
+                success: false,
+                error: "Email and message are required" 
+            });
+        }
+
         const resident = await User.findOne({ email });
         if (!resident) {
-            return res.status(404).json({ error: "Resident not found" });
+            return res.status(404).json({ 
+                success: false,
+                error: "Resident not found" 
+            });
         }
 
         const alert = new EmergencyAlert({
@@ -195,22 +314,65 @@ router.post("/send", async (req, res) => {
 
         await alert.save();
         
-        // Emit socket event
-        req.app.get('io').emit('newEmergencyAlert', alert);
+        console.log(`New emergency alert created: ${alert._id} for resident: ${resident.fullName}`);
+        
+        // Emit socket event to all admin users
+        const io = req.app.get('io');
+        io.emit('newEmergencyAlert', {
+            _id: alert._id,
+            residentId: resident._id,
+            residentName: resident.fullName,
+            message: alert.message,
+            status: alert.status,
+            createdAt: alert.createdAt
+        });
         
         // Schedule email check for this alert after 1 minute
         setTimeout(async () => {
-            const updatedAlert = await EmergencyAlert.findById(alert._id);
-            if (updatedAlert && updatedAlert.status === 'pending' && !updatedAlert.emailSent) {
-                console.log(`Alert ${alert._id} still unacknowledged after 1 minute, sending email...`);
-                await sendEmergencyEmailToAdmin(req, updatedAlert);
+            try {
+                const updatedAlert = await EmergencyAlert.findById(alert._id);
+                if (updatedAlert && updatedAlert.status === 'pending' && !updatedAlert.emailSent) {
+                    console.log(`Alert ${alert._id} still unacknowledged after 1 minute, sending email...`);
+                    await sendEmergencyEmailToAdmin(req, updatedAlert);
+                }
+            } catch (error) {
+                console.error('Error in email scheduling:', error);
             }
         }, 61000); // 61 seconds to ensure 1 minute has passed
         
-        res.status(201).json(alert);
+        res.status(201).json({
+            success: true,
+            alert: {
+                _id: alert._id,
+                residentName: alert.residentName,
+                message: alert.message,
+                status: alert.status,
+                createdAt: alert.createdAt
+            }
+        });
     } catch (error) {
         console.error("Error sending alert:", error);
-        res.status(500).json({ error: "Failed to send emergency alert" });
+        res.status(500).json({ 
+            success: false,
+            error: "Failed to send emergency alert" 
+        });
+    }
+});
+
+// Debug endpoint to check session
+router.get("/debug/session", async (req, res) => {
+    try {
+        res.json({
+            success: true,
+            session: req.session,
+            user: await getAuthenticatedUser(req)
+        });
+    } catch (error) {
+        console.error("Debug error:", error);
+        res.status(500).json({ 
+            success: false,
+            error: "Debug failed" 
+        });
     }
 });
 
@@ -236,9 +398,19 @@ router.post("/:id/respond", async (req, res) => {
                 adminResponse: adminMessage 
             },
             { new: true }
-        ).populate('residentId', 'contactNumber address');
+        ).populate('residentId', 'email contactNumber address');
         
-        req.app.get('io').emit('alertAcknowledged', {
+        // Emit socket event to the specific resident
+        const io = req.app.get('io');
+        io.emit('emergencyResponse', {
+            alertId: updatedAlert._id,
+            residentId: updatedAlert.residentId._id,
+            message: adminMessage,
+            acknowledgedAt: updatedAlert.acknowledgedAt
+        });
+        
+        // Also emit to admin for real-time updates
+        io.emit('alertAcknowledged', {
             _id: updatedAlert._id,
             residentName: updatedAlert.residentName,
             message: updatedAlert.message,

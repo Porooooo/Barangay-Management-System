@@ -37,7 +37,7 @@ transporter.verify((error, success) => {
     }
 });
 
-// Multer configuration for multiple file uploads - UPDATED to 10MB limit
+// Multer configuration for file uploads - UPDATED: Removed ID photo upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = path.join(__dirname, "../uploads");
@@ -54,8 +54,6 @@ const storage = multer.diskStorage({
     let prefix = "file-";
     if (file.fieldname === "profilePicture") {
       prefix = "profile-";
-    } else if (file.fieldname === "idPhoto") {
-      prefix = "id-";
     }
     
     cb(null, prefix + uniqueSuffix + ext);
@@ -74,8 +72,8 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // UPDATED: 10MB limit
-    files: 2 // Allow up to 2 files (profile picture and ID photo)
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 2 // Allow up to 2 files (profile picture only)
   }
 });
 
@@ -451,19 +449,21 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-//Update the register route with age validation
+// Update the register route - REMOVED ID upload
 router.post("/register", upload.fields([
   { name: "profilePicture", maxCount: 1 }
+  // REMOVED: ID photo upload
 ]), async (req, res) => {
   try {
     const formData = req.body;
     const files = req.files;
 
     const profilePictureFile = files?.profilePicture?.[0];
+    // REMOVED: ID photo file handling
 
     console.log("Received registration data:", formData);
 
-    // Validate required fields (REMOVED ID VERIFICATION FIELDS)
+    // Validate required fields (REMOVED ID PHOTO requirement)
     const requiredFields = [
       'lastName', 'firstName', 'birthdate', 'gender',
       'email', 'contactNumber', 'houseNumber', 'street',
@@ -543,7 +543,7 @@ router.post("/register", upload.fields([
     const seniorCitizen = formData.seniorCitizen === 'true' || formData.seniorCitizen === true;
     const soloParent = formData.soloParent === 'true' || formData.soloParent === true;
 
-    // Create new user with temporary password (REMOVED ID VERIFICATION FIELDS)
+    // Create new user with temporary password (REMOVED ID PHOTO)
     const newUser = new User({
       // Personal Information
       firstName: formData.firstName,
@@ -561,6 +561,8 @@ router.post("/register", upload.fields([
       contactNumber: formData.contactNumber,
       alternateContact: formData.alternateContactNumber || null,
       profilePicture: profilePictureFile ? profilePictureFile.filename : "default-profile.png",
+      
+      // REMOVED: ID Verification field
       
       // Address Information
       address: address,
@@ -595,6 +597,7 @@ router.post("/register", upload.fields([
       fullName: newUser.fullName,
       approvalStatus: newUser.approvalStatus,
       age: age
+      // REMOVED: hasIdPhoto field
     });
 
     // Set session data
@@ -628,7 +631,7 @@ router.post("/register", upload.fields([
       });
     });
   } catch (error) {
-    // Clean up uploaded files on error
+    // Clean up uploaded files on error (REMOVED ID photo cleanup)
     if (req.files) {
       Object.values(req.files).forEach(fileArray => {
         fileArray.forEach(file => {

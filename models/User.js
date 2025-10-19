@@ -37,6 +37,12 @@ const UserSchema = new mongoose.Schema({
     default: 'Active'
   },
   
+  // REMOVED: ID Verification Field
+  // idPhoto: {
+  //   type: String,
+  //   default: null
+  // },
+  
   // NEW: Login security fields
   loginAttempts: {
     type: Number,
@@ -383,13 +389,13 @@ UserSchema.virtual('profilePictureUrl').get(function() {
   return '/images/default-profile.png';
 });
 
-// Virtual for ID photo URL
-UserSchema.virtual('idPhotoUrl').get(function() {
-  if (this.idVerification?.idPhoto) {
-    return `/uploads/${this.idVerification.idPhoto}`;
-  }
-  return '/images/default-id.png';
-});
+// REMOVED: ID photo URL virtual
+// UserSchema.virtual('idPhotoUrl').get(function() {
+//   if (this.idPhoto) {
+//     return `/uploads/${this.idPhoto}`;
+//   }
+//   return null;
+// });
 
 // Virtual for checking if user is approved
 UserSchema.virtual('isApproved').get(function() {

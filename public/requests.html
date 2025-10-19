@@ -89,9 +89,6 @@
                     <button id="activeRequestsBtn" class="active-archive">Active Requests</button>
                     <button id="archivedRequestsBtn" class="inactive-archive">Scheduled for Pickup</button>
                 </div>
-                <button id="cleanupArchiveBtn" class="cleanup-btn" style="display: none;">
-                    <i class="fas fa-broom"></i> Cleanup Archive
-                </button>
             </div>
 
             <!-- Requests Table Container -->
@@ -245,6 +242,52 @@
         </div>
     </div>
 
+    <!-- Edit Schedule Modal -->
+    <div id="editScheduleModal" class="modal">
+        <div class="claim-modal-content">
+            <div class="claim-modal-header">
+                <h2 class="claim-modal-title">Edit Pickup Schedule</h2>
+                <button class="close-modal" onclick="closeEditScheduleModal()">&times;</button>
+            </div>
+            <form id="editScheduleForm">
+                <input type="hidden" id="editRequestId">
+                <div class="datetime-group">
+                    <div class="form-group">
+                        <label for="editPickupDate">Pickup Date</label>
+                        <input type="date" id="editPickupDate" name="editPickupDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPickupTime">Pickup Time</label>
+                        <select id="editPickupTime" name="editPickupTime" required>
+                            <option value="" disabled selected>Select a time</option>
+                            <option value="08:00">8:00 AM</option>
+                            <option value="09:00">9:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="13:00">1:00 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                        </select>
+                        <small class="office-hours-note">Office hours: 8:00 AM - 4:00 PM</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editPickupNotes">Additional Notes (Optional)</label>
+                    <textarea id="editPickupNotes" name="editPickupNotes" placeholder="Any special instructions or notes..."></textarea>
+                </div>
+                <div class="id-reminder">
+                    <i class="fas fa-id-card"></i>
+                    <span>Please bring a valid ID when claiming your document at the scheduled time.</span>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditScheduleModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Success Modal -->
     <div id="successModal" class="modal">
         <div class="modal-content">
@@ -308,14 +351,35 @@
         });
     });
 
-    // Update greeting and time
+    // CORRECTED: Update greeting and time - FIXED FOR PHILIPPINE TIME
     function updateGreetingAndTime() {
         const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const seconds = now.getSeconds().toString().padStart(2, '0');
-
-        // Set greeting based on time of day
+        
+        // Format using Philippine timezone
+        const options = { 
+            timeZone: 'Asia/Manila',
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric'
+        };
+        
+        const timeOptions = {
+            timeZone: 'Asia/Manila',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        };
+        
+        // Set greeting based on Philippine time
+        const phHours = now.toLocaleString('en-US', { 
+            timeZone: 'Asia/Manila', 
+            hour: '2-digit', 
+            hour12: false 
+        });
+        const hours = parseInt(phHours);
+        
         let greeting;
         if (hours < 12) {
             greeting = "Good Morning";
@@ -325,14 +389,9 @@
             greeting = "Good Evening";
         }
 
-        // Format date
-        const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+        // Format date and time in Philippine Time
         const dateString = now.toLocaleDateString('en-US', options);
-
-        // Format time with AM/PM
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = hours % 12 || 12;
-        const timeString = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+        const timeString = now.toLocaleTimeString('en-US', timeOptions);
 
         // Update DOM elements
         document.getElementById('greetingText').textContent = greeting;
@@ -343,6 +402,53 @@
     // Update time every second
     setInterval(updateGreetingAndTime, 1000);
     updateGreetingAndTime(); // Initial call
+
+    // CORRECTED: Convert UTC to Philippine Time for display
+    function convertToPhilippineTime(utcDateString) {
+        if (!utcDateString) return { date: 'N/A', time: '' };
+        
+        // Create date object from UTC string
+        const utcDate = new Date(utcDateString);
+        
+        // Convert to Philippine Time (UTC+8) using toLocaleString with timezone
+        const options = { 
+            timeZone: 'Asia/Manila',
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        };
+        
+        // Format in Philippine time
+        const phFormatted = utcDate.toLocaleString('en-US', options);
+        
+        // Split into date and time parts
+        const [datePart, timePart] = phFormatted.split(', ');
+        
+        // Reformat date to match your desired format "MMM DD, YYYY"
+        const dateObj = new Date(utcDate.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        const formattedDate = dateObj.toLocaleDateString('en-US', {
+            month: 'short',
+            day: '2-digit',
+            year: 'numeric',
+            timeZone: 'Asia/Manila'
+        });
+        
+        // Get time part
+        const formattedTime = dateObj.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Manila'
+        });
+        
+        return {
+            date: formattedDate,
+            time: formattedTime
+        };
+    }
 
     // Toggle other document input field
     document.getElementById('otherDocument').addEventListener('change', function () {
@@ -548,6 +654,9 @@
         if (event.target === document.getElementById('scheduleClaimModal')) {
             closeScheduleModal();
         }
+        if (event.target === document.getElementById('editScheduleModal')) {
+            closeEditScheduleModal();
+        }
         if (event.target === document.getElementById('successModal')) {
             closeModalAndRedirect();
         }
@@ -558,7 +667,6 @@
     const activeRequestsBtn = document.getElementById('activeRequestsBtn');
     const archivedRequestsBtn = document.getElementById('archivedRequestsBtn');
     const requestsTitle = document.getElementById('requestsTitle');
-    const cleanupArchiveBtn = document.getElementById('cleanupArchiveBtn');
 
     activeRequestsBtn.addEventListener('click', () => {
         showArchive = false;
@@ -579,66 +687,14 @@
             archivedRequestsBtn.classList.remove('inactive-archive');
             archivedRequestsBtn.classList.add('active-archive');
             requestsTitle.textContent = 'Documents Scheduled for Pickup';
-            cleanupArchiveBtn.style.display = 'block';
         } else {
             activeRequestsBtn.classList.remove('inactive-archive');
             activeRequestsBtn.classList.add('active-archive');
             archivedRequestsBtn.classList.remove('active-archive');
             archivedRequestsBtn.classList.add('inactive-archive');
             requestsTitle.textContent = 'Your Document Requests';
-            cleanupArchiveBtn.style.display = 'none';
         }
     }
-
-    // NEW: Cleanup Archive functionality
-    cleanupArchiveBtn.addEventListener('click', async function() {
-        if (!confirm('Are you sure you want to permanently delete all claimed documents from your archive? This action cannot be undone.')) {
-            return;
-        }
-        
-        try {
-            const response = await fetch('/api/requests/cleanup-archive', {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-            
-            // First check if response is OK
-            if (!response.ok) {
-                // Try to parse error as JSON, fallback to text if that fails
-                let errorData;
-                try {
-                    errorData = await response.json();
-                } catch {
-                    const text = await response.text();
-                    throw new Error(text || 'Failed to cleanup archive');
-                }
-                throw new Error(errorData.error || errorData.message || 'Failed to cleanup archive');
-            }
-            
-            // Parse the successful response
-            const result = await response.json();
-            
-            if (!result.success) {
-                throw new Error(result.message || 'Archive cleanup failed');
-            }
-            
-            // Show success message
-            const successMessage = document.getElementById('successMessage');
-            successMessage.textContent = result.message || "Archive cleaned up successfully!";
-            successMessage.style.display = 'block';
-            
-            // Refresh the requests
-            fetchRequests();
-            
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 5000);
-            
-        } catch (error) {
-            console.error('Cleanup error:', error);
-            alert(`Error: ${error.message}`);
-        }
-    });
 
     // Schedule Claim Modal functionality
     let currentClaimRequestId = null;
@@ -648,10 +704,12 @@
         currentClaimRequestId = requestId;
         currentClaimRowElement = rowElement;
         
-        // Set minimum date to today
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('pickupDate').min = today;
-        document.getElementById('pickupDate').value = today;
+        // Set minimum date to today (Philippine Time)
+        const today = new Date();
+        const todayString = today.toISOString().split('T')[0];
+        
+        document.getElementById('pickupDate').min = todayString;
+        document.getElementById('pickupDate').value = todayString;
         
         // Set default time to 8:00 AM
         document.getElementById('pickupTime').value = '08:00';
@@ -669,7 +727,32 @@
         currentClaimRowElement = null;
     }
 
-    // Validate office hours (8 AM - 4 PM)
+    // Edit Schedule Modal functionality
+    function openEditScheduleModal(requestId, rowElement, currentDate, currentTime, currentNotes) {
+        currentClaimRequestId = requestId;
+        currentClaimRowElement = rowElement;
+        
+        // Set minimum date to today (Philippine Time)
+        const today = new Date();
+        const todayString = today.toISOString().split('T')[0];
+        document.getElementById('editPickupDate').min = todayString;
+        
+        // Set current values
+        document.getElementById('editPickupDate').value = currentDate;
+        document.getElementById('editPickupTime').value = currentTime;
+        document.getElementById('editPickupNotes').value = currentNotes || '';
+        
+        // Show modal
+        document.getElementById('editScheduleModal').style.display = 'flex';
+    }
+
+    function closeEditScheduleModal() {
+        document.getElementById('editScheduleModal').style.display = 'none';
+        currentClaimRequestId = null;
+        currentClaimRowElement = null;
+    }
+
+    // Validate office hours (8 AM - 4 PM) - ONLY FOR PICKUP SCHEDULE
     function validateOfficeHours(timeString) {
         const time = timeString.split(':');
         const hours = parseInt(time[0]);
@@ -706,13 +789,35 @@
             return;
         }
         
-        // Validate office hours
+        // Validate office hours - ONLY FOR PICKUP SCHEDULE
         if (!validateOfficeHours(pickupTime)) {
             alert('Please select a time between 8:00 AM and 4:00 PM. Office hours are 8:00 AM to 4:00 PM.');
             return;
         }
         
         await schedulePickup(currentClaimRequestId, currentClaimRowElement, pickupDate, pickupTime, pickupNotes);
+    });
+
+    // Handle edit schedule form submission
+    document.getElementById('editScheduleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const pickupDate = document.getElementById('editPickupDate').value;
+        const pickupTime = document.getElementById('editPickupTime').value;
+        const pickupNotes = document.getElementById('editPickupNotes').value;
+        
+        if (!pickupDate || !pickupTime) {
+            alert('Please select both date and time for pickup');
+            return;
+        }
+        
+        // Validate office hours - ONLY FOR PICKUP SCHEDULE
+        if (!validateOfficeHours(pickupTime)) {
+            alert('Please select a time between 8:00 AM and 4:00 PM. Office hours are 8:00 AM to 4:00 PM.');
+            return;
+        }
+        
+        await updateSchedule(currentClaimRequestId, currentClaimRowElement, pickupDate, pickupTime, pickupNotes);
     });
 
     // Fetch and display requests
@@ -798,6 +903,10 @@
                 let actionsHTML = '';
                 if (request.status === 'Ready to Claim') {
                     actionsHTML = `<button class="action-btn" onclick="openScheduleModal('${request.id}', this.closest('.mobile-request-card'))">Schedule Pickup</button>`;
+                } else if (request.status === 'Scheduled for Pickup') {
+                    actionsHTML = `
+                        <button class="action-btn" onclick="openEditScheduleModal('${request.id}', this.closest('.mobile-request-card'), '${request.scheduledClaimDate}', '${request.scheduledClaimTime}', '${request.pickupNotes || ''}')">Edit Schedule</button>
+                    `;
                 } else if (request.status === 'Rejected') {
                     actionsHTML = `<button class="delete-btn" onclick="deleteRequest('${request.id}', this.closest('.mobile-request-card'))">Delete</button>`;
                 }
@@ -820,6 +929,9 @@
                     detailsHTML += `<div><strong>Scheduled Pickup:</strong> ${request.formattedScheduledDate} at ${request.formattedScheduledTime}</div>`;
                 }
                 
+                // Convert UTC dates to Philippine Time for display - FIXED: Using correct timezone conversion
+                const phTime = convertToPhilippineTime(request.createdAt);
+                
                 card.innerHTML = `
                     <div class="card-row">
                         <span class="card-label">Document Type:</span>
@@ -832,8 +944,8 @@
                     <div class="card-row">
                         <span class="card-label">Date Requested:</span>
                         <span class="card-value">
-                            ${request.formattedDate || 'N/A'}<br>
-                            <small>${request.formattedTime || ''}</small>
+                            ${phTime.date}<br>
+                            <small>${phTime.time}</small>
                         </span>
                     </div>
                     <div class="card-row">
@@ -913,11 +1025,12 @@
                 const purposeCell = row.insertCell();
                 purposeCell.textContent = request.purpose || 'N/A';
 
-                // Date Requested
+                // Date Requested - FIXED: Show actual Philippine time using correct conversion
                 const dateCell = row.insertCell();
+                const phTime = convertToPhilippineTime(request.createdAt);
                 dateCell.innerHTML = `
-                    <div>${request.formattedDate || 'N/A'}</div>
-                    <div style="font-size: 0.8em; color: #666;">${request.formattedTime || ''}</div>
+                    <div>${phTime.date}</div>
+                    <div style="font-size: 0.8em; color: #666;">${phTime.time}</div>
                 `;
 
                 // Status - Updated to include rejection reason
@@ -980,6 +1093,18 @@
                     claimBtn.className = 'action-btn';
                     claimBtn.onclick = () => openScheduleModal(request.id, row);
                     actionsCell.appendChild(claimBtn);
+                } else if (request.status === 'Scheduled for Pickup') {
+                    const editBtn = document.createElement('button');
+                    editBtn.textContent = 'Edit Schedule';
+                    editBtn.className = 'action-btn';
+                    editBtn.onclick = () => openEditScheduleModal(
+                        request.id, 
+                        row, 
+                        request.scheduledClaimDate, 
+                        request.scheduledClaimTime,
+                        request.pickupNotes || ''
+                    );
+                    actionsCell.appendChild(editBtn);
                 } else if (request.status === 'Approved') {
                     actionsCell.textContent = 'Waiting for processing';
                 } else if (request.status === 'Rejected') {
@@ -996,91 +1121,131 @@
     }
 
     async function schedulePickup(requestId, rowElement, pickupDate, pickupTime, pickupNotes) {
-    try {
-        // FIX: Changed endpoint from '/claim' to '/schedule-pickup'
-        const response = await fetch(`/api/requests/${requestId}/schedule-pickup`, {
-            method: 'PUT',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                scheduledClaimDate: pickupDate,
-                scheduledClaimTime: pickupTime,
-                pickupNotes: pickupNotes
-            })
-        });
+        try {
+            const response = await fetch(`/api/requests/${requestId}/schedule-pickup`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    scheduledClaimDate: pickupDate,
+                    scheduledClaimTime: pickupTime,
+                    pickupNotes: pickupNotes
+                })
+            });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to schedule pickup');
-        }
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to schedule pickup');
+            }
 
-        const result = await response.json();
+            const result = await response.json();
 
-        // Close schedule modal
-        closeScheduleModal();
+            // Close schedule modal
+            closeScheduleModal();
 
-        // Show success message
-        const successMessage = document.getElementById('successMessage');
-        successMessage.textContent = result.message || "Pickup scheduled successfully!";
-        successMessage.style.display = 'block';
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = result.message || "Pickup scheduled successfully!";
+            successMessage.style.display = 'block';
 
-        // Remove the row/card immediately for better UX
-        if (rowElement.remove) {
-            rowElement.remove();
-        } else if (rowElement.parentNode) {
-            rowElement.parentNode.removeChild(rowElement);
-        }
+            // Remove the row/card immediately for better UX
+            if (rowElement.remove) {
+                rowElement.remove();
+            } else if (rowElement.parentNode) {
+                rowElement.parentNode.removeChild(rowElement);
+            }
 
-        // Check if we need to show empty state
-        if (window.innerWidth <= 768) {
-            // Mobile view - check mobile cards
-            const mobileCards = document.querySelectorAll('.mobile-request-card');
-            if (mobileCards.length === 0) {
-                const mobileTable = document.getElementById('mobileRequestsTable');
-                if (mobileTable) {
+            // Check if we need to show empty state
+            if (window.innerWidth <= 768) {
+                // Mobile view - check mobile cards
+                const mobileCards = document.querySelectorAll('.mobile-request-card');
+                if (mobileCards.length === 0) {
+                    const mobileTable = document.getElementById('mobileRequestsTable');
+                    if (mobileTable) {
+                        const message = showArchive ? 
+                            "You don't have any documents scheduled for pickup" : 
+                            "You haven't made any requests yet";
+                            
+                        mobileTable.innerHTML = `
+                            <div class="mobile-request-card" style="text-align: center; padding: 40px 20px;">
+                                <p>${message}</p>
+                            </div>
+                        `;
+                    }
+                }
+            } else {
+                // Desktop view - check table rows
+                const tableBody = document.querySelector("#requestsTable tbody");
+                if (tableBody.rows.length === 0) {
                     const message = showArchive ? 
                         "You don't have any documents scheduled for pickup" : 
                         "You haven't made any requests yet";
                         
-                    mobileTable.innerHTML = `
-                        <div class="mobile-request-card" style="text-align: center; padding: 40px 20px;">
-                            <p>${message}</p>
-                        </div>
-                    `;
+                    const row = tableBody.insertRow();
+                    const cell = row.insertCell();
+                    cell.colSpan = 6;
+                    cell.textContent = message;
+                    cell.style.textAlign = "center";
+                    cell.style.padding = "20px";
                 }
             }
-        } else {
-            // Desktop view - check table rows
-            const tableBody = document.querySelector("#requestsTable tbody");
-            if (tableBody.rows.length === 0) {
-                const message = showArchive ? 
-                    "You don't have any documents scheduled for pickup" : 
-                    "You haven't made any requests yet";
-                    
-                const row = tableBody.insertRow();
-                const cell = row.insertCell();
-                cell.colSpan = 6;
-                cell.textContent = message;
-                cell.style.textAlign = "center";
-                cell.style.padding = "20px";
-            }
+
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+                // Refresh the data from server to ensure consistency
+                fetchRequests();
+            }, 5000);
+
+        } catch (error) {
+            console.error('Schedule pickup error:', error);
+            alert(`Error: ${error.message}`);
         }
-
-        setTimeout(() => {
-            successMessage.style.display = 'none';
-            // Refresh the data from server to ensure consistency
-            fetchRequests();
-        }, 5000);
-
-    } catch (error) {
-        console.error('Schedule pickup error:', error);
-        alert(`Error: ${error.message}`);
     }
-}
 
+    async function updateSchedule(requestId, rowElement, pickupDate, pickupTime, pickupNotes) {
+        try {
+            const response = await fetch(`/api/requests/${requestId}/schedule-pickup`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    scheduledClaimDate: pickupDate,
+                    scheduledClaimTime: pickupTime,
+                    pickupNotes: pickupNotes
+                })
+            });
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update schedule');
+            }
+
+            const result = await response.json();
+
+            // Close edit schedule modal
+            closeEditScheduleModal();
+
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = result.message || "Schedule updated successfully!";
+            successMessage.style.display = 'block';
+
+            // Refresh the requests to show updated data
+            fetchRequests();
+
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+
+        } catch (error) {
+            console.error('Update schedule error:', error);
+            alert(`Error: ${error.message}`);
+        }
+    }
 
     async function deleteRequest(requestId, rowElement) {
         if (!confirm('Are you sure you want to delete this rejected request?')) return;

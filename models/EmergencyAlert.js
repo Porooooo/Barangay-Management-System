@@ -21,6 +21,11 @@ const emergencyAlertSchema = new mongoose.Schema({
     emailSentAt: { type: Date }
 });
 
+// Index for better query performance
+emergencyAlertSchema.index({ residentId: 1, createdAt: -1 });
+emergencyAlertSchema.index({ status: 1 });
+emergencyAlertSchema.index({ createdAt: -1 });
+
 const EmergencyAlert = mongoose.model("EmergencyAlert", emergencyAlertSchema);
 
 module.exports = EmergencyAlert;

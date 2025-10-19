@@ -1291,12 +1291,7 @@
             </div>
         </div>
         
-        <!-- Greeting and Time Section -->
-        <div class="greeting-section">
-            <div class="greeting" id="greetingText"></div>
-            <div class="current-date" id="currentDate"></div>
-            <div class="current-time" id="currentTime"></div>
-        </div>
+        
     </nav>
 
     <!-- Emergency Notification -->
@@ -1320,8 +1315,8 @@
         <i class="fas fa-chart-bar"></i>
     </div>
 
-    <!-- Main Content -->
-    <section class="main-content">
+     <!-- Main Content -->
+     <section class="main-content">
         <div class="top">
             <i class="fas fa-bars sidebar-toggle" onclick="toggleMenu()"></i>
             <div class="header-right">
@@ -1329,60 +1324,39 @@
                     <span class="changing-text" id="changingText">Admin Dashboard</span>
                 </div>
                 <!-- Emergency Emblem (Top Right Corner) -->
-    <div class="emergency-emblem" title="Emergency Alerts" onclick="window.location.href='/emergency'">
-        <i class="fas fa-bell"></i>
-        <span class="alert-count" id="emergencyAlertCount">0</span>
-    </div>
-
+                <div class="emergency-emblem" title="Emergency Alerts" onclick="window.location.href='/emergency'">
+                    <i class="fas fa-bell"></i>
+                    <span class="alert-count" id="emergencyAlertCount">0</span>
+                </div>
             </div>
         </div>
     
         <div class="dash-content">
-            <!-- Time Filter Controls -->
-            <div class="filter-controls">
-                <div class="filter-group">
-                    <label for="timeFilter">Time Period</label>
-                    <select id="timeFilter">
-                        <option value="all">All Time</option>
-                        <option value="year">This Year</option>
-                        <option value="month">This Month</option>
-                        <option value="week">This Week</option>
-                        <option value="today">Today</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="yearFilter">Specific Year</label>
-                    <select id="yearFilter">
-                        <option value="">Select Year</option>
-                        <!-- Will be populated by JavaScript -->
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="monthFilter">Specific Month</label>
-                    <select id="monthFilter">
-                        <option value="">Select Month</option>
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="dayFilter">Specific Day</label>
-                    <input type="date" id="dayFilter">
-                </div>
-                <button class="filter-btn" id="applyTimeFilter">
-                    <i class="fas fa-filter"></i> Apply Filter
-                </button>
-            </div>
+            <!-- Updated Time Filter Controls -->
+<div class="filter-controls">
+    <div class="filter-group">
+        <label for="timeFilter">Time Period</label>
+        <select id="timeFilter">
+            <option value="all">All Time</option>
+            <option value="year">This Year</option>
+            <option value="month" selected>This Month</option>
+            <option value="week">This Week</option>
+            <option value="today">Today</option>
+            <option value="custom">Custom Range</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="dateRangeStart">From Date</label>
+        <input type="date" id="dateRangeStart">
+    </div>
+    <div class="filter-group">
+        <label for="dateRangeEnd">To Date</label>
+        <input type="date" id="dateRangeEnd">
+    </div>
+    <button class="filter-btn" id="applyTimeFilter">
+        <i class="fas fa-filter"></i> Apply Filter
+    </button>
+</div>
 
             <!-- Summary Cards -->
             <div class="boxes">
@@ -1681,11 +1655,10 @@
         let currentPage = 1;
         const residentsPerPage = 10;
 
-        // Time filter variables
-        let currentTimeFilter = 'all';
-        let currentYearFilter = '';
-        let currentMonthFilter = '';
-        let currentDayFilter = '';
+        // Time filter variables - UPDATED to default to "All Time"
+        let currentTimeFilter = 'all'; // Default to all time
+        let currentDateRangeStart = ''; // Will be empty for all time
+        let currentDateRangeEnd = ''; // Will be empty for all time
         let historicalData = [];
 
         // Chart instances
@@ -1992,8 +1965,89 @@
             return '65+';
         }
 
-        // Function to get date range based on filter
-        function getDateRange(filter, year, month, day) {
+        // Function to get current month date range
+        function getCurrentMonthRange() {
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            
+            return {
+                start: startOfMonth.toISOString().split('T')[0],
+                end: endOfMonth.toISOString().split('T')[0]
+            };
+        }
+
+        // Function to get current week date range
+        function getCurrentWeekRange() {
+            const now = new Date();
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            endOfWeek.setHours(23, 59, 59, 999);
+            
+            return {
+                start: startOfWeek.toISOString().split('T')[0],
+                end: endOfWeek.toISOString().split('T')[0]
+            };
+        }
+
+        // Function to update date inputs based on selected time filter
+        function updateDateInputs(filter) {
+            const startInput = document.getElementById('dateRangeStart');
+            const endInput = document.getElementById('dateRangeEnd');
+            const now = new Date();
+            
+            switch(filter) {
+                case 'today':
+                    const today = now.toISOString().split('T')[0];
+                    startInput.value = today;
+                    endInput.value = today;
+                    currentDateRangeStart = today;
+                    currentDateRangeEnd = today;
+                    break;
+                    
+                case 'week':
+                    const weekRange = getCurrentWeekRange();
+                    startInput.value = weekRange.start;
+                    endInput.value = weekRange.end;
+                    currentDateRangeStart = weekRange.start;
+                    currentDateRangeEnd = weekRange.end;
+                    break;
+                    
+                case 'month':
+                    const monthRange = getCurrentMonthRange();
+                    startInput.value = monthRange.start;
+                    endInput.value = monthRange.end;
+                    currentDateRangeStart = monthRange.start;
+                    currentDateRangeEnd = monthRange.end;
+                    break;
+                    
+                case 'year':
+                    const yearStart = `${now.getFullYear()}-01-01`;
+                    const yearEnd = `${now.getFullYear()}-12-31`;
+                    startInput.value = yearStart;
+                    endInput.value = yearEnd;
+                    currentDateRangeStart = yearStart;
+                    currentDateRangeEnd = yearEnd;
+                    break;
+                    
+                case 'custom':
+                    // Keep current values for custom range
+                    break;
+                    
+                default: // 'all'
+                    startInput.value = '';
+                    endInput.value = '';
+                    currentDateRangeStart = '';
+                    currentDateRangeEnd = '';
+            }
+        }
+
+        // Function to get date range based on filter - UPDATED
+        function getDateRange(filter, startDateStr, endDateStr) {
             const now = new Date();
             let startDate, endDate;
             
@@ -2003,30 +2057,27 @@
                     endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
                     break;
                 case 'week':
-                    startDate = new Date(now);
-                    startDate.setDate(now.getDate() - now.getDay());
-                    startDate.setHours(0, 0, 0, 0);
-                    endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + 7);
+                    const weekRange = getCurrentWeekRange();
+                    startDate = new Date(weekRange.start);
+                    endDate = new Date(weekRange.end);
+                    endDate.setHours(23, 59, 59, 999);
                     break;
                 case 'month':
-                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                    const monthRange = getCurrentMonthRange();
+                    startDate = new Date(monthRange.start);
+                    endDate = new Date(monthRange.end);
+                    endDate.setHours(23, 59, 59, 999);
                     break;
                 case 'year':
                     startDate = new Date(now.getFullYear(), 0, 1);
                     endDate = new Date(now.getFullYear() + 1, 0, 1);
                     break;
-                case 'specific':
-                    if (year && month && day) {
-                        startDate = new Date(year, month - 1, day);
-                        endDate = new Date(year, month - 1, day + 1);
-                    } else if (year && month) {
-                        startDate = new Date(year, month - 1, 1);
-                        endDate = new Date(year, month, 1);
-                    } else if (year) {
-                        startDate = new Date(year, 0, 1);
-                        endDate = new Date(year + 1, 0, 1);
+                case 'custom':
+                    if (startDateStr && endDateStr) {
+                        startDate = new Date(startDateStr);
+                        endDate = new Date(endDateStr);
+                        // Set end date to end of day
+                        endDate.setHours(23, 59, 59, 999);
                     }
                     break;
                 default: // 'all'
@@ -2045,20 +2096,6 @@
                 const itemDate = new Date(item.createdAt || item.date);
                 return itemDate >= startDate && itemDate < endDate;
             });
-        }
-
-        // Function to populate year dropdown
-        function populateYearDropdown() {
-            const yearSelect = document.getElementById('yearFilter');
-            const currentYear = new Date().getFullYear();
-            
-            // Add years from 2020 to current year
-            for (let year = 2020; year <= currentYear; year++) {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearSelect.appendChild(option);
-            }
         }
 
         // Fetch resident data and update dashboard
@@ -2117,12 +2154,11 @@
                     console.error("Error fetching blotter cases:", error);
                 }
 
-                // Apply time filters
+                // Apply time filters - UPDATED
                 const { startDate, endDate } = getDateRange(
                     currentTimeFilter, 
-                    currentYearFilter, 
-                    currentMonthFilter, 
-                    currentDayFilter
+                    currentDateRangeStart, 
+                    currentDateRangeEnd
                 );
                 
                 const filteredResidents = filterDataByDate(residents, startDate, endDate);
@@ -2517,11 +2553,21 @@
 
         // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            populateYearDropdown();
+            // Set default to "All Time" - empty date inputs
+            document.getElementById('dateRangeStart').value = '';
+            document.getElementById('dateRangeEnd').value = '';
+            document.getElementById('timeFilter').value = currentTimeFilter;
+            
             fetchResidentData();
             
             // Initialize changing text
             initChangingText();
+            
+            // Add event listener for time filter change
+            document.getElementById('timeFilter').addEventListener('change', function() {
+                currentTimeFilter = this.value;
+                updateDateInputs(currentTimeFilter);
+            });
             
             // Add event listeners for chart type buttons
             document.querySelectorAll('.chart-option-btn').forEach(button => {
@@ -2546,12 +2592,19 @@
                 });
             });
             
-            // Add event listener for time filter
+            // Add event listener for time filter button - UPDATED
             document.getElementById('applyTimeFilter').addEventListener('click', function() {
                 currentTimeFilter = document.getElementById('timeFilter').value;
-                currentYearFilter = document.getElementById('yearFilter').value;
-                currentMonthFilter = document.getElementById('monthFilter').value;
-                currentDayFilter = document.getElementById('dayFilter').value;
+                
+                // For custom range, get values from inputs
+                if (currentTimeFilter === 'custom') {
+                    currentDateRangeStart = document.getElementById('dateRangeStart').value;
+                    currentDateRangeEnd = document.getElementById('dateRangeEnd').value;
+                } else {
+                    // For other filters, ensure date ranges are cleared
+                    currentDateRangeStart = '';
+                    currentDateRangeEnd = '';
+                }
                 
                 fetchResidentData();
             });

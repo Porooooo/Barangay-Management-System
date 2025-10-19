@@ -492,6 +492,25 @@
             background-color: #1c6ea4;
         }
 
+        /* Export Button */
+.export-btn {
+    background-color: var(--primary); /* Changed from #28a745 to primary blue */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.export-btn:hover {
+    background-color: #1c6ea4; /* Darker blue on hover */
+    transform: translateY(-2px);
+}
         /* Notification */
         .notification {
             position: fixed;
@@ -750,6 +769,9 @@
     
     <!-- Load socket.io client -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- Load jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <!-- Sidebar -->
@@ -819,17 +841,20 @@
             </div>
             
             <!-- Archive Toggle -->
-            <div class="archive-controls">
-                <div class="archive-toggle">
-                    <button id="activeRequestsBtn" class="active-archive">Active Requests</button>
-                    <button id="archivedRequestsBtn" class="inactive-archive">Archive</button>
-                </div>
-                <div>
-                    <button id="cleanupArchive" class="cleanup-btn">
-                        <i class="fas fa-broom"></i> Cleanup Archive
-                    </button>
-                </div>
-            </div>
+<div class="archive-controls">
+    <div class="archive-toggle">
+        <button id="activeRequestsBtn" class="active-archive">Active Requests</button>
+        <button id="archivedRequestsBtn" class="inactive-archive">Archive</button>
+    </div>
+    <div>
+        <button id="exportPDF" class="export-btn" style="display: none;">
+            <i class="fas fa-file-pdf"></i> Export to PDF
+        </button>
+        <button id="cleanupArchive" class="cleanup-btn" style="display: none;">
+            <i class="fas fa-broom"></i> Cleanup Archive
+        </button>
+    </div>
+</div>
             
             <!-- Filter Controls -->
             <div class="filter-controls">
@@ -990,6 +1015,7 @@
     const selectedReadyBtn = document.getElementById('selectedReadyBtn');
     const selectedClaimBtn = document.getElementById('selectedClaimBtn');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const exportPDF = document.getElementById('exportPDF');
 
     let currentFilters = {
         search: '',
@@ -1040,6 +1066,7 @@
 
         cleanupArchive.addEventListener('click', cleanupArchiveHandler);
         sidebarLogoutBtn.addEventListener('click', openLogoutModal);
+        exportPDF.addEventListener('click', exportRequestsToPDF);
         
         selectedApproveBtn.addEventListener('click', () => {
             if (selectedRequestIds.size > 0) {
@@ -1069,20 +1096,21 @@
     }
 
     function updateArchiveUI() {
-        const isArchive = currentFilters.archive;
-        activeRequestsBtn.classList.toggle('active-archive', !isArchive);
-        activeRequestsBtn.classList.toggle('inactive-archive', isArchive);
-        archivedRequestsBtn.classList.toggle('active-archive', isArchive);
-        archivedRequestsBtn.classList.toggle('inactive-archive', !isArchive);
-        
-        // Show/hide cleanup button based on archive mode
-        cleanupArchive.style.display = isArchive ? 'flex' : 'none';
-        
-        // Hide action buttons in archive mode
-        if (isArchive) {
-            hideSelectedRequestActions();
-        }
+    const isArchive = currentFilters.archive;
+    activeRequestsBtn.classList.toggle('active-archive', !isArchive);
+    activeRequestsBtn.classList.toggle('inactive-archive', isArchive);
+    archivedRequestsBtn.classList.toggle('active-archive', isArchive);
+    archivedRequestsBtn.classList.toggle('inactive-archive', !isArchive);
+    
+    // Show/hide cleanup button and export PDF button based on archive mode
+    cleanupArchive.style.display = isArchive ? 'flex' : 'none';
+    exportPDF.style.display = isArchive ? 'flex' : 'none';
+    
+    // Hide action buttons in archive mode
+    if (isArchive) {
+        hideSelectedRequestActions();
     }
+}
 
     async function cleanupArchiveHandler() {
         if (!confirm('WARNING: This will permanently delete ALL archived requests. Continue?')) {
@@ -1547,6 +1575,260 @@
                 </td>
             </tr>
         `;
+    }
+
+    // PDF Export Function
+    function exportRequestsToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Load and add barangay logo
+        const logo = new Image();
+        logo.src = '/images/barangay-bg.png';
+        
+        logo.onload = function() {
+            // Add barangay logo (top left)
+            doc.addImage(logo, 'PNG', 15, 10, 25, 25);
+
+            // Add title
+            doc.setFontSize(20);
+            doc.setTextColor(13, 79, 139);
+            doc.text('DOCUMENT REQUESTS REPORT', 105, 25, { align: 'center' });
+
+            // Add date and filter info
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 35, { align: 'center' });
+            
+            // Add filter information if any filters are applied
+            let filterInfo = 'All Requests';
+            if (currentFilters.archive) {
+                filterInfo = 'Archived Requests';
+            } else {
+                filterInfo = 'Active Requests';
+            }
+            
+            if (currentFilters.status) {
+                filterInfo += ` | Status: ${currentFilters.status}`;
+            }
+            if (currentFilters.documentType) {
+                filterInfo += ` | Document Type: ${currentFilters.documentType}`;
+            }
+            if (currentFilters.startDate && currentFilters.endDate) {
+                filterInfo += ` | Date Range: ${currentFilters.startDate} to ${currentFilters.endDate}`;
+            }
+            
+            doc.text(filterInfo, 105, 42, { align: 'center' });
+
+            // Add table heading
+            doc.setFontSize(14);
+            doc.text('REQUEST DETAILS', 15, 55);
+
+            // Prepare table data
+            const tableData = allRequests.map(request => {
+                const userProfile = request.userProfile || {
+                    fullName: request.fullName || 'Unknown User'
+                };
+
+                return [
+                    userProfile.fullName,
+                    request.address || 'N/A',
+                    request.documentType || 'N/A',
+                    request.purpose || 'N/A',
+                    request.formattedDate || 'N/A',
+                    request.status || 'Pending',
+                    request.scheduledClaimDate ? 
+                        `${request.formattedScheduledDate} ${request.formattedScheduledTime}` : 
+                        'Not scheduled'
+                ];
+            });
+
+            // Add table
+            doc.autoTable({
+                head: [['Name', 'Address', 'Document Type', 'Purpose', 'Date Requested', 'Status', 'Scheduled Pickup']],
+                body: tableData,
+                startY: 60,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [13, 79, 139],
+                    textColor: 255,
+                    fontStyle: 'bold'
+                },
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2,
+                    overflow: 'linebreak',
+                    cellWidth: 'wrap'
+                },
+                margin: { left: 10, right: 10 },
+                pageBreak: 'auto'
+            });
+
+            // Get final Y position after table
+            const finalY = doc.lastAutoTable.finalY + 10;
+
+            // Add summary statistics
+            const totalRequests = allRequests.length;
+            const statusCounts = {};
+            allRequests.forEach(request => {
+                const status = request.status || 'Pending';
+                statusCounts[status] = (statusCounts[status] || 0) + 1;
+            });
+
+            // Add summary section
+            doc.setFontSize(12);
+            doc.setTextColor(13, 79, 139);
+            doc.text('SUMMARY STATISTICS', 15, finalY + 5);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            let summaryY = finalY + 15;
+            
+            doc.text(`Total Requests: ${totalRequests}`, 15, summaryY);
+            summaryY += 7;
+            
+            Object.entries(statusCounts).forEach(([status, count]) => {
+                doc.text(`${status}: ${count} (${((count / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+                summaryY += 7;
+            });
+
+            // Add footer with prepared by section
+            if (summaryY < 250) {
+                doc.setFontSize(10);
+                doc.text('Prepared by: _________________________', 15, summaryY + 10);
+                doc.text('Barangay Secretary', 15, summaryY + 20);
+            } else {
+                // Add new page for footer if no space
+                doc.addPage();
+                doc.setFontSize(10);
+                doc.text('Prepared by: _________________________', 15, 20);
+                doc.text('Barangay Secretary', 15, 30);
+            }
+
+            // Save the PDF
+            const fileName = `document-requests-${currentFilters.archive ? 'archive' : 'active'}-${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+        };
+
+        // If logo fails to load, generate PDF without logo
+        logo.onerror = function() {
+            console.error('Failed to load logo image');
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.setTextColor(13, 79, 139);
+            doc.text('DOCUMENT REQUESTS REPORT', 105, 20, { align: 'center' });
+
+            // Add date and filter info
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
+            
+            let filterInfo = 'All Requests';
+            if (currentFilters.archive) {
+                filterInfo = 'Archived Requests';
+            } else {
+                filterInfo = 'Active Requests';
+            }
+            
+            if (currentFilters.status) {
+                filterInfo += ` | Status: ${currentFilters.status}`;
+            }
+            if (currentFilters.documentType) {
+                filterInfo += ` | Document Type: ${currentFilters.documentType}`;
+            }
+            
+            doc.text(filterInfo, 105, 37, { align: 'center' });
+
+            // Add table heading
+            doc.setFontSize(14);
+            doc.text('REQUEST DETAILS', 15, 50);
+
+            // Prepare table data
+            const tableData = allRequests.map(request => {
+                const userProfile = request.userProfile || {
+                    fullName: request.fullName || 'Unknown User'
+                };
+
+                return [
+                    userProfile.fullName,
+                    request.address || 'N/A',
+                    request.documentType || 'N/A',
+                    request.purpose || 'N/A',
+                    request.formattedDate || 'N/A',
+                    request.status || 'Pending',
+                    request.scheduledClaimDate ? 
+                        `${request.formattedScheduledDate} ${request.formattedScheduledTime}` : 
+                        'Not scheduled'
+                ];
+            });
+
+            // Add table
+            doc.autoTable({
+                head: [['Name', 'Address', 'Document Type', 'Purpose', 'Date Requested', 'Status', 'Scheduled Pickup']],
+                body: tableData,
+                startY: 55,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [13, 79, 139],
+                    textColor: 255,
+                    fontStyle: 'bold'
+                },
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2,
+                    overflow: 'linebreak',
+                    cellWidth: 'wrap'
+                },
+                margin: { left: 10, right: 10 },
+                pageBreak: 'auto'
+            });
+
+            // Get final Y position after table
+            const finalY = doc.lastAutoTable.finalY + 10;
+
+            // Add summary statistics
+            const totalRequests = allRequests.length;
+            const statusCounts = {};
+            allRequests.forEach(request => {
+                const status = request.status || 'Pending';
+                statusCounts[status] = (statusCounts[status] || 0) + 1;
+            });
+
+            // Add summary section
+            doc.setFontSize(12);
+            doc.setTextColor(13, 79, 139);
+            doc.text('SUMMARY STATISTICS', 15, finalY + 5);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            let summaryY = finalY + 15;
+            
+            doc.text(`Total Requests: ${totalRequests}`, 15, summaryY);
+            summaryY += 7;
+            
+            Object.entries(statusCounts).forEach(([status, count]) => {
+                doc.text(`${status}: ${count} (${((count / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+                summaryY += 7;
+            });
+
+            // Add footer with prepared by section
+            if (summaryY < 250) {
+                doc.setFontSize(10);
+                doc.text('Prepared by: _________________________', 15, summaryY + 10);
+                doc.text('Barangay Secretary', 15, summaryY + 20);
+            } else {
+                // Add new page for footer if no space
+                doc.addPage();
+                doc.setFontSize(10);
+                doc.text('Prepared by: _________________________', 15, 20);
+                doc.text('Barangay Secretary', 15, 30);
+            }
+
+            // Save the PDF
+            const fileName = `document-requests-${currentFilters.archive ? 'archive' : 'active'}-${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+        };
     }
 
     function toggleMenu() {

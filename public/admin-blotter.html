@@ -866,11 +866,11 @@
             <!-- Blotter Table -->
             <div class="table-container">
                 <div class="table-header">
-                    <h2 id="tableTitle">Select a status to view cases</h2>
-                    <div id="currentFilter" class="current-filter" style="display: none;"></div>
+                    <h2 id="tableTitle">Pending Cases</h2>
+                    <div id="currentFilter" class="current-filter">Filter: Pending Cases</div>
                 </div>
                 <div id="blotterTableContainer">
-                    <div id="initialState" class="initial-state">
+                    <div id="initialState" class="initial-state" style="display: none;">
                         <i class="fas fa-shield-alt"></i>
                         <h3>No Status Selected</h3>
                         <p>Click on one of the status cards above to view cases</p>
@@ -1056,6 +1056,11 @@
                     searchBlotters();
                 }
             });
+            
+            // Automatically show pending cases on page load
+            setTimeout(() => {
+                filterByStatus('pending');
+            }, 500);
         });
 
         function checkAuthStatus() {

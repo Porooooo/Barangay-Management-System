@@ -13,20 +13,20 @@
         .changing-text-container {
             display: flex;
             align-items: center;
-            justify-content: center; /* Center the text */
+            justify-content: center;
             min-height: 45px;
             overflow: hidden;
-            flex: 1; /* Take up available space */
-            position: absolute; /* Position absolutely */
-            left: 50%; /* Center horizontally */
-            transform: translateX(-50%); /* Adjust for exact center */
+            flex: 1;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .changing-text {
             font-size: 20px;
             font-weight: 600;
             color: var(--primary);
-            text-align: center; /* Keep text centered */
+            text-align: center;
             transition: all 0.5s ease-in-out;
             opacity: 1;
             transform: translateY(0);
@@ -39,7 +39,7 @@
 
         /* Make sure the top section has relative positioning */
         .top {
-            position: relative; /* Needed for absolute positioning of child */
+            position: relative;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -80,21 +80,275 @@
         }
 
         /* Default state - no animation */
-.notification-icon.emergency .fa-bell {
-    animation: none;
-}
+        .notification-icon.emergency .fa-bell {
+            animation: none;
+        }
 
-/* Animate only on hover */
-.notification-icon.emergency:hover .fa-bell {
-    animation: shake 0.5s ease-in-out;
-}
+        /* Animate only on hover */
+        .notification-icon.emergency:hover .fa-bell {
+            animation: shake 0.5s ease-in-out;
+        }
 
-@keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(5deg); }
-    50% { transform: rotate(-5deg); }
-    75% { transform: rotate(5deg); }
-}
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        /* Updated Emergency Modal Styles - More Compact */
+        .emergency-modal-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .emergency-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .emergency-tab.active {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .emergency-tab:first-child {
+            border-radius: 4px 0 0 0;
+        }
+
+        .emergency-tab:last-child {
+            border-radius: 0 4px 0 0;
+        }
+
+        .emergency-tab-content {
+            display: none;
+        }
+
+        .emergency-tab-content.active {
+            display: block;
+        }
+
+        /* Compact Emergency History Styles */
+        .emergency-history-container {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .emergency-history-item {
+            border-left: 3px solid #e74c3c;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #f8f9fa;
+            border-radius: 0 6px 6px 0;
+            font-size: 14px;
+        }
+
+        .emergency-history-item.resolved {
+            border-left-color: #28a745;
+        }
+
+        .emergency-history-item.acknowledged {
+            border-left-color: #ffc107;
+        }
+
+        .emergency-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .emergency-status {
+            padding: 3px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-acknowledged { background: #d1ecf1; color: #0c5460; }
+        .status-resolved { background: #d4edda; color: #155724; }
+
+        .emergency-date {
+            color: #6c757d;
+            font-size: 11px;
+        }
+
+        .emergency-message {
+            margin: 6px 0;
+            color: #495057;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .admin-response {
+            background: white;
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 6px;
+            border-left: 2px solid #007bff;
+            font-size: 13px;
+        }
+
+        .response-label {
+            font-weight: 600;
+            color: #007bff;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .no-response {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 12px;
+        }
+
+        /* Compact New Alert Form Styles */
+        .emergency-form {
+            margin-bottom: 15px;
+        }
+
+        .emergency-form textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            resize: vertical;
+            font-family: inherit;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .emergency-info {
+            background: #fff3cd;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 12px;
+            border-left: 3px solid #ffc107;
+            font-size: 13px;
+        }
+
+        .emergency-info i {
+            color: #856404;
+            margin-right: 6px;
+        }
+
+        /* Make modal content more compact */
+        .modal-content {
+            max-width: 500px !important;
+            padding: 20px !important;
+        }
+
+        .modal-content h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        /* Compact buttons */
+        .btn-secondary, .btn-danger, .btn-primary, .view-button {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* Button styles */
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #0069d9;
+        }
+
+        .view-button {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 6px 10px;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .view-button:hover {
+            background: #138496;
+        }
 
         /* Hide changing text on mobile */
         @media (max-width: 768px) {
@@ -109,6 +363,55 @@
             .header-right {
                 flex: 1;
                 justify-content: flex-end;
+            }
+
+            .emergency-modal-tabs {
+                flex-direction: column;
+            }
+
+            .emergency-tab {
+                border-radius: 4px !important;
+                margin-bottom: 4px;
+            }
+            
+            .modal-content {
+                max-width: 90% !important;
+                margin: 10% auto;
+                padding: 15px !important;
+            }
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 480px) {
+            .emergency-history-container {
+                max-height: 200px;
+            }
+            
+            .emergency-history-item {
+                padding: 10px;
+            }
+
+            .emergency-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            
+            .modal-content {
+                padding: 12px !important;
+            }
+            
+            .emergency-form textarea {
+                height: 90px;
+            }
+            
+            .header-right {
+                gap: 10px;
+            }
+            
+            .notification-icon.emergency {
+                width: 36px;
+                height: 36px;
             }
         }
     </style>
@@ -141,13 +444,11 @@
                         <span class="link-name">Request Document</span>
                     </a></li>
 
-                
-
                 <li><a href="/announcement">
                         <i class="fas fa-bell"></i>
                         <span class="link-name">Announcements</span>
                     </a></li>
-                    <li><a href="/blotter">
+                <li><a href="/blotter">
                         <i class="fas fa-shield-alt"></i>
                         <span class="link-name">Blotter</span>
                     </a></li>
@@ -222,7 +523,7 @@
                 </div>
             </div>
 
-            <!-- Recent Activity Section -->
+            <!-- Recent Activity Section (UNCHANGED) -->
             <div class="activity-section">
                 <div class="title">
                     <i class="fas fa-clock"></i>
@@ -239,7 +540,6 @@
                         </tr>
                     </thead>
                     <tbody id="recentActivity">
-                        <!-- Activity data will be populated by JavaScript -->
                         <tr>
                             <td colspan="5" style="text-align: center; padding: 20px;">No recent activity</td>
                         </tr>
@@ -249,13 +549,75 @@
         </div>
     </section>
 
-    <!-- Emergency Modal -->
+    <!-- Emergency Modal with Tabs -->
     <div id="emergencyModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeEmergencyModal()">&times;</span>
-            <h2>Send Emergency Alert</h2>
-            <textarea id="emergencyMessage" placeholder="Describe your emergency..."></textarea>
-            <button onclick="sendEmergencyAlert()">Send Alert</button>
+            <h2>🚨 Emergency Alerts</h2>
+            
+            <div class="emergency-modal-tabs">
+                <button class="emergency-tab active" onclick="switchEmergencyTab('new-alert')">
+                    <i class="fas fa-plus-circle"></i> New Alert
+                </button>
+                <button class="emergency-tab" onclick="switchEmergencyTab('history')">
+                    <i class="fas fa-history"></i> Alert History
+                </button>
+            </div>
+
+            <!-- New Alert Tab -->
+            <div id="new-alert-tab" class="emergency-tab-content active">
+                <div class="emergency-form">
+                    <div class="emergency-info">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        This will notify barangay admin immediately. Use only for real emergencies.
+                    </div>
+                    
+                    <label for="emergencyMessageInput" style="display: block; margin-bottom: 8px; font-weight: 500;">
+                        Describe your emergency:
+                    </label>
+                    <textarea 
+                        id="emergencyMessageInput" 
+                        placeholder="Please describe your emergency situation in detail...&#10;"
+                    ></textarea>
+                    
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i>
+                        Admin will respond within 1 minute. If no response, your emergency will be sent to barangay email.
+                    </p>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn-secondary" onclick="closeEmergencyModal()" style="flex: 1;">
+                            Cancel
+                        </button>
+                        <button class="btn-danger" onclick="sendEmergencyAlertFromModal()" style="flex: 2;">
+                            <i class="fas fa-bell"></i> Send Emergency Alert
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="history-tab" class="emergency-tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; font-size: 18px;">Your Emergency Alerts</h3>
+                    <button class="view-button" onclick="loadEmergencyHistory()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                
+                <div class="emergency-history-container" id="emergencyHistory">
+                    <div style="text-align: center; padding: 40px; color: #6c757d;">
+                        <i class="fas fa-bell-slash" style="font-size: 48px; margin-bottom: 15px;"></i>
+                        <p>No emergency alerts sent yet</p>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="btn-primary" onclick="switchEmergencyTab('new-alert')">
+                        <i class="fas fa-plus"></i> Send New Alert
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -285,6 +647,9 @@
         let currentTextIndex = 0;
         let changingTextElement;
         let changingTextInterval;
+
+        // Emergency alerts data
+        let emergencyAlerts = [];
 
         function initChangingText() {
             // Check if we're on mobile - don't show changing text on mobile
@@ -356,6 +721,400 @@
             }
         }
 
+        // Emergency Modal Functions
+        function openEmergencyModal() {
+            const modal = document.getElementById('emergencyModal');
+            modal.style.display = 'block';
+            
+            // Ensure modal is properly sized
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.style.maxWidth = '500px';
+            
+            // Load emergency history when modal opens
+            loadEmergencyHistory();
+        }
+
+        function closeEmergencyModal() {
+            document.getElementById('emergencyModal').style.display = 'none';
+            // Clear the message input
+            document.getElementById('emergencyMessageInput').value = '';
+        }
+
+        // FIXED: switchEmergencyTab function - added event parameter and null check
+        function switchEmergencyTab(tabName, event = null) {
+            // Hide all tab contents
+            document.querySelectorAll('.emergency-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.emergency-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked tab if event exists
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // If no event, find the tab button and activate it
+                const tabButton = document.querySelector(`.emergency-tab[onclick*="${tabName}"]`);
+                if (tabButton) {
+                    tabButton.classList.add('active');
+                }
+            }
+            
+            // If switching to history tab, refresh the history
+            if (tabName === 'history') {
+                loadEmergencyHistory();
+            }
+        }
+
+        // Load emergency alert history - FIXED VERSION
+        async function loadEmergencyHistory() {
+            try {
+                console.log('Loading emergency history...');
+                const response = await authFetch('/api/emergency/my-alerts');
+                
+                if (!response) {
+                    console.error('No response from server - authentication may have failed');
+                    showError('Authentication failed. Please refresh the page.');
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('Emergency history response:', data);
+                
+                if (response.ok && data.success) {
+                    emergencyAlerts = data.alerts || [];
+                    displayEmergencyHistory();
+                } else {
+                    console.error('Failed to load emergency history:', data.error);
+                    
+                    // Try alternative method if main endpoint fails
+                    const userId = localStorage.getItem('userId');
+                    if (userId) {
+                        console.log('Trying alternative endpoint with user ID:', userId);
+                        await loadEmergencyHistoryAlternative(userId);
+                    } else {
+                        showError('Failed to load emergency history: ' + (data.error || 'Unknown error'));
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading emergency history:', error);
+                showError('Error loading emergency history: ' + error.message);
+            }
+        }
+
+        // Alternative method to load emergency history
+        async function loadEmergencyHistoryAlternative(userId) {
+            try {
+                const response = await authFetch(`/api/emergency/user/${userId}/alerts`);
+                if (!response) return;
+
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    emergencyAlerts = data.alerts || [];
+                    displayEmergencyHistory();
+                } else {
+                    showError('Failed to load emergency history');
+                }
+            } catch (error) {
+                console.error('Error in alternative history load:', error);
+                showError('Unable to load emergency history');
+            }
+        }
+
+        // Display emergency alert history
+        function displayEmergencyHistory() {
+            const historyContainer = document.getElementById('emergencyHistory');
+            
+            if (emergencyAlerts.length === 0) {
+                historyContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6c757d;">
+                        <i class="fas fa-bell-slash" style="font-size: 48px; margin-bottom: 15px;"></i>
+                        <p>No emergency alerts sent yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort alerts by date (newest first) and filter out resolved alerts
+            const sortedAlerts = emergencyAlerts
+                .filter(alert => alert.status !== 'resolved') // Remove resolved alerts
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            historyContainer.innerHTML = sortedAlerts.map(alert => {
+                const alertDate = new Date(alert.createdAt).toLocaleString();
+                let statusClass = 'status-pending';
+                let itemClass = '';
+                
+                if (alert.status === 'acknowledged') {
+                    statusClass = 'status-acknowledged';
+                    itemClass = 'acknowledged';
+                } else if (alert.status === 'resolved') {
+                    statusClass = 'status-resolved';
+                    itemClass = 'resolved';
+                }
+                
+                return `
+                    <div class="emergency-history-item ${itemClass}">
+                        <div class="emergency-header">
+                            <span class="emergency-status ${statusClass}">${alert.status.toUpperCase()}</span>
+                            <span class="emergency-date">${alertDate}</span>
+                        </div>
+                        <div class="emergency-message">
+                            <strong>Your Alert:</strong> ${alert.message}
+                        </div>
+                        ${alert.adminResponse ? `
+                            <div class="admin-response">
+                                <div class="response-label">Admin Response:</div>
+                                <div>${alert.adminResponse}</div>
+                                ${alert.acknowledgedAt ? `
+                                    <div style="font-size: 12px; color: #6c757d; margin-top: 5px;">
+                                        Responded: ${new Date(alert.acknowledgedAt).toLocaleString()}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : `
+                            <div class="admin-response">
+                                <div class="no-response">Waiting for admin response...</div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+
+            // Show message if all alerts are resolved
+            if (sortedAlerts.length === 0) {
+                historyContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #6c757d;">
+                        <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 15px; color: #28a745;"></i>
+                        <p>All your emergency alerts have been resolved</p>
+                        <p style="font-size: 14px; margin-top: 10px;">You can send a new emergency alert if needed</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Enhanced send emergency alert with modal feedback - FIXED VERSION
+        async function sendEmergencyAlertFromModal() {
+            const messageInput = document.getElementById('emergencyMessageInput');
+            const message = messageInput ? messageInput.value.trim() : '';
+
+            if (!message) {
+                showError('Please describe your emergency situation before sending the alert.');
+                return;
+            }
+
+            // Show loading state with compact styling
+            const sendButton = document.querySelector('.btn-danger');
+            const originalText = sendButton.innerHTML;
+            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            sendButton.disabled = true;
+            sendButton.style.padding = '8px 12px';
+            sendButton.style.fontSize = '14px';
+
+            try {
+                const userEmail = localStorage.getItem('userEmail');
+                console.log('Sending emergency alert for user:', userEmail);
+                
+                const response = await authFetch('/api/emergency/send', {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        email: userEmail, 
+                        message: message 
+                    })
+                });
+
+                if (!response) {
+                    throw new Error('No response from server');
+                }
+
+                const data = await response.json();
+                console.log('Send alert response:', data);
+                
+                if (response.ok && data.success) {
+                    showSuccess('Emergency alert sent successfully! Barangay officials have been notified and will respond within 1 minute.');
+                    
+                    // Clear the message input
+                    document.getElementById('emergencyMessageInput').value = '';
+                    
+                    // Add the new alert to local state
+                    if (data.alert) {
+                        emergencyAlerts.unshift(data.alert);
+                        displayEmergencyHistory();
+                    }
+                    
+                    // FIXED: Switch to history tab without event parameter
+                    switchEmergencyTab('history');
+                    
+                    // Close modal after successful send
+                    setTimeout(() => {
+                        closeEmergencyModal();
+                    }, 2000);
+                    
+                } else {
+                    throw new Error(data.error || 'Failed to send emergency alert');
+                }
+            } catch (error) {
+                console.error('Error sending emergency alert:', error);
+                showError('Failed to send emergency alert: ' + error.message);
+            } finally {
+                // Restore button state
+                sendButton.innerHTML = originalText;
+                sendButton.disabled = false;
+            }
+        }
+
+        // Enhanced notification for emergency responses
+        function showEmergencyResponseNotification(message, alertId) {
+            // Create a prominent notification for emergency responses
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #007bff;
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                max-width: 400px;
+                border-left: 5px solid #0056b3;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <i class="fas fa-bell" style="font-size: 24px; margin-top: 2px;"></i>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 8px 0; font-size: 16px;">🚨 Emergency Response Received</h4>
+                        <p style="margin: 0; font-size: 14px; line-height: 1.4;">${message}</p>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                style="margin-top: 10px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            // Auto remove after 10 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 10000);
+
+            // Update the specific alert in the history
+            const alertIndex = emergencyAlerts.findIndex(alert => alert._id === alertId);
+            if (alertIndex !== -1) {
+                emergencyAlerts[alertIndex].adminResponse = message;
+                emergencyAlerts[alertIndex].status = 'acknowledged';
+                emergencyAlerts[alertIndex].acknowledgedAt = new Date();
+                displayEmergencyHistory();
+            }
+
+            // Also show browser notification
+            if (Notification.permission === "granted") {
+                new Notification("🚨 Emergency Response", {
+                    body: message,
+                    icon: '/images/barangay-bg.png',
+                    tag: 'emergency-response'
+                });
+            }
+        }
+
+        // Handle alert resolution
+        function handleAlertResolved(alertId) {
+            // Remove resolved alert from local state
+            const alertIndex = emergencyAlerts.findIndex(alert => alert._id === alertId);
+            if (alertIndex !== -1) {
+                emergencyAlerts.splice(alertIndex, 1);
+                displayEmergencyHistory();
+                
+                // Show resolution notification
+                showSuccess('Your emergency alert has been resolved by the admin.');
+            }
+        }
+
+        // Simple notification functions
+        function showSuccess(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                max-width: 400px;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-check-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function showError(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #e74c3c;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                max-width: 400px;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Debug function to check authentication
+        async function debugAuth() {
+            try {
+                const response = await authFetch('/api/emergency/debug/session');
+                if (response) {
+                    const data = await response.json();
+                    console.log('Debug session info:', data);
+                }
+            } catch (error) {
+                console.error('Debug auth error:', error);
+            }
+        }
+
         // Toggle sidebar menu
         function toggleMenu() {
             const sidebar = document.querySelector('.sidebar');
@@ -393,11 +1152,6 @@
         // Toggle profile dropdown
         function toggleProfileDropdown() {
             document.getElementById('profileDropdown').classList.toggle('active');
-        }
-
-        // Toggle notifications (now emergency button)
-        function toggleNotifications() {
-            openEmergencyModal();
         }
 
         // Close dropdown when clicking outside
@@ -454,19 +1208,27 @@
         let viewedAnnouncements = JSON.parse(localStorage.getItem('viewedAnnouncements')) || [];
 
         async function authFetch(url, options = {}) {
-            const response = await fetch(url, {
-                ...options,
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    }
+                });
+                
+                if (response.status === 401) {
+                    console.log('Authentication failed, redirecting to login');
+                    window.location.href = "/";
+                    return null;
                 }
-            });
-            if (response.status === 401) {
-                window.location.href = "/";
+                
+                return response;
+            } catch (error) {
+                console.error('Auth fetch error:', error);
                 return null;
             }
-            return response;
         }
 
         async function fetchResidentData() {
@@ -617,169 +1379,6 @@
             }
         }
 
-        // Modal System for Resident Dashboard
-        const residentModal = {
-            show: function (type, title, message, buttons = []) {
-                // Close any existing modal first
-                this.hideAll();
-
-                const modalOverlay = document.createElement('div');
-                modalOverlay.className = `modal-overlay ${type}-modal`;
-                modalOverlay.id = 'residentModalOverlay';
-                modalOverlay.innerHTML = `
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2>${title}</h2>
-                            <button class="modal-close" onclick="residentModal.hide(this)">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            ${message}
-                        </div>
-                        ${buttons.length > 0 ? `
-                        <div class="modal-footer">
-                            ${buttons.map(btn => `
-                                <button class="btn ${btn.class || 'btn-primary'}" onclick="${btn.onclick}">
-                                    ${btn.text}
-                                </button>
-                            `).join('')}
-                        </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                document.body.appendChild(modalOverlay);
-                modalOverlay.style.display = 'flex';
-
-                modalOverlay.addEventListener('click', function (e) {
-                    if (e.target === modalOverlay) {
-                        residentModal.hide(this);
-                    }
-                });
-
-                return modalOverlay;
-            },
-
-            hide: function (element) {
-                const modal = element.closest('.modal-overlay') || element;
-                if (modal) {
-                    modal.style.animation = 'modalSlideOut 0.3s ease-out';
-                    setTimeout(() => {
-                        if (modal.parentNode) {
-                            modal.parentNode.removeChild(modal);
-                        }
-                    }, 300);
-                }
-            },
-
-            hideAll: function () {
-                const modals = document.querySelectorAll('.modal-overlay');
-                modals.forEach(modal => this.hide(modal));
-            },
-
-            success: function (message, title = 'Success') {
-                return this.show('success', title, `<p>${message}</p>`, [
-                    { text: 'OK', class: 'btn-success', onclick: 'residentModal.hide(this)' }
-                ]);
-            },
-
-            error: function (message, title = 'Error') {
-                return this.show('error', title, `<p>${message}</p>`, [
-                    { text: 'OK', class: 'btn-danger', onclick: 'residentModal.hide(this)' }
-                ]);
-            },
-
-            info: function (message, title = 'Information') {
-                return this.show('info', title, `<p>${message}</p>`, [
-                    { text: 'OK', class: 'btn-primary', onclick: 'residentModal.hide(this)' }
-                ]);
-            }
-        };
-
-        // Enhanced emergency modal
-        function openEmergencyModal() {
-            residentModal.show('emergency', '🚨 Send Emergency Alert', `
-                <div style="margin-bottom: 15px;">
-                    <p style="color: #e74c3c; font-weight: 500; margin-bottom: 10px;">
-                        <i class="fas fa-exclamation-triangle"></i> 
-                        This will notify barangay admin immediately.
-                    </p>
-                    <label for="emergencyMessageInput" style="display: block; margin-bottom: 8px; font-weight: 500;">
-                        Describe your emergency:
-                    </label>
-                    <textarea 
-                        id="emergencyMessageInput" 
-                        style="width: 100%; height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; resize: vertical; font-family: inherit;"
-                        placeholder="Please describe your emergency situation in detail...&#10;Example: Medical emergency, fire, security threat, etc."
-                    ></textarea>
-                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                        <i class="fas fa-info-circle"></i>
-                        Admin will respond within 1 minute. If no response, your emergency will be sent to baragay email.
-                    </p>
-                </div>
-            `, [
-                {
-                    text: 'Cancel',
-                    class: 'btn-secondary',
-                    onclick: 'residentModal.hide(this)'
-                },
-                {
-                    text: 'Send Emergency Alert',
-                    class: 'btn-danger',
-                    onclick: 'sendEmergencyAlertFromModal()'
-                }
-            ]);
-        }
-
-        // Enhanced send emergency alert with modal feedback
-        async function sendEmergencyAlertFromModal() {
-            const messageInput = document.getElementById('emergencyMessageInput');
-            const message = messageInput ? messageInput.value.trim() : '';
-
-            if (!message) {
-                residentModal.error('Please describe your emergency situation before sending the alert.');
-                return;
-            }
-
-            try {
-                const userEmail = localStorage.getItem('userEmail');
-                const response = await authFetch('/api/emergency/send', {
-                    method: 'POST',
-                    body: JSON.stringify({ email: userEmail, message })
-                });
-
-                if (!response) return;
-
-                const data = await response.json();
-                if (response.ok) {
-                    residentModal.success(
-                        'Emergency alert sent successfully! Barangay officials have been notified and will respond within 1 minute.',
-                        'Alert Sent Successfully'
-                    );
-                    // Don't hide the modal immediately, let the user see the success message
-                } else {
-                    throw new Error(data.error || 'Failed to send emergency alert');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                residentModal.error('Failed to send emergency alert: ' + error.message);
-            }
-        }
-
-        // Enhanced notification for emergency responses
-        function showEmergencyResponseNotification(message) {
-            residentModal.info(
-                `Admin Response: ${message}`,
-                '🚨 Emergency Response Received'
-            );
-
-            // Also show the existing notification
-            if (Notification.permission === "granted") {
-                new Notification("Emergency Response", {
-                    body: `Admin response: ${message}`
-                });
-            }
-        }
-
         // Logout functionality
         function openLogoutModal() {
             document.getElementById('logoutModal').style.display = 'block';
@@ -821,9 +1420,13 @@
         // Close modals when clicking outside
         window.addEventListener('click', function (event) {
             const logoutModal = document.getElementById('logoutModal');
+            const emergencyModal = document.getElementById('emergencyModal');
 
             if (event.target === logoutModal) {
                 closeLogoutModal();
+            }
+            if (event.target === emergencyModal) {
+                closeEmergencyModal();
             }
         });
 
@@ -836,9 +1439,12 @@
         const socket = io({ withCredentials: true });
 
         if (Notification.permission !== "granted") {
-            Notification.requestPermission();
+            Notification.requestPermission().then(permission => {
+                console.log('Notification permission:', permission);
+            });
         }
 
+        // Socket event listeners for real-time updates
         socket.on('request-updated', (request) => {
             if (request.userId === localStorage.getItem('userId')) {
                 showNotification(`Your request status updated to ${request.status}`);
@@ -852,9 +1458,17 @@
         });
 
         socket.on('emergencyResponse', (response) => {
+            console.log('Received emergency response:', response);
             if (response.residentId === localStorage.getItem('userId')) {
-                showEmergencyResponseNotification(response.message);
+                showEmergencyResponseNotification(response.message, response.alertId);
+                // Reload emergency history to reflect the update
+                loadEmergencyHistory();
             }
+        });
+
+        socket.on('alertResolved', (alertId) => {
+            console.log('Alert resolved:', alertId);
+            handleAlertResolved(alertId);
         });
 
         socket.on('blotter-updated', (blotter) => {
@@ -864,12 +1478,20 @@
             }
         });
 
+        // Listen for new emergency alerts (for testing)
+        socket.on('newEmergencyAlert', (alert) => {
+            console.log('New emergency alert received (for testing):', alert);
+        });
+
         function showNotification(message) {
             if (Notification.permission === "granted") {
-                new Notification("BTMS Notification", { body: message });
+                new Notification("BTMS Notification", { 
+                    body: message,
+                    icon: '/images/barangay-bg.png'
+                });
             } else {
-                // Fallback to modal notification
-                residentModal.info(message, 'Notification');
+                // Fallback to better notification
+                showSuccess(message);
             }
         }
 
@@ -889,6 +1511,9 @@
             // Add resize listener to handle changing text on screen size changes
             window.addEventListener('resize', handleResize);
 
+            // Debug authentication (uncomment if needed)
+            // debugAuth();
+
             authFetch('/api/auth/check-auth')
                 .then(response => {
                     if (!response) return;
@@ -899,6 +1524,8 @@
                         window.location.href = '/';
                     } else {
                         localStorage.setItem('userId', data.user.id);
+                        localStorage.setItem('userEmail', data.user.email);
+                        console.log('User authenticated:', data.user.email);
                         fetchResidentData();
                     }
                 })
@@ -909,7 +1536,22 @@
         });
 
         setInterval(fetchResidentData, 30000);
+        
+        // Add CSS animation for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
-
 </html>

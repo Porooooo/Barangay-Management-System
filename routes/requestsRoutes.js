@@ -50,23 +50,66 @@ const getUserProfilePicture = (user) => {
     return '/images/default-profile.png';
 };
 
-// UPDATED: Validate scheduled claim date and time
+// CORRECTED: Helper function to format date in Philippine Time (UTC+8)
+const formatInPhilippineTime = (date) => {
+    if (!isValid(new Date(date))) {
+        return {
+            formattedDate: 'Invalid Date',
+            formattedTime: 'Invalid Time'
+        };
+    }
+    
+    const utcDate = new Date(date);
+    
+    try {
+        // Use toLocaleString with Manila timezone
+        const formattedDate = utcDate.toLocaleDateString('en-US', {
+            timeZone: 'Asia/Manila',
+            month: 'short',
+            day: '2-digit',
+            year: 'numeric'
+        });
+        
+        const formattedTime = utcDate.toLocaleTimeString('en-US', {
+            timeZone: 'Asia/Manila',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+        
+        return {
+            formattedDate,
+            formattedTime
+        };
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return {
+            formattedDate: 'Invalid Date',
+            formattedTime: 'Invalid Time'
+        };
+    }
+};
+
+// UPDATED: Validate scheduled claim date and time - ONLY FOR PICKUP SCHEDULE
 const validateScheduledClaim = (scheduledClaimDate, scheduledClaimTime) => {
     try {
         const now = new Date();
+        // Convert current time to Philippine Time for comparison
+        const phNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        
         const selectedDate = new Date(scheduledClaimDate);
         
-        // Reset time part for date comparison only
-        const today = new Date(now);
+        // Reset time part for date comparison only (Philippine Time)
+        const today = new Date(phNow);
         today.setHours(0, 0, 0, 0);
         
         const selectedDay = new Date(selectedDate);
         selectedDay.setHours(0, 0, 0, 0);
 
-        console.log('Date validation:', {
+        console.log('Date validation (Philippine Time):', {
             today: today.toISOString(),
             selectedDay: selectedDay.toISOString(),
-            now: now.toISOString()
+            phNow: phNow.toISOString()
         });
 
         // Check if date is valid
@@ -93,24 +136,24 @@ const validateScheduledClaim = (scheduledClaimDate, scheduledClaimTime) => {
             return { valid: false, message: "Invalid time format. Use HH:MM (24-hour format)" };
         }
 
-        // Check if scheduling for today but time has passed
+        // Check if scheduling for today but time has passed (in Philippine Time)
         if (selectedDay.getTime() === today.getTime()) {
             const [hours, minutes] = scheduledClaimTime.split(':').map(Number);
             const selectedDateTime = new Date(selectedDate);
             selectedDateTime.setHours(hours, minutes, 0, 0);
             
-            console.log('Time validation for today:', {
+            console.log('Time validation for today (Philippine Time):', {
                 selectedDateTime: selectedDateTime.toISOString(),
-                now: now.toISOString(),
-                isBefore: selectedDateTime < now
+                phNow: phNow.toISOString(),
+                isBefore: selectedDateTime < phNow
             });
             
-            if (selectedDateTime < now) {
+            if (selectedDateTime < phNow) {
                 return { valid: false, message: "Cannot schedule claim for past times today" };
             }
         }
 
-        // Validate office hours (8 AM - 4 PM)
+        // Validate office hours (8 AM - 4 PM) - ONLY FOR PICKUP SCHEDULE
         const [hours, minutes] = scheduledClaimTime.split(':').map(Number);
         if (hours < 8 || hours > 16) {
             return { valid: false, message: "Please select a time between 8:00 AM and 4:00 PM" };
@@ -133,7 +176,7 @@ const validateScheduledClaim = (scheduledClaimDate, scheduledClaimTime) => {
     }
 };
 
-// Create a new document request
+// Create a new document request - FIXED: Show actual Philippine time for date requested
 router.post("/", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { fullName, address, documentTypes, purpose } = req.body;
@@ -160,7 +203,7 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        // Create new request
+        // Create new request - using current time (will be stored as UTC)
         const newRequest = new Request({
             fullName,
             email: req.session.userEmail,
@@ -168,18 +211,21 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
             documentTypes,
             purpose,
             status: "Pending",
-            userId: req.session.userId
+            userId: req.session.userId,
+            createdAt: new Date(), // This will be stored as UTC
+            updatedAt: new Date()
         });
 
         await newRequest.save();
 
-        // Format dates for response
-        const createdAt = new Date(newRequest.createdAt);
+        // Format dates for response using Philippine Time - FIXED: Show actual time
+        const phTime = formatInPhilippineTime(newRequest.createdAt);
+        
         const formattedRequest = {
             ...newRequest.toObject(),
             id: newRequest._id.toString(),
-            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time'
+            formattedDate: phTime.formattedDate,
+            formattedTime: phTime.formattedTime
         };
 
         // Emit real-time update
@@ -201,7 +247,7 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Get all requests (admin view)
+// Get all requests (admin view) - FIXED: Show actual Philippine time for date requested
 router.get("/", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { status, documentType, startDate, endDate, search, archive } = req.query;
@@ -209,7 +255,7 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
 
         // Build query based on parameters
         if (archive === 'true') {
-            query.status = { $in: ['Approved', 'Rejected', 'Claimed'] };
+            query.status = { $in: ['Approved', 'Rejected', 'Claimed', 'Scheduled for Pickup'] };
         } else {
             query.status = status || { $in: ['Pending', 'Approved', 'Ready to Claim', 'Scheduled for Pickup'] };
         }
@@ -239,10 +285,11 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
             .sort({ createdAt: -1 })
             .lean();
 
-        // Format response
+        // Format response with Philippine Time - FIXED: Show actual time
         const formattedRequests = requests.map(request => {
-            const createdAt = new Date(request.createdAt);
-            const updatedAt = new Date(request.updatedAt);
+            // Format dates in Philippine Time - FIXED: Using correct timezone conversion
+            const createdPhTime = formatInPhilippineTime(request.createdAt);
+            const updatedPhTime = formatInPhilippineTime(request.updatedAt);
             
             // Get user data if populated
             const userProfile = request.userId ? {
@@ -253,18 +300,27 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
                 fullName: request.fullName || 'Unknown User'
             };
 
+            // Format scheduled claim date in Philippine Time if exists
+            let formattedScheduledDate = 'Not scheduled';
+            let formattedScheduledTime = 'Not scheduled';
+            
+            if (request.scheduledClaimDate) {
+                const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+                formattedScheduledDate = scheduledPhTime.formattedDate;
+                formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+            }
+
             return {
                 ...request,
                 id: request._id.toString(),
                 documentType: Array.isArray(request.documentTypes) 
                     ? request.documentTypes.join(', ') 
                     : request.documentTypes || 'N/A',
-                formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-                formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-                formattedScheduledDate: request.scheduledClaimDate ? 
-                    format(new Date(request.scheduledClaimDate), 'MMM dd, yyyy') : 'Not scheduled',
-                formattedScheduledTime: request.scheduledClaimTime || 'Not scheduled',
-                updatedAt: isValid(updatedAt) ? updatedAt : new Date(),
+                formattedDate: createdPhTime.formattedDate,
+                formattedTime: createdPhTime.formattedTime,
+                formattedScheduledDate: formattedScheduledDate,
+                formattedScheduledTime: formattedScheduledTime,
+                updatedAt: updatedPhTime.formattedDate,
                 userProfile: userProfile
             };
         });
@@ -279,18 +335,19 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Get requests for logged-in user (UPDATED to include scheduled for pickup)
+// Get requests for logged-in user (FIXED: Show actual Philippine time for date requested)
 router.get("/user", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { archive } = req.query;
         let query = { userId: req.session.userId };
 
-        // If archive=true, show only claimed requests
-        // If archive=false or not provided, show active requests (excluding claimed)
+        // If archive=true, show only "Scheduled for Pickup" requests
+        // If archive=false or not provided, show active requests (excluding "Scheduled for Pickup" and "Claimed")
         if (archive === 'true') {
-            query.status = { $in: ["Scheduled for Pickup", "Claimed"] };
+            query.status = { $in: ["Scheduled for Pickup"] };
         } else {
-            query.status = { $nin: ["Claimed"] };
+            // UPDATED: Exclude both "Scheduled for Pickup" and "Claimed" from active requests
+            query.status = { $nin: ["Scheduled for Pickup", "Claimed"] };
         }
 
         const requests = await Request.find(query)
@@ -299,7 +356,8 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
             .lean();
 
         const formattedRequests = requests.map(request => {
-            const createdAt = new Date(request.createdAt);
+            // Format dates in Philippine Time - FIXED: Using correct timezone conversion
+            const createdPhTime = formatInPhilippineTime(request.createdAt);
             
             // Get user data if populated
             const userProfile = request.userId ? {
@@ -310,17 +368,26 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
                 fullName: request.fullName || 'Unknown User'
             };
 
+            // Format scheduled claim date in Philippine Time if exists
+            let formattedScheduledDate = 'Not scheduled';
+            let formattedScheduledTime = 'Not scheduled';
+            
+            if (request.scheduledClaimDate) {
+                const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+                formattedScheduledDate = scheduledPhTime.formattedDate;
+                formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+            }
+
             return {
                 ...request,
                 id: request._id.toString(),
                 documentType: Array.isArray(request.documentTypes) 
                     ? request.documentTypes.join(', ') 
                     : request.documentTypes || 'N/A',
-                formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-                formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-                formattedScheduledDate: request.scheduledClaimDate ? 
-                    format(new Date(request.scheduledClaimDate), 'MMM dd, yyyy') : 'Not scheduled',
-                formattedScheduledTime: request.scheduledClaimTime || 'Not scheduled',
+                formattedDate: createdPhTime.formattedDate,
+                formattedTime: createdPhTime.formattedTime,
+                formattedScheduledDate: formattedScheduledDate,
+                formattedScheduledTime: formattedScheduledTime,
                 userProfile: userProfile
             };
         });
@@ -335,7 +402,7 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Approve request
+// Approve request - FIXED FOR PHILIPPINE TIME
 router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
@@ -354,7 +421,8 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        const createdAt = new Date(request.createdAt);
+        // Format dates in Philippine Time
+        const createdPhTime = formatInPhilippineTime(request.createdAt);
         
         // Get user data if populated
         const userProfile = request.userId ? {
@@ -365,17 +433,26 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
             fullName: request.fullName || 'Unknown User'
         };
 
+        // Format scheduled claim date in Philippine Time if exists
+        let formattedScheduledDate = 'Not scheduled';
+        let formattedScheduledTime = 'Not scheduled';
+        
+        if (request.scheduledClaimDate) {
+            const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+            formattedScheduledDate = scheduledPhTime.formattedDate;
+            formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+        }
+
         const formattedRequest = {
             ...request.toObject(),
             id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
-            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-            formattedScheduledDate: request.scheduledClaimDate ? 
-                format(new Date(request.scheduledClaimDate), 'MMM dd, yyyy') : 'Not scheduled',
-            formattedScheduledTime: request.scheduledClaimTime || 'Not scheduled',
+            formattedDate: createdPhTime.formattedDate,
+            formattedTime: createdPhTime.formattedTime,
+            formattedScheduledDate: formattedScheduledDate,
+            formattedScheduledTime: formattedScheduledTime,
             userProfile: userProfile
         };
 
@@ -397,7 +474,7 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Reject request with reason
+// Reject request with reason - FIXED FOR PHILIPPINE TIME
 router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { rejectionReason } = req.body;
@@ -426,7 +503,8 @@ router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        const createdAt = new Date(request.createdAt);
+        // Format dates in Philippine Time
+        const createdPhTime = formatInPhilippineTime(request.createdAt);
         
         // Get user data if populated
         const userProfile = request.userId ? {
@@ -437,17 +515,26 @@ router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
             fullName: request.fullName || 'Unknown User'
         };
 
+        // Format scheduled claim date in Philippine Time if exists
+        let formattedScheduledDate = 'Not scheduled';
+        let formattedScheduledTime = 'Not scheduled';
+        
+        if (request.scheduledClaimDate) {
+            const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+            formattedScheduledDate = scheduledPhTime.formattedDate;
+            formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+        }
+
         const formattedRequest = {
             ...request.toObject(),
             id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
-            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-            formattedScheduledDate: request.scheduledClaimDate ? 
-                format(new Date(request.scheduledClaimDate), 'MMM dd, yyyy') : 'Not scheduled',
-            formattedScheduledTime: request.scheduledClaimTime || 'Not scheduled',
+            formattedDate: createdPhTime.formattedDate,
+            formattedTime: createdPhTime.formattedTime,
+            formattedScheduledDate: formattedScheduledDate,
+            formattedScheduledTime: formattedScheduledTime,
             userProfile: userProfile
         };
 
@@ -469,7 +556,7 @@ router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Mark request as ready to claim
+// Mark request as ready to claim - FIXED FOR PHILIPPINE TIME
 router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
@@ -488,7 +575,8 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        const createdAt = new Date(request.createdAt);
+        // Format dates in Philippine Time
+        const createdPhTime = formatInPhilippineTime(request.createdAt);
         
         // Get user data if populated
         const userProfile = request.userId ? {
@@ -499,17 +587,26 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
             fullName: request.fullName || 'Unknown User'
         };
 
+        // Format scheduled claim date in Philippine Time if exists
+        let formattedScheduledDate = 'Not scheduled';
+        let formattedScheduledTime = 'Not scheduled';
+        
+        if (request.scheduledClaimDate) {
+            const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+            formattedScheduledDate = scheduledPhTime.formattedDate;
+            formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+        }
+
         const formattedRequest = {
             ...request.toObject(),
             id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
-            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-            formattedScheduledDate: request.scheduledClaimDate ? 
-                format(new Date(request.scheduledClaimDate), 'MMM dd, yyyy') : 'Not scheduled',
-            formattedScheduledTime: request.scheduledClaimTime || 'Not scheduled',
+            formattedDate: createdPhTime.formattedDate,
+            formattedTime: createdPhTime.formattedTime,
+            formattedScheduledDate: formattedScheduledDate,
+            formattedScheduledTime: formattedScheduledTime,
             userProfile: userProfile
         };
 
@@ -531,7 +628,7 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// UPDATED: Schedule pickup (sets status to "Scheduled for Pickup" instead of "Claimed")
+// UPDATED: Schedule pickup (sets status to "Scheduled for Pickup") - FIXED FOR PHILIPPINE TIME
 router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { scheduledClaimDate, scheduledClaimTime, pickupNotes } = req.body;
@@ -555,10 +652,11 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
             });
         }
 
-        if (request.status !== 'Ready to Claim') {
+        // Allow both "Ready to Claim" and "Scheduled for Pickup" status for editing
+        if (request.status !== 'Ready to Claim' && request.status !== 'Scheduled for Pickup') {
             return res.status(400).json({
                 error: "Bad Request",
-                message: "Only requests with 'Ready to Claim' status can be scheduled for pickup",
+                message: "Only requests with 'Ready to Claim' or 'Scheduled for Pickup' status can be scheduled for pickup",
                 success: false
             });
         }
@@ -587,7 +685,7 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
         if (!validation.valid) {
             return res.status(400).json({
                 error: "Validation error",
-                message: validation.message,
+                message: validation.message || "Invalid scheduled claim date and time",
                 success: false
             });
         }
@@ -604,7 +702,8 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
             { new: true }
         ).populate('userId', 'fullName profilePicture');
 
-        const createdAt = new Date(updatedRequest.createdAt);
+        // Format dates in Philippine Time
+        const createdPhTime = formatInPhilippineTime(updatedRequest.createdAt);
         
         // Get user data if populated
         const userProfile = updatedRequest.userId ? {
@@ -615,16 +714,18 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
             fullName: updatedRequest.fullName || 'Unknown User'
         };
 
+        // Format scheduled claim date in Philippine Time
+        const scheduledPhTime = formatInPhilippineTime(updatedRequest.scheduledClaimDate);
+
         const formattedRequest = {
             ...updatedRequest.toObject(),
             id: updatedRequest._id.toString(),
             documentType: Array.isArray(updatedRequest.documentTypes) 
                 ? updatedRequest.documentTypes.join(', ') 
                 : updatedRequest.documentTypes || 'N/A',
-            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-            formattedScheduledDate: updatedRequest.scheduledClaimDate ? 
-                format(new Date(updatedRequest.scheduledClaimDate), 'MMM dd, yyyy') : 'Not scheduled',
+            formattedDate: createdPhTime.formattedDate,
+            formattedTime: createdPhTime.formattedTime,
+            formattedScheduledDate: scheduledPhTime.formattedDate,
             formattedScheduledTime: updatedRequest.scheduledClaimTime || 'Not scheduled',
             userProfile: userProfile
         };
@@ -634,8 +735,11 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
             request: formattedRequest
         });
 
+        const actionMessage = request.status === 'Scheduled for Pickup' ? 
+            'Schedule updated successfully!' : 'Pickup scheduled successfully!';
+
         res.status(200).json({
-            message: `Pickup scheduled successfully! Scheduled for ${formattedRequest.formattedScheduledDate} at ${formattedRequest.formattedScheduledTime}`,
+            message: `${actionMessage} Scheduled for ${formattedRequest.formattedScheduledDate} at ${formattedRequest.formattedScheduledTime}`,
             request: formattedRequest,
             success: true
         });
@@ -649,7 +753,7 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
     }
 });
 
-// Admin marks request as claimed
+// Admin marks request as claimed - FIXED FOR PHILIPPINE TIME
 router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
@@ -668,7 +772,8 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        const createdAt = new Date(request.createdAt);
+        // Format dates in Philippine Time
+        const createdPhTime = formatInPhilippineTime(request.createdAt);
         
         // Get user data if populated
         const userProfile = request.userId ? {
@@ -679,17 +784,26 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
             fullName: request.fullName || 'Unknown User'
         };
 
+        // Format scheduled claim date in Philippine Time if exists
+        let formattedScheduledDate = 'Not scheduled';
+        let formattedScheduledTime = 'Not scheduled';
+        
+        if (request.scheduledClaimDate) {
+            const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+            formattedScheduledDate = scheduledPhTime.formattedDate;
+            formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+        }
+
         const formattedRequest = {
             ...request.toObject(),
             id: request._id.toString(),
             documentType: Array.isArray(request.documentTypes) 
                 ? request.documentTypes.join(', ') 
                 : request.documentTypes || 'N/A',
-            formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-            formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-            formattedScheduledDate: request.scheduledClaimDate ? 
-                format(new Date(request.scheduledClaimDate), 'MMM dd, yyyy') : 'Not scheduled',
-            formattedScheduledTime: request.scheduledClaimTime || 'Not scheduled',
+            formattedDate: createdPhTime.formattedDate,
+            formattedTime: createdPhTime.formattedTime,
+            formattedScheduledDate: formattedScheduledDate,
+            formattedScheduledTime: formattedScheduledTime,
             userProfile: userProfile
         };
 
@@ -818,7 +932,7 @@ router.post("/cleanup", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Bulk actions for requests
+// Bulk actions for requests - FIXED FOR PHILIPPINE TIME
 router.post("/bulk-action", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { requestIds, action, rejectionReason } = req.body;
@@ -869,7 +983,8 @@ router.post("/bulk-action", verifySession, checkNotBanned, async (req, res) => {
             .lean();
 
         updatedRequests.forEach(request => {
-            const createdAt = new Date(request.createdAt);
+            // Format dates in Philippine Time
+            const createdPhTime = formatInPhilippineTime(request.createdAt);
             const userProfile = request.userId ? {
                 profilePicture: getUserProfilePicture(request.userId),
                 fullName: request.userId.fullName || request.fullName || 'Unknown User'
@@ -878,17 +993,26 @@ router.post("/bulk-action", verifySession, checkNotBanned, async (req, res) => {
                 fullName: request.fullName || 'Unknown User'
             };
 
+            // Format scheduled claim date in Philippine Time if exists
+            let formattedScheduledDate = 'Not scheduled';
+            let formattedScheduledTime = 'Not scheduled';
+            
+            if (request.scheduledClaimDate) {
+                const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+                formattedScheduledDate = scheduledPhTime.formattedDate;
+                formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+            }
+
             const formattedRequest = {
                 ...request,
                 id: request._id.toString(),
                 documentType: Array.isArray(request.documentTypes) 
                     ? request.documentTypes.join(', ') 
                     : request.documentTypes || 'N/A',
-                formattedDate: isValid(createdAt) ? format(createdAt, 'MMM dd, yyyy') : 'Invalid Date',
-                formattedTime: isValid(createdAt) ? format(createdAt, 'hh:mm a') : 'Invalid Time',
-                formattedScheduledDate: request.scheduledClaimDate ? 
-                    format(new Date(request.scheduledClaimDate), 'MMM dd, yyyy') : 'Not scheduled',
-                formattedScheduledTime: request.scheduledClaimTime || 'Not scheduled',
+                formattedDate: createdPhTime.formattedDate,
+                formattedTime: createdPhTime.formattedTime,
+                formattedScheduledDate: formattedScheduledDate,
+                formattedScheduledTime: formattedScheduledTime,
                 userProfile: userProfile
             };
 
