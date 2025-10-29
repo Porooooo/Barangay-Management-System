@@ -36,6 +36,59 @@ const checkNotBanned = async (req, res, next) => {
     }
 };
 
+// NEW: Flood protection middleware
+const checkFloodProtection = async (req, res, next) => {
+    try {
+        const userId = req.session.userId;
+        
+        // Check if user has submitted too many requests recently
+        const recentRequests = await Request.find({
+            userId: userId,
+            createdAt: {
+                $gte: new Date(Date.now() - 5 * 60 * 1000) // Last 5 minutes
+            }
+        });
+        
+        // Allow maximum 3 requests in 5 minutes
+        if (recentRequests.length >= 3) {
+            return res.status(429).json({
+                error: "Too Many Requests",
+                message: "You have submitted too many requests recently. Please wait 5 minutes before submitting another request.",
+                retryAfter: 300 // 5 minutes in seconds
+            });
+        }
+        
+        // Check daily limit (10 requests per day)
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        
+        const endOfToday = new Date();
+        endOfToday.setHours(23, 59, 59, 999);
+        
+        const todayRequests = await Request.find({
+            userId: userId,
+            createdAt: {
+                $gte: startOfToday,
+                $lte: endOfToday
+            }
+        });
+        
+        if (todayRequests.length >= 10) {
+            return res.status(429).json({
+                error: "Daily Limit Exceeded",
+                message: "You have reached the daily limit of 10 requests. Please try again tomorrow.",
+                retryAfter: 86400 // 24 hours in seconds
+            });
+        }
+        
+        next();
+    } catch (error) {
+        console.error("Error checking flood protection:", error);
+        // Don't block the request if there's an error checking flood protection
+        next();
+    }
+};
+
 // NEW: Check and update expiration status for individual requests
 const checkAndUpdateRequestExpiration = async (requestId) => {
     try {
@@ -219,8 +272,8 @@ const validateTimeSlot = (request, selectedDate, selectedTime) => {
     }
 };
 
-// Create a new document request
-router.post("/", verifySession, checkNotBanned, async (req, res) => {
+// Create a new document request - UPDATED WITH FLOOD PROTECTION
+router.post("/", verifySession, checkNotBanned, checkFloodProtection, async (req, res) => {
     try {
         const { fullName, address, documentTypes, purpose } = req.body;
 
