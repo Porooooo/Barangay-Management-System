@@ -17,6 +17,7 @@
             --success: #28a745;
             --danger: #e74c3c;
             --warning: #ffa000;
+            --info: #17a2b8;
             --sidebar-width: 250px;
             --header-height: 70px;
         }
@@ -226,8 +227,8 @@
             color: #495057;
         }
 
-        .cleanup-btn {
-            background-color: var(--warning);
+        .automation-btn, .export-btn, .cleanup-btn {
+            background-color: var(--primary);
             color: white;
             border: none;
             padding: 8px 16px;
@@ -238,7 +239,15 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            display: none;
+        }
+
+        .automation-btn:hover, .export-btn:hover {
+            background-color: #1c6ea4;
+            transform: translateY(-2px);
+        }
+
+        .cleanup-btn {
+            background-color: var(--warning);
         }
 
         .cleanup-btn:hover {
@@ -445,6 +454,48 @@
             color: #383d41;
         }
 
+        .status-processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-archived {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Priority Indicators */
+        .priority-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .priority-high { background-color: #e74c3c; }
+        .priority-medium { background-color: #f39c12; }
+        .priority-low { background-color: #27ae60; }
+
+        /* NEW: Pickup Period Badge */
+        .pickup-period-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #e6f7ff;
+            color: #0050b3;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 5px;
+        }
+
         /* Button Styles */
         .action-button {
             padding: 6px 10px;
@@ -475,7 +526,7 @@
         }
 
         .ready-btn {
-            background-color: #17a2b8;
+            background-color: var(--info);
             color: white;
         }
 
@@ -492,25 +543,55 @@
             background-color: #1c6ea4;
         }
 
-        /* Export Button */
-.export-btn {
-    background-color: var(--primary); /* Changed from #28a745 to primary blue */
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+        .process-btn {
+            background-color: var(--warning);
+            color: white;
+        }
 
-.export-btn:hover {
-    background-color: #1c6ea4; /* Darker blue on hover */
-    transform: translateY(-2px);
-}
+        .process-btn:hover {
+            background-color: #e69500;
+        }
+
+        /* NEW: Set Period Button */
+        .set-period-btn {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .set-period-btn:hover {
+            background-color: #138496;
+            transform: translateY(-1px);
+        }
+
+        /* Export Button */
+        .export-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .export-btn:hover {
+            background-color: #1c6ea4;
+            transform: translateY(-2px);
+        }
+
         /* Notification */
         .notification {
             position: fixed;
@@ -620,6 +701,23 @@
             background: #c82333;
         }
 
+        /* NEW: Set Pickup Period Modal */
+        .pickup-period-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .period-notes {
+            margin-top: 10px;
+        }
+
+        .period-notes textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
         /* Logout Modal */
         #logoutModal .modal-content {
             max-width: 350px;
@@ -682,6 +780,10 @@
                 width: 100%;
                 justify-content: flex-start;
                 margin-top: 10px;
+            }
+
+            .pickup-period-group {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -764,6 +866,12 @@
             .selected-request-buttons button {
                 width: 100%;
             }
+
+            .action-button, .set-period-btn {
+                width: 100%;
+                margin: 2px 0;
+                justify-content: center;
+            }
         }
     </style>
     
@@ -785,7 +893,7 @@
         
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="/admin-dashboard">
+                <li><a href="/admin-dashboard" class="active">
                     <i class="fas fa-home"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
@@ -793,7 +901,7 @@
                     <i class="fas fa-users"></i>
                     <span class="link-name">Manage Residents</span>
                 </a></li>
-                <li><a href="/adminRequests" class="active">
+                <li><a href="/adminRequests">
                     <i class="fas fa-file-alt"></i>
                     <span class="link-name">Document Requests</span>
                 </a></li>
@@ -813,6 +921,10 @@
                     <i class="fas fa-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
+                <li><a href="/admin-messages">
+                    <i class="fas fa-envelope"></i>
+                    <span class="link-name">Resident Messages</span>
+                </a></li>
             </ul>
             
             <!-- Logout Section -->
@@ -822,6 +934,13 @@
                     <span class="link-name">Logout</span>
                 </a>
             </div>
+        </div>
+        
+        <!-- Greeting and Time Section -->
+        <div class="greeting-section">
+            <div class="greeting" id="greetingText">Welcome Admin</div>
+            <div class="current-date" id="currentDate"></div>
+            <div class="current-time" id="currentTime"></div>
         </div>
     </nav>
 
@@ -841,20 +960,20 @@
             </div>
             
             <!-- Archive Toggle -->
-<div class="archive-controls">
-    <div class="archive-toggle">
-        <button id="activeRequestsBtn" class="active-archive">Active Requests</button>
-        <button id="archivedRequestsBtn" class="inactive-archive">Archive</button>
-    </div>
-    <div>
-        <button id="exportPDF" class="export-btn" style="display: none;">
-            <i class="fas fa-file-pdf"></i> Export to PDF
-        </button>
-        <button id="cleanupArchive" class="cleanup-btn" style="display: none;">
-            <i class="fas fa-broom"></i> Cleanup Archive
-        </button>
-    </div>
-</div>
+            <div class="archive-controls">
+                <div class="archive-toggle">
+                    <button id="activeRequestsBtn" class="active-archive">Active Requests</button>
+                    <button id="archivedRequestsBtn" class="inactive-archive">Archive</button>
+                </div>
+                <div>
+                    <button id="exportPDF" class="export-btn" style="display: none;">
+                        <i class="fas fa-file-pdf"></i> Export to PDF
+                    </button>
+                    <button id="cleanupArchive" class="cleanup-btn" style="display: none;">
+                        <i class="fas fa-broom"></i> Cleanup Archive
+                    </button>
+                </div>
+            </div>
             
             <!-- Filter Controls -->
             <div class="filter-controls">
@@ -870,9 +989,12 @@
                         <option value="Pending">Pending</option>
                         <option value="Approved">Approved</option>
                         <option value="Rejected">Rejected</option>
+                        <option value="Processing">Processing</option>
                         <option value="Ready to Claim">Ready to Claim</option>
                         <option value="Scheduled for Pickup">Scheduled for Pickup</option>
                         <option value="Claimed">Claimed</option>
+                        <option value="Archived">Archived</option>
+                        <option value="Expired">Expired</option>
                     </select>
                 </div>
                 
@@ -885,6 +1007,16 @@
                         <option value="Certificate of Residency">Certificate of Residency</option>
                         <option value="Certificate of Indigency">Certificate of Indigency</option>
                         <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="priorityFilter">Priority:</label>
+                    <select id="priorityFilter">
+                        <option value="">All Priorities</option>
+                        <option value="high">High (8-10)</option>
+                        <option value="medium">Medium (4-7)</option>
+                        <option value="low">Low (1-3)</option>
                     </select>
                 </div>
                 
@@ -918,7 +1050,10 @@
                 <div class="selected-request-buttons">
                     <button class="action-button approve-btn" id="selectedApproveBtn">Approve</button>
                     <button class="action-button reject-btn" id="selectedRejectBtn">Reject</button>
-                    <button class="action-button ready-btn" id="selectedReadyBtn">Ready to Claim</button>
+                    <button class="action-button process-btn" id="selectedProcessBtn">Mark as Processing</button>
+                    <button class="action-button set-period-btn" id="selectedSetPeriodBtn">
+                        <i class="fas fa-calendar-alt"></i> Set Pickup Period
+                    </button>
                     <button class="action-button claim-btn" id="selectedClaimBtn" style="display: none;">Mark as Claimed</button>
                 </div>
             </div>
@@ -937,7 +1072,9 @@
                             <th>Purpose</th>
                             <th>Date Requested</th>
                             <th>Status</th>
-                            <th>Scheduled Pickup</th>
+                            <th>Priority</th>
+                            <th>Pickup Period</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -961,6 +1098,35 @@
         </div>
     </div>
 
+    <!-- NEW: Set Pickup Period Modal -->
+    <div id="setPickupPeriodModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-calendar-alt"></i> Set Pickup Period</h2>
+            <p>Set the time period when the resident can choose their pickup slot:</p>
+            
+            <div class="pickup-period-group">
+                <div class="filter-group">
+                    <label for="periodStartDate">Start Date:</label>
+                    <input type="date" id="periodStartDate" required>
+                </div>
+                <div class="filter-group">
+                    <label for="periodEndDate">End Date:</label>
+                    <input type="date" id="periodEndDate" required>
+                </div>
+            </div>
+            
+            <div class="period-notes">
+                <label for="periodNotes">Additional Notes (Optional):</label>
+                <textarea id="periodNotes" placeholder="Any special instructions for the resident..."></textarea>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-cancel" onclick="document.getElementById('setPickupPeriodModal').style.display = 'none'">Cancel</button>
+                <button class="modal-submit" onclick="submitPickupPeriod()">Set Pickup Period</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bulk Rejection Reason Modal -->
     <div id="bulkRejectModal" class="modal">
         <div class="modal-content">
@@ -970,6 +1136,35 @@
             <div class="modal-buttons">
                 <button class="modal-cancel" onclick="document.getElementById('bulkRejectModal').style.display = 'none'">Cancel</button>
                 <button class="modal-submit" onclick="submitBulkRejection()">Submit Rejection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Bulk Set Pickup Period Modal -->
+    <div id="bulkSetPeriodModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-calendar-alt"></i> Set Pickup Period for Selected Requests</h2>
+            <p>Set the time period when residents can choose their pickup slots:</p>
+            
+            <div class="pickup-period-group">
+                <div class="filter-group">
+                    <label for="bulkPeriodStartDate">Start Date:</label>
+                    <input type="date" id="bulkPeriodStartDate" required>
+                </div>
+                <div class="filter-group">
+                    <label for="bulkPeriodEndDate">End Date:</label>
+                    <input type="date" id="bulkPeriodEndDate" required>
+                </div>
+            </div>
+            
+            <div class="period-notes">
+                <label for="bulkPeriodNotes">Additional Notes (Optional):</label>
+                <textarea id="bulkPeriodNotes" placeholder="Any special instructions for residents..."></textarea>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-cancel" onclick="document.getElementById('bulkSetPeriodModal').style.display = 'none'">Cancel</button>
+                <button class="modal-submit" onclick="submitBulkPickupPeriod()">Set Pickup Period</button>
             </div>
         </div>
     </div>
@@ -996,6 +1191,7 @@
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
     const documentTypeFilter = document.getElementById('documentTypeFilter');
+    const priorityFilter = document.getElementById('priorityFilter');
     const startDate = document.getElementById('startDate');
     const endDate = document.getElementById('endDate');
     const applyFilters = document.getElementById('applyFilters');
@@ -1012,7 +1208,8 @@
     const selectedCount = document.getElementById('selectedCount');
     const selectedApproveBtn = document.getElementById('selectedApproveBtn');
     const selectedRejectBtn = document.getElementById('selectedRejectBtn');
-    const selectedReadyBtn = document.getElementById('selectedReadyBtn');
+    const selectedProcessBtn = document.getElementById('selectedProcessBtn');
+    const selectedSetPeriodBtn = document.getElementById('selectedSetPeriodBtn');
     const selectedClaimBtn = document.getElementById('selectedClaimBtn');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const exportPDF = document.getElementById('exportPDF');
@@ -1021,12 +1218,14 @@
         search: '',
         status: '',
         documentType: '',
+        priority: '',
         startDate: '',
         endDate: '',
         archive: false
     };
 
     let currentRejectRequestId = null;
+    let currentSetPeriodRequestId = null;
     let selectedRequestIds = new Set();
     let allRequests = [];
 
@@ -1079,10 +1278,16 @@
                 handleBulkAction('reject');
             }
         });
-        
-        selectedReadyBtn.addEventListener('click', () => {
+
+        selectedProcessBtn.addEventListener('click', () => {
             if (selectedRequestIds.size > 0) {
-                handleBulkAction('ready');
+                handleBulkAction('process');
+            }
+        });
+        
+        selectedSetPeriodBtn.addEventListener('click', () => {
+            if (selectedRequestIds.size > 0) {
+                openBulkSetPeriodModal();
             }
         });
 
@@ -1093,24 +1298,31 @@
         });
         
         selectAllCheckbox.addEventListener('change', toggleSelectAll);
+
+        // Set minimum dates for period inputs
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('periodStartDate').min = today;
+        document.getElementById('periodEndDate').min = today;
+        document.getElementById('bulkPeriodStartDate').min = today;
+        document.getElementById('bulkPeriodEndDate').min = today;
     }
 
     function updateArchiveUI() {
-    const isArchive = currentFilters.archive;
-    activeRequestsBtn.classList.toggle('active-archive', !isArchive);
-    activeRequestsBtn.classList.toggle('inactive-archive', isArchive);
-    archivedRequestsBtn.classList.toggle('active-archive', isArchive);
-    archivedRequestsBtn.classList.toggle('inactive-archive', !isArchive);
-    
-    // Show/hide cleanup button and export PDF button based on archive mode
-    cleanupArchive.style.display = isArchive ? 'flex' : 'none';
-    exportPDF.style.display = isArchive ? 'flex' : 'none';
-    
-    // Hide action buttons in archive mode
-    if (isArchive) {
-        hideSelectedRequestActions();
+        const isArchive = currentFilters.archive;
+        activeRequestsBtn.classList.toggle('active-archive', !isArchive);
+        activeRequestsBtn.classList.toggle('inactive-archive', isArchive);
+        archivedRequestsBtn.classList.toggle('active-archive', isArchive);
+        archivedRequestsBtn.classList.toggle('inactive-archive', !isArchive);
+        
+        // Show/hide cleanup button and export PDF button based on archive mode
+        cleanupArchive.style.display = isArchive ? 'flex' : 'none';
+        exportPDF.style.display = isArchive ? 'flex' : 'none';
+        
+        // Hide action buttons in archive mode
+        if (isArchive) {
+            hideSelectedRequestActions();
+        }
     }
-}
 
     async function cleanupArchiveHandler() {
         if (!confirm('WARNING: This will permanently delete ALL archived requests. Continue?')) {
@@ -1171,6 +1383,12 @@
             showNotification(message);
             if (!currentFilters.archive) fetchRequests();
         });
+
+        // NEW: Handle admin notifications
+        socket.on('admin-notification', (data) => {
+            showNotification(data.message);
+            fetchRequests(); // Refresh to show updated status
+        });
     }
 
     function showNotification(message) {
@@ -1192,6 +1410,7 @@
             search: searchInput.value.trim(),
             status: statusFilter.value,
             documentType: documentTypeFilter.value,
+            priority: priorityFilter.value,
             startDate: startDate.value,
             endDate: endDate.value
         };
@@ -1203,6 +1422,7 @@
         searchInput.value = '';
         statusFilter.value = '';
         documentTypeFilter.value = '';
+        priorityFilter.value = '';
         startDate.value = '';
         endDate.value = '';
         currentFilters = {
@@ -1210,6 +1430,7 @@
             search: '',
             status: '',
             documentType: '',
+            priority: '',
             startDate: '',
             endDate: ''
         };
@@ -1244,6 +1465,7 @@
             if (currentFilters.startDate) queryParams.append('startDate', currentFilters.startDate);
             if (currentFilters.endDate) queryParams.append('endDate', currentFilters.endDate);
             queryParams.append('archive', currentFilters.archive);
+            queryParams.append('priority', 'true'); // Always sort by priority
 
             const response = await authFetch(`/api/requests?${queryParams.toString()}`);
             
@@ -1257,7 +1479,22 @@
             const requests = await response.json();
             allRequests = requests;
             
-            renderRequests(requests);
+            // Apply client-side filtering for priority
+            let filteredRequests = requests;
+            
+            if (currentFilters.priority) {
+                filteredRequests = filteredRequests.filter(request => {
+                    const score = request.priorityScore || 0;
+                    switch (currentFilters.priority) {
+                        case 'high': return score >= 8;
+                        case 'medium': return score >= 4 && score < 8;
+                        case 'low': return score < 4;
+                        default: return true;
+                    }
+                });
+            }
+            
+            renderRequests(filteredRequests);
         } catch (error) {
             console.error('Fetch error:', error);
             showErrorInTable(error.message);
@@ -1271,7 +1508,7 @@
         if (requests.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="9" class="error-message">
+                    <td colspan="11" class="error-message">
                         No ${currentFilters.archive ? 'archived' : 'active'} requests found
                     </td>
                 </tr>
@@ -1295,6 +1532,32 @@
             }
 
             const statusClass = `status-${request.status.toLowerCase().replace(/\s+/g, '-')}`;
+            
+            // Determine priority indicator
+            let priorityClass = '';
+            let priorityText = '';
+            const priorityScore = request.priorityScore || 0;
+            if (priorityScore >= 8) {
+                priorityClass = 'priority-high';
+                priorityText = 'High';
+            } else if (priorityScore >= 4) {
+                priorityClass = 'priority-medium';
+                priorityText = 'Medium';
+            } else {
+                priorityClass = 'priority-low';
+                priorityText = 'Low';
+            }
+
+            // NEW: Pickup period display
+            let pickupPeriodHTML = 'Not set';
+            if (request.hasAdminPickupPeriod) {
+                pickupPeriodHTML = `
+                    ${request.formattedAdminPickupPeriod}
+                    <span class="pickup-period-badge">
+                        <i class="fas fa-calendar-check"></i> Set
+                    </span>
+                `;
+            }
 
             row.innerHTML = `
                 <td class="checkbox-cell">
@@ -1314,11 +1577,13 @@
                 </td>
                 <td><span class="status ${statusClass}">${request.status || 'Pending'}</span></td>
                 <td>
-                    ${request.scheduledClaimDate ? 
-                        `<div>${request.formattedScheduledDate}</div>
-                         <div style="font-size: 0.8em; color: #666;">${request.formattedScheduledTime}</div>` 
-                        : 'Not scheduled'
-                    }
+                    <span class="priority-indicator ${priorityClass}"></span>
+                    ${priorityText}
+                    ${priorityScore ? `<div style="font-size: 0.7em; color: #666;">(${priorityScore})</div>` : ''}
+                </td>
+                <td>${pickupPeriodHTML}</td>
+                <td class="actions-cell">
+                    ${renderActionButtons(request)}
                 </td>
             `;
 
@@ -1346,6 +1611,68 @@
         
         // Update select all checkbox state
         updateSelectAllCheckbox();
+    }
+
+    // NEW: Render action buttons based on request status - UPDATED WITH EXPIRED STATUS
+    function renderActionButtons(request) {
+        let buttons = '';
+        
+        switch (request.status) {
+            case 'Pending':
+                buttons = `
+                    <button class="action-button approve-btn" onclick="performSingleAction('${request.id}', 'approve')">Approve</button>
+                    <button class="action-button reject-btn" onclick="openRejectModal('${request.id}')">Reject</button>
+                `;
+                break;
+                
+            case 'Approved':
+                buttons = `
+                    <button class="action-button process-btn" onclick="performSingleAction('${request.id}', 'process')">Processing</button>
+                `;
+                break;
+                
+            case 'Processing':
+                buttons = `
+                    <button class="set-period-btn" onclick="openSetPeriodModal('${request.id}')">
+                        <i class="fas fa-calendar-alt"></i> Set Pickup Period
+                    </button>
+                `;
+                break;
+                
+            case 'Ready to Claim':
+                if (request.hasAdminPickupPeriod) {
+                    buttons = `
+                        <span style="color: #28a745; font-weight: 500;">Pickup Period Set</span>
+                        <button class="action-button claim-btn" onclick="performSingleAction('${request.id}', 'claim')">Claimed</button>
+                    `;
+                } else {
+                    buttons = `
+                        <button class="set-period-btn" onclick="openSetPeriodModal('${request.id}')">
+                            <i class="fas fa-calendar-alt"></i> Set Pickup Period
+                        </button>
+                    `;
+                }
+                break;
+                
+            case 'Scheduled for Pickup':
+                buttons = `
+                    <button class="action-button claim-btn" onclick="performSingleAction('${request.id}', 'claim')">Mark as Claimed</button>
+                `;
+                break;
+                
+            case 'Rejected':
+                buttons = `<span style="color: #666;">Rejected</span>`;
+                break;
+                
+            case 'Expired':
+                buttons = `<span class="status status-expired">Expired</span>`;
+                break;
+                
+            default:
+                buttons = `<span style="color: #666;">No actions</span>`;
+        }
+        
+        return buttons;
     }
     
     function toggleSelectAll() {
@@ -1399,12 +1726,14 @@
         const selectedRequests = allRequests.filter(req => selectedRequestIds.has(req.id));
         const hasPending = selectedRequests.some(req => req.status === 'Pending');
         const hasApproved = selectedRequests.some(req => req.status === 'Approved');
+        const hasProcessing = selectedRequests.some(req => req.status === 'Processing');
         const hasReady = selectedRequests.some(req => req.status === 'Ready to Claim');
         const hasScheduled = selectedRequests.some(req => req.status === 'Scheduled for Pickup');
         
         selectedApproveBtn.style.display = hasPending ? 'inline-block' : 'none';
         selectedRejectBtn.style.display = hasPending ? 'inline-block' : 'none';
-        selectedReadyBtn.style.display = hasApproved ? 'inline-block' : 'none';
+        selectedProcessBtn.style.display = hasApproved ? 'inline-block' : 'none';
+        selectedSetPeriodBtn.style.display = (hasProcessing || hasReady) ? 'inline-block' : 'none';
         selectedClaimBtn.style.display = hasScheduled ? 'inline-block' : 'none';
         
         // Update user profile if only one request is selected
@@ -1451,6 +1780,27 @@
         updateSelectedRequestActions();
     }
 
+    // NEW: Open set pickup period modal for single request
+    function openSetPeriodModal(requestId) {
+        currentSetPeriodRequestId = requestId;
+        document.getElementById('setPickupPeriodModal').style.display = 'flex';
+        
+        // Reset form
+        document.getElementById('periodStartDate').value = '';
+        document.getElementById('periodEndDate').value = '';
+        document.getElementById('periodNotes').value = '';
+    }
+
+    // NEW: Open bulk set pickup period modal
+    function openBulkSetPeriodModal() {
+        document.getElementById('bulkSetPeriodModal').style.display = 'flex';
+        
+        // Reset form
+        document.getElementById('bulkPeriodStartDate').value = '';
+        document.getElementById('bulkPeriodEndDate').value = '';
+        document.getElementById('bulkPeriodNotes').value = '';
+    }
+
     function openRejectModal(requestId) {
         currentRejectRequestId = requestId;
         document.getElementById('rejectModal').style.display = 'flex';
@@ -1495,6 +1845,46 @@
             performSingleAction(currentRejectRequestId, 'reject', reason);
         }
     }
+
+    // NEW: Submit pickup period for single request
+    function submitPickupPeriod() {
+        const startDate = document.getElementById('periodStartDate').value;
+        const endDate = document.getElementById('periodEndDate').value;
+        const notes = document.getElementById('periodNotes').value.trim();
+        
+        if (!startDate || !endDate) {
+            alert('Please provide both start and end dates');
+            return;
+        }
+        
+        if (new Date(startDate) >= new Date(endDate)) {
+            alert('End date must be after start date');
+            return;
+        }
+        
+        document.getElementById('setPickupPeriodModal').style.display = 'none';
+        performSetPickupPeriod(currentSetPeriodRequestId, startDate, endDate, notes);
+    }
+
+    // NEW: Submit bulk pickup period
+    function submitBulkPickupPeriod() {
+        const startDate = document.getElementById('bulkPeriodStartDate').value;
+        const endDate = document.getElementById('bulkPeriodEndDate').value;
+        const notes = document.getElementById('bulkPeriodNotes').value.trim();
+        
+        if (!startDate || !endDate) {
+            alert('Please provide both start and end dates');
+            return;
+        }
+        
+        if (new Date(startDate) >= new Date(endDate)) {
+            alert('End date must be after start date');
+            return;
+        }
+        
+        document.getElementById('bulkSetPeriodModal').style.display = 'none';
+        performBulkSetPickupPeriod(Array.from(selectedRequestIds), startDate, endDate, notes);
+    }
     
     function submitBulkRejection() {
         const reason = document.getElementById('bulkRejectionReason').value.trim();
@@ -1510,6 +1900,62 @@
             !currentFilters.archive && req.status === 'Pending').map(req => req.id);
             
         performBulkAction(requestIds, 'reject', reason);
+    }
+
+    // NEW: Perform set pickup period for single request
+    async function performSetPickupPeriod(requestId, startDate, endDate, notes) {
+        try {
+            const response = await authFetch(`/api/requests/${requestId}/set-pickup-period`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    startDate: startDate,
+                    endDate: endDate,
+                    notes: notes
+                })
+            });
+
+            if (!response) return;
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to set pickup period');
+            }
+
+            const result = await response.json();
+            showNotification(result.message || "Pickup period set successfully!");
+            fetchRequests();
+            clearSelection();
+        } catch (error) {
+            console.error('Set pickup period error:', error);
+            showNotification(`Error: ${error.message}`);
+        }
+    }
+
+    // NEW: Perform bulk set pickup period
+    async function performBulkSetPickupPeriod(requestIds, startDate, endDate, notes) {
+        try {
+            // For bulk operations, we need to call the API for each request
+            const promises = requestIds.map(requestId => 
+                authFetch(`/api/requests/${requestId}/set-pickup-period`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        startDate: startDate,
+                        endDate: endDate,
+                        notes: notes
+                    })
+                })
+            );
+
+            const results = await Promise.allSettled(promises);
+            const successful = results.filter(result => result.status === 'fulfilled' && result.value?.ok).length;
+            
+            showNotification(`Successfully set pickup period for ${successful} request(s)`);
+            fetchRequests();
+            clearSelection();
+        } catch (error) {
+            console.error('Bulk set pickup period error:', error);
+            showNotification(`Error: ${error.message}`);
+        }
     }
 
     async function performBulkAction(requestIds, action, rejectionReason = '') {
@@ -1531,7 +1977,7 @@
             }
 
             const result = await response.json();
-            showNotification(`Successfully ${action === 'ready' ? 'marked as ready to claim' : action === 'claim' ? 'marked as claimed' : action + 'd'} ${result.processedCount} request(s)`);
+            showNotification(`Successfully ${action === 'ready' ? 'marked as ready to claim' : action === 'claim' ? 'marked as claimed' : action === 'process' ? 'marked as processing' : action + 'd'} ${result.processedCount} request(s)`);
             fetchRequests();
             clearSelection();
         } catch (error) {
@@ -1542,7 +1988,25 @@
     
     async function performSingleAction(requestId, action, rejectionReason = '') {
         try {
-            const url = `/api/requests/${requestId}/${action}`;
+            let url = `/api/requests/${requestId}`;
+            
+            switch (action) {
+                case 'approve':
+                    url += '/approve';
+                    break;
+                case 'reject':
+                    url += '/reject';
+                    break;
+                case 'process':
+                    url += '/process';
+                    break;
+                case 'claim':
+                    url += '/claim';
+                    break;
+                default:
+                    throw new Error('Invalid action');
+            }
+
             const options = {
                 method: 'PUT',
                 body: JSON.stringify({ rejectionReason })
@@ -1557,7 +2021,7 @@
                 throw new Error(errorData.error || `Failed to ${action}`);
             }
 
-            showNotification(`Request ${action === 'ready' ? 'marked as ready to claim' : action === 'claim' ? 'marked as claimed' : action + 'd'} successfully`);
+            showNotification(`Request ${action === 'ready' ? 'marked as ready to claim' : action === 'claim' ? 'marked as claimed' : action === 'process' ? 'marked as processing' : action + 'd'} successfully`);
             fetchRequests();
             clearSelection();
         } catch (error) {
@@ -1570,7 +2034,7 @@
         const tbody = requestsTable.querySelector('tbody');
         tbody.innerHTML = `
             <tr>
-                <td colspan="9" class="error-message">
+                <td colspan="11" class="error-message">
                     ${message}
                 </td>
             </tr>
@@ -1637,6 +2101,8 @@
                     request.purpose || 'N/A',
                     request.formattedDate || 'N/A',
                     request.status || 'Pending',
+                    request.priorityScore ? (request.priorityScore >= 8 ? 'High' : request.priorityScore >= 4 ? 'Medium' : 'Low') : 'N/A',
+                    request.hasAdminPickupPeriod ? request.formattedAdminPickupPeriod : 'Not set',
                     request.scheduledClaimDate ? 
                         `${request.formattedScheduledDate} ${request.formattedScheduledTime}` : 
                         'Not scheduled'
@@ -1645,7 +2111,7 @@
 
             // Add table
             doc.autoTable({
-                head: [['Name', 'Address', 'Document Type', 'Purpose', 'Date Requested', 'Status', 'Scheduled Pickup']],
+                head: [['Name', 'Address', 'Document Type', 'Purpose', 'Date Requested', 'Status', 'Priority', 'Pickup Period', 'Scheduled Pickup']],
                 body: tableData,
                 startY: 60,
                 theme: 'grid',
@@ -1670,9 +2136,17 @@
             // Add summary statistics
             const totalRequests = allRequests.length;
             const statusCounts = {};
+            const priorityCounts = { high: 0, medium: 0, low: 0 };
+            const pickupPeriodSet = allRequests.filter(req => req.hasAdminPickupPeriod).length;
+            
             allRequests.forEach(request => {
                 const status = request.status || 'Pending';
                 statusCounts[status] = (statusCounts[status] || 0) + 1;
+                
+                const priorityScore = request.priorityScore || 0;
+                if (priorityScore >= 8) priorityCounts.high++;
+                else if (priorityScore >= 4) priorityCounts.medium++;
+                else priorityCounts.low++;
             });
 
             // Add summary section
@@ -1686,7 +2160,18 @@
             
             doc.text(`Total Requests: ${totalRequests}`, 15, summaryY);
             summaryY += 7;
+            doc.text(`Pickup Periods Set: ${pickupPeriodSet} (${((pickupPeriodSet / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+            summaryY += 7;
             
+            // Priority distribution
+            doc.text(`High Priority: ${priorityCounts.high} (${((priorityCounts.high / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+            summaryY += 7;
+            doc.text(`Medium Priority: ${priorityCounts.medium} (${((priorityCounts.medium / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+            summaryY += 7;
+            doc.text(`Low Priority: ${priorityCounts.low} (${((priorityCounts.low / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+            summaryY += 10;
+            
+            // Status distribution
             Object.entries(statusCounts).forEach(([status, count]) => {
                 doc.text(`${status}: ${count} (${((count / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
                 summaryY += 7;
@@ -1757,6 +2242,8 @@
                     request.purpose || 'N/A',
                     request.formattedDate || 'N/A',
                     request.status || 'Pending',
+                    request.priorityScore ? (request.priorityScore >= 8 ? 'High' : request.priorityScore >= 4 ? 'Medium' : 'Low') : 'N/A',
+                    request.hasAdminPickupPeriod ? request.formattedAdminPickupPeriod : 'Not set',
                     request.scheduledClaimDate ? 
                         `${request.formattedScheduledDate} ${request.formattedScheduledTime}` : 
                         'Not scheduled'
@@ -1765,7 +2252,7 @@
 
             // Add table
             doc.autoTable({
-                head: [['Name', 'Address', 'Document Type', 'Purpose', 'Date Requested', 'Status', 'Scheduled Pickup']],
+                head: [['Name', 'Address', 'Document Type', 'Purpose', 'Date Requested', 'Status', 'Priority', 'Pickup Period', 'Scheduled Pickup']],
                 body: tableData,
                 startY: 55,
                 theme: 'grid',
@@ -1790,9 +2277,17 @@
             // Add summary statistics
             const totalRequests = allRequests.length;
             const statusCounts = {};
+            const priorityCounts = { high: 0, medium: 0, low: 0 };
+            const pickupPeriodSet = allRequests.filter(req => req.hasAdminPickupPeriod).length;
+            
             allRequests.forEach(request => {
                 const status = request.status || 'Pending';
                 statusCounts[status] = (statusCounts[status] || 0) + 1;
+                
+                const priorityScore = request.priorityScore || 0;
+                if (priorityScore >= 8) priorityCounts.high++;
+                else if (priorityScore >= 4) priorityCounts.medium++;
+                else priorityCounts.low++;
             });
 
             // Add summary section
@@ -1806,7 +2301,18 @@
             
             doc.text(`Total Requests: ${totalRequests}`, 15, summaryY);
             summaryY += 7;
+            doc.text(`Pickup Periods Set: ${pickupPeriodSet} (${((pickupPeriodSet / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+            summaryY += 7;
             
+            // Priority distribution
+            doc.text(`High Priority: ${priorityCounts.high} (${((priorityCounts.high / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+            summaryY += 7;
+            doc.text(`Medium Priority: ${priorityCounts.medium} (${((priorityCounts.medium / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+            summaryY += 7;
+            doc.text(`Low Priority: ${priorityCounts.low} (${((priorityCounts.low / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
+            summaryY += 10;
+            
+            // Status distribution
             Object.entries(statusCounts).forEach(([status, count]) => {
                 doc.text(`${status}: ${count} (${((count / totalRequests) * 100).toFixed(1)}%)`, 15, summaryY);
                 summaryY += 7;
@@ -1869,6 +2375,8 @@
         const logoutModal = document.getElementById('logoutModal');
         const rejectModal = document.getElementById('rejectModal');
         const bulkRejectModal = document.getElementById('bulkRejectModal');
+        const setPickupPeriodModal = document.getElementById('setPickupPeriodModal');
+        const bulkSetPeriodModal = document.getElementById('bulkSetPeriodModal');
         
         if (event.target === logoutModal) {
             closeLogoutModal();
@@ -1878,6 +2386,12 @@
         }
         if (event.target === bulkRejectModal) {
             document.getElementById('bulkRejectModal').style.display = 'none';
+        }
+        if (event.target === setPickupPeriodModal) {
+            document.getElementById('setPickupPeriodModal').style.display = 'none';
+        }
+        if (event.target === bulkSetPeriodModal) {
+            document.getElementById('bulkSetPeriodModal').style.display = 'none';
         }
     });
 </script>

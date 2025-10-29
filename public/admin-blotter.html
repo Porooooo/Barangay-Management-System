@@ -190,6 +190,48 @@
             color: #333;
         }
 
+        /* Quick Action Panel */
+        .quick-action-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .quick-action {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid var(--primary);
+        }
+
+        .quick-action:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-action i {
+            font-size: 2em;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .quick-action span {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .quick-action small {
+            color: #666;
+            font-size: 0.85em;
+        }
+
         /* Statistics Cards */
         .stats-container {
             display: grid;
@@ -280,6 +322,32 @@
             background: #1c6ea4;
         }
 
+        /* Filter Presets */
+        .filter-presets {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 8px 15px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: #dee2e6;
+        }
+
+        .preset-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
         /* Table Container */
         .table-container {
             background: white;
@@ -339,14 +407,44 @@
             background-color: #f1f1f1;
         }
 
-        .action-btn {
-            padding: 5px 10px;
+        .quick-action-btn {
+            padding: 6px 12px;
             margin-right: 5px;
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
             transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .mediate-btn {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .mediate-btn:hover {
+            background-color: #218838;
+        }
+
+        .summon-btn {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .summon-btn:hover {
+            background-color: #e69500;
+        }
+
+        .resolve-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .resolve-btn:hover {
+            background-color: #1c6ea4;
         }
 
         .view-btn {
@@ -358,13 +456,22 @@
             background-color: #115a65;
         }
 
-        .call-btn {
+        .contact-btn {
             background-color: var(--success);
             color: white;
         }
 
-        .call-btn:hover {
-            background-color: #175625;
+        .contact-btn:hover {
+            background-color: #218838;
+        }
+
+        .meeting-btn {
+            background-color: #6f42c1;
+            color: white;
+        }
+
+        .meeting-btn:hover {
+            background-color: #5a2d91;
         }
 
         .delete-btn {
@@ -409,8 +516,23 @@
             color: #0c5460;
         }
 
+        .status-cfa-issued {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
         .ban-notice {
             background: var(--danger);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+            display: inline-block;
+        }
+
+        .meeting-badge {
+            background: #6f42c1;
             color: white;
             padding: 0.2rem 0.5rem;
             border-radius: 2rem;
@@ -599,32 +721,323 @@
             background-color: #c82333;
         }
 
-        .call-history {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
+        /* NEW: Contact History Modal Styles */
+        .contact-history-modal {
+            max-width: 800px;
+            width: 95%;
+            max-height: 80vh;
         }
 
-        .call-item {
+        .contact-history-header {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #e0e0e0;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px 15px 0 0;
         }
 
-        .call-item:last-child {
-            border-bottom: none;
+        .contact-history-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+            margin: 0;
         }
 
-        .call-success {
-            color: var(--success);
+        .contact-history-content {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .contact-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .contact-history-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .contact-history-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .contact-history-item.success {
+            border-left-color: var(--success);
+        }
+
+        .contact-history-item.failed {
+            border-left-color: var(--danger);
+        }
+
+        .contact-method {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .contact-method i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .contact-method-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .contact-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 500;
+            margin-left: 10px;
         }
 
-        .call-failed {
-            color: var(--danger);
+        .contact-status.success {
+            background: var(--success);
+            color: white;
+        }
+
+        .contact-status.failed {
+            background: var(--danger);
+            color: white;
+        }
+
+        .contact-details {
+            margin-top: 8px;
+        }
+
+        .contact-date {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .contact-notes {
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .no-contact-history {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .no-contact-history i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #bdc3c7;
+        }
+
+        .no-contact-history p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        /* Contact Logging Modal */
+        .contact-logging-modal {
+            max-width: 500px;
+            width: 95%;
+        }
+
+        .contact-logging-form {
+            padding: 20px;
+        }
+
+        .contact-method-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .contact-method-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .contact-method-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .contact-method-btn.selected {
+            border-color: var(--primary);
+            background: #f0f8ff;
+        }
+
+        .contact-method-btn i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .contact-method-btn span {
+            font-size: 14px;
             font-weight: 500;
+            color: var(--dark);
+        }
+
+        .contact-form-group {
+            margin-bottom: 20px;
+        }
+
+        .contact-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .contact-form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .contact-form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(13, 79, 139, 0.1);
+        }
+
+        .contact-success-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--success);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-label {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .contact-logging-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .contact-logging-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .contact-logging-actions .save-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .contact-logging-actions .save-btn:hover {
+            background-color: #1c6ea4;
+            transform: translateY(-2px);
+        }
+
+        .contact-logging-actions .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .contact-logging-actions .cancel-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* View Contact History Button */
+        .view-contact-history-btn {
+            background-color: #17a2b8;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-contact-history-btn:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
         }
 
         .warning-banner, .danger-banner {
@@ -644,6 +1057,139 @@
         .danger-banner {
             background: #f8d7da;
             color: #721c24;
+        }
+
+        /* Document Actions */
+        .document-actions {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .document-actions h4 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .doc-btn {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .doc-btn.summon {
+            background: var(--warning);
+            color: white;
+        }
+
+        .doc-btn.cfa {
+            background: var(--danger);
+            color: white;
+        }
+
+        .doc-btn.report {
+            background: var(--primary);
+            color: white;
+        }
+
+        .doc-btn.minutes {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .doc-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Meeting Section */
+        .meeting-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 5px;
+            border-left: 4px solid #6f42c1;
+        }
+
+        .meeting-timeline {
+            margin: 15px 0;
+        }
+
+        .meeting-stage {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .meeting-stage.completed {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .meeting-stage.current {
+            background: #cce5ff;
+            border-color: #b8daff;
+        }
+
+        .meeting-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #6f42c1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .meeting-stage.completed .meeting-number {
+            background: var(--success);
+        }
+
+        .meeting-stage.current .meeting-number {
+            background: var(--primary);
+        }
+
+        .meeting-info {
+            flex: 1;
+        }
+
+        .meeting-actions {
+            margin-left: 10px;
+        }
+
+        /* Resolution Templates */
+        .resolution-templates {
+            margin: 15px 0;
+        }
+
+        .template-btn {
+            padding: 8px 12px;
+            margin: 5px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .template-btn:hover {
+            background: #dee2e6;
         }
 
         /* Logout Modal */
@@ -693,6 +1239,10 @@
             .stats-container {
                 grid-template-columns: repeat(3, 1fr);
             }
+            
+            .quick-action-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 768px) {
@@ -722,6 +1272,10 @@
             .stats-container {
                 grid-template-columns: 1fr;
                 gap: 15px;
+            }
+            
+            .quick-action-panel {
+                grid-template-columns: 1fr;
             }
             
             .form-row {
@@ -786,7 +1340,7 @@
         
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="/admin-dashboard">
+                <li><a href="/admin-dashboard" class="active">
                     <i class="fas fa-home"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
@@ -798,7 +1352,7 @@
                     <i class="fas fa-file-alt"></i>
                     <span class="link-name">Document Requests</span>
                 </a></li>
-                <li><a href="/admin-blotter" class="active">
+                <li><a href="/admin-blotter">
                     <i class="fas fa-shield-alt"></i>
                     <span class="link-name">Blotter Reports</span>
                 </a></li>
@@ -814,6 +1368,10 @@
                     <i class="fas fa-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
+                <li><a href="/admin-messages">
+                    <i class="fas fa-envelope"></i>
+                    <span class="link-name">Resident Messages</span>
+                </a></li>
             </ul>
             
             <!-- Logout Section -->
@@ -823,6 +1381,13 @@
                     <span class="link-name">Logout</span>
                 </a>
             </div>
+        </div>
+        
+        <!-- Greeting and Time Section -->
+        <div class="greeting-section">
+            <div class="greeting" id="greetingText">Welcome Admin</div>
+            <div class="current-date" id="currentDate"></div>
+            <div class="current-time" id="currentTime"></div>
         </div>
     </nav>
 
@@ -839,11 +1404,19 @@
             <div class="page-header">
             </div>
 
+            
+
             <!-- Search Section -->
             <div class="search-section">
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="Search by complainant, accused, complaint type, or location...">
                     <button onclick="searchBlotters()"><i class="fas fa-search"></i> Search</button>
+                </div>
+                <div class="filter-presets">
+                    <button class="preset-btn" onclick="applyPresetFilter('urgent')">Urgent</button>
+                    <button class="preset-btn" onclick="applyPresetFilter('mediation_ready')">Mediation Ready</button>
+                    <button class="preset-btn" onclick="applyPresetFilter('for_cfa')">For CFA</button>
+                    <button class="preset-btn" onclick="applyPresetFilter('all')">All Cases</button>
                 </div>
             </div>
 
@@ -884,6 +1457,7 @@
                                 <th>Complaint Type</th>
                                 <th>Location</th>
                                 <th>Status</th>
+                                <th>Meetings</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -910,16 +1484,36 @@
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2>Blotter Report Details</h2>
             
-            <div id="callAttemptsWarning" class="warning-banner">
-                <i class="fas fa-exclamation-triangle"></i> Warning: 1 call attempt failed. 2 attempts remaining.
+            <!-- Document Actions -->
+            <div class="document-actions">
+                <h4>Generate Documents</h4>
+                <button class="doc-btn summon" onclick="generateSummons(currentBlotterId)">
+                    <i class="fas fa-gavel"></i> Issue Summons
+                </button>
+                <button class="doc-btn cfa" onclick="generateCFA(currentBlotterId)" id="cfaBtn" style="display: none;">
+                    <i class="fas fa-file-contract"></i> Issue CFA
+                </button>
+                <button class="doc-btn minutes" onclick="generateMeetingMinutes(currentBlotterId)" id="minutesBtn" style="display: none;">
+                    <i class="fas fa-file-alt"></i> Meeting Minutes
+                </button>
+                <button class="doc-btn report" onclick="generateBlotterDocuments(currentBlotterId)">
+                    <i class="fas fa-print"></i> All Documents
+                </button>
             </div>
             
-            <div id="callAttemptsDanger" class="danger-banner">
-                <i class="fas fa-exclamation-octagon"></i> Danger: 2 call attempts failed. 1 attempt remaining. After 3 failed attempts, case will be escalated to PNP and accused will be banned from document requests.
+            <!-- Meeting Progress -->
+            <div class="meeting-section">
+                <h3>Mediation Meetings Progress</h3>
+                <div class="meeting-timeline" id="meetingTimeline">
+                    <!-- Meeting stages will be populated here -->
+                </div>
+                <button class="meeting-btn" onclick="showMeetingModal()" id="scheduleMeetingBtn" style="display: none;">
+                    <i class="fas fa-calendar-plus"></i> Schedule Next Meeting
+                </button>
             </div>
             
             <div id="banSection" class="danger-banner" style="display: none;">
-                <i class="fas fa-exclamation-octagon"></i> This user has been banned from document requests due to multiple failed call attempts.
+                <i class="fas fa-exclamation-octagon"></i> This user has been banned from document requests.
                 <button onclick="unbanUser()" class="action-btn" style="margin-left: 1rem;">Lift Restriction</button>
             </div>
             
@@ -932,6 +1526,7 @@
                         <option value="Resolved">Resolved</option>
                         <option value="Dismissed">Dismissed</option>
                         <option value="Escalated to PNP">Escalated to PNP</option>
+                        <option value="CFA Issued">CFA Issued</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -983,19 +1578,28 @@
                 <textarea id="complaintDetails" readonly></textarea>
             </div>
             
+            <!-- Contact History Section -->
+            <div class="document-actions">
+                <h4>Contact Management</h4>
+                <button class="view-contact-history-btn" onclick="showContactHistoryModal(currentBlotterId)">
+                    <i class="fas fa-address-book"></i> View Contact History
+                </button>
+                <button class="contact-btn" onclick="showContactLoggingModal()">
+                    <i class="fas fa-plus-circle"></i> Log New Contact
+                </button>
+            </div>
+            
+            <!-- Resolution Templates -->
+            <div class="resolution-templates">
+                <label>Quick Resolution Templates:</label>
+                <button class="template-btn" onclick="applyResolutionTemplate('amicable_settlement')">Amicable Settlement</button>
+                <button class="template-btn" onclick="applyResolutionTemplate('dismissed_no_evidence')">Dismissed - No Evidence</button>
+                <button class="template-btn" onclick="applyResolutionTemplate('referred_to_pnp')">Referred to PNP</button>
+            </div>
+            
             <div class="form-group">
                 <label for="resolutionDetails">Resolution Details</label>
                 <textarea id="resolutionDetails" placeholder="Enter resolution details..."></textarea>
-            </div>
-            
-            <div class="call-history">
-                <h3>Call History</h3>
-                <div id="callHistory">
-                    <p>No call attempts recorded yet.</p>
-                </div>
-                <button class="action-btn call-btn" onclick="initiateCall(currentBlotterId, document.getElementById('accusedContact').value)" style="margin-top: 1rem;">
-                    <i class="fas fa-phone"></i> Call Accused
-                </button>
             </div>
             
             <div class="modal-actions">
@@ -1015,6 +1619,132 @@
         </div>
     </div>
 
+    <!-- NEW: Contact History Modal -->
+    <div id="contactHistoryModal" class="modal">
+        <div class="modal-content contact-history-modal">
+            <div class="contact-history-header">
+                <h2 class="contact-history-title">
+                    <i class="fas fa-address-book"></i> Contact History
+                </h2>
+                <span class="close-btn" onclick="closeContactHistoryModal()">&times;</span>
+            </div>
+            <div class="contact-history-content">
+                <div id="contactHistoryList" class="contact-history-list">
+                    <!-- Contact history items will be loaded here -->
+                </div>
+                <div id="noContactHistory" class="no-contact-history" style="display: none;">
+                    <i class="fas fa-address-book"></i>
+                    <p>No contact history recorded yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Contact Logging Modal -->
+    <div id="contactLoggingModal" class="modal">
+        <div class="modal-content contact-logging-modal">
+            <div class="contact-history-header">
+                <h2 class="contact-history-title">
+                    <i class="fas fa-plus-circle"></i> Log Contact Attempt
+                </h2>
+                <span class="close-btn" onclick="closeContactLoggingModal()">&times;</span>
+            </div>
+            <div class="contact-logging-form">
+                <div class="contact-method-buttons" id="contactMethodButtons">
+                    <!-- Contact method buttons will be generated here -->
+                </div>
+                <div class="contact-form-group">
+                    <label for="contactNotes">Contact Notes</label>
+                    <textarea id="contactNotes" placeholder="Enter details about the contact attempt..."></textarea>
+                </div>
+                <div class="contact-success-toggle">
+                    <span class="toggle-label">Contact Successful:</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="contactSuccess">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="contact-logging-actions">
+                    <button class="cancel-btn" onclick="closeContactLoggingModal()">Cancel</button>
+                    <button class="save-btn" onclick="saveContactAttempt()">Save Contact</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meeting Modal -->
+    <div id="meetingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeMeetingModal()">&times;</span>
+            <h2>Schedule Meeting #<span id="meetingNumberDisplay">1</span></h2>
+            
+            <div class="form-group">
+                <label for="meetingDate">Meeting Date and Time</label>
+                <input type="datetime-local" id="meetingDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="meetingLocation">Location</label>
+                <input type="text" id="meetingLocation" placeholder="Enter meeting location">
+            </div>
+            
+            <div class="form-group">
+                <label for="meetingAttendees">Attendees</label>
+                <div id="attendeeList">
+                    <div class="attendee-item">
+                        <input type="text" placeholder="Name" class="attendee-name">
+                        <select class="attendee-role">
+                            <option value="complainant">Complainant</option>
+                            <option value="accused">Accused</option>
+                            <option value="witness">Witness</option>
+                            <option value="officer">Barangay Official</option>
+                        </select>
+                        <button type="button" onclick="removeAttendee(this)" class="delete-btn" style="padding: 5px 8px; margin-left: 5px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="addAttendee()" class="contact-btn" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> Add Attendee
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label for="meetingDiscussion">Discussion Summary</label>
+                <textarea id="meetingDiscussion" placeholder="Summarize what was discussed..." rows="4"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="meetingAgreements">Agreements Reached</label>
+                <div id="agreementList">
+                    <div class="agreement-item">
+                        <input type="text" placeholder="Agreement point" class="agreement-point">
+                        <button type="button" onclick="removeAgreement(this)" class="delete-btn" style="padding: 5px 8px; margin-left: 5px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="addAgreement()" class="contact-btn" style="margin-top: 10px;">
+                    <i class="fas fa-plus"></i> Add Agreement
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label for="meetingNextSteps">Next Steps</label>
+                <textarea id="meetingNextSteps" placeholder="What are the next steps?" rows="3"></textarea>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="save-btn" onclick="saveMeeting()">
+                    <i class="fas fa-save"></i> Save Meeting
+                </button>
+                <button class="close-modal-btn" onclick="closeMeetingModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Logout Confirmation Modal -->
     <div id="logoutModal" class="modal">
         <div class="modal-content">
@@ -1029,13 +1759,51 @@
 
     <script>
         let currentBlotterId = null;
-        let callAttempts = 0;
-        const MAX_CALL_ATTEMPTS = 3;
         let accusedUserId = null;
         let isBanned = false;
         let allBlotters = [];
         let currentStatus = null;
         let currentSearchTerm = '';
+        let currentMeetingNumber = 1;
+        let currentSelectedContactMethod = null;
+
+        // Contact Methods
+        const contactMethods = {
+            'home_visit': { name: 'Home Visit', icon: 'fa-house' },
+            'sms': { name: 'SMS', icon: 'fa-comment' },
+            'facebook': { name: 'Facebook', icon: 'fab fa-facebook' },
+            'messenger': { name: 'Messenger', icon: 'fa-envelope' },
+            'email': { name: 'Email', icon: 'fa-envelope' },
+            'other': { name: 'Other', icon: 'fa-phone' }
+        };
+
+        // Filter Presets
+        const filterPresets = {
+            'urgent': {
+                status: ['Pending'],
+                days: 1,
+                priority: 'high'
+            },
+            'mediation_ready': {
+                status: ['Pending', 'Under Investigation'],
+                currentMeeting: 0
+            },
+            'for_cfa': {
+                currentMeeting: 3,
+                status: ['Under Investigation'],
+                cfaIssued: false
+            },
+            'all': {
+                // No filters - show all
+            }
+        };
+
+        // Resolution Templates
+        const resolutionTemplates = {
+            'amicable_settlement': `The parties have amicably settled their dispute and agreed to the following terms:\n1. [Terms of agreement]\n2. [Actions to be taken]\n3. [Timeline for compliance]\n\nBoth parties affirm this settlement is voluntary and binding.`,
+            'dismissed_no_evidence': `Case dismissed due to lack of substantial evidence and failure of complainant to present witnesses.\nParties advised to maintain peace and order in the community.`,
+            'referred_to_pnp': `Case referred to PNP for appropriate action as the matter falls outside barangay jurisdiction.\nCertification to File Action issued to complainant.`
+        };
 
         // Toggle sidebar on mobile
         function toggleMenu() {
@@ -1047,17 +1815,14 @@
             checkAuthStatus();
             loadBlotterStats();
             
-            // Set up event listeners
             document.getElementById('sidebarLogoutBtn').addEventListener('click', openLogoutModal);
             
-            // Add enter key support for search
             document.getElementById('searchInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     searchBlotters();
                 }
             });
             
-            // Automatically show pending cases on page load
             setTimeout(() => {
                 filterByStatus('pending');
             }, 500);
@@ -1065,7 +1830,7 @@
 
         function checkAuthStatus() {
             fetch('/api/admin/check-auth', {
-                credentials: 'include' // Important for session cookies
+                credentials: 'include'
             })
             .then(response => {
                 if (!response.ok) {
@@ -1077,7 +1842,6 @@
                 if (!data.isAuthenticated || data.user.role !== 'admin') {
                     window.location.href = '/admin-login';
                 }
-                // Optionally store user data
                 localStorage.setItem('user', JSON.stringify(data.user));
             })
             .catch(error => {
@@ -1119,9 +1883,7 @@
             const pendingCount = blotters.filter(b => b.status === 'Pending').length;
             const activeCount = blotters.filter(b => b.status === 'Under Investigation').length;
             const closedCount = blotters.filter(b => 
-                b.status === 'Resolved' || 
-                b.status === 'Dismissed' || 
-                b.status === 'Escalated to PNP'
+                ['Resolved', 'Dismissed', 'Escalated to PNP', 'CFA Issued'].includes(b.status)
             ).length;
             
             document.getElementById('pendingCount').textContent = pendingCount;
@@ -1133,12 +1895,10 @@
         function filterByStatus(status) {
             currentStatus = status;
             
-            // Update active card
             document.querySelectorAll('.stat-card').forEach(card => {
                 card.classList.remove('active');
             });
             
-            // Find the card that was clicked and add active class
             const cards = document.querySelectorAll('.stat-card');
             cards.forEach(card => {
                 if (card.classList.contains('pending') && status === 'pending') {
@@ -1150,7 +1910,6 @@
                 }
             });
             
-            // Update table title and filter display
             const statusTitles = {
                 'pending': 'Pending Cases',
                 'active': 'Active Cases',
@@ -1167,8 +1926,81 @@
             document.getElementById('currentFilter').textContent = `Filter: ${statusLabels[status]}`;
             document.getElementById('currentFilter').style.display = 'inline-block';
             
-            // Load blotters for the selected status
             loadBlottersByStatus(status, currentSearchTerm);
+        }
+
+        // Apply preset filter
+        function applyPresetFilter(presetName) {
+            const preset = filterPresets[presetName];
+            if (!preset) {
+                loadBlottersByStatus('all');
+                document.getElementById('tableTitle').textContent = 'All Cases';
+                document.getElementById('currentFilter').textContent = `Filter: All Cases`;
+                return;
+            }
+            
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadBlottersWithFilter(preset);
+        }
+
+        function loadBlottersWithFilter(filter) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const emptyState = document.getElementById('emptyState');
+            const initialState = document.getElementById('initialState');
+            const table = document.querySelector('table');
+            const tableBody = document.getElementById('blotterTableBody');
+
+            loadingIndicator.style.display = 'block';
+            emptyState.style.display = 'none';
+            initialState.style.display = 'none';
+            table.style.display = 'none';
+            tableBody.innerHTML = '';
+
+            let filteredBlotters = allBlotters.filter(blotter => {
+                let matches = true;
+                
+                if (filter.status && !filter.status.includes(blotter.status)) {
+                    matches = false;
+                }
+                
+                if (filter.days) {
+                    const reportDate = new Date(blotter.dateReported);
+                    const daysAgo = (Date.now() - reportDate.getTime()) / (1000 * 60 * 60 * 24);
+                    if (daysAgo > filter.days) {
+                        matches = false;
+                    }
+                }
+                
+                if (filter.currentMeeting !== undefined && blotter.currentMeeting !== filter.currentMeeting) {
+                    matches = false;
+                }
+                
+                if (filter.cfaIssued !== undefined && blotter.cfaIssued !== filter.cfaIssued) {
+                    matches = false;
+                }
+                
+                return matches;
+            });
+
+            setTimeout(() => {
+                displayBlotters(filteredBlotters, 'filtered');
+                loadingIndicator.style.display = 'none';
+                
+                const filterNames = {
+                    'urgent': 'Urgent Cases',
+                    'mediation_ready': 'Mediation Ready Cases',
+                    'for_cfa': 'Cases Ready for CFA',
+                    'all': 'All Cases'
+                };
+                
+                document.getElementById('tableTitle').textContent = filterNames[Object.keys(filterPresets).find(key => 
+                    JSON.stringify(filterPresets[key]) === JSON.stringify(filter)
+                )] || 'Filtered Cases';
+            }, 500);
         }
 
         // Load blotters by status
@@ -1179,28 +2011,24 @@
             const table = document.querySelector('table');
             const tableBody = document.getElementById('blotterTableBody');
 
-            // Show loading, hide other states
             loadingIndicator.style.display = 'block';
             emptyState.style.display = 'none';
             initialState.style.display = 'none';
             table.style.display = 'none';
             tableBody.innerHTML = '';
 
-            // Filter blotters based on status and search term
             let filteredBlotters = allBlotters.filter(blotter => {
-                // Filter by status
                 let statusMatch = false;
                 if (status === 'pending') {
                     statusMatch = blotter.status === 'Pending';
                 } else if (status === 'active') {
                     statusMatch = blotter.status === 'Under Investigation';
                 } else if (status === 'closed') {
-                    statusMatch = blotter.status === 'Resolved' || 
-                                 blotter.status === 'Dismissed' || 
-                                 blotter.status === 'Escalated to PNP';
+                    statusMatch = ['Resolved', 'Dismissed', 'Escalated to PNP', 'CFA Issued'].includes(blotter.status);
+                } else if (status === 'all') {
+                    statusMatch = true;
                 }
                 
-                // Filter by search term if provided
                 if (searchTerm && statusMatch) {
                     const searchLower = searchTerm.toLowerCase();
                     return (
@@ -1214,11 +2042,36 @@
                 return statusMatch;
             });
 
-            // Simulate API delay
             setTimeout(() => {
                 displayBlotters(filteredBlotters, status);
                 loadingIndicator.style.display = 'none';
             }, 500);
+        }
+
+        // Generate quick action buttons
+        function generateQuickActions(blotter) {
+            let actions = '';
+            
+            // Contact buttons
+            actions += `<button class="quick-action-btn contact-btn" onclick="showContactHistoryModal('${blotter._id}')">
+                <i class="fas fa-address-book"></i> Contact History
+            </button>`;
+            
+            // Meeting button
+            if (blotter.status === 'Under Investigation' && blotter.currentMeeting < 3) {
+                actions += `<button class="quick-action-btn meeting-btn" onclick="showMeetingModalForBlotter('${blotter._id}')">
+                    <i class="fas fa-handshake"></i> Meeting ${blotter.currentMeeting + 1}
+                </button>`;
+            }
+            
+            // CFA button
+            if (blotter.currentMeeting >= 3 && !blotter.cfaIssued) {
+                actions += `<button class="quick-action-btn resolve-btn" onclick="issueCFA('${blotter._id}')">
+                    <i class="fas fa-file-contract"></i> Issue CFA
+                </button>`;
+            }
+            
+            return actions;
         }
 
         function displayBlotters(blotters, status) {
@@ -1238,33 +2091,26 @@
             tableBody.innerHTML = blotters.map(blotter => {
                 const statusClass = `status-${blotter.status.toLowerCase().replace(' ', '-')}`;
                 
-                // Show appropriate action buttons based on status
-                let actionButtons = '';
+                const quickActionsHTML = generateQuickActions(blotter);
                 
-                if (blotter.status === 'Pending' || blotter.status === 'Under Investigation') {
-                    actionButtons = `
-                        <button class="action-btn view-btn" onclick="viewBlotter('${blotter._id}')">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        <button class="action-btn call-btn" onclick="initiateCall('${blotter._id}', '${blotter.accused.contact || ''}')">
-                            <i class="fas fa-phone"></i> Call
-                        </button>
-                    `;
-                } else if (blotter.status === 'Dismissed') {
-                    actionButtons = `
-                        <button class="action-btn view-btn" onclick="viewBlotter('${blotter._id}')">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        <button class="action-btn delete-btn" onclick="deleteDismissedReport('${blotter._id}')">
-                            <i class="fas fa-trash-alt"></i> Delete
-                        </button>
-                    `;
-                } else {
-                    actionButtons = `
-                        <button class="action-btn view-btn" onclick="viewBlotter('${blotter._id}')">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                    `;
+                let actionButtons = quickActionsHTML;
+                
+                actionButtons += `
+                    <button class="quick-action-btn view-btn" onclick="viewBlotter('${blotter._id}')">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                `;
+
+                if (blotter.status === 'Dismissed') {
+                    actionButtons += `<button class="quick-action-btn delete-btn" onclick="deleteDismissedReport('${blotter._id}')">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>`;
+                }
+
+                // Meeting badge
+                let meetingBadge = '';
+                if (blotter.currentMeeting > 0) {
+                    meetingBadge = `<span class="meeting-badge">Meeting ${blotter.currentMeeting}/3</span>`;
                 }
 
                 return `
@@ -1274,8 +2120,9 @@
                     <td>${blotter.accused.name} ${blotter.isBanned ? '<span class="ban-notice">BANNED</span>' : ''}</td>
                     <td>${blotter.complaintType}</td>
                     <td>${blotter.location}</td>
-                    <td><span class="status ${statusClass}">${blotter.status}</span></td>
-                    <td>
+                    <td><span class="status ${statusClass}">${blotter.status}</span>${meetingBadge}</td>
+                    <td>${blotter.currentMeeting}/3</td>
+                    <td style="white-space: nowrap;">
                         ${actionButtons}
                     </td>
                 </tr>
@@ -1291,10 +2138,302 @@
             }
         }
 
-        function deleteDismissedReport(blotterId) {
-            if (!confirm('Are you sure you want to delete this dismissed report? This action cannot be undone.')) {
+        // NEW: Contact History Modal Functions
+        function showContactHistoryModal(blotterId) {
+            currentBlotterId = blotterId;
+            loadContactHistory(blotterId);
+            document.getElementById('contactHistoryModal').style.display = 'block';
+        }
+
+        function closeContactHistoryModal() {
+            document.getElementById('contactHistoryModal').style.display = 'none';
+            currentBlotterId = null;
+        }
+
+        async function loadContactHistory(blotterId) {
+            try {
+                const response = await fetch(`/api/blotter/${blotterId}`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load contact history');
+                }
+
+                const blotter = await response.json();
+                displayContactHistory(blotter.contactHistory || []);
+            } catch (error) {
+                console.error('Error loading contact history:', error);
+                document.getElementById('contactHistoryList').innerHTML = `
+                    <div class="contact-history-item">
+                        <div class="contact-details">
+                            <p>Error loading contact history. Please try again.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function displayContactHistory(contactHistory) {
+            const contactHistoryList = document.getElementById('contactHistoryList');
+            const noContactHistory = document.getElementById('noContactHistory');
+
+            if (!contactHistory || contactHistory.length === 0) {
+                contactHistoryList.style.display = 'none';
+                noContactHistory.style.display = 'block';
                 return;
             }
+
+            contactHistoryList.style.display = 'block';
+            noContactHistory.style.display = 'none';
+
+            contactHistoryList.innerHTML = contactHistory.map(contact => {
+                const methodInfo = contactMethods[contact.method] || { name: contact.method, icon: 'fa-phone' };
+                const statusClass = contact.successful ? 'success' : 'failed';
+                const statusText = contact.successful ? 'Successful' : 'Failed';
+                const contactDate = new Date(contact.date).toLocaleString();
+
+                return `
+                    <div class="contact-history-item ${statusClass}">
+                        <div class="contact-method">
+                            <i class="${methodInfo.icon}"></i>
+                            <span class="contact-method-name">${methodInfo.name}</span>
+                            <span class="contact-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="contact-details">
+                            <div class="contact-date">
+                                <i class="fas fa-calendar-alt"></i> ${contactDate}
+                            </div>
+                            <div class="contact-notes">
+                                ${contact.notes || 'No notes provided'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // NEW: Contact Logging Modal Functions
+        function showContactLoggingModal() {
+            if (!currentBlotterId) {
+                alert('No blotter selected');
+                return;
+            }
+
+            generateContactMethodButtons();
+            document.getElementById('contactLoggingModal').style.display = 'block';
+        }
+
+        function closeContactLoggingModal() {
+            document.getElementById('contactLoggingModal').style.display = 'none';
+            currentSelectedContactMethod = null;
+            document.getElementById('contactNotes').value = '';
+            document.getElementById('contactSuccess').checked = true;
+        }
+
+        function generateContactMethodButtons() {
+            const contactMethodButtons = document.getElementById('contactMethodButtons');
+            contactMethodButtons.innerHTML = '';
+
+            Object.entries(contactMethods).forEach(([key, method]) => {
+                const button = document.createElement('button');
+                button.className = 'contact-method-btn';
+                button.innerHTML = `
+                    <i class="${method.icon}"></i>
+                    <span>${method.name}</span>
+                `;
+                button.onclick = () => selectContactMethod(key, button);
+                contactMethodButtons.appendChild(button);
+            });
+        }
+
+        function selectContactMethod(method, button) {
+            // Remove selected class from all buttons
+            document.querySelectorAll('.contact-method-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Add selected class to clicked button
+            button.classList.add('selected');
+            currentSelectedContactMethod = method;
+        }
+
+        async function saveContactAttempt() {
+            if (!currentBlotterId || !currentSelectedContactMethod) {
+                alert('Please select a contact method');
+                return;
+            }
+
+            const notes = document.getElementById('contactNotes').value.trim();
+            const successful = document.getElementById('contactSuccess').checked;
+
+            if (!notes) {
+                alert('Please enter contact notes');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/blotter/${currentBlotterId}/contact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        method: currentSelectedContactMethod,
+                        notes: notes,
+                        successful: successful
+                    }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save contact attempt');
+                }
+
+                const result = await response.json();
+                
+                // Close the modal
+                closeContactLoggingModal();
+                
+                // Show success message
+                alert('Contact attempt logged successfully!');
+                
+                // Refresh the contact history if the modal is open
+                if (document.getElementById('contactHistoryModal').style.display === 'block') {
+                    loadContactHistory(currentBlotterId);
+                }
+
+            } catch (error) {
+                console.error('Error saving contact attempt:', error);
+                alert('Failed to save contact attempt. Please try again.');
+            }
+        }
+
+        // Rest of the functions remain the same as in the original adminBlotter.html
+        // (Meeting functionality, blotter management, etc.)
+
+        // Meeting functionality
+        function showMeetingModalForBlotter(blotterId) {
+            currentBlotterId = blotterId;
+            showMeetingModal();
+        }
+
+        function showMeetingModal() {
+            if (!currentBlotterId) return;
+            
+            const blotter = allBlotters.find(b => b._id === currentBlotterId);
+            if (!blotter) return;
+            
+            currentMeetingNumber = blotter.currentMeeting + 1;
+            document.getElementById('meetingNumberDisplay').textContent = currentMeetingNumber;
+            document.getElementById('meetingModal').style.display = 'block';
+            
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('meetingDate').value = tomorrow.toISOString().slice(0, 16);
+            
+            // Clear previous inputs
+            document.getElementById('meetingLocation').value = '';
+            document.getElementById('meetingDiscussion').value = '';
+            document.getElementById('meetingNextSteps').value = '';
+            
+            // Reset attendees
+            const attendeeList = document.getElementById('attendeeList');
+            attendeeList.innerHTML = `
+                <div class="attendee-item">
+                    <input type="text" placeholder="Name" class="attendee-name">
+                    <select class="attendee-role">
+                        <option value="complainant">Complainant</option>
+                        <option value="accused">Accused</option>
+                        <option value="witness">Witness</option>
+                        <option value="officer">Barangay Official</option>
+                    </select>
+                    <button type="button" onclick="removeAttendee(this)" class="delete-btn" style="padding: 5px 8px; margin-left: 5px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Reset agreements
+            const agreementList = document.getElementById('agreementList');
+            agreementList.innerHTML = `
+                <div class="agreement-item">
+                    <input type="text" placeholder="Agreement point" class="agreement-point">
+                    <button type="button" onclick="removeAgreement(this)" class="delete-btn" style="padding: 5px 8px; margin-left: 5px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function addAttendee() {
+            const attendeeList = document.getElementById('attendeeList');
+            const newAttendee = document.createElement('div');
+            newAttendee.className = 'attendee-item';
+            newAttendee.innerHTML = `
+                <input type="text" placeholder="Name" class="attendee-name">
+                <select class="attendee-role">
+                    <option value="complainant">Complainant</option>
+                    <option value="accused">Accused</option>
+                    <option value="witness">Witness</option>
+                    <option value="officer">Barangay Official</option>
+                </select>
+                <button type="button" onclick="removeAttendee(this)" class="delete-btn" style="padding: 5px 8px; margin-left: 5px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            attendeeList.appendChild(newAttendee);
+        }
+
+        function removeAttendee(button) {
+            if (document.querySelectorAll('.attendee-item').length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function addAgreement() {
+            const agreementList = document.getElementById('agreementList');
+            const newAgreement = document.createElement('div');
+            newAgreement.className = 'agreement-item';
+            newAgreement.innerHTML = `
+                <input type="text" placeholder="Agreement point" class="agreement-point">
+                <button type="button" onclick="removeAgreement(this)" class="delete-btn" style="padding: 5px 8px; margin-left: 5px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            agreementList.appendChild(newAgreement);
+        }
+
+        function removeAgreement(button) {
+            if (document.querySelectorAll('.agreement-item').length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function saveMeeting() {
+            if (!currentBlotterId) return;
+            
+            const meetingDate = document.getElementById('meetingDate').value;
+            const location = document.getElementById('meetingLocation').value;
+            const discussion = document.getElementById('meetingDiscussion').value;
+            const nextSteps = document.getElementById('meetingNextSteps').value;
+            
+            if (!meetingDate || !location) {
+                alert('Please fill in required fields: Meeting Date and Location');
+                return;
+            }
+            
+            // Collect attendees
+            const attendees = Array.from(document.querySelectorAll('.attendee-item')).map(item => ({
+                name: item.querySelector('.attendee-name').value,
+                role: item.querySelector('.attendee-role').value
+            })).filter(attendee => attendee.name.trim() !== '');
+            
+            // Collect agreements
+            const agreements = Array.from(document.querySelectorAll('.agreement-point'))
+                .map(input => input.value.trim())
+                .filter(agreement => agreement !== '');
             
             const token = localStorage.getItem('token');
             if (!token) {
@@ -1302,38 +2441,200 @@
                 return;
             }
 
-            // Add console log to verify the ID being sent
-            console.log('Attempting to delete blotter with ID:', blotterId);
-
-            fetch(`/api/blotter/${blotterId}`, {
-                method: 'DELETE',
+            fetch(`/api/blotter/${currentBlotterId}/meetings`, {
+                method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    meetingNumber: currentMeetingNumber,
+                    date: meetingDate,
+                    location,
+                    attendees,
+                    discussion,
+                    agreements,
+                    nextSteps
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(updatedBlotter => {
+                closeMeetingModal();
+                viewBlotter(currentBlotterId); // Refresh the view
+                loadBlotterStats(); // Refresh stats
+                if (currentStatus) {
+                    loadBlottersByStatus(currentStatus, currentSearchTerm);
+                }
+                alert(`Meeting #${currentMeetingNumber} scheduled successfully!`);
+            })
+            .catch(error => {
+                console.error('Error saving meeting:', error);
+                alert('Failed to save meeting');
+            });
+        }
+
+        function closeMeetingModal() {
+            document.getElementById('meetingModal').style.display = 'none';
+        }
+
+        function updateMeetingTimeline(blotter) {
+            const timeline = document.getElementById('meetingTimeline');
+            timeline.innerHTML = '';
+            
+            for (let i = 1; i <= 3; i++) {
+                const meetingStage = document.createElement('div');
+                meetingStage.className = 'meeting-stage';
+                
+                const meeting = blotter.meetings.find(m => m.meetingNumber === i);
+                
+                if (meeting) {
+                    meetingStage.classList.add('completed');
+                    meetingStage.innerHTML = `
+                        <div class="meeting-number">${i}</div>
+                        <div class="meeting-info">
+                            <strong>Meeting #${i}</strong>
+                            <div>${new Date(meeting.date).toLocaleDateString()} - ${meeting.location}</div>
+                            <small>${meeting.attendees.length} attendees</small>
+                        </div>
+                        <div class="meeting-actions">
+                            <button class="doc-btn minutes" onclick="generateMeetingMinutesForMeeting('${blotter._id}', ${i})">
+                                <i class="fas fa-print"></i> Minutes
+                            </button>
+                        </div>
+                    `;
+                } else if (i === blotter.currentMeeting + 1) {
+                    meetingStage.classList.add('current');
+                    meetingStage.innerHTML = `
+                        <div class="meeting-number">${i}</div>
+                        <div class="meeting-info">
+                            <strong>Meeting #${i}</strong>
+                            <div>Ready to schedule</div>
+                        </div>
+                    `;
+                } else {
+                    meetingStage.innerHTML = `
+                        <div class="meeting-number">${i}</div>
+                        <div class="meeting-info">
+                            <strong>Meeting #${i}</strong>
+                            <div>Not scheduled</div>
+                        </div>
+                    `;
+                }
+                
+                timeline.appendChild(meetingStage);
+            }
+            
+            // Show/hide schedule meeting button
+            const scheduleBtn = document.getElementById('scheduleMeetingBtn');
+            if (blotter.currentMeeting < 3 && blotter.status === 'Under Investigation') {
+                scheduleBtn.style.display = 'block';
+            } else {
+                scheduleBtn.style.display = 'none';
+            }
+            
+            // Show/hide CFA button
+            const cfaBtn = document.getElementById('cfaBtn');
+            if (blotter.currentMeeting >= 3 && !blotter.cfaIssued) {
+                cfaBtn.style.display = 'inline-block';
+            } else {
+                cfaBtn.style.display = 'none';
+            }
+            
+            // Show/hide minutes button
+            const minutesBtn = document.getElementById('minutesBtn');
+            if (blotter.meetings && blotter.meetings.length > 0) {
+                minutesBtn.style.display = 'inline-block';
+            } else {
+                minutesBtn.style.display = 'none';
+            }
+        }
+
+        function issueCFA(blotterId) {
+            const reason = prompt('Enter reason for issuing CFA:');
+            if (!reason) return;
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login';
+                return;
+            }
+
+            fetch(`/api/blotter/${blotterId}/issue-cfa`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ reason })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(updatedBlotter => {
+                alert('CFA issued successfully!');
+                loadBlotterStats();
+                if (currentStatus) {
+                    loadBlottersByStatus(currentStatus, currentSearchTerm);
+                }
+                if (currentBlotterId === blotterId) {
+                    viewBlotter(blotterId);
+                }
+            })
+            .catch(error => {
+                console.error('Error issuing CFA:', error);
+                alert('Failed to issue CFA');
+            });
+        }
+
+        function generateMeetingMinutes(blotterId) {
+            const meetingNumber = prompt('Enter meeting number (1-3):');
+            if (!meetingNumber || meetingNumber < 1 || meetingNumber > 3) {
+                alert('Please enter a valid meeting number between 1 and 3');
+                return;
+            }
+            
+            generateMeetingMinutesForMeeting(blotterId, parseInt(meetingNumber));
+        }
+
+        function generateMeetingMinutesForMeeting(blotterId, meetingNumber) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/admin-login';
+                return;
+            }
+
+            fetch(`/api/blotter/${blotterId}/meetings/${meetingNumber}/minutes`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
             })
             .then(response => {
                 if (!response.ok) {
-                    // Get more detailed error information
-                    return response.json().then(err => {
-                        throw new Error(err.message || 'Network response was not ok');
-                    });
+                    throw new Error('Network response was not ok');
                 }
                 return response.json();
             })
-            .then(() => {
-                alert('Dismissed report deleted successfully');
-                loadBlotterStats(); // Reload stats and refresh view
-                if (currentStatus) {
-                    loadBlottersByStatus(currentStatus, currentSearchTerm);
-                }
+            .then(result => {
+                alert('Meeting minutes generated successfully!');
+                // In a real implementation, you would download the file
+                console.log('Meeting minutes URL:', result.documentUrl);
             })
             .catch(error => {
-                console.error('Error deleting dismissed report:', error);
-                alert(`Failed to delete dismissed report: ${error.message}`);
+                console.error('Error generating meeting minutes:', error);
+                alert('Failed to generate meeting minutes');
             });
         }
 
+        // View blotter details
         function viewBlotter(blotterId) {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -1355,7 +2656,6 @@
             .then(blotter => {
                 currentBlotterId = blotter._id;
                 accusedUserId = blotter.accused._id;
-                callAttempts = blotter.callAttempts || 0;
                 isBanned = blotter.isBanned || false;
                 
                 // Populate modal fields
@@ -1371,11 +2671,12 @@
                 document.getElementById('complaintDetails').value = blotter.complaintDetails;
                 document.getElementById('resolutionDetails').value = blotter.resolutionDetails || '';
                 
-                // Update call attempts display
-                updateCallAttemptsDisplay();
+                // Update meeting timeline
+                updateMeetingTimeline(blotter);
                 
-                // Load call history
-                loadCallHistory(blotter.callHistory || []);
+                // Update ban section
+                const banSection = document.getElementById('banSection');
+                banSection.style.display = isBanned ? 'block' : 'none';
                 
                 // Show modal
                 document.getElementById('blotterModal').style.display = 'block';
@@ -1386,81 +2687,44 @@
             });
         }
 
-        function updateCallAttemptsDisplay() {
-            const warningDiv = document.getElementById('callAttemptsWarning');
-            const dangerDiv = document.getElementById('callAttemptsDanger');
-            const banSection = document.getElementById('banSection');
-            
-            warningDiv.style.display = 'none';
-            dangerDiv.style.display = 'none';
-            banSection.style.display = 'none';
-            
-            if (isBanned) {
-                banSection.style.display = 'block';
-                return;
-            }
-            
-            if (callAttempts === 1) {
-                warningDiv.style.display = 'block';
-                warningDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Warning: 1 call attempt failed. ${MAX_CALL_ATTEMPTS - callAttempts} attempts remaining.`;
-            } else if (callAttempts === 2) {
-                dangerDiv.style.display = 'block';
-                dangerDiv.innerHTML = `<i class="fas fa-exclamation-octagon"></i> Danger: ${callAttempts} call attempts failed. ${MAX_CALL_ATTEMPTS - callAttempts} attempt remaining. After ${MAX_CALL_ATTEMPTS} failed attempts, case will be escalated to PNP and accused will be banned from document requests.`;
-            } else if (callAttempts >= MAX_CALL_ATTEMPTS) {
-                dangerDiv.style.display = 'block';
-                dangerDiv.innerHTML = `<i class="fas fa-exclamation-octagon"></i> Maximum call attempts (${MAX_CALL_ATTEMPTS}) reached. Case should be escalated to PNP.`;
+        // Rest of the functions remain similar to previous implementation
+        // (generateSummons, generateCFA, generateBlotterDocuments, batchGenerateDocuments, 
+        // showMediationScheduler, applyResolutionTemplate, deleteDismissedReport, 
+        // unbanUser, escalateToPNP, updateBlotterStatus, saveBlotterChanges, closeModal, 
+        // logout, openLogoutModal, closeLogoutModal, confirmLogout)
+
+        // Placeholder implementations for remaining functions
+        function generateSummons(blotterId) {
+            alert('Summons generation would be implemented here');
+        }
+
+        function generateCFA(blotterId) {
+            alert('CFA generation would be implemented here');
+        }
+
+        function generateBlotterDocuments(blotterId) {
+            alert('Blotter documents generation would be implemented here');
+        }
+
+        function batchGenerateDocuments(documentType) {
+            alert(`Batch ${documentType} generation would be implemented here`);
+        }
+
+        function showMediationScheduler() {
+            alert('Mediation scheduler would open here for multiple cases');
+        }
+
+        function applyResolutionTemplate(templateKey) {
+            const template = resolutionTemplates[templateKey];
+            if (template) {
+                document.getElementById('resolutionDetails').value = template;
             }
         }
 
-        function loadCallHistory(callHistory) {
-            const callHistoryDiv = document.getElementById('callHistory');
-            
-            if (!callHistory || callHistory.length === 0) {
-                callHistoryDiv.innerHTML = '<p>No call attempts recorded yet.</p>';
+        function deleteDismissedReport(blotterId) {
+            if (!confirm('Are you sure you want to delete this dismissed report? This action cannot be undone.')) {
                 return;
             }
-            
-            callHistoryDiv.innerHTML = '';
-            
-            callHistory.forEach(call => {
-                const callItem = document.createElement('div');
-                callItem.className = 'call-item';
-                
-                const callDate = new Date(call.date).toLocaleString();
-                const callStatus = call.successful ? 'Successful' : 'Failed';
-                const statusClass = call.successful ? 'call-success' : 'call-failed';
-                
-                callItem.innerHTML = `
-                    <span><i class="fas fa-calendar-alt"></i> ${callDate}</span>
-                    <span class="${statusClass}"><i class="fas ${call.successful ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${callStatus}</span>
-                    <span>${call.notes || 'No notes'}</span>
-                `;
-                
-                callHistoryDiv.appendChild(callItem);
-            });
-        }
-
-        function initiateCall(blotterId, phoneNumber) {
-            if (!phoneNumber) {
-                alert('No contact number provided for the accused');
-                return;
-            }
-            
-            // In a real application, this would initiate a phone call
-            console.log(`Initiating call to ${phoneNumber} for blotter ${blotterId}`);
-            
-            // For demo purposes, we'll use a more detailed prompt
-            const callResult = confirm(`Calling ${phoneNumber}. Was the call successful?\n\nClick OK for successful, Cancel for failed.`);
-            
-            if (callResult) {
-                recordCallAttempt(true, blotterId);
-            } else {
-                recordCallAttempt(false, blotterId);
-            }
-        }
-
-        function recordCallAttempt(successful, blotterId = currentBlotterId) {
-            if (!blotterId) return;
             
             const token = localStorage.getItem('token');
             if (!token) {
@@ -1468,81 +2732,33 @@
                 return;
             }
 
-            const notes = prompt('Enter any notes about this call attempt:');
-            const callAttempt = {
-                date: new Date(),
-                successful,
-                notes: notes || ''
-            };
-            
-            fetch(`/api/blotter/${blotterId}/call`, {
-                method: 'POST',
+            console.log('Attempting to delete blotter with ID:', blotterId);
+
+            fetch(`/api/blotter/${blotterId}`, {
+                method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(callAttempt)
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Network response was not ok');
+                    });
                 }
                 return response.json();
             })
-            .then(updatedBlotter => {
-                if (!successful) {
-                    callAttempts = updatedBlotter.callAttempts;
-                    
-                    if (callAttempts >= MAX_CALL_ATTEMPTS) {
-                        banUser();
-                    }
-                }
-                
-                // Reload the blotter details
-                viewBlotter(blotterId);
-                loadBlotterStats(); // Refresh the stats and table
+            .then(() => {
+                alert('Dismissed report deleted successfully');
+                loadBlotterStats();
                 if (currentStatus) {
                     loadBlottersByStatus(currentStatus, currentSearchTerm);
                 }
             })
             .catch(error => {
-                console.error('Error recording call attempt:', error);
-                alert('Failed to record call attempt');
-            });
-        }
-
-        function banUser() {
-            if (!accusedUserId) return;
-            
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/admin-login';
-                return;
-            }
-
-            fetch(`/api/users/${accusedUserId}/ban`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(result => {
-                isBanned = true;
-                updateCallAttemptsDisplay();
-                loadBlotterStats(); // Refresh the table to show banned status
-                
-                // Automatically escalate to PNP
-                escalateToPNP();
-            })
-            .catch(error => {
-                console.error('Error banning user:', error);
-                alert('Failed to ban user');
+                console.error('Error deleting dismissed report:', error);
+                alert(`Failed to delete dismissed report: ${error.message}`);
             });
         }
 
@@ -1573,8 +2789,8 @@
             })
             .then(result => {
                 isBanned = false;
-                updateCallAttemptsDisplay();
-                loadBlotterStats(); // Refresh the table to remove banned status
+                document.getElementById('banSection').style.display = 'none';
+                loadBlotterStats();
                 alert('User restriction lifted successfully');
             })
             .catch(error => {
@@ -1725,7 +2941,6 @@
             document.getElementById('blotterModal').style.display = 'none';
         }
 
-        // Logout functionality
         async function logout() {
             try {
                 const response = await fetch('/api/auth/logout', {
@@ -1758,6 +2973,18 @@
         window.addEventListener('click', (event) => {
             if (event.target === document.getElementById('blotterModal')) {
                 closeModal();
+            }
+            
+            if (event.target === document.getElementById('meetingModal')) {
+                closeMeetingModal();
+            }
+            
+            if (event.target === document.getElementById('contactHistoryModal')) {
+                closeContactHistoryModal();
+            }
+            
+            if (event.target === document.getElementById('contactLoggingModal')) {
+                closeContactLoggingModal();
             }
             
             if (event.target === document.getElementById('logoutModal')) {

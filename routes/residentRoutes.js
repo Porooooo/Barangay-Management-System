@@ -427,7 +427,7 @@ router.patch("/:id/status", authMiddleware, adminMiddleware, async (req, res) =>
 
     res.status(200).json({
       success: true,
-      message: `Status updated to ${resident.status}`,
+      message: `Status updated to ${resident.status}` ,
       data: {
         id: resident._id,
         status: resident.status

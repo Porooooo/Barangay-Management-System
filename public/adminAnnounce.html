@@ -883,7 +883,7 @@
         
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="/admin-dashboard">
+                <li><a href="/admin-dashboard" class="active">
                     <i class="fas fa-home"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
@@ -899,7 +899,7 @@
                     <i class="fas fa-shield-alt"></i>
                     <span class="link-name">Blotter Reports</span>
                 </a></li>
-                <li><a href="/adminAnnounce" class="active">
+                <li><a href="/adminAnnounce">
                     <i class="fas fa-bell"></i>
                     <span class="link-name">Announcement</span>
                 </a></li>
@@ -911,6 +911,10 @@
                     <i class="fas fa-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
+                <li><a href="/admin-messages">
+                    <i class="fas fa-envelope"></i>
+                    <span class="link-name">Resident Messages</span>
+                </a></li>
             </ul>
             
             <!-- Logout Section -->
@@ -920,6 +924,13 @@
                     <span class="link-name">Logout</span>
                 </a>
             </div>
+        </div>
+        
+        <!-- Greeting and Time Section -->
+        <div class="greeting-section">
+            <div class="greeting" id="greetingText">Welcome Admin</div>
+            <div class="current-date" id="currentDate"></div>
+            <div class="current-time" id="currentTime"></div>
         </div>
     </nav>
 

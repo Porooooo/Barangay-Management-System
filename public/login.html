@@ -14,6 +14,7 @@
       --light: #f8f9fa;
       --dark: #343a40;
       --success: #28a745;
+      --error: #e74c3c;
     }
     
     * {
@@ -35,287 +36,272 @@
     }
 
     .container {
-    display: flex;
-    background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0px 8px 25px rgba(13, 79, 139, 0.15);
-    max-width: 700px;
-    width: 95%;
-    min-height: 420px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.left-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
-    background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-
-.logo-container {
-    text-align: center;
-    margin-bottom: 20px;
-    z-index: 1;
-}
-
-.logo-container img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-    margin-bottom: 12px;
-}
-
-.logo-text h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.logo-text p {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-.welcome-text {
-    text-align: center;
-    margin-top: 20px;
-    z-index: 1;
-    max-width: 300px;
-}
-
-.welcome-text h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.welcome-text p {
-    font-size: 13px;
-    opacity: 0.9;
-    line-height: 1.5;
-}
-
-.right-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
-    background-color: #ffffff;
-}
-
-.form-container {
-    max-width: 320px;
-    width: 100%;
-}
-
-h1 {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--primary);
-    text-align: center;
-    margin-bottom: 8px;
-}
-
-.form-subtitle {
-    margin-bottom: 20px;
-    color: #666;
-    text-align: center;
-    font-size: 14px;
-}
-
-.input-group {
-    position: relative;
-    margin: 18px 0;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 6px;
-    color: #333;
-    font-weight: 500;
-    font-size: 14px;
-}
-
-form input {
-    width: 100%;
-    padding: 12px 40px 12px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: all 0.3s;
-    background-color: #f9f9f9;
-    font-family: 'Poppins', sans-serif;
-}
-
-.password-toggle {
-    position: absolute;
-    right: 10px;
-    top: 70%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #666;
-    font-size: 16px;
-    transition: color 0.3s;
-    background: none;
-    border: none;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 25px;
-    height: 25px;
-}
-
-.login-button {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    margin-top: 8px;
-    box-shadow: 0 3px 8px rgba(13, 79, 139, 0.3);
-    font-family: 'Poppins', sans-serif;
-}
-
-.form-links {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-a {
-    text-decoration: none;
-    color: var(--primary);
-    font-weight: 500;
-    font-size: 13px;
-    transition: color 0.3s;
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
-    .container {
-        max-width: 95%;
-        min-height: auto;
+      display: flex;
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0px 8px 25px rgba(13, 79, 139, 0.15);
+      max-width: 700px;
+      width: 95%;
+      min-height: 420px;
+      overflow: hidden;
+      transition: all 0.3s ease;
     }
-    
+
     .left-section {
-        padding: 20px 15px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
     }
-    
-    .logo-container img {
-        width: 80px;
-        height: 80px;
-    }
-    
-    .logo-text h2 {
-        font-size: 20px;
-    }
-    
-    .welcome-text h3 {
-        font-size: 16px;
-    }
-    
-    .right-section {
-        padding: 25px 15px;
-    }
-    
-    h1 {
-        font-size: 24px;
-    }
-}
 
-@media (max-width: 480px) {
-    .container {
-        border-radius: 12px;
-        min-height: auto;
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+      z-index: 1;
     }
-    
-    .left-section {
-        padding: 15px 12px;
-    }
-    
+
     .logo-container img {
-        width: 70px;
-        height: 70px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      margin-bottom: 12px;
     }
-    
+
     .logo-text h2 {
-        font-size: 18px;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 5px;
     }
-    
+
+    .logo-text p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
     .welcome-text {
-        margin-top: 15px;
+      text-align: center;
+      margin-top: 20px;
+      z-index: 1;
+      max-width: 300px;
     }
-    
+
     .welcome-text h3 {
-        font-size: 15px;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
     }
-    
+
     .welcome-text p {
-        font-size: 12px;
+      font-size: 13px;
+      opacity: 0.9;
+      line-height: 1.5;
     }
-    
+
     .right-section {
-        padding: 20px 12px;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      background-color: #ffffff;
     }
-    
+
     .form-container {
-        max-width: 100%;
+      max-width: 320px;
+      width: 100%;
     }
-    
+
     h1 {
-        font-size: 22px;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 8px;
     }
-    
+
     .form-subtitle {
-        font-size: 13px;
-        margin-bottom: 15px;
+      margin-bottom: 20px;
+      color: #666;
+      text-align: center;
+      font-size: 14px;
     }
-    
+
     .input-group {
-        margin: 15px 0;
+      position: relative;
+      margin: 18px 0;
     }
-    
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
     form input {
-        padding: 10px 35px 10px 10px;
-        font-size: 13px;
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.3s;
+      background-color: #f9f9f9;
+      font-family: 'Poppins', sans-serif;
     }
-    
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 70%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+      font-size: 16px;
+      transition: color 0.3s;
+      background: none;
+      border: none;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 25px;
+      height: 25px;
+    }
+
+    /* UPDATED: CAPTCHA Styles - All on one line */
+    .captcha-container {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+
+    .captcha-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .captcha-question {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px dashed #ccc;
+      flex: 1;
+      text-align: center;
+    }
+
+    .captcha-input {
+      width: 80px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    /* NEW: Color styling for CAPTCHA input - NUMBER ONLY */
+    .captcha-input.incorrect {
+      color: var(--error) !important;
+      border-color: var(--error) !important;
+      background-color: #ffeaea !important;
+    }
+
+    .captcha-input.correct {
+      color: var(--success) !important;
+      border-color: var(--success) !important;
+      background-color: #f0fff4 !important;
+    }
+
+    .captcha-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(13, 79, 139, 0.1);
+    }
+
+    .refresh-captcha {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
+    .refresh-captcha:hover {
+      background: #0b3d6b;
+    }
+
+    .captcha-error {
+      color: var(--error);
+      font-size: 12px;
+      margin-top: 5px;
+      text-align: center;
+      display: none;
+    }
+
+    /* REMOVED: Refresh count display */
+    .captcha-refresh-count {
+      display: none;
+    }
+
     .login-button {
-        padding: 12px;
-        font-size: 14px;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, #1c6ea4 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 8px;
+      box-shadow: 0 3px 8px rgba(13, 79, 139, 0.3);
+      font-family: 'Poppins', sans-serif;
     }
-    
+
+    .login-button:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
     .form-links {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
-}
 
     a {
       text-decoration: none;
       color: var(--primary);
       font-weight: 500;
-      font-size: 14px;
+      font-size: 13px;
       transition: color 0.3s;
     }
 
@@ -325,14 +311,14 @@ a {
     }
 
     .error-message {
-      color: #e74c3c;
+      color: var(--error);
       margin-top: 5px;
       font-size: 14px;
       text-align: center;
       padding: 10px;
       background-color: #ffeaea;
       border-radius: 5px;
-      border-left: 3px solid #e74c3c;
+      border-left: 3px solid var(--error);
     }
 
     .warning-message {
@@ -348,7 +334,7 @@ a {
     }
 
     .lock-message {
-      color: #e74c3c;
+      color: var(--error);
       margin-top: 5px;
       font-size: 14px;
       text-align: center;
@@ -356,7 +342,7 @@ a {
       padding: 10px;
       background-color: #ffeaea;
       border-radius: 5px;
-      border-left: 3px solid #e74c3c;
+      border-left: 3px solid var(--error);
     }
 
     .attempts-counter {
@@ -368,7 +354,7 @@ a {
 
     /* Countdown timer */
     .countdown {
-      color: #e74c3c;
+      color: var(--error);
       font-weight: bold;
       margin-top: 10px;
       text-align: center;
@@ -379,133 +365,11 @@ a {
     }
 
     /* Responsive Styles */
-    @media (max-width: 992px) {
-      .container {
-        max-width: 90%;
-        height: auto;
-        flex-direction: column;
-      }
-      
-      .left-section {
-        padding: 30px 20px;
-        order: -1;
-      }
-      
-      .logo-container img {
-        width: 120px;
-        height: 120px;
-      }
-      
-      .logo-text h2 {
-        font-size: 24px;
-      }
-      
-      .welcome-text h3 {
-        font-size: 22px;
-      }
-      
-      .right-section {
-        padding: 30px 20px;
-      }
-      
-      .form-container {
-        max-width: 100%;
-      }
-    }
-    
     @media (max-width: 768px) {
-      body {
-        padding: 15px;
-      }
-      
       .container {
-        max-width: 100%;
-        border-radius: 15px;
-      }
-      
-      .left-section {
-        padding: 25px 15px;
-      }
-      
-      .left-section::before {
-        display: none;
-      }
-      
-      .logo-container img {
-        width: 100px;
-        height: 100px;
-      }
-      
-      .logo-text h2 {
-        font-size: 22px;
-      }
-      
-      .logo-text p {
-        font-size: 14px;
-      }
-      
-      .welcome-text {
-        margin-top: 20px;
-      }
-      
-      .welcome-text h3 {
-        font-size: 20px;
-      }
-      
-      .welcome-text p {
-        font-size: 14px;
-      }
-      
-      .right-section {
-        padding: 25px 15px;
-      }
-      
-      h1 {
-        font-size: 28px;
-      }
-      
-      .form-subtitle {
-        font-size: 14px;
-        margin-bottom: 20px;
-      }
-      
-      .input-group {
-        margin: 20px 0;
-      }
-      
-      .input-group label {
-        font-size: 14px;
-      }
-      
-      form input {
-        padding: 12px 40px 12px 12px;
-        font-size: 14px;
-      }
-      
-      .password-toggle {
-        font-size: 16px;
-        right: 12px;
-      }
-      
-      .login-button {
-        padding: 14px;
-        font-size: 15px;
-      }
-      
-      .form-links {
         flex-direction: column;
-        text-align: center;
-        gap: 15px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
-      
-      .container {
-        border-radius: 10px;
+        max-width: 95%;
+        min-height: auto;
       }
       
       .left-section {
@@ -521,58 +385,29 @@ a {
         font-size: 20px;
       }
       
-      .logo-text p {
-        font-size: 13px;
-      }
-      
       .welcome-text h3 {
-        font-size: 18px;
-      }
-      
-      .welcome-text p {
-        font-size: 13px;
+        font-size: 16px;
       }
       
       .right-section {
-        padding: 20px 15px;
+        padding: 25px 15px;
       }
       
       h1 {
         font-size: 24px;
       }
-      
-      .form-subtitle {
-        font-size: 13px;
-      }
-      
-      form input {
-        padding: 10px 35px 10px 10px;
-        font-size: 14px;
-      }
-      
-      .password-toggle {
-        right: 10px;
-      }
-      
-      .login-button {
-        padding: 12px;
-        font-size: 14px;
-      }
-      
-      a {
-        font-size: 13px;
-      }
-      
-      .error-message,
-      .warning-message,
-      .lock-message,
-      .countdown {
-        font-size: 13px;
-        padding: 8px;
-      }
     }
-    
-    @media (max-width: 360px) {
+
+    @media (max-width: 480px) {
+      .container {
+        border-radius: 12px;
+        min-height: auto;
+      }
+      
+      .left-section {
+        padding: 15px 12px;
+      }
+      
       .logo-container img {
         width: 70px;
         height: 70px;
@@ -582,12 +417,53 @@ a {
         font-size: 18px;
       }
       
+      .welcome-text {
+        margin-top: 15px;
+      }
+      
+      .welcome-text h3 {
+        font-size: 15px;
+      }
+      
+      .welcome-text p {
+        font-size: 12px;
+      }
+      
+      .right-section {
+        padding: 20px 12px;
+      }
+      
+      .form-container {
+        max-width: 100%;
+      }
+      
       h1 {
         font-size: 22px;
       }
       
+      .form-subtitle {
+        font-size: 13px;
+        margin-bottom: 15px;
+      }
+      
+      .input-group {
+        margin: 15px 0;
+      }
+      
       form input {
-        padding: 8px 30px 8px 8px;
+        padding: 10px 35px 10px 10px;
+        font-size: 13px;
+      }
+      
+      .login-button {
+        padding: 12px;
+        font-size: 14px;
+      }
+      
+      .form-links {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
       }
     }
   </style>
@@ -624,6 +500,30 @@ a {
             <button type="button" class="password-toggle" id="togglePassword">
               <i class="fas fa-eye"></i>
             </button>
+          </div>
+          
+          <!-- UPDATED: Math CAPTCHA Section - All on one line -->
+          <div class="captcha-container">
+            <div class="captcha-row">
+              <div class="captcha-question" id="captchaQuestion">
+                Loading CAPTCHA...
+              </div>
+              <input 
+                type="number" 
+                id="captchaAnswer" 
+                class="captcha-input" 
+                placeholder="" 
+                required 
+              />
+              <button type="button" class="refresh-captcha" id="refreshCaptcha" title="Refresh CAPTCHA">
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+            <div id="captchaError" class="captcha-error">
+              Please complete the CAPTCHA verification
+            </div>
+            <!-- REMOVED: Refresh count display -->
+            <div id="captchaRefreshCount" class="captcha-refresh-count"></div>
           </div>
           
           <div id="errorMessage" class="error-message" style="display: none;"></div>
@@ -666,6 +566,124 @@ a {
     const LOCKOUT_TIME = 3 * 60 * 1000; // 3 minutes in milliseconds
     let lockUntil = null;
     let countdownInterval = null;
+    let currentCaptchaId = null;
+    let currentCaptchaAnswer = null;
+
+    // NEW: Generate random math CAPTCHA - ONLY ADDITION
+    function generateRandomCaptcha() {
+      // Generate random numbers for addition (1-20 for reasonable sums)
+      const num1 = Math.floor(Math.random() * 10) + 1;
+      const num2 = Math.floor(Math.random() * 10) + 1;
+      const answer = num1 + num2;
+      
+      return {
+        question: `${num1} + ${num2}`,
+        answer: answer
+      };
+    }
+
+    // Generate CAPTCHA
+    async function generateCaptcha() {
+      try {
+        // Try to get CAPTCHA from server first
+        const response = await fetch('/api/auth/generate-captcha', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('captchaQuestion').textContent = `${data.question} = ?`;
+          resetCaptchaStyling();
+          currentCaptchaId = data.captchaId;
+          currentCaptchaAnswer = null; // Reset for server-side CAPTCHA
+          document.getElementById('captchaAnswer').value = '';
+          document.getElementById('captchaError').style.display = 'none';
+        } else {
+          // Fallback to client-side CAPTCHA if server fails
+          throw new Error('Failed to generate CAPTCHA from server');
+        }
+      } catch (error) {
+        console.error('CAPTCHA generation error:', error);
+        // Use client-side CAPTCHA as fallback
+        const captcha = generateRandomCaptcha();
+        document.getElementById('captchaQuestion').textContent = `${captcha.question} = ?`;
+        resetCaptchaStyling();
+        currentCaptchaId = 'client-' + Date.now(); // Create unique ID for client-side CAPTCHA
+        currentCaptchaAnswer = captcha.answer; // Store answer for validation
+        document.getElementById('captchaAnswer').value = '';
+        document.getElementById('captchaError').style.display = 'none';
+      }
+    }
+
+    // NEW: Function to check CAPTCHA answer in real-time
+    function checkCaptchaAnswer() {
+      const captchaAnswer = document.getElementById('captchaAnswer').value.trim();
+      const captchaInput = document.getElementById('captchaAnswer');
+      
+      if (!captchaAnswer) {
+        resetCaptchaStyling();
+        return;
+      }
+      
+      // For client-side CAPTCHA, check if answer matches
+      if (currentCaptchaId && currentCaptchaId.startsWith('client-') && currentCaptchaAnswer) {
+        if (parseInt(captchaAnswer) === currentCaptchaAnswer) {
+          // Correct answer - turn green
+          captchaInput.classList.remove('incorrect');
+          captchaInput.classList.add('correct');
+        } else {
+          // Incorrect answer - turn red
+          captchaInput.classList.remove('correct');
+          captchaInput.classList.add('incorrect');
+        }
+      }
+      // For server-side CAPTCHA, we can't validate in real-time, so don't show colors
+    }
+
+    // NEW: Function to reset CAPTCHA styling
+    function resetCaptchaStyling() {
+      const captchaInput = document.getElementById('captchaAnswer');
+      captchaInput.classList.remove('incorrect');
+      captchaInput.classList.remove('correct');
+    }
+
+    // Validate CAPTCHA
+    function validateCaptcha() {
+      const captchaAnswer = document.getElementById('captchaAnswer').value.trim();
+      const captchaInput = document.getElementById('captchaAnswer');
+      
+      if (!captchaAnswer) {
+        document.getElementById('captchaError').textContent = 'Please answer the CAPTCHA question';
+        document.getElementById('captchaError').style.display = 'block';
+        resetCaptchaStyling();
+        return false;
+      }
+      
+      if (!currentCaptchaId) {
+        document.getElementById('captchaError').textContent = 'CAPTCHA expired. Please refresh and try again.';
+        document.getElementById('captchaError').style.display = 'block';
+        resetCaptchaStyling();
+        return false;
+      }
+      
+      // For client-side CAPTCHA, check if answer matches
+      if (currentCaptchaId.startsWith('client-') && currentCaptchaAnswer) {
+        if (parseInt(captchaAnswer) !== currentCaptchaAnswer) {
+          document.getElementById('captchaError').textContent = 'Incorrect CAPTCHA answer. Please try again.';
+          document.getElementById('captchaError').style.display = 'block';
+          captchaInput.classList.remove('correct');
+          captchaInput.classList.add('incorrect');
+          return false;
+        } else {
+          captchaInput.classList.remove('incorrect');
+          captchaInput.classList.add('correct');
+        }
+      }
+      // For server-side CAPTCHA, validation happens on the server
+      
+      document.getElementById('captchaError').style.display = 'none';
+      return true;
+    }
 
     // Check for active session on load
     document.addEventListener('DOMContentLoaded', async () => {
@@ -690,12 +708,23 @@ a {
         console.log('No active session');
       }
 
+      // Generate initial CAPTCHA
+      await generateCaptcha();
+
+      // NEW: Add real-time CAPTCHA validation
+      document.getElementById('captchaAnswer').addEventListener('input', checkCaptchaAnswer);
+
       // Check if there's a stored lock time
       const storedLock = localStorage.getItem('loginLockUntil');
       if (storedLock && Date.now() < parseInt(storedLock)) {
         lockUntil = parseInt(storedLock);
         startCountdown();
       }
+    });
+
+    // NEW: Refresh CAPTCHA button - NO LIMIT
+    document.getElementById('refreshCaptcha').addEventListener('click', async function() {
+      await generateCaptcha();
     });
 
     // Countdown timer function
@@ -745,8 +774,14 @@ a {
     document.getElementById('loginForm').addEventListener('submit', async function (event) {
       event.preventDefault();
 
+      // Validate CAPTCHA first
+      if (!validateCaptcha()) {
+        return;
+      }
+
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      const captchaAnswer = document.getElementById('captchaAnswer').value.trim();
       const errorElement = document.getElementById('errorMessage');
       const warningElement = document.getElementById('warningMessage');
       const lockElement = document.getElementById('lockMessage');
@@ -793,7 +828,12 @@ a {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ 
+            email, 
+            password,
+            captchaAnswer,
+            captchaId: currentCaptchaId
+          }),
           credentials: 'include'
         });
 
@@ -842,6 +882,9 @@ a {
             errorElement.textContent = result.message || 'An error occurred while logging in.';
             errorElement.style.display = 'block';
           }
+          
+          // Generate new CAPTCHA on error
+          await generateCaptcha();
           throw new Error(result.message || 'Login failed');
         }
 

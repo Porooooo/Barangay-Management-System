@@ -496,11 +496,11 @@
         
         <div class="menu-items">
             <ul class="nav-links">
-                <li><a href="/admin-dashboard">
+                <li><a href="/admin-dashboard" class="active">
                     <i class="fas fa-home"></i>
                     <span class="link-name">Dashboard</span>
                 </a></li>
-                <li><a href="/manage-residents" class="active">
+                <li><a href="/manage-residents">
                     <i class="fas fa-users"></i>
                     <span class="link-name">Manage Residents</span>
                 </a></li>
@@ -524,6 +524,10 @@
                     <i class="fas fa-bell"></i>
                     <span class="link-name">Emergency Alerts</span>
                 </a></li>
+                <li><a href="/admin-messages">
+                    <i class="fas fa-envelope"></i>
+                    <span class="link-name">Resident Messages</span>
+                </a></li>
             </ul>
             
             <!-- Logout Section -->
@@ -534,7 +538,14 @@
                 </a>
             </div>
         </div>
-    </nav>
+        
+        <!-- Greeting and Time Section -->
+        <div class="greeting-section">
+            <div class="greeting" id="greetingText">Welcome Admin</div>
+            <div class="current-date" id="currentDate"></div>
+            <div class="current-time" id="currentTime"></div>
+        </div>
+    </nav>  
 
     <!-- Main Content -->
     <section class="main-content">

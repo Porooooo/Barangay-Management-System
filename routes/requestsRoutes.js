@@ -1,7 +1,7 @@
 const express = require("express");
 const Request = require("../models/Request");
 const User = require("../models/User");
-const { format, isValid, addDays, isAfter, isBefore, startOfDay, endOfDay } = require('date-fns');
+const { format, isValid, addDays, isAfter, isBefore, startOfDay, endOfDay, isWeekend } = require('date-fns');
 
 const router = express.Router();
 
@@ -35,6 +35,70 @@ const checkNotBanned = async (req, res, next) => {
         });
     }
 };
+
+// NEW: Check and update expiration status for individual requests
+const checkAndUpdateRequestExpiration = async (requestId) => {
+    try {
+        const request = await Request.findById(requestId);
+        
+        if (!request) return false;
+        
+        // Check if request should be expired
+        if (request.shouldBeExpired && !request.isExpired) {
+            await Request.findByIdAndUpdate(requestId, {
+                status: "Expired",
+                isExpired: true,
+                expirationDate: new Date(),
+                $push: { 
+                    automationNotes: `Request automatically expired on ${new Date().toLocaleString()}` 
+                },
+                updatedAt: new Date()
+            });
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error("Error checking request expiration:", error);
+        return false;
+    }
+};
+
+// NEW: Manual expiration check for testing
+router.post("/check-expirations", verifySession, checkNotBanned, async (req, res) => {
+    try {
+        const result = await Request.processAutomaticUpdates();
+        
+        res.status(200).json({
+            message: "Expiration check completed",
+            ...result
+        });
+    } catch (error) {
+        console.error("Error checking expirations:", error);
+        res.status(500).json({ 
+            error: "Server error",
+            message: "Failed to check expirations"
+        });
+    }
+});
+
+// NEW: Automatic expiration and archiving endpoint
+router.post("/process-automatic-updates", verifySession, checkNotBanned, async (req, res) => {
+    try {
+        const result = await Request.processAutomaticUpdates();
+        
+        res.status(200).json({
+            message: "Automatic updates processed successfully",
+            ...result
+        });
+    } catch (error) {
+        console.error("Error processing automatic updates:", error);
+        res.status(500).json({ 
+            error: "Server error",
+            message: "Failed to process automatic updates"
+        });
+    }
+});
 
 // Helper function to get user profile picture URL
 const getUserProfilePicture = (user) => {
@@ -90,93 +154,72 @@ const formatInPhilippineTime = (date) => {
     }
 };
 
-// UPDATED: Validate scheduled claim date and time - ONLY FOR PICKUP SCHEDULE
-const validateScheduledClaim = (scheduledClaimDate, scheduledClaimTime) => {
-    try {
-        const now = new Date();
-        // Convert current time to Philippine Time for comparison
-        const phNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-        
-        const selectedDate = new Date(scheduledClaimDate);
-        
-        // Reset time part for date comparison only (Philippine Time)
-        const today = new Date(phNow);
-        today.setHours(0, 0, 0, 0);
-        
-        const selectedDay = new Date(selectedDate);
-        selectedDay.setHours(0, 0, 0, 0);
+// NEW: Generate time slots for pickup period
+const generateTimeSlots = (startDate, endDate) => {
+    const slots = [];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const currentDate = new Date(start);
+    
+    // Office hours: 8:00 AM to 4:00 PM, hourly slots (skip 12:00 PM for lunch)
+    const timeSlots = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
+    
+    // Generate slots for each day in the period
+    while (currentDate <= end) {
+        // Skip weekends (0 = Sunday, 6 = Saturday)
+        if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+            timeSlots.forEach(time => {
+                slots.push({
+                    date: new Date(currentDate),
+                    time: time,
+                    isAvailable: true
+                });
+            });
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return slots;
+};
 
-        console.log('Date validation (Philippine Time):', {
-            today: today.toISOString(),
-            selectedDay: selectedDay.toISOString(),
-            phNow: phNow.toISOString()
+// NEW: Validate time slot selection
+const validateTimeSlot = (request, selectedDate, selectedTime) => {
+    try {
+        if (!request.adminPickupPeriod.availableTimeSlots || !request.adminPickupPeriod.availableTimeSlots.length) {
+            return { valid: false, message: "No available time slots set by admin" };
+        }
+
+        const selectedDateTime = new Date(selectedDate);
+        const selectedDateStr = selectedDateTime.toISOString().split('T')[0];
+        
+        // Find the selected time slot
+        const selectedSlot = request.adminPickupPeriod.availableTimeSlots.find(slot => {
+            const slotDateStr = new Date(slot.date).toISOString().split('T')[0];
+            return slotDateStr === selectedDateStr && slot.time === selectedTime && slot.isAvailable;
         });
 
-        // Check if date is valid
-        if (isNaN(selectedDate.getTime())) {
-            return { valid: false, message: "Invalid date format" };
+        if (!selectedSlot) {
+            return { valid: false, message: "Selected time slot is not available" };
         }
 
-        // Check if date is in the past
-        if (selectedDay < today) {
-            return { valid: false, message: "Cannot schedule claim for past dates" };
-        }
+        // Check if the selected date/time is in the future
+        const now = new Date();
+        const selectedFullDate = new Date(selectedDate);
+        const [hours, minutes] = selectedTime.split(':').map(Number);
+        selectedFullDate.setHours(hours, minutes, 0, 0);
 
-        // Check if date is too far in the future (max 30 days)
-        const maxDate = new Date(today);
-        maxDate.setDate(maxDate.getDate() + 30);
-        
-        if (selectedDay > maxDate) {
-            return { valid: false, message: "Cannot schedule claim more than 30 days in advance" };
-        }
-
-        // Validate time format (HH:MM)
-        const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-        if (!timeRegex.test(scheduledClaimTime)) {
-            return { valid: false, message: "Invalid time format. Use HH:MM (24-hour format)" };
-        }
-
-        // Check if scheduling for today but time has passed (in Philippine Time)
-        if (selectedDay.getTime() === today.getTime()) {
-            const [hours, minutes] = scheduledClaimTime.split(':').map(Number);
-            const selectedDateTime = new Date(selectedDate);
-            selectedDateTime.setHours(hours, minutes, 0, 0);
-            
-            console.log('Time validation for today (Philippine Time):', {
-                selectedDateTime: selectedDateTime.toISOString(),
-                phNow: phNow.toISOString(),
-                isBefore: selectedDateTime < phNow
-            });
-            
-            if (selectedDateTime < phNow) {
-                return { valid: false, message: "Cannot schedule claim for past times today" };
-            }
-        }
-
-        // Validate office hours (8 AM - 4 PM) - ONLY FOR PICKUP SCHEDULE
-        const [hours, minutes] = scheduledClaimTime.split(':').map(Number);
-        if (hours < 8 || hours > 16) {
-            return { valid: false, message: "Please select a time between 8:00 AM and 4:00 PM" };
-        }
-        
-        // If it's exactly 4:00 PM, it's valid
-        if (hours === 16 && minutes === 0) {
-            return { valid: true };
-        }
-        
-        // If it's after 4:00 PM, it's invalid
-        if (hours === 16 && minutes > 0) {
-            return { valid: false, message: "Office hours end at 4:00 PM" };
+        if (selectedFullDate < now) {
+            return { valid: false, message: "Cannot schedule pickup for past dates/times" };
         }
 
         return { valid: true };
     } catch (error) {
-        console.error('Validation error:', error);
-        return { valid: false, message: "Invalid date or time format" };
+        console.error('Time slot validation error:', error);
+        return { valid: false, message: "Invalid time slot selection" };
     }
 };
 
-// Create a new document request - FIXED: Show actual Philippine time for date requested
+// Create a new document request
 router.post("/", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { fullName, address, documentTypes, purpose } = req.body;
@@ -211,21 +254,23 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
             documentTypes,
             purpose,
             status: "Pending",
+            processingStage: "Submitted",
             userId: req.session.userId,
-            createdAt: new Date(), // This will be stored as UTC
+            createdAt: new Date(),
             updatedAt: new Date()
         });
 
         await newRequest.save();
 
-        // Format dates for response using Philippine Time - FIXED: Show actual time
+        // Format dates for response using Philippine Time
         const phTime = formatInPhilippineTime(newRequest.createdAt);
         
         const formattedRequest = {
             ...newRequest.toObject(),
             id: newRequest._id.toString(),
             formattedDate: phTime.formattedDate,
-            formattedTime: phTime.formattedTime
+            formattedTime: phTime.formattedTime,
+            formattedEstimatedCompletion: newRequest.formattedEstimatedCompletion
         };
 
         // Emit real-time update
@@ -240,6 +285,16 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
         });
     } catch (error) {
         console.error("Error submitting request:", error);
+        
+        // More specific error handling
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ 
+                error: "Validation error",
+                message: errors.join(', ')
+            });
+        }
+        
         res.status(500).json({ 
             error: "Server error",
             message: "Failed to submit request. Please try again later." 
@@ -247,17 +302,17 @@ router.post("/", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Get all requests (admin view) - FIXED: Show actual Philippine time for date requested
+// Get all requests (admin view) - WITH PRIORITY SORTING AND EXPIRATION CHECK
 router.get("/", verifySession, checkNotBanned, async (req, res) => {
     try {
-        const { status, documentType, startDate, endDate, search, archive } = req.query;
+        const { status, documentType, startDate, endDate, search, archive, priority } = req.query;
         let query = {};
 
         // Build query based on parameters
         if (archive === 'true') {
-            query.status = { $in: ['Approved', 'Rejected', 'Claimed', 'Scheduled for Pickup'] };
+            query.status = { $in: ['Archived', 'Expired', 'Claimed'] };
         } else {
-            query.status = status || { $in: ['Pending', 'Approved', 'Ready to Claim', 'Scheduled for Pickup'] };
+            query.status = status || { $in: ['Pending', 'Approved', 'Processing', 'Ready to Claim', 'Scheduled for Pickup'] };
         }
 
         if (documentType) {
@@ -279,15 +334,59 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
             ];
         }
 
+        // Always sort by priority score (high priority first), then by creation date
+        let sortOptions = { priorityScore: -1, createdAt: -1 };
+
         // Fetch requests with user data populated
         const requests = await Request.find(query)
-            .populate('userId', 'fullName profilePicture') // Populate user data
-            .sort({ createdAt: -1 })
+            .populate('userId', 'fullName profilePicture')
+            .sort(sortOptions)
             .lean();
 
-        // Format response with Philippine Time - FIXED: Show actual time
-        const formattedRequests = requests.map(request => {
-            // Format dates in Philippine Time - FIXED: Using correct timezone conversion
+        // NEW: Check and update expiration for each request that needs it
+        const expirationPromises = requests
+            .filter(request => {
+                // Check if request should be expired using the same logic as the virtual
+                if (request.status !== 'Scheduled for Pickup' && request.status !== 'Ready to Claim') {
+                    return false;
+                }
+                
+                const now = new Date();
+                
+                // For scheduled pickups, check if scheduled date has passed
+                if (request.status === 'Scheduled for Pickup' && request.scheduledClaimDate) {
+                    const scheduledDateTime = new Date(request.scheduledClaimDate);
+                    if (request.scheduledClaimTime) {
+                        const [hours, minutes] = request.scheduledClaimTime.split(':').map(Number);
+                        scheduledDateTime.setHours(hours, minutes, 0, 0);
+                    }
+                    return isAfter(now, scheduledDateTime);
+                }
+                
+                // For ready to claim, check if admin pickup period has ended
+                if (request.status === 'Ready to Claim' && request.adminPickupPeriod && request.adminPickupPeriod.endDate) {
+                    const endOfPickupPeriod = endOfDay(new Date(request.adminPickupPeriod.endDate));
+                    return isAfter(now, endOfPickupPeriod);
+                }
+                
+                return false;
+            })
+            .map(request => checkAndUpdateRequestExpiration(request._id));
+
+        // Wait for all expiration updates to complete
+        await Promise.all(expirationPromises);
+
+        // If we updated any requests, refetch them
+        let updatedRequests = requests;
+        if (expirationPromises.length > 0) {
+            updatedRequests = await Request.find(query)
+                .populate('userId', 'fullName profilePicture')
+                .sort(sortOptions)
+                .lean();
+        }
+
+        // Format response with Philippine Time
+        const formattedRequests = updatedRequests.map(request => {
             const createdPhTime = formatInPhilippineTime(request.createdAt);
             const updatedPhTime = formatInPhilippineTime(request.updatedAt);
             
@@ -320,8 +419,22 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
                 formattedTime: createdPhTime.formattedTime,
                 formattedScheduledDate: formattedScheduledDate,
                 formattedScheduledTime: formattedScheduledTime,
+                formattedAdminPickupPeriod: request.adminPickupPeriod ? 
+                    `${new Date(request.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(request.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}` 
+                    : 'Not set',
+                hasAdminPickupPeriod: !!(request.adminPickupPeriod && request.adminPickupPeriod.startDate && request.adminPickupPeriod.endDate),
+                availableTimeSlots: request.adminPickupPeriod?.availableTimeSlots || [],
+                formattedEstimatedCompletion: request.estimatedCompletionDate ? 
+                    new Date(request.estimatedCompletionDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                    }) : 'Not set',
                 updatedAt: updatedPhTime.formattedDate,
-                userProfile: userProfile
+                userProfile: userProfile,
+                daysInStatus: request.updatedAt ? 
+                    Math.ceil((new Date() - new Date(request.updatedAt)) / (1000 * 60 * 60 * 24)) : 0,
+                shouldBeExpired: request.shouldBeExpired // NEW: Include expiration status
             };
         });
 
@@ -335,31 +448,68 @@ router.get("/", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Get requests for logged-in user (FIXED: Show actual Philippine time for date requested)
+// Get requests for logged-in user - WITH EXPIRATION CHECK
 router.get("/user", verifySession, checkNotBanned, async (req, res) => {
     try {
         const { archive } = req.query;
         let query = { userId: req.session.userId };
 
-        // If archive=true, show only "Scheduled for Pickup" requests
-        // If archive=false or not provided, show active requests (excluding "Scheduled for Pickup" and "Claimed")
         if (archive === 'true') {
-            query.status = { $in: ["Scheduled for Pickup"] };
+            query.status = { $in: ["Scheduled for Pickup", "Archived", "Claimed", "Expired"] };
         } else {
-            // UPDATED: Exclude both "Scheduled for Pickup" and "Claimed" from active requests
-            query.status = { $nin: ["Scheduled for Pickup", "Claimed"] };
+            query.status = { $nin: ["Scheduled for Pickup", "Archived", "Claimed", "Expired"] };
         }
 
         const requests = await Request.find(query)
             .populate('userId', 'fullName profilePicture')
-            .sort({ createdAt: -1 })
+            .sort({ priorityScore: -1, createdAt: -1 }) // Sort by priority then by date
             .lean();
 
-        const formattedRequests = requests.map(request => {
-            // Format dates in Philippine Time - FIXED: Using correct timezone conversion
+        // NEW: Check and update expiration for each request that needs it
+        const expirationPromises = requests
+            .filter(request => {
+                // Check if request should be expired using the same logic as the virtual
+                if (request.status !== 'Scheduled for Pickup' && request.status !== 'Ready to Claim') {
+                    return false;
+                }
+                
+                const now = new Date();
+                
+                // For scheduled pickups, check if scheduled date has passed
+                if (request.status === 'Scheduled for Pickup' && request.scheduledClaimDate) {
+                    const scheduledDateTime = new Date(request.scheduledClaimDate);
+                    if (request.scheduledClaimTime) {
+                        const [hours, minutes] = request.scheduledClaimTime.split(':').map(Number);
+                        scheduledDateTime.setHours(hours, minutes, 0, 0);
+                    }
+                    return isAfter(now, scheduledDateTime);
+                }
+                
+                // For ready to claim, check if admin pickup period has ended
+                if (request.status === 'Ready to Claim' && request.adminPickupPeriod && request.adminPickupPeriod.endDate) {
+                    const endOfPickupPeriod = endOfDay(new Date(request.adminPickupPeriod.endDate));
+                    return isAfter(now, endOfPickupPeriod);
+                }
+                
+                return false;
+            })
+            .map(request => checkAndUpdateRequestExpiration(request._id));
+
+        // Wait for all expiration updates to complete
+        await Promise.all(expirationPromises);
+
+        // If we updated any requests, refetch them
+        let updatedRequests = requests;
+        if (expirationPromises.length > 0) {
+            updatedRequests = await Request.find(query)
+                .populate('userId', 'fullName profilePicture')
+                .sort({ priorityScore: -1, createdAt: -1 })
+                .lean();
+        }
+
+        const formattedRequests = updatedRequests.map(request => {
             const createdPhTime = formatInPhilippineTime(request.createdAt);
             
-            // Get user data if populated
             const userProfile = request.userId ? {
                 profilePicture: getUserProfilePicture(request.userId),
                 fullName: request.userId.fullName || request.fullName || 'Unknown User'
@@ -368,7 +518,6 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
                 fullName: request.fullName || 'Unknown User'
             };
 
-            // Format scheduled claim date in Philippine Time if exists
             let formattedScheduledDate = 'Not scheduled';
             let formattedScheduledTime = 'Not scheduled';
             
@@ -388,7 +537,19 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
                 formattedTime: createdPhTime.formattedTime,
                 formattedScheduledDate: formattedScheduledDate,
                 formattedScheduledTime: formattedScheduledTime,
-                userProfile: userProfile
+                formattedAdminPickupPeriod: request.adminPickupPeriod ? 
+                    `${new Date(request.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(request.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}` 
+                    : 'Not set',
+                hasAdminPickupPeriod: !!(request.adminPickupPeriod && request.adminPickupPeriod.startDate && request.adminPickupPeriod.endDate),
+                availableTimeSlots: request.adminPickupPeriod?.availableTimeSlots || [],
+                formattedEstimatedCompletion: request.estimatedCompletionDate ? 
+                    new Date(request.estimatedCompletionDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                    }) : 'Not set',
+                userProfile: userProfile,
+                shouldBeExpired: request.shouldBeExpired // NEW: Include expiration status
             };
         });
 
@@ -402,13 +563,14 @@ router.get("/user", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Approve request - FIXED FOR PHILIPPINE TIME
+// Approve request
 router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
     try {
         const request = await Request.findByIdAndUpdate(
             req.params.id,
             {
                 status: "Approved",
+                processingStage: "Processing",
                 updatedAt: new Date()
             },
             { new: true }
@@ -421,10 +583,8 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        // Format dates in Philippine Time
+        // Format response
         const createdPhTime = formatInPhilippineTime(request.createdAt);
-        
-        // Get user data if populated
         const userProfile = request.userId ? {
             profilePicture: getUserProfilePicture(request.userId),
             fullName: request.userId.fullName || request.fullName || 'Unknown User'
@@ -433,7 +593,6 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
             fullName: request.fullName || 'Unknown User'
         };
 
-        // Format scheduled claim date in Philippine Time if exists
         let formattedScheduledDate = 'Not scheduled';
         let formattedScheduledTime = 'Not scheduled';
         
@@ -453,6 +612,12 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
             formattedTime: createdPhTime.formattedTime,
             formattedScheduledDate: formattedScheduledDate,
             formattedScheduledTime: formattedScheduledTime,
+            formattedAdminPickupPeriod: request.adminPickupPeriod ? 
+                `${new Date(request.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(request.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}` 
+                : 'Not set',
+            hasAdminPickupPeriod: !!(request.adminPickupPeriod && request.adminPickupPeriod.startDate && request.adminPickupPeriod.endDate),
+            availableTimeSlots: request.adminPickupPeriod?.availableTimeSlots || [],
+            formattedEstimatedCompletion: request.formattedEstimatedCompletion,
             userProfile: userProfile
         };
 
@@ -474,99 +639,57 @@ router.put("/:id/approve", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Reject request with reason - FIXED FOR PHILIPPINE TIME
-router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
+// NEW: Set pickup period (Admin only) - UPDATED TO GENERATE TIME SLOTS
+router.put("/:id/set-pickup-period", verifySession, checkNotBanned, async (req, res) => {
     try {
-        const { rejectionReason } = req.body;
+        const { startDate, endDate, notes } = req.body;
 
-        if (!rejectionReason || rejectionReason.trim() === '') {
+        if (!startDate || !endDate) {
             return res.status(400).json({ 
                 error: "Validation error", 
-                message: "Rejection reason is required" 
+                message: "Start date and end date are required" 
             });
         }
 
-        const request = await Request.findByIdAndUpdate(
-            req.params.id,
-            {
-                status: "Rejected",
-                rejectionReason: rejectionReason.trim(),
-                updatedAt: new Date()
-            },
-            { new: true }
-        ).populate('userId', 'fullName profilePicture');
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-        if (!request) {
-            return res.status(404).json({ 
-                error: "Not found", 
-                message: "Request not found" 
+        if (start >= end) {
+            return res.status(400).json({ 
+                error: "Validation error", 
+                message: "End date must be after start date" 
             });
         }
 
-        // Format dates in Philippine Time
-        const createdPhTime = formatInPhilippineTime(request.createdAt);
-        
-        // Get user data if populated
-        const userProfile = request.userId ? {
-            profilePicture: getUserProfilePicture(request.userId),
-            fullName: request.userId.fullName || request.fullName || 'Unknown User'
-        } : {
-            profilePicture: '/images/default-profile.png',
-            fullName: request.fullName || 'Unknown User'
-        };
+        // Check if end date is within reasonable range (e.g., 2 weeks)
+        const maxEndDate = new Date(start);
+        maxEndDate.setDate(maxEndDate.getDate() + 14); // Max 2 weeks
 
-        // Format scheduled claim date in Philippine Time if exists
-        let formattedScheduledDate = 'Not scheduled';
-        let formattedScheduledTime = 'Not scheduled';
-        
-        if (request.scheduledClaimDate) {
-            const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
-            formattedScheduledDate = scheduledPhTime.formattedDate;
-            formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+        if (end > maxEndDate) {
+            return res.status(400).json({ 
+                error: "Validation error", 
+                message: "Pickup period cannot exceed 2 weeks" 
+            });
         }
 
-        const formattedRequest = {
-            ...request.toObject(),
-            id: request._id.toString(),
-            documentType: Array.isArray(request.documentTypes) 
-                ? request.documentTypes.join(', ') 
-                : request.documentTypes || 'N/A',
-            formattedDate: createdPhTime.formattedDate,
-            formattedTime: createdPhTime.formattedTime,
-            formattedScheduledDate: formattedScheduledDate,
-            formattedScheduledTime: formattedScheduledTime,
-            userProfile: userProfile
-        };
+        // Generate available time slots
+        const availableTimeSlots = generateTimeSlots(start, end);
 
-        req.app.get('io').emit('request-update', {
-            type: 'updated',
-            request: formattedRequest
-        });
-
-        res.status(200).json({
-            message: "Request rejected successfully!",
-            request: formattedRequest
-        });
-    } catch (error) {
-        console.error("Error rejecting request:", error);
-        res.status(500).json({ 
-            error: "Server error",
-            message: "Failed to reject request. Please try again later."
-        });
-    }
-});
-
-// Mark request as ready to claim - FIXED FOR PHILIPPINE TIME
-router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
-    try {
         const request = await Request.findByIdAndUpdate(
             req.params.id,
             {
                 status: "Ready to Claim",
+                processingStage: "Ready",
+                adminPickupPeriod: {
+                    startDate: start,
+                    endDate: end,
+                    notes: notes || '',
+                    availableTimeSlots: availableTimeSlots
+                },
                 updatedAt: new Date()
             },
             { new: true }
-        ).populate('userId', 'fullName profilePicture');
+        ).populate('userId', 'fullName profilePicture email');
 
         if (!request) {
             return res.status(404).json({ 
@@ -575,10 +698,8 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        // Format dates in Philippine Time
+        // Format response
         const createdPhTime = formatInPhilippineTime(request.createdAt);
-        
-        // Get user data if populated
         const userProfile = request.userId ? {
             profilePicture: getUserProfilePicture(request.userId),
             fullName: request.userId.fullName || request.fullName || 'Unknown User'
@@ -586,16 +707,6 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
             profilePicture: '/images/default-profile.png',
             fullName: request.fullName || 'Unknown User'
         };
-
-        // Format scheduled claim date in Philippine Time if exists
-        let formattedScheduledDate = 'Not scheduled';
-        let formattedScheduledTime = 'Not scheduled';
-        
-        if (request.scheduledClaimDate) {
-            const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
-            formattedScheduledDate = scheduledPhTime.formattedDate;
-            formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
-        }
 
         const formattedRequest = {
             ...request.toObject(),
@@ -605,8 +716,10 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
                 : request.documentTypes || 'N/A',
             formattedDate: createdPhTime.formattedDate,
             formattedTime: createdPhTime.formattedTime,
-            formattedScheduledDate: formattedScheduledDate,
-            formattedScheduledTime: formattedScheduledTime,
+            formattedAdminPickupPeriod: `${new Date(request.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(request.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}`,
+            hasAdminPickupPeriod: true,
+            availableTimeSlots: request.adminPickupPeriod.availableTimeSlots,
+            formattedEstimatedCompletion: request.formattedEstimatedCompletion,
             userProfile: userProfile
         };
 
@@ -615,23 +728,30 @@ router.put("/:id/ready", verifySession, checkNotBanned, async (req, res) => {
             request: formattedRequest
         });
 
+        // Emit notification to resident
+        req.app.get('io').emit('request-notification', {
+            userId: request.userId._id,
+            message: `Your document is ready for pickup! Please choose a time slot between ${formattedRequest.formattedAdminPickupPeriod}`,
+            requestId: request._id
+        });
+
         res.status(200).json({
-            message: "Request marked as ready to claim!",
+            message: "Pickup period set successfully! Resident will be notified to choose a time slot.",
             request: formattedRequest
         });
     } catch (error) {
-        console.error("Error updating request:", error);
+        console.error("Error setting pickup period:", error);
         res.status(500).json({ 
             error: "Server error",
-            message: "Failed to update request status. Please try again later."
+            message: "Failed to set pickup period. Please try again later."
         });
     }
 });
 
-// UPDATED: Schedule pickup (sets status to "Scheduled for Pickup") - FIXED FOR PHILIPPINE TIME
-router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, res) => {
+// NEW: Choose time slot (Resident)
+router.put("/:id/choose-timeslot", verifySession, checkNotBanned, async (req, res) => {
     try {
-        const { scheduledClaimDate, scheduledClaimTime, pickupNotes } = req.body;
+        const { selectedDate, selectedTime, pickupNotes } = req.body;
         const request = await Request.findById(req.params.id);
 
         if (!request) {
@@ -644,7 +764,6 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
 
         // FIXED: Proper user ID comparison
         if (request.userId.toString() !== req.session.userId.toString()) {
-            console.log(`User ID mismatch: Request user ${request.userId}, Session user ${req.session.userId}`);
             return res.status(403).json({
                 error: "Forbidden",
                 message: "You can only schedule pickup for your own requests",
@@ -652,50 +771,32 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
             });
         }
 
-        // Allow both "Ready to Claim" and "Scheduled for Pickup" status for editing
-        if (request.status !== 'Ready to Claim' && request.status !== 'Scheduled for Pickup') {
+        // Check if admin has set pickup period
+        if (!request.hasAdminPickupPeriod) {
             return res.status(400).json({
                 error: "Bad Request",
-                message: "Only requests with 'Ready to Claim' or 'Scheduled for Pickup' status can be scheduled for pickup",
+                message: "Admin has not set a pickup period yet. Please wait for notification.",
                 success: false
             });
         }
 
-        // Validate scheduled claim date and time
-        if (!scheduledClaimDate || !scheduledClaimTime) {
-            return res.status(400).json({
-                error: "Validation error",
-                message: "Scheduled claim date and time are required",
-                success: false
-            });
-        }
-
-        // FIX: Add better validation logging
-        console.log('Received schedule data:', { 
-            scheduledClaimDate, 
-            scheduledClaimTime, 
-            pickupNotes,
-            requestId: req.params.id,
-            currentStatus: request.status
-        });
-
-        const validation = validateScheduledClaim(scheduledClaimDate, scheduledClaimTime);
-        console.log('Validation result:', validation);
-        
+        // Validate time slot selection
+        const validation = validateTimeSlot(request, selectedDate, selectedTime);
         if (!validation.valid) {
             return res.status(400).json({
                 error: "Validation error",
-                message: validation.message || "Invalid scheduled claim date and time",
+                message: validation.message,
                 success: false
             });
         }
 
+        // Update the request with selected time slot
         const updatedRequest = await Request.findByIdAndUpdate(
             req.params.id,
             {
                 status: "Scheduled for Pickup",
-                scheduledClaimDate: new Date(scheduledClaimDate),
-                scheduledClaimTime: scheduledClaimTime,
+                scheduledClaimDate: new Date(selectedDate),
+                scheduledClaimTime: selectedTime,
                 pickupNotes: pickupNotes || '',
                 updatedAt: new Date()
             },
@@ -727,6 +828,12 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
             formattedTime: createdPhTime.formattedTime,
             formattedScheduledDate: scheduledPhTime.formattedDate,
             formattedScheduledTime: updatedRequest.scheduledClaimTime || 'Not scheduled',
+            formattedAdminPickupPeriod: updatedRequest.adminPickupPeriod ? 
+                `${new Date(updatedRequest.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(updatedRequest.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}` 
+                : 'Not set',
+            hasAdminPickupPeriod: !!(updatedRequest.adminPickupPeriod && updatedRequest.adminPickupPeriod.startDate && updatedRequest.adminPickupPeriod.endDate),
+            availableTimeSlots: updatedRequest.adminPickupPeriod?.availableTimeSlots || [],
+            formattedEstimatedCompletion: updatedRequest.formattedEstimatedCompletion,
             userProfile: userProfile
         };
 
@@ -735,16 +842,19 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
             request: formattedRequest
         });
 
-        const actionMessage = request.status === 'Scheduled for Pickup' ? 
-            'Schedule updated successfully!' : 'Pickup scheduled successfully!';
+        // Notify admin that resident has chosen a time slot
+        req.app.get('io').emit('admin-notification', {
+            message: `Resident ${userProfile.fullName} has scheduled pickup for ${formattedRequest.formattedScheduledDate} at ${formattedRequest.formattedScheduledTime}`,
+            requestId: updatedRequest._id
+        });
 
         res.status(200).json({
-            message: `${actionMessage} Scheduled for ${formattedRequest.formattedScheduledDate} at ${formattedRequest.formattedScheduledTime}`,
+            message: `Pickup scheduled successfully for ${formattedRequest.formattedScheduledDate} at ${formattedRequest.formattedScheduledTime}`,
             request: formattedRequest,
             success: true
         });
     } catch (error) {
-        console.error("Error scheduling pickup:", error);
+        console.error("Error choosing time slot:", error);
         res.status(500).json({ 
             error: "Server error",
             message: "Failed to schedule pickup. Please try again later.",
@@ -753,13 +863,23 @@ router.put("/:id/schedule-pickup", verifySession, checkNotBanned, async (req, re
     }
 });
 
-// Admin marks request as claimed - FIXED FOR PHILIPPINE TIME
-router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
+// Reject request with reason
+router.put("/:id/reject", verifySession, checkNotBanned, async (req, res) => {
     try {
+        const { rejectionReason } = req.body;
+
+        if (!rejectionReason || rejectionReason.trim() === '') {
+            return res.status(400).json({ 
+                error: "Validation error", 
+                message: "Rejection reason is required" 
+            });
+        }
+
         const request = await Request.findByIdAndUpdate(
             req.params.id,
             {
-                status: "Claimed",
+                status: "Rejected",
+                rejectionReason: rejectionReason.trim(),
                 updatedAt: new Date()
             },
             { new: true }
@@ -772,10 +892,8 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
             });
         }
 
-        // Format dates in Philippine Time
+        // Format response
         const createdPhTime = formatInPhilippineTime(request.createdAt);
-        
-        // Get user data if populated
         const userProfile = request.userId ? {
             profilePicture: getUserProfilePicture(request.userId),
             fullName: request.userId.fullName || request.fullName || 'Unknown User'
@@ -784,7 +902,6 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
             fullName: request.fullName || 'Unknown User'
         };
 
-        // Format scheduled claim date in Philippine Time if exists
         let formattedScheduledDate = 'Not scheduled';
         let formattedScheduledTime = 'Not scheduled';
         
@@ -804,6 +921,163 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
             formattedTime: createdPhTime.formattedTime,
             formattedScheduledDate: formattedScheduledDate,
             formattedScheduledTime: formattedScheduledTime,
+            formattedAdminPickupPeriod: request.adminPickupPeriod ? 
+                `${new Date(request.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(request.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}` 
+                : 'Not set',
+            hasAdminPickupPeriod: !!(request.adminPickupPeriod && request.adminPickupPeriod.startDate && request.adminPickupPeriod.endDate),
+            availableTimeSlots: request.adminPickupPeriod?.availableTimeSlots || [],
+            formattedEstimatedCompletion: request.formattedEstimatedCompletion,
+            userProfile: userProfile
+        };
+
+        req.app.get('io').emit('request-update', {
+            type: 'updated',
+            request: formattedRequest
+        });
+
+        res.status(200).json({
+            message: "Request rejected successfully!",
+            request: formattedRequest
+        });
+    } catch (error) {
+        console.error("Error rejecting request:", error);
+        res.status(500).json({ 
+            error: "Server error",
+            message: "Failed to reject request. Please try again later."
+        });
+    }
+});
+
+// Mark request as processing
+router.put("/:id/process", verifySession, checkNotBanned, async (req, res) => {
+    try {
+        const request = await Request.findByIdAndUpdate(
+            req.params.id,
+            {
+                status: "Processing",
+                processingStage: "Processing",
+                updatedAt: new Date()
+            },
+            { new: true }
+        ).populate('userId', 'fullName profilePicture');
+
+        if (!request) {
+            return res.status(404).json({ 
+                error: "Not found", 
+                message: "Request not found" 
+            });
+        }
+
+        // Format response
+        const createdPhTime = formatInPhilippineTime(request.createdAt);
+        const userProfile = request.userId ? {
+            profilePicture: getUserProfilePicture(request.userId),
+            fullName: request.userId.fullName || request.fullName || 'Unknown User'
+        } : {
+            profilePicture: '/images/default-profile.png',
+            fullName: request.fullName || 'Unknown User'
+        };
+
+        let formattedScheduledDate = 'Not scheduled';
+        let formattedScheduledTime = 'Not scheduled';
+        
+        if (request.scheduledClaimDate) {
+            const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+            formattedScheduledDate = scheduledPhTime.formattedDate;
+            formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+        }
+
+        const formattedRequest = {
+            ...request.toObject(),
+            id: request._id.toString(),
+            documentType: Array.isArray(request.documentTypes) 
+                ? request.documentTypes.join(', ') 
+                : request.documentTypes || 'N/A',
+            formattedDate: createdPhTime.formattedDate,
+            formattedTime: createdPhTime.formattedTime,
+            formattedScheduledDate: formattedScheduledDate,
+            formattedScheduledTime: formattedScheduledTime,
+            formattedAdminPickupPeriod: request.adminPickupPeriod ? 
+                `${new Date(request.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(request.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}` 
+                : 'Not set',
+            hasAdminPickupPeriod: !!(request.adminPickupPeriod && request.adminPickupPeriod.startDate && request.adminPickupPeriod.endDate),
+            availableTimeSlots: request.adminPickupPeriod?.availableTimeSlots || [],
+            formattedEstimatedCompletion: request.formattedEstimatedCompletion,
+            userProfile: userProfile
+        };
+
+        req.app.get('io').emit('request-update', {
+            type: 'updated',
+            request: formattedRequest
+        });
+
+        res.status(200).json({
+            message: "Request marked as processing!",
+            request: formattedRequest
+        });
+    } catch (error) {
+        console.error("Error updating request:", error);
+        res.status(500).json({ 
+            error: "Server error",
+            message: "Failed to update request status. Please try again later."
+        });
+    }
+});
+
+// Admin marks request as claimed
+router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
+    try {
+        const request = await Request.findByIdAndUpdate(
+            req.params.id,
+            {
+                status: "Claimed",
+                updatedAt: new Date()
+            },
+            { new: true }
+        ).populate('userId', 'fullName profilePicture');
+
+        if (!request) {
+            return res.status(404).json({ 
+                error: "Not found", 
+                message: "Request not found" 
+            });
+        }
+
+        // Format response
+        const createdPhTime = formatInPhilippineTime(request.createdAt);
+        const userProfile = request.userId ? {
+            profilePicture: getUserProfilePicture(request.userId),
+            fullName: request.userId.fullName || request.fullName || 'Unknown User'
+        } : {
+            profilePicture: '/images/default-profile.png',
+            fullName: request.fullName || 'Unknown User'
+        };
+
+        let formattedScheduledDate = 'Not scheduled';
+        let formattedScheduledTime = 'Not scheduled';
+        
+        if (request.scheduledClaimDate) {
+            const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+            formattedScheduledDate = scheduledPhTime.formattedDate;
+            formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+        }
+
+        const formattedRequest = {
+            ...request.toObject(),
+            id: request._id.toString(),
+            documentType: Array.isArray(request.documentTypes) 
+                ? request.documentTypes.join(', ') 
+                : request.documentTypes || 'N/A',
+            formattedDate: createdPhTime.formattedDate,
+            formattedTime: createdPhTime.formattedTime,
+            formattedScheduledDate: formattedScheduledDate,
+            formattedScheduledTime: formattedScheduledTime,
+            formattedAdminPickupPeriod: request.adminPickupPeriod ? 
+                `${new Date(request.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(request.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}` 
+                : 'Not set',
+            hasAdminPickupPeriod: !!(request.adminPickupPeriod && request.adminPickupPeriod.startDate && request.adminPickupPeriod.endDate),
+            availableTimeSlots: request.adminPickupPeriod?.availableTimeSlots || [],
+            formattedEstimatedCompletion: request.formattedEstimatedCompletion,
             userProfile: userProfile
         };
 
@@ -825,84 +1099,120 @@ router.put("/:id/claim", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// FIXED: Clean up user's archived requests (only claimed documents for the logged-in user)
-router.delete("/cleanup-archive", verifySession, checkNotBanned, async (req, res) => {
+// Bulk actions for requests
+router.post("/bulk-action", verifySession, checkNotBanned, async (req, res) => {
     try {
-        console.log(`Cleaning up archive for user: ${req.session.userId}`);
-        
-        const result = await Request.deleteMany({
-            userId: req.session.userId,
-            status: "Claimed"
-        });
+        const { requestIds, action, rejectionReason } = req.body;
 
-        console.log(`Cleanup result: ${result.deletedCount} documents deleted`);
+        if (!requestIds || !Array.isArray(requestIds) || requestIds.length === 0) {
+            return res.status(400).json({ 
+                error: "Validation error", 
+                message: "Request IDs are required" 
+            });
+        }
 
-        req.app.get('io').emit('request-update', {
-            type: 'deleted',
-            count: result.deletedCount
+        if (!['approve', 'reject', 'ready', 'claim', 'process'].includes(action)) {
+            return res.status(400).json({ 
+                error: "Validation error", 
+                message: "Invalid action" 
+            });
+        }
+
+        let updateData = {};
+        switch (action) {
+            case 'approve':
+                updateData.status = 'Approved';
+                updateData.processingStage = 'Processing';
+                break;
+            case 'reject':
+                updateData.status = 'Rejected';
+                if (rejectionReason) {
+                    updateData.rejectionReason = rejectionReason;
+                }
+                break;
+            case 'ready':
+                updateData.status = 'Ready to Claim';
+                updateData.processingStage = 'Ready';
+                break;
+            case 'claim':
+                updateData.status = 'Claimed';
+                break;
+            case 'process':
+                updateData.status = 'Processing';
+                updateData.processingStage = 'Processing';
+                break;
+        }
+
+        updateData.updatedAt = new Date();
+
+        const result = await Request.updateMany(
+            { _id: { $in: requestIds } },
+            updateData
+        );
+
+        // Emit updates for each request
+        const updatedRequests = await Request.find({ _id: { $in: requestIds } })
+            .populate('userId', 'fullName profilePicture')
+            .lean();
+
+        updatedRequests.forEach(request => {
+            const createdPhTime = formatInPhilippineTime(request.createdAt);
+            const userProfile = request.userId ? {
+                profilePicture: getUserProfilePicture(request.userId),
+                fullName: request.userId.fullName || request.fullName || 'Unknown User'
+            } : {
+                profilePicture: '/images/default-profile.png',
+                fullName: request.fullName || 'Unknown User'
+            };
+
+            let formattedScheduledDate = 'Not scheduled';
+            let formattedScheduledTime = 'Not scheduled';
+            
+            if (request.scheduledClaimDate) {
+                const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
+                formattedScheduledDate = scheduledPhTime.formattedDate;
+                formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
+            }
+
+            const formattedRequest = {
+                ...request,
+                id: request._id.toString(),
+                documentType: Array.isArray(request.documentTypes) 
+                    ? request.documentTypes.join(', ') 
+                    : request.documentTypes || 'N/A',
+                formattedDate: createdPhTime.formattedDate,
+                formattedTime: createdPhTime.formattedTime,
+                formattedScheduledDate: formattedScheduledDate,
+                formattedScheduledTime: formattedScheduledTime,
+                formattedAdminPickupPeriod: request.adminPickupPeriod ? 
+                    `${new Date(request.adminPickupPeriod.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} to ${new Date(request.adminPickupPeriod.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}` 
+                    : 'Not set',
+                hasAdminPickupPeriod: !!(request.adminPickupPeriod && request.adminPickupPeriod.startDate && request.adminPickupPeriod.endDate),
+                availableTimeSlots: request.adminPickupPeriod?.availableTimeSlots || [],
+                formattedEstimatedCompletion: request.estimatedCompletionDate ? 
+                    new Date(request.estimatedCompletionDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                    }) : 'Not set',
+                userProfile: userProfile
+            };
+
+            req.app.get('io').emit('request-update', {
+                type: 'updated',
+                request: formattedRequest
+            });
         });
 
         res.status(200).json({
-            message: `Successfully deleted ${result.deletedCount} claimed documents from your archive`,
-            deletedCount: result.deletedCount,
-            success: true
+            message: `Successfully ${action}ed ${result.modifiedCount} request(s)`,
+            processedCount: result.modifiedCount
         });
     } catch (error) {
-        console.error("Error cleaning up user archive:", error);
+        console.error("Error performing bulk action:", error);
         res.status(500).json({ 
             error: "Server error",
-            message: "Failed to clean up archive. Please try again later.",
-            success: false
-        });
-    }
-});
-
-// Delete rejected request
-router.delete("/:id", verifySession, checkNotBanned, async (req, res) => {
-    try {
-        const request = await Request.findById(req.params.id);
-
-        if (!request) {
-            return res.status(404).json({ 
-                error: "Not found", 
-                message: "Request not found",
-                success: false
-            });
-        }
-
-        if (request.userId.toString() !== req.session.userId.toString()) {
-            return res.status(403).json({
-                error: "Forbidden",
-                message: "You can only delete your own requests",
-                success: false
-            });
-        }
-
-        if (request.status !== 'Rejected') {
-            return res.status(400).json({
-                error: "Bad Request",
-                message: "Only rejected requests can be deleted",
-                success: false
-            });
-        }
-
-        await Request.findByIdAndDelete(req.params.id);
-
-        req.app.get('io').emit('request-update', {
-            type: 'deleted',
-            requestId: req.params.id
-        });
-
-        res.status(200).json({
-            message: "Request deleted successfully!",
-            success: true
-        });
-    } catch (error) {
-        console.error("Error deleting request:", error);
-        res.status(500).json({ 
-            error: "Server error",
-            message: "Failed to delete request. Please try again later.",
-            success: false
+            message: "Failed to perform bulk action. Please try again later."
         });
     }
 });
@@ -911,7 +1221,7 @@ router.delete("/:id", verifySession, checkNotBanned, async (req, res) => {
 router.post("/cleanup", verifySession, checkNotBanned, async (req, res) => {
     try {
         const result = await Request.deleteMany({
-            status: { $in: ['Approved', 'Rejected', 'Claimed'] }
+            status: { $in: ['Archived', 'Expired'] }
         });
 
         req.app.get('io').emit('request-update', {
@@ -932,105 +1242,54 @@ router.post("/cleanup", verifySession, checkNotBanned, async (req, res) => {
     }
 });
 
-// Bulk actions for requests - FIXED FOR PHILIPPINE TIME
-router.post("/bulk-action", verifySession, checkNotBanned, async (req, res) => {
+// Delete a single request (for residents to delete rejected requests)
+router.delete("/:id", verifySession, checkNotBanned, async (req, res) => {
     try {
-        const { requestIds, action, rejectionReason } = req.body;
+        const request = await Request.findById(req.params.id);
 
-        if (!requestIds || !Array.isArray(requestIds) || requestIds.length === 0) {
-            return res.status(400).json({ 
-                error: "Validation error", 
-                message: "Request IDs are required" 
+        if (!request) {
+            return res.status(404).json({ 
+                error: "Not found", 
+                message: "Request not found",
+                success: false
             });
         }
 
-        if (!['approve', 'reject', 'ready', 'claim'].includes(action)) {
-            return res.status(400).json({ 
-                error: "Validation error", 
-                message: "Invalid action" 
+        // Check if the request belongs to the user
+        if (request.userId.toString() !== req.session.userId.toString()) {
+            return res.status(403).json({
+                error: "Forbidden",
+                message: "You can only delete your own requests",
+                success: false
             });
         }
 
-        let updateData = {};
-        switch (action) {
-            case 'approve':
-                updateData.status = 'Approved';
-                break;
-            case 'reject':
-                updateData.status = 'Rejected';
-                if (rejectionReason) {
-                    updateData.rejectionReason = rejectionReason;
-                }
-                break;
-            case 'ready':
-                updateData.status = 'Ready to Claim';
-                break;
-            case 'claim':
-                updateData.status = 'Claimed';
-                break;
+        // Only allow deletion of rejected requests
+        if (request.status !== 'Rejected') {
+            return res.status(400).json({
+                error: "Bad Request",
+                message: "Only rejected requests can be deleted",
+                success: false
+            });
         }
 
-        updateData.updatedAt = new Date();
+        await Request.findByIdAndDelete(req.params.id);
 
-        const result = await Request.updateMany(
-            { _id: { $in: requestIds } },
-            updateData
-        );
-
-        // Emit updates for each request
-        const updatedRequests = await Request.find({ _id: { $in: requestIds } })
-            .populate('userId', 'fullName profilePicture')
-            .lean();
-
-        updatedRequests.forEach(request => {
-            // Format dates in Philippine Time
-            const createdPhTime = formatInPhilippineTime(request.createdAt);
-            const userProfile = request.userId ? {
-                profilePicture: getUserProfilePicture(request.userId),
-                fullName: request.userId.fullName || request.fullName || 'Unknown User'
-            } : {
-                profilePicture: '/images/default-profile.png',
-                fullName: request.fullName || 'Unknown User'
-            };
-
-            // Format scheduled claim date in Philippine Time if exists
-            let formattedScheduledDate = 'Not scheduled';
-            let formattedScheduledTime = 'Not scheduled';
-            
-            if (request.scheduledClaimDate) {
-                const scheduledPhTime = formatInPhilippineTime(request.scheduledClaimDate);
-                formattedScheduledDate = scheduledPhTime.formattedDate;
-                formattedScheduledTime = request.scheduledClaimTime || 'Not scheduled';
-            }
-
-            const formattedRequest = {
-                ...request,
-                id: request._id.toString(),
-                documentType: Array.isArray(request.documentTypes) 
-                    ? request.documentTypes.join(', ') 
-                    : request.documentTypes || 'N/A',
-                formattedDate: createdPhTime.formattedDate,
-                formattedTime: createdPhTime.formattedTime,
-                formattedScheduledDate: formattedScheduledDate,
-                formattedScheduledTime: formattedScheduledTime,
-                userProfile: userProfile
-            };
-
-            req.app.get('io').emit('request-update', {
-                type: 'updated',
-                request: formattedRequest
-            });
+        req.app.get('io').emit('request-update', {
+            type: 'deleted',
+            requestId: req.params.id
         });
 
         res.status(200).json({
-            message: `Successfully ${action}ed ${result.modifiedCount} request(s)`,
-            processedCount: result.modifiedCount
+            message: "Request deleted successfully",
+            success: true
         });
     } catch (error) {
-        console.error("Error performing bulk action:", error);
+        console.error("Error deleting request:", error);
         res.status(500).json({ 
             error: "Server error",
-            message: "Failed to perform bulk action. Please try again later."
+            message: "Failed to delete request. Please try again later.",
+            success: false
         });
     }
 });

@@ -976,7 +976,7 @@
                     <div class="certification-container">
                         <div class="checkbox-item">
                             <input type="checkbox" id="agreeTerms" required>
-                            <label for="agreeTerms">I certify that the information provided is true.</label>
+                            <label for="agreeTerms">I certify that the information provided is true and correct, and I am 18 years of age or older.</label>
                         </div>
                     </div>
                     
@@ -1236,7 +1236,7 @@
             const isValid = phonePattern.test(phoneValue);
             
             if (!isValid) {
-                validationElement.textContent = '';
+                validationElement.textContent = 'Enter a valid phone number (11 digits starting with 09)';
                 validationElement.className = 'phone-validation phone-invalid';
                 validationElement.style.display = 'block';
                 phoneInput.classList.add('input-error');
@@ -1268,7 +1268,7 @@
             const isValid = phonePattern.test(phoneValue);
             
             if (!isValid) {
-                validationElement.textContent = '';
+                validationElement.textContent = 'Enter a valid phone number (11 digits starting with 09)';
                 validationElement.className = 'phone-validation phone-invalid';
                 validationElement.style.display = 'block';
                 phoneInput.classList.add('input-error');

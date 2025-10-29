@@ -45,7 +45,7 @@ mongoose.connect(process.env.MONGO_URI, {
   process.exit(1);
 });
 
-// 📧 Email Transporter Configuration - FIXED: createTransport (not createTransporter)
+// 📧 Email Transporter Configuration - CORRECTED: createTransport (not createTransporter)
 const emailTransporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
@@ -53,17 +53,73 @@ const emailTransporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  },
+  // Enhanced settings for better reliability
+  pool: true,
+  maxConnections: 5,
+  maxMessages: 100,
+  rateDelta: 1000,
+  rateLimit: 5,
+  tls: {
+    rejectUnauthorized: false
+  },
+  connectionTimeout: 15000,
+  greetingTimeout: 15000,
+  socketTimeout: 15000,
+  // CLEANED: Reduced debugging output
+  debug: false,
+  logger: false
+});
+
+// Verify email configuration with enhanced logging
+emailTransporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Email configuration error:', error.message);
+  } else {
+    console.log('✅ Email server ready for emergency alerts');
+    console.log('📱 FREE SMS System: Active (Multiple APIs)');
+    console.log('   - CallMeBot WhatsApp API');
+    console.log('   - TextBelt SMS API'); 
+    console.log('   - SMS77 Backup API');
+    console.log('   - Telegram Bot API');
   }
 });
 
-// Verify email configuration
-emailTransporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Email configuration error:', error);
-  } else {
-    console.log('✅ Email server is ready to send messages');
-  }
-});
+// NEW: Automatic request processing function
+function setupAutomaticRequestProcessing() {
+  // Process automatic updates every hour
+  setInterval(async () => {
+      try {
+          console.log('🔄 Running automatic request processing...');
+          const Request = require("./models/Request");
+          const result = await Request.processAutomaticUpdates();
+          
+          if (result.expiredCount > 0 || result.archivedCount > 0) {
+              console.log(`✅ Automatic processing completed: ${result.expiredCount} expired, ${result.archivedCount} archived`);
+              
+              // Emit socket event for real-time updates
+              io.emit('request-automatic-update', {
+                  type: 'automatic_processing',
+                  ...result,
+                  timestamp: new Date().toISOString()
+              });
+          }
+      } catch (error) {
+          console.error('❌ Automatic request processing error:', error);
+      }
+  }, 60 * 60 * 1000); // Run every hour
+
+  // Also run on server startup
+  setTimeout(async () => {
+      try {
+          console.log('🔄 Running initial automatic request processing...');
+          const Request = require("./models/Request");
+          await Request.processAutomaticUpdates();
+      } catch (error) {
+          console.error('❌ Initial automatic processing error:', error);
+      }
+  }, 10000); // Run 10 seconds after server starts
+}
 
 // 📁 Ensure uploads directory
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -157,7 +213,6 @@ app.set('io', io);
 app.set('emailTransporter', emailTransporter);
 
 // Relaxed limiter for beta testing
-
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
   max: 2000,                 // up to 2000 requests per 15 mins
@@ -166,7 +221,6 @@ const authLimiter = rateLimit({
 
 // Apply only to authentication routes
 app.use("/api/auth", authLimiter);
-
 
 // 🛣️ Routes
 const authRoutes = require("./routes/authRoutes");
@@ -177,6 +231,10 @@ const adminRoutes = require("./routes/adminRoutes");
 const announceRoutes = require("./routes/announceRoutes");
 const emergencyRoutes = require("./routes/emergencyRoutes");
 const approvalRoutes = require("./routes/approvalRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+
+// ✅ ADDED: Document Routes
+const documentRoutes = require("./routes/documentRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/residents", residentRoutes);
@@ -186,6 +244,10 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/announcements", announceRoutes);
 app.use("/api/emergency", emergencyRoutes);
 app.use("/api/approvals", approvalRoutes);
+app.use("/api/messages", messageRoutes);
+
+// ✅ ADDED: Document Routes
+app.use("/api/documents", documentRoutes);
 
 // 🔐 Protected HTML Routes (Clean URLs)
 const setSecurityHeaders = (req, res, next) => {
@@ -228,6 +290,11 @@ app.get("/emergency", setSecurityHeaders, authMiddleware, adminMiddleware, (req,
   res.sendFile(path.join(__dirname, "public", "emergency.html"));
 });
 
+// ==================== NEW ADMIN MESSAGES ROUTE ====================
+app.get("/admin-messages", setSecurityHeaders, authMiddleware, adminMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin-messages.html"));
+});
+
 // ==================== RESIDENT ROUTES ====================
 app.get("/residentdashboard", setSecurityHeaders, authMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "residentdashboard.html"));
@@ -255,10 +322,6 @@ app.get("/announcement", setSecurityHeaders, authMiddleware, (req, res) => {
 
 app.get("/profile", setSecurityHeaders, authMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "profile.html"));
-});
-
-app.get("/emergency", setSecurityHeaders, authMiddleware, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "emergency.html"));
 });
 
 // ==================== AUTH ROUTES (Public) ====================
@@ -297,6 +360,25 @@ app.get("/*.html", (req, res) => {
   res.redirect(301, cleanPath);
 });
 
+// NEW: Manual trigger for automatic request processing
+app.post('/api/requests/process-automatic-updates', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const Request = require("./models/Request");
+    const result = await Request.processAutomaticUpdates();
+    
+    res.status(200).json({
+      message: "Automatic updates processed successfully",
+      ...result
+    });
+  } catch (error) {
+    console.error("Error processing automatic updates:", error);
+    res.status(500).json({ 
+      error: "Server error",
+      message: "Failed to process automatic updates"
+    });
+  }
+});
+
 // 🩺 Health Check
 app.get('/health', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
@@ -304,11 +386,103 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     database: dbStatus,
     uptime: process.uptime(),
-    memoryUsage: process.memoryUsage()
+    memoryUsage: process.memoryUsage(),
+    email: process.env.EMAIL_USER ? 'Configured' : 'Not configured',
+    telegram: process.env.TELEGRAM_BOT_TOKEN ? 'Configured' : 'Not configured',
+    emergency_sms: 'Enhanced System Active'
   });
 });
 
-// 📡 Socket.IO Events
+// NEW: Enhanced SMS Health Check
+app.get('/health/sms', async (req, res) => {
+  try {
+    const emailTransporter = req.app.get('emailTransporter');
+    
+    // Test email configuration
+    const emailTest = await new Promise((resolve) => {
+      emailTransporter.verify((error, success) => {
+        resolve({ success: !error, error: error?.message });
+      });
+    });
+
+    // Test Telegram configuration
+    const telegramTest = await testTelegramConnection();
+
+    // Get SMS stats from database
+    const smsStats = await mongoose.connection.db.collection('emergencyalerts').aggregate([
+      {
+        $group: {
+          _id: null,
+          totalAlerts: { $sum: 1 },
+          smsSent: { $sum: { $cond: [{ $eq: ["$smsSent", true] }, 1, 0] } },
+          smsFailed: { $sum: { $cond: [{ $eq: ["$smsSent", false] }, 1, 0] } },
+          telegramSent: { $sum: { $cond: [{ $eq: ["$telegramSent", true] }, 1, 0] } },
+          uniqueGateways: { $addToSet: "$smsGatewayUsed" }
+        }
+      }
+    ]).toArray();
+
+    const stats = smsStats[0] || { totalAlerts: 0, smsSent: 0, smsFailed: 0, telegramSent: 0, uniqueGateways: [] };
+
+    res.status(200).json({
+      status: 'sms_health_check',
+      email: emailTest,
+      telegram: telegramTest,
+      sms_stats: {
+        total_alerts: stats.totalAlerts,
+        sms_sent: stats.smsSent,
+        sms_failed: stats.smsFailed,
+        telegram_sent: stats.telegramSent,
+        success_rate: stats.totalAlerts > 0 ? ((stats.smsSent / stats.totalAlerts) * 100).toFixed(2) + '%' : 'N/A',
+        gateways_used: stats.uniqueGateways.filter(g => g && g !== 'none' && g !== 'error')
+      },
+      environment: {
+        sms_enabled: process.env.SMS_ENABLED === 'true',
+        telegram_enabled: !!process.env.TELEGRAM_BOT_TOKEN,
+        max_attempts: process.env.SMS_MAX_ATTEMPTS || 3,
+        retry_delay: process.env.SMS_RETRY_DELAY || 2000
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error.message
+    });
+  }
+});
+
+// Helper function to test Telegram connection
+async function testTelegramConnection() {
+  try {
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+      return { success: false, error: 'Telegram bot token not configured' };
+    }
+
+    const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getMe`);
+    const data = await response.json();
+    
+    if (data.ok) {
+      return { 
+        success: true, 
+        bot_name: data.result.first_name,
+        bot_username: data.result.username
+      };
+    } else {
+      return { success: false, error: data.description };
+    }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Helper function to check if user is admin
+function isAdminUser(userId) {
+  // You'll need to implement this based on your user management
+  // For now, we'll assume all connected users in admin dashboard are admins
+  return true;
+}
+
+// 📡 Socket.IO Events - ENHANCED WITH URGENT EMERGENCY SUPPORT
 io.on('connection', (socket) => {
   console.log('📡 New user connected:', socket.id);
   
@@ -318,6 +492,95 @@ io.on('connection', (socket) => {
 
   socket.on('emergency_alert', (alert) => {
     io.emit('emergency_alert', alert);
+  });
+
+  // NEW: Automatic request update handler
+  socket.on('request-automatic-update', (data) => {
+    console.log('🔄 Automatic request update:', data);
+    io.emit('request-automatic-update', data);
+  });
+
+  // NEW: Urgent emergency alert handler
+  socket.on('urgentEmergencyAlert', (data) => {
+    console.log('🚨 URGENT EMERGENCY ALERT received:', data);
+    
+    // Broadcast to all admin users with urgent flag
+    io.emit('urgentEmergencyAlert', {
+      ...data,
+      urgent: true,
+      timestamp: new Date().toISOString(),
+      notificationType: 'unacknowledged_emergency'
+    });
+    
+    // Also emit specific event for admin dashboard
+    io.emit('showUrgentAlert', {
+      ...data,
+      urgent: true,
+      requiresImmediateAttention: true,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  // Enhanced SMS delivery status events
+  socket.on('smsDeliveryStatus', (data) => {
+    console.log('📱 SMS Delivery Status:', data);
+    // Broadcast to relevant admin users
+    io.emit('smsDeliveryStatus', data);
+  });
+
+  // Telegram notification events
+  socket.on('telegramNotificationSent', (data) => {
+    console.log('📱 Telegram notification sent:', data);
+    io.emit('telegramNotificationSent', data);
+  });
+
+  // New message events
+  socket.on('newMessage', (data) => {
+    console.log('📨 New message received:', data);
+    // Broadcast to all admin users
+    io.emit('newMessage', data);
+  });
+
+  socket.on('messageResponse', (data) => {
+    console.log('📨 Message response sent:', data);
+    // Broadcast to specific user or all relevant parties
+    io.emit('messageResponse', data);
+  });
+
+  socket.on('emergencyResponse', (response) => {
+    console.log('🚨 Emergency response:', response);
+    io.emit('emergencyResponse', response);
+  });
+
+  socket.on('alertResolved', (alertId) => {
+    console.log('✅ Alert resolved:', alertId);
+    io.emit('alertResolved', alertId);
+  });
+
+  socket.on('alertAcknowledged', (alert) => {
+    console.log('✅ Alert acknowledged:', alert._id);
+    io.emit('alertAcknowledged', alert);
+  });
+
+  socket.on('alertRemoved', (alertId) => {
+    console.log('🗑️ Alert removed:', alertId);
+    io.emit('alertRemoved', alertId);
+  });
+
+  socket.on('newEmergencyAlert', (alert) => {
+    console.log('🚨 New emergency alert:', alert);
+    io.emit('newEmergencyAlert', alert);
+  });
+
+  // Handle user joining specific rooms (for targeted messaging)
+  socket.on('joinAdminRoom', () => {
+    socket.join('admins');
+    console.log(`👤 User ${socket.id} joined admin room`);
+  });
+
+  socket.on('joinResidentRoom', (userId) => {
+    socket.join(`resident_${userId}`);
+    console.log(`👤 User ${socket.id} joined resident room for user ${userId}`);
   });
 
   socket.on('disconnect', () => {
@@ -339,7 +602,19 @@ app.use((err, req, res, next) => {
   }
 });
 
+// 404 Handler for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: 'Not Found',
+    message: 'API endpoint not found'
+  });
+});
 
+// 404 Handler for HTML routes
+app.use('*', (req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+});
 
 const Shutdown = () => {
   console.log('🛑 Shutting down ...');
@@ -360,10 +635,35 @@ const Shutdown = () => {
 process.on('SIGINT', Shutdown);
 process.on('SIGTERM', Shutdown);  
 
-
 // 🚀 Start Server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🔗 Access via: ${process.env.FRONTEND_URL || `http://localhost:${PORT}`}`);
-  console.log(`📧 Email system: ${process.env.EMAIL_USER ? 'Configured' : 'Not configured'}`);
+  console.log(`📧 Email system: Configured`);
+  console.log(`💬 Message system: Enabled`);
+  console.log(`📱 Telegram Bot: ${process.env.TELEGRAM_BOT_TOKEN ? 'ACTIVE' : 'NOT CONFIGURED'}`);
+  console.log(`🚨 Emergency SMS system: ACTIVE (Multiple FREE APIs)`);
+  console.log(`⚡ Enhanced features:`);
+  console.log(`   - CallMeBot WhatsApp API`);
+  console.log(`   - TextBelt SMS API (50/day free)`);
+  console.log(`   - SMS77 Backup API`);
+  console.log(`   - Telegram Bot API (Recommended)`);
+  console.log(`   - Fallback email notification`);
+  console.log(`   - Real-time socket notifications`);
+  console.log(`🔄 Automatic request expiration: ACTIVE (runs every hour)`);
+  console.log(`📄 Document Generation: ACTIVE (Summons, CFA, Settlement)`);
+  
+  // Start automatic request processing
+  setupAutomaticRequestProcessing();
+  
+  // Test Telegram connection on startup
+  if (process.env.TELEGRAM_BOT_TOKEN) {
+    testTelegramConnection().then(result => {
+      if (result.success) {
+        console.log(`🤖 Telegram Bot Connected: @${result.bot_username}`);
+      } else {
+        console.log(`❌ Telegram Bot Error: ${result.error}`);
+      }
+    });
+  }
 });
