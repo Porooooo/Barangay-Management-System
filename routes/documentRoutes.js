@@ -69,23 +69,7 @@ router.get("/cfa/:blotterId", verifySession, async (req, res) => {
     }
 });
 
-// Generate all documents for a blotter case
-router.get("/all/:blotterId", verifySession, async (req, res) => {
-    try {
-        const zipBuffer = await DocumentService.generateAllDocuments(req.params.blotterId);
-        
-        res.setHeader('Content-Type', 'application/zip');
-        res.setHeader('Content-Disposition', `attachment; filename=blotter-documents-${req.params.blotterId}.zip`);
-        
-        res.send(zipBuffer);
-    } catch (error) {
-        console.error("Error generating documents package:", error);
-        res.status(500).json({
-            error: "Server error",
-            message: "Failed to generate documents package"
-        });
-    }
-});
+
 
 // Batch generate documents for multiple cases
 router.post("/batch/:documentType", verifySession, async (req, res) => {
